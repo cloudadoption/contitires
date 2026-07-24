@@ -158,15 +158,21 @@ main .section.cards-container {
 
 /* ---- category: tire/product category tiles ---- */
 .cards.category > ul {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (width >= 900px) {
+  .cards.category > ul {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .cards.category > ul > li {
-  border: 1px solid var(--conti-grey);
+  border: 0;
   border-radius: 0;
   box-shadow: none;
-  min-height: 176px;
+  min-height: 200px;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -174,8 +180,8 @@ main .section.cards-container {
   position: absolute;
   z-index: 0;
   inset-block-end: 0;
-  inset-inline-end: -8px;
-  width: 130px;
+  inset-inline-end: 0;
+  width: 210px;
 }
 
 .cards.category > ul > li img {
@@ -218,7 +224,7 @@ main .section.cards-container {
   }
 }
 
-/* ---- coverage: plain icon-less items on a dark band (warranty coverage row) ---- */
+/* ---- coverage: icon-over-label items on a dark band (warranty coverage row) ---- */
 .cards.coverage > ul {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 24px;
@@ -232,6 +238,10 @@ main .section.cards-container {
 }
 
 .cards.coverage .cards-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   margin: 0;
   color: inherit;
   font-family: var(--heading-font-family);
@@ -239,6 +249,15 @@ main .section.cards-container {
   font-weight: bold;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.cards.coverage .cards-card-body p {
+  margin: 0;
+}
+
+.cards.coverage .cards-card-body .icon {
+  width: 40px;
+  height: 40px;
 }
 
 .cards.category > ul > li:hover,
@@ -255,6 +274,10 @@ main .section.cards-container {
 .cards.category > ul > li:hover img,
 .cards.category > ul > li:focus-within img {
   transform: translateY(-6px);
+}
+
+.cards.coverage .cards-card-body .icon img {
+  filter: invert(1);
 }
 
 /* ---- news inside a dark/black band: plain text teasers, no card chrome ---- */
@@ -290,4 +313,19 @@ main .section.black .cards.news .cards-card-body a:hover {
     border-inline-start: 1px solid rgb(255 255 255 / 25%);
     padding-inline-start: 24px;
   }
+}
+
+/* the confidence band wraps a badge image, heading, copy, the coverage
+   cards and a Learn More button - all centered, matching the live page */
+main .section.dark.cards-container {
+  text-align: center;
+}
+
+main .section.dark.cards-container .default-content-wrapper .icon {
+  width: 100px;
+  height: 120px;
+}
+
+main .section.dark.cards-container .cards-wrapper {
+  margin-top: 32px;
 }
