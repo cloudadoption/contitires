@@ -8,12 +8,10 @@
 }
 
 .cards > ul > li {
-  border: 1px solid #dadada;
-  background-color: var(--background-color);
-}
-
-.cards .cards-card-body {
-  margin: 16px;
+  background-color: var(--conti-white);
+  border-radius: 8px;
+  box-shadow: 0 0 20px 0 rgb(0 0 0 / 10%);
+  overflow: hidden;
 }
 
 .cards .cards-card-image {
@@ -24,4 +22,208 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
+}
+
+.cards .cards-card-body {
+  margin: 16px;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  color: var(--conti-black);
+}
+
+.cards .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-xs);
+  margin: 0 0 8px;
+}
+
+.cards .cards-card-body p {
+  margin: 0 0 8px;
+}
+
+.cards .cards-card-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* variants below make the whole card a click target via a "stretched link":
+   an invisible ::before on whichever <a> the author included, sized to the
+   card via the positioned <li>. no JS needed to move or duplicate markup. */
+.cards.category > ul > li,
+.cards.news > ul > li,
+.cards.highlights > ul > li {
+  position: relative;
+}
+
+.cards.category .cards-card-body a,
+.cards.news .cards-card-body a,
+.cards.highlights .cards-card-body a {
+  color: inherit;
+}
+
+.cards.category .cards-card-body a::before,
+.cards.news .cards-card-body a::before,
+.cards.highlights .cards-card-body a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* ---- news: article/news teaser cards ---- */
+.cards.news > ul {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.cards.news > ul > li img {
+  aspect-ratio: 3 / 2;
+}
+
+.cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  font-size: var(--heading-font-size-xs);
+}
+
+.cards.news .cards-card-body p {
+  font-size: var(--body-font-size-s);
+  color: var(--conti-black);
+}
+
+.cards.news .cards-card-body a {
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: var(--conti-dark-yellow);
+}
+
+/* ---- highlights: product highlight cards ---- */
+.cards.highlights > ul {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.cards.highlights > ul > li {
+  border-radius: 12px;
+  box-shadow: 0 0 40px 0 rgb(0 0 0 / 10%);
+}
+
+.cards.highlights > ul > li img {
+  aspect-ratio: 16 / 9;
+}
+
+.cards.highlights .cards-card-body {
+  margin: 0;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  font-weight: bold;
+}
+
+.cards.highlights .cards-card-body p {
+  margin: 0;
+}
+
+.cards.highlights .cards-card-body a {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--body-font-size-xs);
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-color: var(--conti-dark-yellow);
+}
+
+.cards.highlights .cards-card-body a::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-start: 8px;
+  border-inline-end: 2px solid currentcolor;
+  border-block-end: 2px solid currentcolor;
+  transform: translateY(-1px) rotate(-45deg);
+}
+
+/* ---- category: tire/product category tiles ---- */
+.cards.category > ul {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.cards.category > ul > li {
+  border: 1px solid var(--conti-grey);
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 176px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cards.category .cards-card-image {
+  position: absolute;
+  z-index: 0;
+  inset-block-end: 0;
+  inset-inline-end: -8px;
+  width: 130px;
+}
+
+.cards.category > ul > li img {
+  aspect-ratio: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.cards.category .cards-card-body {
+  position: relative;
+  z-index: 1;
+  margin: 28px 130px 16px 24px;
+}
+
+.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  display: inline;
+  font-size: var(--heading-font-size-s);
+  background-color: var(--conti-white);
+  box-decoration-break: clone;
+}
+
+.cards.category .cards-card-body a::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-inline-start: 10px;
+  border-inline-end: 2px solid currentcolor;
+  border-block-end: 2px solid currentcolor;
+  transform: translateY(-2px) rotate(-45deg);
+}
+
+@media (width >= 600px) {
+  .cards.category .cards-card-body {
+    margin-inline-end: 160px;
+  }
+
+  .cards.category .cards-card-image {
+    width: 160px;
+  }
+}
+
+.cards.category > ul > li:hover,
+.cards.category > ul > li:focus-within {
+  background-color: var(--conti-dark-black);
+  color: var(--conti-white);
+}
+
+.cards.category > ul > li:hover .cards-card-body :is(h1, h2, h3, h4, h5, h6),
+.cards.category > ul > li:focus-within .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  background-color: var(--conti-dark-black);
+}
+
+.cards.category > ul > li:hover img,
+.cards.category > ul > li:focus-within img {
+  transform: translateY(-6px);
 }

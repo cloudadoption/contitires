@@ -1,0 +1,64 @@
+.share {
+  border-top: 1px solid var(--conti-grey);
+  border-bottom: 1px solid var(--conti-grey);
+  padding: 8px;
+}
+
+.share ul {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.share a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--conti-black);
+}
+
+.share a:hover,
+.share a:focus-visible {
+  color: var(--link-hover-color);
+}
+
+.share .icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.share .icon img {
+  width: 100%;
+  height: 100%;
+}
+
+/* icon-only on narrow screens, matching the live sharebar */
+.share .share-label {
+  position: absolute;
+  overflow: hidden;
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (width >= 600px) {
+  .share .share-label {
+    position: static;
+    overflow: visible;
+    clip-path: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}

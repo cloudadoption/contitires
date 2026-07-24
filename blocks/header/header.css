@@ -1,8 +1,9 @@
-/* header and nav layout */
+/* Continental Tire header - the yellow/dark "header--dark" variant used site-wide */
+
 header .nav-wrapper {
-  background-color: var(--background-color);
+  background-color: var(--conti-yellow);
   width: 100%;
-  z-index: 2;
+  z-index: 100;
   position: fixed;
 }
 
@@ -13,32 +14,37 @@ header nav {
     'hamburger brand tools' var(--nav-height)
     'sections sections sections' 1fr / auto 1fr auto;
   align-items: center;
-  gap: 0 24px;
+  gap: 0 16px;
   margin: auto;
-  max-width: 1248px;
+  max-width: 1264px;
   height: var(--nav-height);
-  padding: 0 24px;
+  padding: 0 16px;
   font-family: var(--body-font-family);
+  color: var(--conti-dark-black);
 }
 
 header nav[aria-expanded='true'] {
   grid-template:
     'hamburger brand' var(--nav-height)
     'sections sections' 1fr
-    'tools tools' var(--nav-height) / auto 1fr;
+    'tools tools' auto / auto 1fr;
   overflow-y: auto;
   min-height: 100dvh;
+  background-color: var(--conti-dark-black);
+  color: var(--conti-white);
 }
 
 @media (width >= 900px) {
   header .nav-wrapper {
-    position: relative;
+    position: sticky;
+    top: 0;
   }
 
   header nav {
     display: flex;
     justify-content: space-between;
-    gap: 0 32px;
+    align-items: stretch;
+    gap: 0 24px;
     max-width: 1264px;
     padding: 0 32px;
   }
@@ -46,6 +52,8 @@ header nav[aria-expanded='true'] {
   header nav[aria-expanded='true'] {
     min-height: 0;
     overflow: visible;
+    background-color: transparent;
+    color: var(--conti-dark-black);
   }
 }
 
@@ -56,6 +64,7 @@ header nav p {
 
 header nav a:any-link {
   color: currentcolor;
+  text-decoration: none;
 }
 
 /* hamburger */
@@ -72,7 +81,7 @@ header nav .nav-hamburger button {
   border: 0;
   border-radius: 0;
   padding: 0;
-  background-color: var(--background-color);
+  background-color: transparent;
   color: inherit;
   overflow: initial;
   text-overflow: initial;
@@ -85,7 +94,7 @@ header nav .nav-hamburger-icon::after {
   box-sizing: border-box;
   display: block;
   position: relative;
-  width: 20px;
+  width: 22px;
 }
 
 header nav .nav-hamburger-icon::before,
@@ -99,16 +108,16 @@ header nav[aria-expanded='false'] .nav-hamburger-icon,
 header nav[aria-expanded='false'] .nav-hamburger-icon::before,
 header nav[aria-expanded='false'] .nav-hamburger-icon::after {
   height: 2px;
-  border-radius: 2px;
+  border-radius: 1px;
   background: currentcolor;
 }
 
 header nav[aria-expanded='false'] .nav-hamburger-icon::before {
-  top: -6px;
+  top: -7px;
 }
 
 header nav[aria-expanded='false'] .nav-hamburger-icon::after {
-  top: 6px;
+  top: 7px;
 }
 
 header nav[aria-expanded='true'] .nav-hamburger-icon {
@@ -121,9 +130,9 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
   left: 1px;
   transform: rotate(45deg);
   transform-origin: 2px 1px;
-  width: 24px;
+  width: 26px;
   height: 2px;
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 header nav[aria-expanded='true'] .nav-hamburger-icon::after {
@@ -140,20 +149,162 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
 }
 
 /* brand */
-header .nav-brand {
+header nav .nav-brand {
   grid-area: brand;
-  flex-basis: 128px;
-  font-size: var(--heading-font-size-s);
-  font-weight: 700;
-  line-height: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
 }
 
 header nav .nav-brand img {
-  width: 128px;
+  width: 130px;
   height: auto;
 }
 
-/* sections */
+@media (width >= 900px) {
+  header nav .nav-brand img {
+    width: 150px;
+  }
+}
+
+/* tools: utility row (Chat now / Customer support) + search trigger */
+header nav .nav-tools {
+  grid-area: tools;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+header nav[aria-expanded='true'] .nav-tools {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 20px 24px;
+  border-top: 1px solid var(--conti-darkest-grey);
+}
+
+header nav .nav-tools-utility {
+  display: none;
+}
+
+header nav[aria-expanded='true'] .nav-tools-utility {
+  display: block;
+}
+
+header nav .nav-tools-utility ul {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+header nav[aria-expanded='true'] .nav-tools-utility ul {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+header nav .nav-tools-utility-item,
+header nav .nav-search-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 20px;
+  padding: 0;
+  background: none;
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: currentcolor;
+  cursor: pointer;
+}
+
+header nav .nav-tools-utility-item .icon,
+header nav .nav-search-toggle .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border: 1px solid var(--conti-yellow);
+  border-radius: 50%;
+  background-color: var(--conti-white);
+}
+
+header nav .nav-tools-utility-item .icon img,
+header nav .nav-search-toggle .icon img {
+  width: 16px;
+  height: 16px;
+}
+
+header nav .nav-tools-utility-item:hover .icon,
+header nav .nav-tools-utility-item:focus-visible .icon,
+header nav .nav-search-toggle:hover .icon,
+header nav .nav-search-toggle:focus-visible .icon,
+header nav .nav-search-toggle[aria-expanded='true'] .icon {
+  background-color: var(--conti-dark-black);
+  border-color: var(--conti-dark-black);
+}
+
+header nav .nav-tools-utility-item:hover .icon img,
+header nav .nav-tools-utility-item:focus-visible .icon img,
+header nav .nav-search-toggle:hover .icon img,
+header nav .nav-search-toggle:focus-visible .icon img,
+header nav .nav-search-toggle[aria-expanded='true'] .icon img {
+  filter: invert(1);
+}
+
+header nav .nav-tools-utility-label {
+  display: none;
+}
+
+header nav[aria-expanded='true'] .nav-tools-utility-label {
+  display: inline;
+}
+
+/*
+ * nav[aria-expanded] is also 'true' on initial desktop load (unrelated to
+ * the mobile menu state there) - reset the tools row, utility list and
+ * labels to their desktop layout regardless of that attribute. Labels
+ * come back from 1200px where there is room for icon + text.
+ */
+@media (width >= 900px) {
+  header nav[aria-expanded='true'] .nav-tools {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border-top: 0;
+  }
+
+  header nav .nav-tools-utility {
+    display: block;
+  }
+
+  header nav[aria-expanded='true'] .nav-tools-utility ul {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  header nav .nav-tools-utility-label {
+    display: none;
+  }
+}
+
+@media (width >= 1200px) {
+  header nav .nav-tools-utility-label {
+    display: inline;
+  }
+}
+
+/* sections: Tires / Learn / Shop / Support / Newsletter */
 header nav .nav-sections {
   grid-area: sections;
   flex: 1 1 auto;
@@ -167,22 +318,49 @@ header nav[aria-expanded='true'] .nav-sections {
   align-self: start;
 }
 
-header nav .nav-sections ul {
+header nav .nav-sections .default-content-wrapper > ul {
   list-style: none;
-  padding-left: 0;
-  font-size: var(--body-font-size-s);
+  margin: 0;
+  padding: 8px 0;
 }
 
-header nav .nav-sections ul > li {
-  font-weight: 500;
+header nav .nav-sections .default-content-wrapper > ul > li {
+  font-weight: 700;
 }
 
-header nav .nav-sections ul > li > ul {
-  margin-top: 0;
+/*
+ * Every top-level item's first child is a <p> - either wrapping the link
+ * (Tires, Learn, Newsletter) or holding the plain-text drop label (Shop,
+ * Support). Style the <p> as the item box in both cases.
+ */
+header nav .nav-sections .default-content-wrapper > ul > li > p {
+  display: block;
+  margin: 0;
+  padding: 18px 20px;
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
-header nav .nav-sections ul > li > ul > li {
+header nav .nav-sections .default-content-wrapper > ul > li > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 20px 16px;
+}
+
+header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
   font-weight: 400;
+}
+
+header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
+  display: block;
+  padding: 10px 0;
+  font-size: var(--body-font-size-s);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 @media (width >= 900px) {
@@ -190,83 +368,141 @@ header nav .nav-sections ul > li > ul > li {
     display: block;
     visibility: visible;
     white-space: nowrap;
+    align-self: stretch;
   }
 
   header nav[aria-expanded='true'] .nav-sections {
     align-self: unset;
   }
 
-  header nav .nav-sections .nav-drop {
-    position: relative;
-    padding-right: 16px;
-    cursor: pointer;
-  }
-
-  header nav .nav-sections .nav-drop::after {
-    content: '';
-    display: inline-block;
-    position: absolute;
-    top: 0.5em;
-    right: 2px;
-    transform: rotate(135deg);
-    width: 6px;
-    height: 6px;
-    border: 2px solid currentcolor;
-    border-radius: 0 1px 0 0;
-    border-width: 2px 2px 0 0;
-  }
-
-  header nav .nav-sections .nav-drop[aria-expanded='true']::after {
-    top: unset;
-    bottom: 0.5em;
-    transform: rotate(315deg);
-  }
-
-  header nav .nav-sections ul {
+  header nav .nav-sections .default-content-wrapper > ul {
     display: flex;
-    gap: 24px;
-    margin: 0;
+    height: 100%;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li {
-    flex: 0 1 auto;
-    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > p {
+    height: 100%;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.2s ease-in-out;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul {
     display: none;
-    position: relative;
-  }
-
-  header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] > ul {
-    display: block;
     position: absolute;
-    left: -24px;
-    width: 200px;
-    top: 150%;
-    padding: 16px;
-    background-color: var(--light-color);
-    white-space: initial;
-  }
-
-  header nav .nav-sections .default-content-wrapper > ul > li > ul::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 16px;
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid var(--light-color);
+    top: 100%;
+    left: 0;
+    min-width: 240px;
+    margin: 0;
+    padding: 24px;
+    background-color: var(--conti-white);
+    color: var(--conti-black);
+    box-shadow: 0 0 40px rgb(0 0 0 / 10%);
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
+    white-space: nowrap;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
     padding: 8px 0;
+    font-size: var(--body-font-size-s);
+  }
+
+  header nav .nav-sections .nav-drop {
+    position: relative;
+    cursor: pointer;
+  }
+
+  header nav .nav-sections .nav-drop[aria-expanded='true'] > p,
+  header nav .nav-sections .default-content-wrapper > ul > li:hover > p,
+  header nav .nav-sections .default-content-wrapper > ul > li:focus-within > p {
+    border-bottom-color: var(--conti-dark-black);
+  }
+
+  header nav .nav-sections .nav-drop > p::after {
+    content: '';
+    display: inline-block;
+    margin-left: 6px;
+    width: 6px;
+    height: 6px;
+    border: 2px solid currentcolor;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  header nav .nav-sections .nav-drop[aria-expanded='true'] > p::after {
+    transform: rotate(225deg);
+  }
+
+  header nav .nav-sections .nav-drop[aria-expanded='true'] > ul {
+    display: block;
   }
 }
 
-/* tools */
-header nav .nav-tools {
-  grid-area: tools;
+/* search panel */
+header .nav-search-panel {
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  z-index: 99;
+  padding: 24px 16px;
+  background-color: var(--conti-white);
+  border-top: 3px solid var(--conti-yellow);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 15%);
+}
+
+header .nav-search-form {
+  display: flex;
+  gap: 8px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+header .nav-search-form input {
+  flex: 1 1 auto;
+  border: 2px solid var(--conti-grey);
+  border-radius: 24px;
+  padding: 10px 20px;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  color: var(--conti-black);
+}
+
+header .nav-search-form input:focus {
+  outline: none;
+  border-color: var(--conti-dark-yellow);
+}
+
+header .nav-search-form button[type='submit'] {
+  border: 2px solid var(--conti-yellow);
+  border-radius: 24px;
+  padding: 10px 26px;
+  background-color: var(--conti-yellow);
+  font-family: var(--heading-font-family);
+  font-size: var(--body-font-size-xs);
+  font-weight: bold;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+header .nav-search-form button[type='submit']:hover {
+  background-color: var(--conti-dark-yellow);
+  border-color: var(--conti-dark-yellow);
+}
+
+@media (width >= 900px) {
+  header .nav-search-panel {
+    padding: 32px;
+  }
 }
