@@ -1,8 +1,24 @@
-import { getMetadata } from '../../scripts/aem.js';
+import { getMetadata, decorateIcons } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
+
+// utility row shown next to the search trigger. This is theme chrome, not
+// part of the authored nav content, so it lives here rather than in nav.html.
+const UTILITY_LINKS = [
+  {
+    label: 'Chat now',
+    href: 'https://continentaltire.zendesk.com',
+    icon: 'chat',
+    external: true,
+  },
+  {
+    label: 'Customer support',
+    href: '/customer-support',
+    icon: 'help-outline',
+  },
+];
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -109,6 +125,104 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 }
 
 /**
+ * Closes the site-search panel and resets the toggle button.
+ * @param {Element} toggle The search toggle button
+ * @param {Element} panel The search panel
+ */
+function closeSearch(toggle, panel) {
+  toggle.setAttribute('aria-expanded', 'false');
+  panel.hidden = true;
+}
+
+/**
+ * Builds the Chat now / Customer support utility row. Static theme chrome,
+ * not authored content.
+ * @returns {Element} the utility nav wrapper
+ */
+function buildUtilityNav() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'nav-tools-utility';
+  const ul = document.createElement('ul');
+  UTILITY_LINKS.forEach(({
+    label, href, icon, external,
+  }) => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.className = 'nav-tools-utility-item';
+    a.href = href;
+    a.title = label;
+    if (external) {
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer nofollow';
+    }
+    a.innerHTML = `<span class="icon icon-${icon}"></span><span class="nav-tools-utility-label">${label}</span>`;
+    li.append(a);
+    ul.append(li);
+  });
+  wrapper.append(ul);
+  decorateIcons(wrapper);
+  return wrapper;
+}
+
+/**
+ * Turns the authored :search: icon into a search trigger button and builds
+ * the expandable search panel. Returns null when authors omit the icon.
+ * @param {Element} navTools The nav-tools section
+ * @param {Function} closeMenu Callback to force-close the mobile menu
+ * @returns {{button: Element, panel: Element}|null}
+ */
+function buildSearch(navTools, closeMenu) {
+  const icon = navTools.querySelector('.icon-search');
+  if (!icon) return null;
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'nav-search-toggle';
+  button.setAttribute('aria-expanded', 'false');
+  button.setAttribute('aria-label', 'Site search');
+  button.append(icon);
+  button.insertAdjacentHTML('beforeend', '<span class="nav-tools-utility-label">Site search</span>');
+
+  const originalWrapper = navTools.querySelector('p');
+  if (originalWrapper) originalWrapper.replaceWith(button);
+  else navTools.append(button);
+
+  const panel = document.createElement('div');
+  panel.className = 'nav-search-panel';
+  panel.hidden = true;
+  panel.innerHTML = `<form class="nav-search-form" role="search" action="/search" method="get">
+      <input type="search" name="q" placeholder="Search continentaltire.com" aria-label="Search continentaltire.com" required>
+      <button type="submit">Search</button>
+    </form>`;
+
+  button.addEventListener('click', () => {
+    if (button.getAttribute('aria-expanded') === 'true') {
+      closeSearch(button, panel);
+      return;
+    }
+    closeMenu();
+    button.setAttribute('aria-expanded', 'true');
+    panel.hidden = false;
+    panel.querySelector('input').focus();
+  });
+
+  panel.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape') {
+      closeSearch(button, panel);
+      button.focus();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (button.getAttribute('aria-expanded') !== 'true') return;
+    if (button.contains(e.target) || panel.contains(e.target)) return;
+    closeSearch(button, panel);
+  });
+
+  return { button, panel };
+}
+
+/**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
@@ -131,10 +245,12 @@ export default async function decorate(block) {
   });
 
   const navBrand = nav.querySelector('.nav-brand');
-  const brandLink = navBrand.querySelector('.button');
-  if (brandLink) {
-    brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
+  if (navBrand) {
+    const brandLink = navBrand.querySelector('.button');
+    if (brandLink) {
+      brandLink.className = '';
+      brandLink.closest('.button-container').className = '';
+    }
   }
 
   const navSections = nav.querySelector('.nav-sections');
@@ -151,13 +267,25 @@ export default async function decorate(block) {
     });
   }
 
+  // utility row (Chat now / Customer support) + search trigger, built from
+  // the authored :search: icon plus static theme chrome
+  const navTools = nav.querySelector('.nav-tools');
+  let search = null;
+  if (navTools) {
+    navTools.prepend(buildUtilityNav());
+    search = buildSearch(navTools, () => toggleMenu(nav, navSections, false));
+  }
+
   // hamburger for mobile
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
   hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
       <span class="nav-hamburger-icon"></span>
     </button>`;
-  hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
+  hamburger.addEventListener('click', () => {
+    if (search) closeSearch(search.button, search.panel);
+    toggleMenu(nav, navSections);
+  });
   nav.prepend(hamburger);
   nav.setAttribute('aria-expanded', 'false');
   // prevent mobile nav behavior on window resize
@@ -167,5 +295,6 @@ export default async function decorate(block) {
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
+  if (search) navWrapper.append(search.panel);
   block.append(navWrapper);
 }

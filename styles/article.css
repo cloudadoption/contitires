@@ -1,0 +1,66 @@
+/*
+ * Article template.
+ *
+ * Reproduces Continental's "news-article" layout: a centered title,
+ * a constrained-width body column with a hero image, and a sidebar
+ * for the share block.
+ *
+ * Activated by page-metadata "Template: Article", which
+ * decorateTemplateAndTheme() (scripts/aem.js) turns into an "article"
+ * class on <body> -- no block or script changes needed for that part.
+ * Loading this stylesheet still needs a small scripts.js hook; see
+ * sharedChangesNeeded in the delivery report.
+ */
+
+body.article main .section {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 38px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+}
+
+body.article main .section > div {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+body.article main .section h1 {
+  max-width: 35ch;
+  margin: 0 auto;
+  font-family: var(--body-font-family);
+  font-weight: 300;
+  text-align: center;
+}
+
+body.article main .section .default-content-wrapper {
+  max-width: 79ch;
+}
+
+body.article main .section .default-content-wrapper > * + * {
+  margin-top: 1.4em;
+}
+
+body.article main .section .default-content-wrapper picture {
+  display: block;
+  margin: 24px 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+body.article main .section .default-content-wrapper picture img {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+}
+
+@media (width >= 900px) {
+  body.article main .section {
+    grid-template-columns: minmax(0, 755px) 300px;
+    column-gap: 45px;
+    align-items: start;
+    padding: 0 32px 40px;
+  }
+}

@@ -162,6 +162,10 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+  // load template-specific styles (e.g. the article/news layout)
+  if (document.body.classList.contains('article')) {
+    loadCSS(`${window.hlx.codeBasePath}/styles/article.css`);
+  }
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
