@@ -1,7 +1,8 @@
 .store-locator {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px 48px;
+  align-items: start;
 }
 
 .store-locator-search h1,
@@ -10,7 +11,7 @@
 .store-locator-search h4,
 .store-locator-search h5,
 .store-locator-search h6 {
-  margin: 0 0 16px;
+  margin: 0 0 24px;
   color: inherit;
 }
 
@@ -22,31 +23,70 @@
 .store-locator-field input {
   box-sizing: border-box;
   width: 100%;
-  border: 1px solid var(--conti-darkest-grey);
-  border-radius: 4px;
+  border: 0;
+  border-bottom: 1px solid var(--conti-white);
+  border-radius: 0;
   background-color: transparent;
-  padding: 12px 16px;
+  padding: 8px 24px 8px 0;
   color: var(--conti-white);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-s);
 }
 
 .store-locator-field input::placeholder {
-  color: var(--conti-dark-grey);
+  color: var(--conti-white);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .store-locator-field input:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
+  cursor: default;
+}
+
+.store-locator-search p {
+  margin: 12px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: var(--body-font-size-xs);
+}
+
+/* example store result */
+.store-locator-result {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 24px;
+  align-items: start;
+}
+
+.store-locator-result p {
+  margin: 0 0 6px;
+}
+
+.store-locator-result p:first-child {
+  grid-row: span 5;
+  align-self: center;
+  color: var(--conti-yellow);
+  font-size: var(--heading-font-size-l);
+  line-height: 1;
+  text-align: center;
+}
+
+.store-locator-result p:first-child strong {
+  display: block;
+  font-weight: 300;
+}
+
+.store-locator-result .icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin-inline-end: 6px;
 }
 
 .store-locator-ctas {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-}
-
-.store-locator-ctas p {
   margin: 0;
 }
 
@@ -62,10 +102,13 @@
   color: var(--conti-black);
 }
 
-@media (width >= 700px) {
+@media (width >= 900px) {
   .store-locator {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .store-locator-ctas {
+    grid-column: 2;
+    justify-content: flex-end;
   }
 }

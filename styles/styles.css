@@ -304,6 +304,12 @@ main img {
   width: 100%;
 }
 
+/* Total Confidence Plan badge renders at hero size, not as a small icon */
+.icon.icon-tcp-badge {
+  width: 110px;
+  height: 128px;
+}
+
 /* sections */
 main > .section {
   margin: 40px 0;
