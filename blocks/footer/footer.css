@@ -34,6 +34,12 @@ footer .footer-cta {
   gap: 12px;
 }
 
+/* footer pills sit a notch larger than body CTAs on live (14px, not 12px) */
+footer .footer-cta .button {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
 footer .footer-links-group h3 {
   margin: 0 0 13px;
   color: var(--conti-black);
