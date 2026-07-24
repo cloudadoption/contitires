@@ -36,4 +36,17 @@ main .section.columns-container {
     flex: 1;
     order: unset;
   }
+
+  .columns.feature > div > div:not(.columns-img-col) {
+    flex: 0 1 340px;
+  }
+}
+
+.columns.feature h2 {
+  font-size: var(--heading-font-size-l);
+  font-weight: 400;
+}
+
+.columns.feature p {
+  font-size: var(--body-font-size-s);
 }

@@ -16,9 +16,9 @@ main .section.perfect-fit-container {
 .perfect-fit-label {
   margin: 0;
   font-family: var(--heading-font-family);
-  font-size: var(--body-font-size-xs);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.25px;
+  letter-spacing: 2px;
   text-transform: uppercase;
 }
 
@@ -38,15 +38,15 @@ main .section.perfect-fit-container {
   gap: 8px;
   margin: 0;
   font-family: var(--heading-font-family);
-  font-size: var(--body-font-size-xs);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.25px;
+  letter-spacing: 2px;
   text-transform: uppercase;
 }
 
 .perfect-fit-items .icon {
-  width: 20px;
-  height: 20px;
+  height: 17px;
+  width: auto;
 }
 
 .perfect-fit-items .icon img {

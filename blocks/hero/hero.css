@@ -62,8 +62,12 @@ main .section.hero-container {
 .hero-content :is(h1, h2, h3, h4, h5, h6) {
   margin: 0;
   color: inherit;
-  font-size: var(--heading-font-size-xxl);
+  font-size: var(--heading-font-size-xl);
   letter-spacing: 1px;
+}
+
+.hero a:any-link {
+  color: currentcolor;
 }
 
 .hero-content em {
@@ -119,7 +123,7 @@ main .section.hero-container {
 
 .hero.left .hero-content > p:first-child {
   margin-top: 0;
-  font-size: var(--body-font-size-s);
+  font-size: var(--heading-font-size-xs);
   font-weight: 400;
 }
 
@@ -175,7 +179,7 @@ main .section.hero-container {
   }
 
   .hero.left .hero-content p {
-    font-size: var(--body-font-size-m);
+    font-size: 20px;
   }
 
   .hero.left .hero-content p:has(> a:only-child) {

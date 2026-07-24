@@ -13,6 +13,7 @@
 .store-locator-search h6 {
   margin: 0 0 24px;
   color: inherit;
+  font-size: 30px;
 }
 
 .store-locator-field {
@@ -66,14 +67,32 @@
   grid-row: span 5;
   align-self: center;
   color: var(--conti-yellow);
-  font-size: var(--heading-font-size-l);
+  font-size: 40px;
   line-height: 1;
   text-align: center;
 }
 
 .store-locator-result p:first-child strong {
   display: block;
-  font-weight: 300;
+  font-weight: 400;
+}
+
+.store-locator-result p:nth-child(2) strong {
+  font-size: 14px;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
+}
+
+.store-locator-result p:nth-child(3) {
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.store-locator-result a {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
 }
 
 .store-locator-result .icon {
@@ -88,6 +107,10 @@
   flex-wrap: wrap;
   gap: 16px;
   margin: 0;
+}
+
+.store-locator-ctas > div {
+  display: contents;
 }
 
 .store-locator .button.secondary {

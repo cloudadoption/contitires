@@ -15,12 +15,21 @@ main .section.promo-bar-container {
 
 .promo-bar > div > div {
   margin: 0;
-  padding: 14px 24px;
-  font-family: var(--heading-font-family);
-  font-size: var(--body-font-size-xs);
+  padding: 4px 24px;
+  font-family: var(--body-font-family);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.promo-bar p {
+  margin: 0;
+}
+
+.promo-bar p::before {
+  content: '+';
+  display: inline-block;
+  margin-inline-end: 8px;
   font-weight: bold;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
 .promo-bar a:any-link {
