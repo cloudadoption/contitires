@@ -1,0 +1,29 @@
+.promo-bar-container .promo-bar-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+main .section.promo-bar-container {
+  margin: 0;
+}
+
+.promo-bar {
+  background-color: var(--conti-yellow);
+  color: var(--conti-black);
+  text-align: center;
+}
+
+.promo-bar > div > div {
+  margin: 0;
+  padding: 14px 24px;
+  font-family: var(--heading-font-family);
+  font-size: var(--body-font-size-xs);
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.promo-bar a:any-link {
+  color: inherit;
+  text-decoration: underline;
+}

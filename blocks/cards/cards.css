@@ -1,3 +1,9 @@
+/* zero the gap around any section that is entirely a cards block, so it
+   sits flush against a neighboring hero/dark band like on the live site */
+main .section.cards-container {
+  margin-top: 0;
+}
+
 .cards > ul {
   list-style: none;
   margin: 0;
@@ -212,6 +218,29 @@
   }
 }
 
+/* ---- coverage: plain icon-less items on a dark band (warranty coverage row) ---- */
+.cards.coverage > ul {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 24px;
+  text-align: center;
+}
+
+.cards.coverage > ul > li {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.cards.coverage .cards-card-body {
+  margin: 0;
+  color: inherit;
+  font-family: var(--heading-font-family);
+  font-size: var(--body-font-size-xs);
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .cards.category > ul > li:hover,
 .cards.category > ul > li:focus-within {
   background-color: var(--conti-dark-black);
@@ -226,4 +255,39 @@
 .cards.category > ul > li:hover img,
 .cards.category > ul > li:focus-within img {
   transform: translateY(-6px);
+}
+
+/* ---- news inside a dark/black band: plain text teasers, no card chrome ---- */
+main .section.dark .cards.news > ul > li,
+main .section.black .cards.news > ul > li {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+main .section.dark .cards.news .cards-card-body,
+main .section.black .cards.news .cards-card-body,
+main .section.dark .cards.news .cards-card-body p,
+main .section.black .cards.news .cards-card-body p,
+main .section.dark .cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6),
+main .section.black .cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--conti-white);
+}
+
+main .section.dark .cards.news .cards-card-body a,
+main .section.black .cards.news .cards-card-body a {
+  text-decoration: none;
+}
+
+main .section.dark .cards.news .cards-card-body a:hover,
+main .section.black .cards.news .cards-card-body a:hover {
+  text-decoration: underline;
+}
+
+@media (width >= 600px) {
+  main .section.dark .cards.news > ul > li:not(:first-child),
+  main .section.black .cards.news > ul > li:not(:first-child) {
+    border-inline-start: 1px solid rgb(255 255 255 / 25%);
+    padding-inline-start: 24px;
+  }
 }

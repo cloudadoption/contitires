@@ -3,6 +3,12 @@
   padding: 0;
 }
 
+/* zero the gap around any section that is entirely a hero, so consecutive
+   hero/dark bands sit flush like they do on the live site */
+main .section.hero-container {
+  margin: 0;
+}
+
 .hero {
   position: relative;
   display: flex;
@@ -53,11 +59,16 @@
   text-align: center;
 }
 
-.hero-content h1 {
+.hero-content :is(h1, h2, h3, h4, h5, h6) {
   margin: 0;
   color: inherit;
-  text-transform: uppercase;
+  font-size: var(--heading-font-size-xxl);
   letter-spacing: 1px;
+}
+
+.hero-content em {
+  color: var(--conti-yellow);
+  font-style: normal;
 }
 
 .hero-content p {
@@ -78,16 +89,62 @@
   margin: 0;
 }
 
-.hero .button.secondary {
-  border-color: var(--conti-white);
-  color: var(--conti-white);
-}
-
-.hero .button.secondary:hover,
-.hero .button.secondary:focus-visible {
+/* hero CTAs read as a solid white pill on the dark photo, not the site's
+   default yellow primary button */
+.hero .button.primary {
   border-color: var(--conti-white);
   background-color: var(--conti-white);
   color: var(--conti-black);
+}
+
+.hero .button.primary:hover,
+.hero .button.primary:focus-visible {
+  border-color: var(--conti-light-grey);
+  background-color: var(--conti-light-grey);
+  color: var(--conti-black);
+}
+
+/* left-aligned variant: text left over a dark photo, with a left-side
+   overlay (in addition to the base bottom gradient) so the copy stays
+   readable regardless of what's under it */
+.hero.left .hero-content {
+  margin: 0;
+  max-width: 640px;
+  text-align: left;
+}
+
+.hero.left .hero-content .hero-ctas {
+  justify-content: flex-start;
+}
+
+.hero.left .hero-content > p:first-child {
+  margin-top: 0;
+  font-size: var(--body-font-size-s);
+  font-weight: 400;
+}
+
+.hero.left .hero-content p:has(> a:only-child) {
+  font-size: var(--body-font-size-xs);
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hero.left .hero-content p:has(> a:only-child) a::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-start: 8px;
+  border-inline-end: 2px solid currentcolor;
+  border-block-end: 2px solid currentcolor;
+  transform: translateY(-1px) rotate(-45deg);
+}
+
+.hero.left .hero-image::after {
+  background:
+    linear-gradient(to right, rgb(0 0 0 / 85%) 0%, rgb(0 0 0 / 45%) 45%, rgb(0 0 0 / 0%) 75%),
+    linear-gradient(to top, rgb(0 0 0 / 60%) 0%, rgb(0 0 0 / 0%) 40%);
 }
 
 @media (width >= 600px) {
@@ -111,5 +168,17 @@
 
   .hero-content p {
     font-size: var(--heading-font-size-xs);
+  }
+
+  .hero.left {
+    min-height: 560px;
+  }
+
+  .hero.left .hero-content p {
+    font-size: var(--body-font-size-m);
+  }
+
+  .hero.left .hero-content p:has(> a:only-child) {
+    font-size: var(--body-font-size-xs);
   }
 }
