@@ -12,6 +12,7 @@ const UTILITY_LINKS = [
     href: 'https://continentaltire.zendesk.com',
     icon: 'chat',
     external: true,
+    pill: true,
   },
   {
     label: 'Customer support',
@@ -144,11 +145,11 @@ function buildUtilityNav() {
   wrapper.className = 'nav-tools-utility';
   const ul = document.createElement('ul');
   UTILITY_LINKS.forEach(({
-    label, href, icon, external,
+    label, href, icon, external, pill,
   }) => {
     const li = document.createElement('li');
     const a = document.createElement('a');
-    a.className = 'nav-tools-utility-item';
+    a.className = pill ? 'nav-tools-utility-item nav-tools-utility-item-pill' : 'nav-tools-utility-item';
     a.href = href;
     a.title = label;
     if (external) {

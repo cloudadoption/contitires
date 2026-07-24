@@ -1,0 +1,71 @@
+.store-locator {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.store-locator-search h1,
+.store-locator-search h2,
+.store-locator-search h3,
+.store-locator-search h4,
+.store-locator-search h5,
+.store-locator-search h6 {
+  margin: 0 0 16px;
+  color: inherit;
+}
+
+.store-locator-field {
+  position: relative;
+  max-width: 420px;
+}
+
+.store-locator-field input {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid var(--conti-darkest-grey);
+  border-radius: 4px;
+  background-color: transparent;
+  padding: 12px 16px;
+  color: var(--conti-white);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+}
+
+.store-locator-field input::placeholder {
+  color: var(--conti-dark-grey);
+}
+
+.store-locator-field input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.store-locator-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.store-locator-ctas p {
+  margin: 0;
+}
+
+.store-locator .button.secondary {
+  border-color: var(--conti-white);
+  color: var(--conti-white);
+}
+
+.store-locator .button.secondary:hover,
+.store-locator .button.secondary:focus-visible {
+  border-color: var(--conti-white);
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+}
+
+@media (width >= 700px) {
+  .store-locator {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

@@ -332,3 +332,38 @@ main .section.highlight {
   margin: 0;
   padding: 40px 0;
 }
+
+/* dark section theme (Continental uses black/#333 section bands) */
+main .section.dark {
+  background-color: var(--conti-black);
+  color: var(--conti-white);
+  margin: 0;
+  padding: 56px 0;
+}
+
+main .section.black {
+  background-color: #000;
+  color: var(--conti-white);
+  margin: 0;
+  padding: 56px 0;
+}
+
+main .section.dark a:any-link,
+main .section.black a:any-link {
+  color: var(--conti-white);
+}
+
+main .section.dark h1,
+main .section.dark h2,
+main .section.dark h3,
+main .section.black h1,
+main .section.black h2,
+main .section.black h3 {
+  color: var(--conti-white);
+}
+
+/* full-bleed section: content spans edge to edge (hero, dark bands) */
+main .section.full-width > div {
+  max-width: none;
+  padding: 0;
+}

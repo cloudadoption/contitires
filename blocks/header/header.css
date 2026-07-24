@@ -1,4 +1,6 @@
-/* Continental Tire header - the yellow/dark "header--dark" variant used site-wide */
+/* Continental Tire header - yellow bar with black text, matching the live
+   continentaltire.com "header--dark" theme (yellow is the header's own
+   background there, not just an accent). */
 
 header .nav-wrapper {
   background-color: var(--conti-yellow);
@@ -20,7 +22,7 @@ header nav {
   height: var(--nav-height);
   padding: 0 16px;
   font-family: var(--body-font-family);
-  color: var(--conti-dark-black);
+  color: var(--conti-black);
 }
 
 header nav[aria-expanded='true'] {
@@ -53,7 +55,7 @@ header nav[aria-expanded='true'] {
     min-height: 0;
     overflow: visible;
     background-color: transparent;
-    color: var(--conti-dark-black);
+    color: var(--conti-black);
   }
 }
 
@@ -161,21 +163,35 @@ header nav .nav-brand img {
   height: auto;
 }
 
+/* the mobile drawer flips the header to a dark background - invert the
+   (dark) logo so it stays visible instead of going near-black-on-black */
+header nav[aria-expanded='true'] .nav-brand img {
+  filter: invert(1);
+}
+
 @media (width >= 900px) {
   header nav .nav-brand img {
     width: 150px;
   }
+
+  header nav[aria-expanded='true'] .nav-brand img {
+    filter: none;
+  }
 }
 
-/* tools: utility row (Chat now / Customer support) + search trigger */
+/* tools: utility row (Chat now / Customer support) + search trigger. Hidden
+   until the mobile menu is expanded (or on desktop, where it is always
+   expanded) - the live site shows nothing but the hamburger in the
+   collapsed mobile header. */
 header nav .nav-tools {
   grid-area: tools;
-  display: flex;
+  display: none;
   align-items: center;
   gap: 8px;
 }
 
 header nav[aria-expanded='true'] .nav-tools {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
@@ -218,7 +234,7 @@ header nav .nav-search-toggle {
   font-family: var(--heading-font-family);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 1.25px;
   text-transform: uppercase;
   color: currentcolor;
   cursor: pointer;
@@ -243,6 +259,32 @@ header nav .nav-search-toggle .icon img {
   height: 16px;
 }
 
+/* Chat now: a pill, not a circle, and (unlike Customer support / Site
+   search) its label is always visible on desktop - matching the live
+   header, where Chat now is the one utility item with an inline label.
+   Selector needs the "a" tag (not just the class) to out-specificity
+   "header nav a:any-link" below, which also sets color. */
+header nav a.nav-tools-utility-item-pill {
+  border-radius: 20px;
+  padding: 0 16px;
+  height: 30px;
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+}
+
+header nav .nav-tools-utility-item-pill .icon {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+header nav .nav-tools-utility-item-pill .icon img {
+  width: 16px;
+  height: 16px;
+}
+
 header nav .nav-tools-utility-item:hover .icon,
 header nav .nav-tools-utility-item:focus-visible .icon,
 header nav .nav-search-toggle:hover .icon,
@@ -260,6 +302,24 @@ header nav .nav-search-toggle[aria-expanded='true'] .icon img {
   filter: invert(1);
 }
 
+header nav .nav-tools-utility-item-pill:hover,
+header nav .nav-tools-utility-item-pill:focus-visible {
+  background-color: var(--conti-lightest-grey);
+}
+
+/* override the generic dark-circle hover/focus above: the pill has no
+   circle to invert */
+header nav .nav-tools-utility-item-pill:hover .icon,
+header nav .nav-tools-utility-item-pill:focus-visible .icon {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+header nav .nav-tools-utility-item-pill:hover .icon img,
+header nav .nav-tools-utility-item-pill:focus-visible .icon img {
+  filter: none;
+}
+
 header nav .nav-tools-utility-label {
   display: none;
 }
@@ -270,9 +330,9 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
 
 /*
  * nav[aria-expanded] is also 'true' on initial desktop load (unrelated to
- * the mobile menu state there) - reset the tools row, utility list and
- * labels to their desktop layout regardless of that attribute. Labels
- * come back from 1200px where there is room for icon + text.
+ * the mobile menu state there) - reset the tools row and utility list to
+ * their desktop layout regardless of that attribute. Labels stay
+ * icon-only on desktop except for the Chat now pill.
  */
 @media (width >= 900px) {
   header nav[aria-expanded='true'] .nav-tools {
@@ -293,13 +353,11 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
     gap: 8px;
   }
 
-  header nav .nav-tools-utility-label {
+  header nav[aria-expanded='true'] .nav-tools-utility-label {
     display: none;
   }
-}
 
-@media (width >= 1200px) {
-  header nav .nav-tools-utility-label {
+  header nav[aria-expanded='true'] .nav-tools-utility-item-pill .nav-tools-utility-label {
     display: inline;
   }
 }
@@ -329,18 +387,19 @@ header nav .nav-sections .default-content-wrapper > ul > li {
 }
 
 /*
- * Every top-level item's first child is a <p> - either wrapping the link
- * (Tires, Learn, Newsletter) or holding the plain-text drop label (Shop,
- * Support). Style the <p> as the item box in both cases.
+ * A top-level item is either a plain link (DA serializes a bare <li><a>
+ * as-is, with no wrapping <p>) or, for a dropdown, a <p> drop label
+ * followed by a nested <ul>. Style both the same as the item box.
  */
-header nav .nav-sections .default-content-wrapper > ul > li > p {
+header nav .nav-sections .default-content-wrapper > ul > li > p,
+header nav .nav-sections .default-content-wrapper > ul > li > a {
   display: block;
   margin: 0;
   padding: 18px 20px;
   font-family: var(--heading-font-family);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 1.25px;
   text-transform: uppercase;
   cursor: pointer;
 }
@@ -386,7 +445,8 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
     height: 100%;
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li > p {
+  header nav .nav-sections .default-content-wrapper > ul > li > p,
+  header nav .nav-sections .default-content-wrapper > ul > li > a {
     height: 100%;
     padding: 0 20px;
     display: flex;
@@ -424,8 +484,10 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
 
   header nav .nav-sections .nav-drop[aria-expanded='true'] > p,
   header nav .nav-sections .default-content-wrapper > ul > li:hover > p,
-  header nav .nav-sections .default-content-wrapper > ul > li:focus-within > p {
-    border-bottom-color: var(--conti-dark-black);
+  header nav .nav-sections .default-content-wrapper > ul > li:hover > a,
+  header nav .nav-sections .default-content-wrapper > ul > li:focus-within > p,
+  header nav .nav-sections .default-content-wrapper > ul > li:focus-within > a {
+    border-bottom-color: var(--conti-black);
   }
 
   header nav .nav-sections .nav-drop > p::after {
