@@ -85,7 +85,9 @@ main .section.cards-container {
 }
 
 .cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
-  font-size: var(--heading-font-size-xs);
+  font-size: var(--body-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .cards.news .cards-card-body p {
@@ -208,6 +210,7 @@ main .section.cards-container:has(.cards.category) > div {
   display: inline;
   font-size: var(--heading-font-size-l);
   font-weight: 400;
+  letter-spacing: 0.25px;
   background-color: var(--conti-white);
   box-decoration-break: clone;
 }
