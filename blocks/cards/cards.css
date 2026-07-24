@@ -76,8 +76,8 @@ main .section.cards-container {
 
 /* ---- news: article/news teaser cards ---- */
 .cards.news > ul {
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .cards.news > ul > li img {
@@ -157,6 +157,14 @@ main .section.cards-container {
 }
 
 /* ---- category: tire/product category tiles ---- */
+
+/* full-bleed: this section's tiles span the viewport edge to edge on live,
+   opting out of the generic 1200px section container */
+main .section.cards-container:has(.cards.category) > div {
+  max-width: none;
+  padding: 0;
+}
+
 .cards.category > ul {
   grid-template-columns: 1fr;
   gap: 0;
@@ -198,7 +206,8 @@ main .section.cards-container {
 
 .cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
   display: inline;
-  font-size: var(--heading-font-size-s);
+  font-size: var(--heading-font-size-l);
+  font-weight: 400;
   background-color: var(--conti-white);
   box-decoration-break: clone;
 }
@@ -247,7 +256,7 @@ main .section.cards-container {
   font-family: var(--heading-font-family);
   font-size: var(--body-font-size-xs);
   font-weight: bold;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -256,8 +265,8 @@ main .section.cards-container {
 }
 
 .cards.coverage .cards-card-body .icon {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
 }
 
 .cards.category > ul > li:hover,
@@ -276,8 +285,28 @@ main .section.cards-container {
   transform: translateY(-6px);
 }
 
-.cards.coverage .cards-card-body .icon img {
-  filter: invert(1);
+/* the confidence band wraps a badge image, heading, copy, the coverage
+   cards and a Learn More button - all centered, matching the live page */
+main .section.dark.cards-container {
+  text-align: center;
+}
+
+main .section.dark.cards-container .default-content-wrapper .icon {
+  width: 126px;
+  height: 148px;
+}
+
+main .section.dark.cards-container .default-content-wrapper h2 {
+  letter-spacing: 6px;
+}
+
+main .section.dark.cards-container .default-content-wrapper p {
+  font-size: 24px;
+  font-weight: 300;
+}
+
+main .section.dark.cards-container .cards-wrapper {
+  margin-top: 32px;
 }
 
 /* ---- news inside a dark/black band: plain text teasers, no card chrome ---- */
@@ -299,7 +328,7 @@ main .section.black .cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
 
 main .section.dark .cards.news .cards-card-body a,
 main .section.black .cards.news .cards-card-body a {
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 main .section.dark .cards.news .cards-card-body a:hover,
@@ -310,22 +339,7 @@ main .section.black .cards.news .cards-card-body a:hover {
 @media (width >= 600px) {
   main .section.dark .cards.news > ul > li:not(:first-child),
   main .section.black .cards.news > ul > li:not(:first-child) {
-    border-inline-start: 1px solid rgb(255 255 255 / 25%);
-    padding-inline-start: 24px;
+    border-inline-start: 1px solid var(--conti-white);
+    padding-inline-start: 20px;
   }
-}
-
-/* the confidence band wraps a badge image, heading, copy, the coverage
-   cards and a Learn More button - all centered, matching the live page */
-main .section.dark.cards-container {
-  text-align: center;
-}
-
-main .section.dark.cards-container .default-content-wrapper .icon {
-  width: 100px;
-  height: 120px;
-}
-
-main .section.dark.cards-container .cards-wrapper {
-  margin-top: 32px;
 }

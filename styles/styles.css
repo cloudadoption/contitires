@@ -354,8 +354,8 @@ main .section.black {
   padding: 56px 0;
 }
 
-main .section.dark a:any-link,
-main .section.black a:any-link {
+main .section.dark a:any-link:not(.button),
+main .section.black a:any-link:not(.button) {
   color: var(--conti-white);
 }
 
