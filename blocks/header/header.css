@@ -434,9 +434,15 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
     align-self: unset;
   }
 
+  header nav .nav-sections .default-content-wrapper {
+    height: 100%;
+  }
+
   header nav .nav-sections .default-content-wrapper > ul {
     display: flex;
+    align-items: center;
     height: 100%;
+    margin: 0;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li {
