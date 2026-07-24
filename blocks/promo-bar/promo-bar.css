@@ -10,29 +10,106 @@ main .section.promo-bar-container {
 .promo-bar {
   background-color: var(--conti-yellow);
   color: var(--conti-black);
+}
+
+/* row 1: slim toggle bar, full-bleed background with a centered max-width inner */
+.promo-bar-bar {
+  display: flex;
+  justify-content: center;
+}
+
+.promo-bar-bar-inner {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
   text-align: center;
 }
 
-.promo-bar > div > div {
+.promo-bar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
-  padding: 4px 24px;
+  border: 0;
+  background: none;
+  padding: 10px 0;
+  color: inherit;
   font-family: var(--body-font-family);
   font-size: 12px;
   font-weight: 700;
+  cursor: pointer;
 }
 
-.promo-bar p {
-  margin: 0;
+.promo-bar-toggle:hover,
+.promo-bar-toggle:focus-visible {
+  color: var(--conti-dark-black);
 }
 
-.promo-bar p::before {
-  content: '+';
-  display: inline-block;
-  margin-inline-end: 8px;
-  font-weight: bold;
+.promo-bar-toggle:focus-visible {
+  outline: 2px solid var(--conti-dark-black);
+  outline-offset: 2px;
 }
 
-.promo-bar a:any-link {
-  color: inherit;
-  text-decoration: underline;
+.promo-bar-chevron {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentcolor;
+  border-bottom: 2px solid currentcolor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.promo-bar-toggle[aria-expanded="true"] .promo-bar-chevron {
+  transform: rotate(-135deg);
+}
+
+/* row 2: collapsible panel, animated via a 0fr/1fr grid track so the
+   height never has to be measured in JS */
+.promo-bar-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  background-color: var(--conti-white);
+  transition: grid-template-rows 0.3s ease;
+}
+
+.promo-bar-panel.promo-bar-panel-open {
+  grid-template-rows: 1fr;
+}
+
+.promo-bar-panel-inner {
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.promo-bar-panel-open .promo-bar-panel-inner {
+  opacity: 1;
+  transition-delay: 0.05s;
+}
+
+.promo-bar-panel-inner h3 {
+  margin-top: 0;
+}
+
+.promo-bar-panel-inner p {
+  margin: 0.25em 0;
+}
+
+@media (width >= 900px) {
+  .promo-bar-bar-inner {
+    padding: 0 32px;
+  }
+
+  .promo-bar-panel-inner {
+    padding: 32px;
+  }
 }
