@@ -90,6 +90,10 @@ export function buildFooterContent(fragment) {
 
   const content = document.createElement('div');
   content.className = 'footer-content';
+  // hoist the social band out of the capped columns so it is a full-width
+  // sibling at the top of the footer, matching the section pattern
+  const social = links.querySelector('.footer-social');
+  if (social) content.append(social);
   if (links.children.length) content.append(links);
   if (bottom.children.length) content.append(bottom);
   return content;
