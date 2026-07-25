@@ -1,5 +1,11 @@
 /* homepage feature carousel: one slide visible at a time on a white band,
-   image + heading/body/CTA, with arrows, dots and a counter below */
+   image + heading/body/CTA, with plain arrows and a counter */
+
+/* sit flush against the neighboring dark bands, like the live site */
+main .section.carousel-container {
+  margin: 0;
+}
+
 .carousel {
   position: relative;
   background-color: var(--conti-white);
@@ -44,6 +50,7 @@
 
 .carousel-content {
   padding: 24px 0 0;
+  text-align: center;
 }
 
 .carousel-content h3 {
@@ -59,35 +66,27 @@
   margin-top: 20px;
 }
 
+/* live uses an outlined pill button for the slide CTA, not an underlined link */
 .carousel-cta {
   display: inline-flex;
   align-items: center;
+  border: 1px solid var(--conti-black);
+  border-radius: 24px;
+  padding: 12px 28px;
   color: var(--conti-black);
   font-family: var(--heading-font-family);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.25px;
-  text-decoration: underline;
-  text-decoration-color: var(--conti-yellow);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
+  text-decoration: none;
   text-transform: uppercase;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .carousel-cta:hover,
 .carousel-cta:focus-visible {
-  color: var(--conti-dark-yellow);
-}
-
-.carousel-cta::after {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-inline-start: 8px;
-  border-inline-end: 2px solid currentcolor;
-  border-block-end: 2px solid currentcolor;
-  transform: translateY(-1px) rotate(-45deg);
+  background-color: var(--conti-black);
+  color: var(--conti-white);
 }
 
 .carousel-nav {
@@ -98,24 +97,24 @@
   padding: 24px 0 0;
 }
 
+/* live uses plain chevrons, not circled arrows */
 .carousel-arrow {
   display: flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--conti-grey);
-  border-radius: 50%;
-  background-color: var(--conti-white);
+  width: 24px;
+  height: 24px;
+  border: 0;
+  background: none;
   padding: 0;
   cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .carousel-arrow:hover,
 .carousel-arrow:focus-visible {
-  border-color: var(--conti-black);
+  opacity: 0.6;
 }
 
 .carousel-arrow::before {
@@ -134,31 +133,9 @@
   transform: rotate(-135deg) translate(1px, -1px);
 }
 
+/* live has no dot indicators, only arrows and a counter */
 .carousel-dots {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.carousel-dot {
-  width: 10px;
-  height: 10px;
-  border: 0;
-  border-radius: 50%;
-  background-color: var(--conti-grey);
-  padding: 0;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.carousel-dot:hover,
-.carousel-dot:focus-visible {
-  background-color: var(--conti-dark-yellow);
-}
-
-.carousel-dot[aria-current="true"] {
-  background-color: var(--conti-yellow);
-  transform: scale(1.2);
+  display: none;
 }
 
 .carousel-counter {
@@ -187,8 +164,14 @@
     padding: 0;
   }
 
+  /* pin the pagination to the bottom of the content column, left of the
+     image, so it adds no vertical space to the band */
   .carousel-nav {
-    justify-content: flex-start;
-    padding: 32px 0 0;
+    position: absolute;
+    left: 0;
+    bottom: 24px;
+    width: 340px;
+    justify-content: center;
+    padding: 0;
   }
 }
