@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it beforeEach KeyboardEvent Event */
+/* global describe it beforeEach */
 
 import { expect } from '@esm-bundle/chai';
 import decorate from '../../../blocks/perfect-fit/perfect-fit.js';
