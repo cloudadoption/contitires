@@ -179,30 +179,35 @@ main .section.cards-container:has(.cards.category) > div {
 
 .cards.category > ul > li {
   border: 0;
+  border-bottom: 1px solid var(--conti-grey);
   border-radius: 0;
   box-shadow: none;
-  min-height: 200px;
+  min-height: 166px;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* the tire image is absolutely positioned and overflows the tile bottom-right,
+   like live, so a wrapped title never shifts it (the tile clips via the base
+   li overflow:hidden) */
 .cards.category .cards-card-image {
   position: absolute;
   z-index: 0;
-  inset-block-end: 0;
-  inset-inline-end: 0;
-  width: 210px;
+  inset-block-end: -10px;
+  inset-inline-end: -48px;
+  width: auto;
 }
 
 .cards.category > ul > li img {
+  width: 220px;
+  height: auto;
   aspect-ratio: auto;
-  object-fit: contain;
   transition: transform 0.3s ease;
 }
 
 .cards.category .cards-card-body {
   position: relative;
   z-index: 1;
-  margin: 28px 130px 16px 24px;
+  margin: 20px 160px 20px 24px;
 }
 
 .cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
@@ -225,13 +230,31 @@ main .section.cards-container:has(.cards.category) > div {
   transform: translateY(-2px) rotate(-45deg);
 }
 
-@media (width >= 600px) {
-  .cards.category .cards-card-body {
-    margin-inline-end: 160px;
+@media (width >= 900px) {
+  /* live's fixed-height row: a 166px tile with a thin vertical divider
+     between adjacent tiles (no bottom rule), so all three images align
+     regardless of how the title wraps */
+  .cards.category > ul > li {
+    height: 166px;
+    min-height: 0;
+    border-bottom: 0;
+  }
+
+  .cards.category > ul > li + li {
+    border-inline-start: 1px solid var(--conti-grey);
   }
 
   .cards.category .cards-card-image {
-    width: 160px;
+    inset-inline-end: -80px;
+  }
+
+  .cards.category > ul > li img {
+    width: 279px;
+  }
+
+  .cards.category .cards-card-body {
+    margin: 38px 24px 12px 45px;
+    max-width: 220px;
   }
 }
 
