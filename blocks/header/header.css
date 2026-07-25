@@ -601,6 +601,17 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li:not(:has(> ul)) > p {
     margin: 0;
   }
+
+  /* a panel whose columns are ALL heading-only (Learn: no column has a
+     sub-list) lays them out inline across the panel, not as stacked
+     full-width OE/Fleet rows. Scoped to sub-list-free panels so Tires and
+     Stores are untouched. */
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul:not(:has(li > ul)) > li {
+    flex: 0 1 auto;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
 }
 /* stylelint-enable no-descending-specificity */
 

@@ -79,7 +79,7 @@ function focusNavSection() {
  * @returns {boolean}
  */
 export function isMegaMenu(navSection) {
-  return !!navSection.querySelector(':scope > ul > li:nth-child(2) > p');
+  return !!navSection.querySelector(':scope > ul > li > p');
 }
 
 /**
