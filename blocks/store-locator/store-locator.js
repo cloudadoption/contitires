@@ -25,6 +25,20 @@ export default function decorate(block) {
     else search.prepend(field);
   }
 
-  if (result) result.className = 'store-locator-result';
+  if (result) {
+    result.className = 'store-locator-result';
+    // split the result into a distance column and a details column, matching
+    // the live layout: "3.29 MI" sits left of the store name and address. The
+    // paragraphs are nested in the row's cell, so read them as descendants.
+    const paras = [...result.querySelectorAll('p')];
+    const [distance, ...rest] = paras;
+    if (distance) {
+      distance.className = 'store-locator-distance';
+      const details = document.createElement('div');
+      details.className = 'store-locator-details';
+      rest.forEach((p) => details.append(p));
+      result.replaceChildren(distance, details);
+    }
+  }
   if (ctas) ctas.className = 'store-locator-ctas';
 }
