@@ -1,0 +1,104 @@
+.article-cards-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px 24px;
+}
+
+@media (width >= 600px) {
+  .article-cards-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width >= 900px) {
+  .article-cards-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.article-cards-list li {
+  margin: 0;
+}
+
+.article-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.article-card-image {
+  overflow: hidden;
+  background-color: var(--conti-lightest-grey);
+}
+
+.article-card-image img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.article-card:hover .article-card-image img,
+.article-card:focus-visible .article-card-image img {
+  transform: scale(1.05);
+}
+
+.article-card-body {
+  padding: 16px 2px 0;
+}
+
+.article-card-body h3 {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.3px;
+  color: var(--conti-black);
+}
+
+.article-card:hover .article-card-body h3,
+.article-card:focus-visible .article-card-body h3 {
+  color: var(--conti-yellow);
+}
+
+.article-card-body p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--conti-darkest-grey);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-cards-more {
+  display: block;
+  margin: 40px auto 0;
+  border: 1px solid currentcolor;
+  border-radius: 24px;
+  padding: 12px 32px;
+  background: none;
+  color: inherit;
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.article-cards-more:hover,
+.article-cards-more:focus-visible {
+  background-color: var(--conti-black);
+  color: var(--conti-white);
+}
