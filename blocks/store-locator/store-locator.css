@@ -51,39 +51,41 @@
   font-size: var(--body-font-size-xs);
 }
 
-/* example store result */
+/* example store result: distance column left of the store details */
 .store-locator-result {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 24px;
-  align-items: start;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
 }
 
 .store-locator-result p {
   margin: 0 0 6px;
 }
 
-.store-locator-result p:first-child {
-  grid-row: span 5;
-  align-self: center;
+.store-locator-distance {
+  flex: none;
   color: var(--conti-yellow);
   font-size: 40px;
   line-height: 1;
   text-align: center;
 }
 
-.store-locator-result p:first-child strong {
+/* "MI" reads as a small unit under the number, not a second big line */
+.store-locator-distance strong {
   display: block;
+  margin-top: 2px;
   font-weight: 400;
+  font-size: 16px;
+  letter-spacing: 0.05em;
 }
 
-.store-locator-result p:nth-child(2) strong {
+.store-locator-details p:first-child strong {
   font-size: 14px;
   letter-spacing: 0.25px;
   text-transform: uppercase;
 }
 
-.store-locator-result p:nth-child(3) {
+.store-locator-details p:nth-child(2) {
   font-size: 14px;
   text-transform: uppercase;
 }
@@ -132,6 +134,6 @@
 
   .store-locator-ctas {
     grid-column: 2;
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 }
