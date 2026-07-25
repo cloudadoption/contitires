@@ -41,7 +41,15 @@ export default function decorate(block) {
   panelRow.id = panelId;
   panelRow.setAttribute('inert', '');
   panelCell.className = 'promo-bar-panel-inner';
-  panelCell.querySelectorAll('a[href]').forEach((a) => {
+
+  // hold the visual padding on an inner wrapper, not on the grid item itself,
+  // so the collapsed panel can crush to zero height (a padded grid item cannot)
+  const panelContent = document.createElement('div');
+  panelContent.className = 'promo-bar-panel-content';
+  panelContent.append(...panelCell.childNodes);
+  panelCell.append(panelContent);
+
+  panelContent.querySelectorAll('a[href]').forEach((a) => {
     a.classList.add('button', 'secondary');
     if (a.parentElement.tagName === 'P') a.parentElement.className = 'button-wrapper';
   });

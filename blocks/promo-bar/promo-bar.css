@@ -80,8 +80,12 @@ main .section.promo-bar-container {
 }
 
 .promo-bar-panel-inner {
-  box-sizing: border-box;
+  min-height: 0;
   overflow: hidden;
+}
+
+.promo-bar-panel-content {
+  box-sizing: border-box;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -91,16 +95,16 @@ main .section.promo-bar-container {
   transition: opacity 0.2s ease;
 }
 
-.promo-bar-panel-open .promo-bar-panel-inner {
+.promo-bar-panel-open .promo-bar-panel-content {
   opacity: 1;
   transition-delay: 0.05s;
 }
 
-.promo-bar-panel-inner h3 {
+.promo-bar-panel-content h3 {
   margin-top: 0;
 }
 
-.promo-bar-panel-inner p {
+.promo-bar-panel-content p {
   margin: 0.25em 0;
 }
 
@@ -109,7 +113,7 @@ main .section.promo-bar-container {
     padding: 0 32px;
   }
 
-  .promo-bar-panel-inner {
+  .promo-bar-panel-content {
     padding: 32px;
   }
 }
