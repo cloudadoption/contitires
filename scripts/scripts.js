@@ -188,7 +188,12 @@ async function loadEager(doc) {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
-  loadHeader(doc.querySelector('header'));
+  // block-library sample pages (/tools/sidekick/blocks/<name>) render in the DA
+  // library preview iframe; keep them to the block itself by not loading the
+  // site header and footer there
+  const isBlockPreview = window.location.pathname.startsWith('/tools/sidekick/blocks/');
+  const header = doc.querySelector('header');
+  if (header && !isBlockPreview) loadHeader(header);
 
   const main = doc.querySelector('main');
   await loadSections(main);
@@ -197,7 +202,8 @@ async function loadLazy(doc) {
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  loadFooter(doc.querySelector('footer'));
+  const footer = doc.querySelector('footer');
+  if (footer && !isBlockPreview) loadFooter(footer);
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
