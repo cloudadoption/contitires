@@ -66,8 +66,9 @@ main .section.carousel-container {
   margin-top: 20px;
 }
 
-/* live uses an outlined pill button for the slide CTA, not an underlined link */
-.carousel-cta {
+/* live uses an outlined pill button for the slide CTA, not an underlined link.
+   the "a" tag out-specifies the global a:any-link color so the label is dark. */
+a.carousel-cta {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--conti-black);
@@ -83,8 +84,8 @@ main .section.carousel-container {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.carousel-cta:hover,
-.carousel-cta:focus-visible {
+a.carousel-cta:hover,
+a.carousel-cta:focus-visible {
   background-color: var(--conti-black);
   color: var(--conti-white);
 }
@@ -131,11 +132,6 @@ main .section.carousel-container {
 
 .carousel-next::before {
   transform: rotate(-135deg) translate(1px, -1px);
-}
-
-/* live has no dot indicators, only arrows and a counter */
-.carousel-dots {
-  display: none;
 }
 
 .carousel-counter {
