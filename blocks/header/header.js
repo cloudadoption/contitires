@@ -140,7 +140,7 @@ function closeSearch(toggle, panel) {
  * not authored content.
  * @returns {Element} the utility nav wrapper
  */
-function buildUtilityNav() {
+export function buildUtilityNav() {
   const wrapper = document.createElement('div');
   wrapper.className = 'nav-tools-utility';
   const ul = document.createElement('ul');
