@@ -103,4 +103,15 @@ describe('selectRows', () => {
     expect(selectRows(rows, { category: 'news' }).map((r) => r.lastModified)).to.deep.equal(['3']);
     expect(selectRows(rows).length).to.equal(2);
   });
+
+  it('drops rows using the missing default-meta-image fallback', () => {
+    const rows = [
+      { image: '/learn/media_1.png?width=1200', lastModified: '3' },
+      { image: '/default-meta-image.png?width=1200&format=pjpg', lastModified: '2' },
+      { image: '/learn/media_2.png?width=1200', lastModified: '1' },
+    ];
+    const out = selectRows(rows);
+    expect(out).to.have.length(2);
+    expect(out.some((r) => r.image.includes('default-meta-image'))).to.be.false;
+  });
 });
