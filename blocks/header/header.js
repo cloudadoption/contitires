@@ -71,6 +71,18 @@ function focusNavSection() {
 }
 
 /**
+ * A top nav item opens as a full-width dark mega-menu when any of its
+ * second-level columns carries a heading (a <p>), matching the live site
+ * where every multi-column or single-heading dropdown is a full-width panel.
+ * Flat link lists (bare <li><a>) and plain links stay a small flyout.
+ * @param {Element} navSection a top-level nav <li>
+ * @returns {boolean}
+ */
+export function isMegaMenu(navSection) {
+  return !!navSection.querySelector(':scope > ul > li:nth-child(2) > p');
+}
+
+/**
  * Toggles all nav sections
  * @param {Element} sections The container element
  * @param {Boolean} expanded Whether the element should be expanded or collapsed
@@ -260,12 +272,7 @@ export default async function decorate(block) {
   if (navSections) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
       if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
-      // a multi-column menu (a flyout whose second column carries a heading)
-      // opens as a full-width mega-menu; single-column or flat menus stay a
-      // small flyout
-      if (navSection.querySelector(':scope > ul > li:nth-child(2) > p')) {
-        navSection.classList.add('nav-mega');
-      }
+      if (isMegaMenu(navSection)) navSection.classList.add('nav-mega');
       navSection.addEventListener('click', () => {
         if (isDesktop.matches) {
           const expanded = navSection.getAttribute('aria-expanded') === 'true';
