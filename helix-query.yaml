@@ -6,6 +6,7 @@ indices:
     include:
       - /learn/**
     exclude:
+      - /learn
       - /learn/product-highlights
     properties:
       title:
