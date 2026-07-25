@@ -240,6 +240,9 @@ header nav .nav-search-toggle {
   cursor: pointer;
 }
 
+/* utility icons are flat on the live header: a dark line icon with no chip,
+   circle, or pill behind it. Keep a 30px box for the tap target, but draw
+   nothing around the glyph. */
 header nav .nav-tools-utility-item .icon,
 header nav .nav-search-toggle .icon {
   display: flex;
@@ -248,50 +251,31 @@ header nav .nav-search-toggle .icon {
   width: 30px;
   height: 30px;
   flex-shrink: 0;
-  border: 1px solid var(--conti-yellow);
-  border-radius: 50%;
-  background-color: var(--conti-white);
 }
 
 header nav .nav-tools-utility-item .icon img,
 header nav .nav-search-toggle .icon img {
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
 }
 
-/* Chat now: a pill, not a circle, and (unlike Customer support / Site
-   search) its label is always visible on desktop - matching the live
-   header, where Chat now is the one utility item with an inline label.
-   Selector needs the "a" tag (not just the class) to out-specificity
-   "header nav a:any-link" below, which also sets color. */
+/* Chat now is the one utility item with an inline label on desktop, flat
+   like the rest. Selector needs the "a" tag (not just the class) to
+   out-specificity "header nav a:any-link" below, which also sets color. */
 header nav a.nav-tools-utility-item-pill {
-  border-radius: 20px;
-  padding: 0 16px;
+  padding: 0;
   height: 30px;
-  background-color: var(--conti-white);
   color: var(--conti-black);
 }
 
 header nav .nav-tools-utility-item-pill .icon {
-  width: 18px;
-  height: 18px;
-  border: 0;
-  border-radius: 0;
-  background: none;
+  width: 22px;
+  height: 22px;
 }
 
 header nav .nav-tools-utility-item-pill .icon img {
-  width: 16px;
-  height: 16px;
-}
-
-header nav .nav-tools-utility-item:hover .icon,
-header nav .nav-tools-utility-item:focus-visible .icon,
-header nav .nav-search-toggle:hover .icon,
-header nav .nav-search-toggle:focus-visible .icon,
-header nav .nav-search-toggle[aria-expanded='true'] .icon {
-  background-color: var(--conti-dark-black);
-  border-color: var(--conti-dark-black);
+  width: 22px;
+  height: 22px;
 }
 
 header nav .nav-tools-utility-item:hover .icon img,
@@ -299,25 +283,12 @@ header nav .nav-tools-utility-item:focus-visible .icon img,
 header nav .nav-search-toggle:hover .icon img,
 header nav .nav-search-toggle:focus-visible .icon img,
 header nav .nav-search-toggle[aria-expanded='true'] .icon img {
-  filter: invert(1);
+  opacity: 0.6;
 }
 
 header nav .nav-tools-utility-item-pill:hover,
 header nav .nav-tools-utility-item-pill:focus-visible {
-  background-color: var(--conti-lightest-grey);
-}
-
-/* override the generic dark-circle hover/focus above: the pill has no
-   circle to invert */
-header nav .nav-tools-utility-item-pill:hover .icon,
-header nav .nav-tools-utility-item-pill:focus-visible .icon {
-  background-color: transparent;
-  border-color: transparent;
-}
-
-header nav .nav-tools-utility-item-pill:hover .icon img,
-header nav .nav-tools-utility-item-pill:focus-visible .icon img {
-  filter: none;
+  color: var(--conti-darkest-grey);
 }
 
 header nav .nav-tools-utility-label {
