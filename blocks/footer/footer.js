@@ -53,7 +53,7 @@ function decorateSocialGroup(group) {
  * @param {Element} fragment the loaded footer fragment
  * @returns {Element} the decorated footer content wrapper
  */
-function buildFooterContent(fragment) {
+export function buildFooterContent(fragment) {
   const links = document.createElement('div');
   links.className = 'footer-links';
   const bottom = document.createElement('div');
