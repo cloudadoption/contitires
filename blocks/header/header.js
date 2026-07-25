@@ -258,6 +258,12 @@ export default async function decorate(block) {
   if (navSections) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
       if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
+      // a multi-column menu (a flyout whose second column carries a heading)
+      // opens as a full-width mega-menu; single-column or flat menus stay a
+      // small flyout
+      if (navSection.querySelector(':scope > ul > li:nth-child(2) > p')) {
+        navSection.classList.add('nav-mega');
+      }
       navSection.addEventListener('click', () => {
         if (isDesktop.matches) {
           const expanded = navSection.getAttribute('aria-expanded') === 'true';
