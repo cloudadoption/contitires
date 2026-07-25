@@ -37,7 +37,19 @@
         "255/50R20",
         "275/45R20"
       ],
-      "sizesAreReal": false
+      "sizesAreReal": false,
+      "bestFor": [
+        "Crossover",
+        "Light Truck/SUV",
+        "Electric Vehicles",
+        "Touring",
+        "All-Season"
+      ],
+      "technology": [
+        "EcoPlus",
+        "QuickView Indicators"
+      ],
+      "sizeCount": 54
     },
     {
       "slug": "extremecontact-dws06-plus",
@@ -79,7 +91,21 @@
         "315/35ZR20",
         "335/25ZR20"
       ],
-      "sizesAreReal": true
+      "sizesAreReal": true,
+      "bestFor": [
+        "Passenger",
+        "Crossover",
+        "Light Truck/SUV",
+        "Electric Vehicles",
+        "Ultra-High Performance",
+        "All-Season"
+      ],
+      "technology": [
+        "Tuned Performance Indicators (DWS)",
+        "SportPlus",
+        "QuickView Indicators"
+      ],
+      "sizeCount": 119
     },
     {
       "slug": "extremecontact-force",
@@ -124,7 +150,17 @@
         "325/30ZR19",
         "305/30ZR20"
       ],
-      "sizesAreReal": true
+      "sizesAreReal": true,
+      "bestFor": [
+        "Passenger",
+        "Electric Vehicles",
+        "Ultra-High Performance",
+        "Summer"
+      ],
+      "technology": [
+        "SportPlus"
+      ],
+      "sizeCount": 18
     },
     {
       "slug": "extremecontact-sport-02",
@@ -139,7 +175,7 @@
         "Electric Vehicles"
       ],
       "tagline": "Ultra-high performance built for the street and the track",
-      "description": "The ExtremeContact Sport 02 is a dynamic, summer ultra-high performance tire for passenger cars. Ideal for both the street and track, this tire comes complete with SportPlus Technology, which provides responsive handling, better grip on wet roads, and extended tread life.",
+      "description": "The ExtremeContact\u2122 Sport 02 is a dynamic, summer ultra-high performance tire for passenger cars. Ideal for both the street and track, this tire comes complete with SportPlus\u2122 Technology, which provides responsive handling, better grip on wet roads, and extended tread life.",
       "features": [
         "SportPlus Technology for responsive handling",
         "Better grip on wet roads",
@@ -230,7 +266,18 @@
         "335/25ZR20",
         "305/30ZR21"
       ],
-      "sizesAreReal": true
+      "sizesAreReal": true,
+      "bestFor": [
+        "Passenger",
+        "Electric Vehicles",
+        "Ultra-High Performance",
+        "Summer"
+      ],
+      "technology": [
+        "Tuned Performance Indicators (DW)",
+        "SportPlus"
+      ],
+      "sizeCount": 78
     },
     {
       "slug": "purecontact-ls",
@@ -268,7 +315,19 @@
         "235/55R20",
         "255/45R20"
       ],
-      "sizesAreReal": false
+      "sizesAreReal": false,
+      "bestFor": [
+        "Passenger",
+        "Crossover",
+        "Electric Vehicles",
+        "Touring",
+        "All-Season"
+      ],
+      "technology": [
+        "EcoPlus",
+        "QuickView Indicators"
+      ],
+      "sizeCount": 12
     },
     {
       "slug": "securecontact-aw",
@@ -339,7 +398,20 @@
         "255/60R19",
         "265/50R20"
       ],
-      "sizesAreReal": true
+      "sizesAreReal": true,
+      "bestFor": [
+        "Passenger",
+        "Crossover",
+        "Light Truck/SUV",
+        "Touring",
+        "All-Weather"
+      ],
+      "technology": [
+        "3-Peak Mountain Snowflake",
+        "EcoPlus",
+        "QuickView Indicators"
+      ],
+      "sizeCount": 49
     },
     {
       "slug": "terraincontact-at",
@@ -380,7 +452,18 @@
         "275/60R20",
         "285/45R22"
       ],
-      "sizesAreReal": false
+      "sizesAreReal": false,
+      "bestFor": [
+        "Crossover",
+        "Light Truck/SUV",
+        "Electric Vehicles",
+        "All-Terrain",
+        "All-Season"
+      ],
+      "technology": [
+        "TractionPlus"
+      ],
+      "sizeCount": 37
     },
     {
       "slug": "terraincontact-at-2",
@@ -432,7 +515,19 @@
         "LT285/60R20",
         "LT305/70R18"
       ],
-      "sizesAreReal": true
+      "sizesAreReal": true,
+      "bestFor": [
+        "Crossover",
+        "Light Truck/SUV",
+        "Electric Vehicles",
+        "All-Terrain",
+        "All-Season"
+      ],
+      "technology": [
+        "3-Peak Mountain Snowflake",
+        "TractionPlus"
+      ],
+      "sizeCount": 28
     },
     {
       "slug": "terraincontact-ht",
@@ -471,7 +566,18 @@
         "275/45R22",
         "285/45R22"
       ],
-      "sizesAreReal": false
+      "sizesAreReal": false,
+      "bestFor": [
+        "Crossover",
+        "Light Truck/SUV",
+        "Electric Vehicles",
+        "Touring",
+        "All-Season"
+      ],
+      "technology": [
+        "TractionPlus"
+      ],
+      "sizeCount": 40
     },
     {
       "slug": "truecontact-tour",
@@ -510,7 +616,20 @@
         "225/60R18",
         "235/55R19"
       ],
-      "sizesAreReal": false
+      "sizesAreReal": false,
+      "bestFor": [
+        "Passenger",
+        "Crossover",
+        "Light Truck/SUV",
+        "Electric Vehicles",
+        "Touring",
+        "All-Season"
+      ],
+      "technology": [
+        "EcoPlus",
+        "QuickView Indicators"
+      ],
+      "sizeCount": 12
     },
     {
       "slug": "truecontact-tour54",
@@ -585,7 +704,19 @@
         "245/55R18",
         "255/45R19"
       ],
-      "sizesAreReal": true
+      "sizesAreReal": true,
+      "bestFor": [
+        "Passenger",
+        "Crossover",
+        "Electric Vehicles",
+        "Touring",
+        "All-Season"
+      ],
+      "technology": [
+        "EcoPlus",
+        "QuickView Indicators"
+      ],
+      "sizeCount": 62
     },
     {
       "slug": "vikingcontact-7",
@@ -638,7 +769,20 @@
         "275/40R22",
         "315/35R22"
       ],
-      "sizesAreReal": true
+      "sizesAreReal": true,
+      "bestFor": [
+        "Passenger",
+        "Crossover",
+        "Light Truck/SUV",
+        "Electric Vehicles",
+        "Touring",
+        "Winter"
+      ],
+      "technology": [
+        "3-Peak Mountain Snowflake",
+        "PolarPlus"
+      ],
+      "sizeCount": 25
     },
     {
       "slug": "vikingcontact-8",
@@ -679,7 +823,21 @@
         "275/50R22",
         "285/45R22"
       ],
-      "sizesAreReal": true
+      "sizesAreReal": true,
+      "bestFor": [
+        "Passenger",
+        "Crossover",
+        "Light Truck/SUV",
+        "Electric Vehicles",
+        "Touring",
+        "Winter"
+      ],
+      "technology": [
+        "3-Peak Mountain Snowflake",
+        "PolarPlus",
+        "Ice Grip Certified"
+      ],
+      "sizeCount": 86
     }
   ]
 }

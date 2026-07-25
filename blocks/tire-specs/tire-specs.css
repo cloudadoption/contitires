@@ -1,0 +1,73 @@
+/* product specifications: a dark band with a size selector and the selected
+   size's spec sheet, matching the live product page */
+.tire-specs {
+  background-color: var(--conti-dark-black);
+  color: var(--conti-white);
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.tire-specs h2 {
+  margin: 0 0 12px;
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-l);
+  font-weight: 300;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.tire-specs-count {
+  margin: 0 0 24px;
+  color: var(--conti-grey);
+  font-size: var(--body-font-size-s);
+}
+
+.tire-specs-select {
+  box-sizing: border-box;
+  min-width: 280px;
+  max-width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--conti-grey);
+  border-radius: 4px;
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  cursor: pointer;
+}
+
+.tire-specs-panel {
+  max-width: 860px;
+  margin: 32px auto 0;
+}
+
+.tire-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.tire-specs-grid dt {
+  padding: 12px 16px;
+  border-top: 1px solid rgb(255 255 255 / 15%);
+  color: var(--conti-grey);
+  font-size: var(--body-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tire-specs-grid dd {
+  margin: 0;
+  padding: 12px 16px;
+  border-top: 1px solid rgb(255 255 255 / 15%);
+  text-align: right;
+  font-weight: 700;
+}
+
+@media (width >= 700px) {
+  .tire-specs-grid {
+    grid-template-columns: 1fr auto 1fr auto;
+  }
+}
