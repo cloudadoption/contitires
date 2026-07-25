@@ -156,7 +156,9 @@ export function buildUtilityNav() {
       a.target = '_blank';
       a.rel = 'noopener noreferrer nofollow';
     }
-    a.innerHTML = `<span class="icon icon-${icon}"></span><span class="nav-tools-utility-label">${label}</span>`;
+    a.innerHTML = pill
+      ? `<span class="nav-tools-utility-label">${label}</span><span class="icon icon-${icon}"></span>`
+      : `<span class="icon icon-${icon}"></span><span class="nav-tools-utility-label">${label}</span>`;
     li.append(a);
     ul.append(li);
   });

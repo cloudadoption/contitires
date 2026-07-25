@@ -255,6 +255,7 @@ header nav .nav-tools-utility-item .icon img,
 header nav .nav-search-toggle .icon img {
   width: 22px;
   height: 22px;
+  object-fit: contain;
 }
 
 header nav .nav-tools-utility-label {
@@ -275,7 +276,7 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
   header nav[aria-expanded='true'] .nav-tools {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     padding: 0;
     border-top: 0;
   }
@@ -287,7 +288,7 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
   header nav[aria-expanded='true'] .nav-tools-utility ul {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
   }
 
   header nav[aria-expanded='true'] .nav-tools-utility-label {
@@ -298,28 +299,39 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
     display: inline;
   }
 
-  /* on the yellow desktop bar the utility items sit in light-grey pills, like
-     the live header: icon-only items (customer support, search) are circles,
-     Chat now is a rounded pill carrying its label. */
+  /* on the yellow desktop bar the utility items sit in white pills with a
+     thin yellow border, like the live header: icon-only items (customer
+     support, search) are 30px circles, Chat now is a rounded pill carrying
+     its label with the icon after it. */
   header nav .nav-tools-utility-item,
   header nav .nav-search-toggle {
-    background: var(--conti-light-grey);
+    background: var(--conti-white);
+    border: 1px solid var(--conti-yellow);
     color: var(--conti-black);
   }
 
   header nav .nav-tools-utility-item:not(.nav-tools-utility-item-pill),
   header nav .nav-search-toggle {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     justify-content: center;
     border-radius: 50%;
   }
 
   header nav a.nav-tools-utility-item-pill {
-    height: 40px;
-    padding: 0 18px;
+    height: 30px;
+    gap: 6px;
+    padding: 0 16px;
     border-radius: 20px;
     color: var(--conti-black);
+  }
+
+  header nav .nav-tools-utility-item .icon,
+  header nav .nav-search-toggle .icon,
+  header nav .nav-tools-utility-item .icon img,
+  header nav .nav-search-toggle .icon img {
+    width: 16px;
+    height: 16px;
   }
 
   header nav .nav-tools-utility-item:hover,
@@ -327,7 +339,9 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
   header nav .nav-search-toggle:hover,
   header nav .nav-search-toggle:focus-visible,
   header nav .nav-search-toggle[aria-expanded='true'] {
-    background: var(--conti-grey);
+    background: var(--conti-black);
+    border-color: var(--conti-black);
+    color: var(--conti-white);
   }
 }
 
