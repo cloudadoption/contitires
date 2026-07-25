@@ -63,9 +63,37 @@ describe('perfect-fit block', () => {
     return document.querySelector('.perfect-fit.block');
   }
   beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
   });
   afterEach(() => fetchStub.restore());
+
+  it('injects the search icon into each item when the content has none', async () => {
+    const block = build();
+    await decorate(block);
+    const items = block.querySelectorAll('.perfect-fit-item');
+    expect(items[0].querySelector('.icon.icon-vehicle')).to.exist;
+    expect(items[1].querySelector('.icon.icon-tire-size')).to.exist;
+    expect(items[2].querySelector('.icon.icon-license-plate')).to.exist;
+  });
+
+  it('does not add a second icon when the content already has one', async () => {
+    document.body.innerHTML = `
+      <div class="perfect-fit block">
+        <div><div><p>Find your perfect fit:</p></div></div>
+        <div>
+          <div><p><span class="icon icon-vehicle"></span>By Vehicle</p></div>
+          <div><p><span class="icon icon-tire-size"></span>By Tire Size</p></div>
+          <div><p><span class="icon icon-license-plate"></span>By Plate</p></div>
+        </div>
+      </div>`;
+    const block = document.querySelector('.perfect-fit.block');
+    await decorate(block);
+    block.querySelectorAll('.perfect-fit-item').forEach((item) => {
+      expect(item.querySelectorAll('.icon')).to.have.length(1);
+    });
+  });
 
   it('builds three item buttons and a hidden modal', async () => {
     const block = build();
