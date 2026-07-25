@@ -1,4 +1,4 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import { createOptimizedPicture, decorateIcons } from '../../scripts/aem.js';
 
 /**
  * "Find your perfect fit:" bar plus its tire-finder modal. The three items
@@ -14,6 +14,10 @@ const TABS = [
   { id: 'tire-size', label: 'By Tire Size' },
   { id: 'plate', label: 'By Plate' },
 ];
+
+// icon injected per item, by position (the plate tab uses the license-plate
+// icon). Injecting keeps the labels plain text in the authored content.
+const TAB_ICONS = ['vehicle', 'tire-size', 'license-plate'];
 
 // A small curated vehicle set. Each model maps to a coarse class that lines
 // up with the vehicleTypes recorded in products.json.
@@ -406,7 +410,16 @@ export default async function decorate(block) {
     button.type = 'button';
     button.className = 'perfect-fit-item';
     button.dataset.tab = tabId;
+    // inject the search icon unless the content already carries one, so the
+    // labels round-trip as plain text in DA without a raw :token: in the editor
+    const iconName = TAB_ICONS[index];
+    if (iconName && !cell.querySelector('.icon')) {
+      const icon = document.createElement('span');
+      icon.className = `icon icon-${iconName}`;
+      cell.prepend(icon);
+    }
     while (cell.firstElementChild) button.append(cell.firstElementChild);
+    decorateIcons(button);
     button.addEventListener('click', () => modal.open(tabId, button));
     const li = document.createElement('li');
     li.append(button);
