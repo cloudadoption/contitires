@@ -41,10 +41,22 @@ function buildCard(row) {
  * @param {Element} block the article-cards block
  */
 export function selectRows(rows, { category } = {}) {
+  // articles carry an editorial `weight` (their position in the live category
+  // listing); sort by it ascending. Rows with no weight fall to the end,
+  // newest first, so a not-yet-weighted article never jumps the order.
+  const weightOf = (row) => {
+    const w = Number(row.weight);
+    return Number.isNaN(w) ? Infinity : w;
+  };
   return rows
     .filter((row) => row.image && !row.image.includes('/default-meta-image'))
     .filter((row) => !category || (row.category || '').toLowerCase() === category.toLowerCase())
-    .sort((a, b) => Number(b.lastModified || 0) - Number(a.lastModified || 0));
+    .sort((a, b) => {
+      const wa = weightOf(a);
+      const wb = weightOf(b);
+      if (wa !== wb) return wa - wb;
+      return Number(b.lastModified || 0) - Number(a.lastModified || 0);
+    });
 }
 
 export default async function decorate(block) {
