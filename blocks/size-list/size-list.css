@@ -1,0 +1,22 @@
+.size-list-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.size-list-chips .size-chip {
+  margin: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--conti-lightest-grey);
+  border-radius: 4px;
+  background-color: var(--conti-white);
+  font-family: var(--body-font-family);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--conti-darkest-grey);
+  white-space: nowrap;
+}
