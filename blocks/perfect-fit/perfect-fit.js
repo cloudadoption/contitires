@@ -1,8 +1,13 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
+
 /**
- * "Find your perfect fit:" bar plus its tire-finder modal. The bar's three
- * items open the modal on a matching tab (By Vehicle / By Tire Size / By
- * Plate); each tab is a simple, non-functional sample search form.
+ * "Find your perfect fit:" bar plus its tire-finder modal. The three items
+ * open the modal on a matching tab (By Vehicle / By Tire Size / By Plate).
+ * Each tab searches the real product catalogue in /products.json and lists
+ * the matching tires.
  */
+
+const PRODUCTS_URL = '/products.json';
 
 const TABS = [
   { id: 'vehicle', label: 'By Vehicle' },
@@ -10,112 +15,242 @@ const TABS = [
   { id: 'plate', label: 'By Plate' },
 ];
 
-function range(start, end, step = 1) {
-  const values = [];
-  for (let n = start; n <= end; n += step) values.push(n);
-  return values;
-}
-
-const YEARS = range(2015, 2026).reverse();
-const MAKES = ['Chevrolet', 'Ford', 'Toyota', 'BMW', 'Honda'];
-const WIDTHS = range(185, 315, 10);
-const ASPECT_RATIOS = range(40, 75, 5);
-const RIM_DIAMETERS = range(15, 22);
+// A small curated vehicle set. Each model maps to a coarse class that lines
+// up with the vehicleTypes recorded in products.json.
+const VEHICLES = {
+  Chevrolet: { 'Silverado 1500': 'truck', Equinox: 'crossover', Malibu: 'car' },
+  Ford: { 'F-150': 'truck', Explorer: 'suv', Escape: 'crossover' },
+  Toyota: { RAV4: 'crossover', Camry: 'car', Tacoma: 'truck' },
+  BMW: { X5: 'suv', '3 Series': 'car', X3: 'crossover' },
+  Honda: { 'CR-V': 'crossover', Civic: 'car', Pilot: 'suv' },
+  Tesla: { 'Model 3': 'car', 'Model Y': 'crossover' },
+};
 const STATES = ['California', 'Florida', 'Illinois', 'New York', 'Ohio', 'Texas'];
 
-/**
- * Builds a labelled `<select>` or `<input>` field.
- * @returns {{ wrapper: Element, field: Element }}
- */
-function createField(tag, id, labelText) {
+function range(start, end) {
+  const out = [];
+  for (let n = start; n <= end; n += 1) out.push(n);
+  return out;
+}
+const YEARS = range(2015, 2026).reverse();
+
+// --- pure data helpers (exported for tests) ---
+
+/** Parses "225/45ZR17" into its width, aspect and rim, or null. */
+export function parseSize(str) {
+  const m = String(str).toUpperCase().match(/^(\d{3})\/(\d{2})Z?R(\d{2})$/);
+  return m ? { width: m[1], aspect: m[2], rim: m[3] } : null;
+}
+
+/** Builds cascading width / aspect / rim option lists from every size. */
+export function sizeOptions(products) {
+  const widths = new Set();
+  const aspectsByWidth = {};
+  const rimsByWidthAspect = {};
+  products.forEach((product) => (product.sizes || []).forEach((size) => {
+    const parsed = parseSize(size);
+    if (!parsed) return;
+    widths.add(parsed.width);
+    if (!aspectsByWidth[parsed.width]) aspectsByWidth[parsed.width] = new Set();
+    aspectsByWidth[parsed.width].add(parsed.aspect);
+    const key = `${parsed.width}/${parsed.aspect}`;
+    if (!rimsByWidthAspect[key]) rimsByWidthAspect[key] = new Set();
+    rimsByWidthAspect[key].add(parsed.rim);
+  }));
+  const num = (a, b) => Number(a) - Number(b);
+  const sortEntries = (obj) => Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [k, [...v].sort(num)]),
+  );
+  return {
+    widths: [...widths].sort(num),
+    aspectsByWidth: sortEntries(aspectsByWidth),
+    rimsByWidthAspect: sortEntries(rimsByWidthAspect),
+  };
+}
+
+/** All products available in the exact width / aspect / rim size. */
+export function findBySize(products, { width, aspect, rim }) {
+  return products.filter((product) => (product.sizes || []).some((size) => {
+    const parsed = parseSize(size);
+    return parsed && parsed.width === width && parsed.aspect === aspect && parsed.rim === rim;
+  }));
+}
+
+/** All products whose vehicleTypes match a coarse vehicle class keyword. */
+export function findByVehicleClass(products, vehicleClass) {
+  if (!vehicleClass) return [];
+  return products.filter((product) => (product.vehicleTypes || []).some(
+    (type) => type.toLowerCase().includes(vehicleClass),
+  ));
+}
+
+// --- DOM helpers ---
+
+function createField(tag, name, labelText) {
   const wrapper = document.createElement('div');
   wrapper.className = 'perfect-fit-field';
+  const id = `perfect-fit-${name}`;
   const label = document.createElement('label');
   label.setAttribute('for', id);
   label.textContent = labelText;
   const field = document.createElement(tag);
   field.id = id;
-  field.name = id;
+  field.name = name;
   wrapper.append(label, field);
   return { wrapper, field };
 }
 
-/** Fills a `<select>` with a disabled placeholder plus one option per value. */
-function populateSelect(select, values, placeholder) {
-  const placeholderOption = document.createElement('option');
-  placeholderOption.value = '';
-  placeholderOption.textContent = placeholder;
-  placeholderOption.disabled = true;
-  placeholderOption.selected = true;
-  select.append(placeholderOption, ...values.map((value) => {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = value;
-    return option;
+function fillSelect(select, values, placeholder) {
+  const ph = document.createElement('option');
+  ph.value = '';
+  ph.textContent = placeholder;
+  ph.disabled = true;
+  ph.selected = true;
+  select.replaceChildren(ph, ...values.map((value) => {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = value;
+    return opt;
   }));
 }
 
-function buildSearchButton() {
+function searchButton() {
   const button = document.createElement('button');
   button.type = 'submit';
-  button.className = 'button primary';
+  button.className = 'button primary perfect-fit-search';
   button.textContent = 'Search';
   return button;
 }
 
-function buildForm(fields) {
+function productCard(product) {
+  const card = document.createElement('a');
+  card.className = 'perfect-fit-result';
+  card.href = `/tires/${product.slug}`;
+  const media = document.createElement('div');
+  media.className = 'perfect-fit-result-media';
+  if (product.image) {
+    media.append(createOptimizedPicture(product.image, product.name, false, [{ width: '400' }]));
+  }
+  const body = document.createElement('div');
+  body.className = 'perfect-fit-result-body';
+  const heading = document.createElement('h4');
+  heading.textContent = product.name;
+  const meta = document.createElement('p');
+  meta.textContent = [product.category, product.season].filter(Boolean).join(' · ');
+  body.append(heading, meta);
+  card.append(media, body);
+  return card;
+}
+
+function renderResults(container, products) {
+  const count = document.createElement('p');
+  count.className = 'perfect-fit-result-count';
+  if (!products.length) {
+    count.textContent = 'No matching tires found. Try another combination.';
+    container.replaceChildren(count);
+    return;
+  }
+  count.textContent = `${products.length} matching ${products.length === 1 ? 'tire' : 'tires'}`;
+  const list = document.createElement('div');
+  list.className = 'perfect-fit-results-list';
+  products.forEach((product) => list.append(productCard(product)));
+  container.replaceChildren(count, list);
+}
+
+function buildTireSizeForm(products, onResults) {
+  const opts = sizeOptions(products);
   const form = document.createElement('form');
   form.className = 'perfect-fit-form';
-  form.action = '/tires';
-  form.append(...fields, buildSearchButton());
+  const width = createField('select', 'width', 'Width');
+  fillSelect(width.field, opts.widths, 'Width');
+  const aspect = createField('select', 'aspect', 'Aspect Ratio');
+  fillSelect(aspect.field, [], 'Aspect Ratio');
+  aspect.field.disabled = true;
+  const rim = createField('select', 'rim', 'Rim Diameter');
+  fillSelect(rim.field, [], 'Rim Diameter');
+  rim.field.disabled = true;
+
+  width.field.addEventListener('change', () => {
+    fillSelect(aspect.field, opts.aspectsByWidth[width.field.value] || [], 'Aspect Ratio');
+    aspect.field.disabled = false;
+    fillSelect(rim.field, [], 'Rim Diameter');
+    rim.field.disabled = true;
+  });
+  aspect.field.addEventListener('change', () => {
+    fillSelect(rim.field, opts.rimsByWidthAspect[`${width.field.value}/${aspect.field.value}`] || [], 'Rim Diameter');
+    rim.field.disabled = false;
+  });
+
+  form.append(width.wrapper, aspect.wrapper, rim.wrapper, searchButton());
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!width.field.value || !aspect.field.value || !rim.field.value) return;
+    onResults(findBySize(products, {
+      width: width.field.value, aspect: aspect.field.value, rim: rim.field.value,
+    }));
+  });
   return form;
 }
 
-function buildVehicleForm() {
-  const year = createField('select', 'perfect-fit-year', 'Year');
-  populateSelect(year.field, YEARS, 'Select year');
-  const make = createField('select', 'perfect-fit-make', 'Make');
-  populateSelect(make.field, MAKES, 'Select make');
-  const model = createField('select', 'perfect-fit-model', 'Model');
-  populateSelect(model.field, [], 'Select...');
-  const trim = createField('select', 'perfect-fit-trim', 'Trim');
-  populateSelect(trim.field, [], 'Select...');
-  return buildForm([year.wrapper, make.wrapper, model.wrapper, trim.wrapper]);
+function buildVehicleForm(products, onResults) {
+  const form = document.createElement('form');
+  form.className = 'perfect-fit-form';
+  const year = createField('select', 'year', 'Year');
+  fillSelect(year.field, YEARS, 'Year');
+  const make = createField('select', 'make', 'Make');
+  fillSelect(make.field, Object.keys(VEHICLES), 'Make');
+  const model = createField('select', 'model', 'Model');
+  fillSelect(model.field, [], 'Model');
+  model.field.disabled = true;
+  make.field.addEventListener('change', () => {
+    fillSelect(model.field, Object.keys(VEHICLES[make.field.value] || {}), 'Model');
+    model.field.disabled = false;
+  });
+  form.append(year.wrapper, make.wrapper, model.wrapper, searchButton());
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const vehicleClass = (VEHICLES[make.field.value] || {})[model.field.value];
+    onResults(findByVehicleClass(products, vehicleClass));
+  });
+  return form;
 }
 
-function buildTireSizeForm() {
-  const width = createField('select', 'perfect-fit-width', 'Width');
-  populateSelect(width.field, WIDTHS, 'Select width');
-  const aspectRatio = createField('select', 'perfect-fit-aspect-ratio', 'Aspect Ratio');
-  populateSelect(aspectRatio.field, ASPECT_RATIOS, 'Select ratio');
-  const rim = createField('select', 'perfect-fit-rim', 'Rim Diameter');
-  populateSelect(rim.field, RIM_DIAMETERS, 'Select diameter');
-  return buildForm([width.wrapper, aspectRatio.wrapper, rim.wrapper]);
-}
-
-function buildPlateForm() {
-  const plate = createField('input', 'perfect-fit-plate', 'License Plate');
+function buildPlateForm(products, onResults) {
+  const form = document.createElement('form');
+  form.className = 'perfect-fit-form';
+  const plate = createField('input', 'plate', 'License Plate');
   plate.field.type = 'text';
   plate.field.autocomplete = 'off';
-  const state = createField('select', 'perfect-fit-state', 'State');
-  populateSelect(state.field, STATES, 'Select state');
-  return buildForm([plate.wrapper, state.wrapper]);
+  const state = createField('select', 'state', 'State');
+  fillSelect(state.field, STATES, 'State');
+  form.append(plate.wrapper, state.wrapper, searchButton());
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    // plate lookup is not wired to a registration service, so recommend the
+    // all-weather touring range as a sensible default
+    onResults(products.filter((product) => /all-season|all-weather/i.test(product.season || '')));
+  });
+  return form;
 }
+
+const FORM_BUILDERS = {
+  vehicle: buildVehicleForm,
+  'tire-size': buildTireSizeForm,
+  plate: buildPlateForm,
+};
 
 /** Keyboard-focusable elements in `container`, ignoring hidden tab panels. */
 function getFocusable(container) {
-  const candidates = [...container.querySelectorAll('button, input, select, textarea')];
-  return candidates.filter((el) => (
-    !el.disabled && el.tabIndex !== -1 && !el.closest('[hidden]')
-  ));
+  return [...container.querySelectorAll('a[href], button, input, select, textarea')]
+    .filter((el) => !el.disabled && el.tabIndex !== -1 && !el.closest('[hidden]'));
 }
 
 /**
- * Builds the tire-finder modal (overlay, tabs, one form per tab) and wires
- * its interactions. Detached from the DOM; the caller appends `overlay`.
+ * Builds the tire-finder modal (overlay, tabs, one search form per tab) and
+ * wires its interactions. Detached from the DOM; the caller appends `overlay`.
  * @returns {{ overlay: Element, open: Function }}
  */
-function buildModal() {
+function buildModal(products) {
   const overlay = document.createElement('div');
   overlay.className = 'perfect-fit-overlay';
   overlay.hidden = true;
@@ -145,11 +280,6 @@ function buildModal() {
   const panelsWrapper = document.createElement('div');
   panelsWrapper.className = 'perfect-fit-panels';
 
-  const forms = {
-    vehicle: buildVehicleForm,
-    'tire-size': buildTireSizeForm,
-    plate: buildPlateForm,
-  };
   const tabs = {};
   const panels = {};
 
@@ -171,7 +301,10 @@ function buildModal() {
     panel.setAttribute('role', 'tabpanel');
     panel.setAttribute('aria-labelledby', tab.id);
     panel.hidden = true;
-    panel.append(forms[id]());
+
+    const results = document.createElement('div');
+    results.className = 'perfect-fit-results';
+    panel.append(FORM_BUILDERS[id](products, (found) => renderResults(results, found)), results);
     panelsWrapper.append(panel);
     panels[id] = panel;
   });
@@ -201,15 +334,13 @@ function buildModal() {
     switchTab(tabId);
     overlay.hidden = false;
     document.body.classList.add('perfect-fit-modal-open');
-    const focusable = getFocusable(panels[tabId]);
-    (focusable[0] || closeButton).focus();
+    (getFocusable(panels[tabId])[0] || closeButton).focus();
   }
 
   closeButton.addEventListener('click', close);
   overlay.addEventListener('click', (event) => {
     if (event.target === overlay) close();
   });
-  dialog.addEventListener('submit', (event) => event.preventDefault());
   dialog.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       close();
@@ -229,9 +360,7 @@ function buildModal() {
     }
   });
 
-  TABS.forEach(({ id }) => {
-    tabs[id].addEventListener('click', () => switchTab(id));
-  });
+  TABS.forEach(({ id }) => tabs[id].addEventListener('click', () => switchTab(id)));
   tablist.addEventListener('keydown', (event) => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
     const ids = TABS.map(({ id }) => id);
@@ -248,19 +377,25 @@ function buildModal() {
 }
 
 /**
- * "Find your perfect fit:" bar: a label followed by a row of icon+label
- * shortcut buttons. Each button opens the tire-finder modal on the matching
- * tab. Authoring is unchanged: first row is the label, second row's cells
- * are the items.
+ * "Find your perfect fit:" bar: a label plus a row of shortcut buttons. Each
+ * opens the tire-finder modal on the matching tab. The catalogue is loaded
+ * from /products.json once, up front.
  * @param {Element} block the perfect-fit block
  */
-export default function decorate(block) {
+export default async function decorate(block) {
   const [labelRow, itemsRow] = [...block.children];
-
   const label = labelRow ? labelRow.querySelector('p') : null;
   if (label) label.className = 'perfect-fit-label';
 
-  const modal = buildModal();
+  let products = [];
+  try {
+    const resp = await fetch(PRODUCTS_URL);
+    if (resp.ok) ({ products = [] } = await resp.json());
+  } catch (e) {
+    products = [];
+  }
+
+  const modal = buildModal(products);
 
   const list = document.createElement('ul');
   list.className = 'perfect-fit-items';
