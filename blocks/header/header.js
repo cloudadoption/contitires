@@ -71,15 +71,14 @@ function focusNavSection() {
 }
 
 /**
- * A top nav item opens as a full-width dark mega-menu when any of its
- * second-level columns carries a heading (a <p>), matching the live site
- * where every multi-column or single-heading dropdown is a full-width panel.
- * Flat link lists (bare <li><a>) and plain links stay a small flyout.
+ * Any top nav item that opens a dropdown becomes a full-width dark mega-menu,
+ * matching the live site where every dropdown is a full-width panel. Only a
+ * plain link (no dropdown) stays a plain item.
  * @param {Element} navSection a top-level nav <li>
  * @returns {boolean}
  */
 export function isMegaMenu(navSection) {
-  return !!navSection.querySelector(':scope > ul > li > p');
+  return !!navSection.querySelector(':scope > ul');
 }
 
 /**

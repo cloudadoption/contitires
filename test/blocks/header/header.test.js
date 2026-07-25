@@ -66,8 +66,8 @@ describe('Header mega-menu detection', () => {
       <li><p><strong>Stores near</strong></p><ul><li><a href="/Store-finder">See more locations</a></li></ul></li>
     </ul>`);
 
-  // Learn as authored today: a flat bullet list of bare links, no paragraphs
-  const learnFlat = navItem(`<p><a href="/learn">Learn</a></p>
+  // a flat bullet list of bare links, no paragraph headings
+  const flatDrop = navItem(`<p><a href="/learn">Learn</a></p>
     <ul>
       <li><a href="/learn/tips">Tire Tips</a></li>
       <li><a href="/learn/technology">Technology</a></li>
@@ -84,8 +84,11 @@ describe('Header mega-menu detection', () => {
     expect(isMegaMenu(learnReshaped)).to.be.true;
   });
 
-  it('does not tag a flat link list or a plain link', () => {
-    expect(isMegaMenu(learnFlat)).to.be.false;
+  it('tags any dropdown as a mega-menu, even a flat link list', () => {
+    expect(isMegaMenu(flatDrop)).to.be.true;
+  });
+
+  it('does not tag a plain link with no dropdown', () => {
     expect(isMegaMenu(plainLink)).to.be.false;
   });
 });
