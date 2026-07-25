@@ -4,7 +4,16 @@
  * @param {Element} list the tab <ul>
  * @param {string} currentPath the current page path
  */
-export function markActive() {}
+export function markActive(list, currentPath) {
+  const here = (currentPath || '').replace(/\/$/, '');
+  list.querySelectorAll('a').forEach((a) => {
+    const href = new URL(a.getAttribute('href'), 'https://contitires.example').pathname.replace(/\/$/, '');
+    if (href && href === here) {
+      a.classList.add('category-tab-active');
+      a.setAttribute('aria-current', 'page');
+    }
+  });
+}
 
 /**
  * Category tab bar: a horizontal, scrollable row of section links. The
@@ -14,5 +23,7 @@ export function markActive() {}
  */
 export default function decorate(block) {
   const list = block.querySelector('ul');
-  if (list) list.classList.add('category-tabs-list');
+  if (!list) return;
+  list.classList.add('category-tabs-list');
+  markActive(list, window.location.pathname);
 }
