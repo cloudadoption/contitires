@@ -45,7 +45,9 @@ export function selectRows(rows, { category } = {}) {
   // listing); sort by it ascending. Rows with no weight fall to the end,
   // newest first, so a not-yet-weighted article never jumps the order.
   const weightOf = (row) => {
-    const w = Number(row.weight);
+    // parseFloat, not Number: the index stores an unweighted row as '', and
+    // Number('') is 0 (which would sort it first), while parseFloat('') is NaN
+    const w = parseFloat(row.weight);
     return Number.isNaN(w) ? Infinity : w;
   };
   return rows
