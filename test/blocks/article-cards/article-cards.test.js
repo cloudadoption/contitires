@@ -114,4 +114,18 @@ describe('selectRows', () => {
     expect(out).to.have.length(2);
     expect(out.some((r) => r.image.includes('default-meta-image'))).to.be.false;
   });
+
+  it('sorts by weight ascending, unweighted rows last by lastModified', () => {
+    const rows = [
+      { image: '/a.png', weight: '3', lastModified: '10' },
+      { image: '/b.png', lastModified: '100' },
+      { image: '/c.png', weight: '1', lastModified: '5' },
+      { image: '/d.png', weight: '2', lastModified: '1' },
+      { image: '/e.png', lastModified: '50' },
+    ];
+    const out = selectRows(rows);
+    expect(out.map((r) => r.weight || 'none')).to.deep.equal(['1', '2', '3', 'none', 'none']);
+    expect(out[3].lastModified).to.equal('100');
+    expect(out[4].lastModified).to.equal('50');
+  });
 });
