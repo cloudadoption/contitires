@@ -1,0 +1,18 @@
+{
+  "total": 9,
+  "offset": 0,
+  "limit": 9,
+  "data": [
+    { "name": "Hero", "path": "/tools/sidekick/blocks/hero" },
+    { "name": "Cards", "path": "/tools/sidekick/blocks/cards" },
+    { "name": "Columns", "path": "/tools/sidekick/blocks/columns" },
+    { "name": "Carousel", "path": "/tools/sidekick/blocks/carousel" },
+    { "name": "Article Cards", "path": "/tools/sidekick/blocks/article-cards" },
+    { "name": "Category Tabs", "path": "/tools/sidekick/blocks/category-tabs" },
+    { "name": "Promo Bar", "path": "/tools/sidekick/blocks/promo-bar" },
+    { "name": "Perfect Fit", "path": "/tools/sidekick/blocks/perfect-fit" },
+    { "name": "Size List", "path": "/tools/sidekick/blocks/size-list" }
+  ],
+  "columns": ["name", "path"],
+  ":type": "sheet"
+}
