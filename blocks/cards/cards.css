@@ -97,8 +97,7 @@ main .section.cards-container {
 
 .cards.news .cards-card-body a {
   font-weight: bold;
-  text-decoration: underline;
-  text-decoration-color: var(--conti-dark-yellow);
+  text-decoration: none;
 }
 
 /* ---- highlights: product highlight cards ---- */
@@ -329,14 +328,16 @@ main .section.black .cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
   color: var(--conti-white);
 }
 
-main .section.dark .cards.news .cards-card-body a,
-main .section.black .cards.news .cards-card-body a {
-  text-decoration: underline;
+/* news teasers read left-aligned like the live site, even though the dark
+   band centers its heading and copy. */
+main .section.dark .cards.news .cards-card-body,
+main .section.black .cards.news .cards-card-body {
+  text-align: left;
 }
 
-main .section.dark .cards.news .cards-card-body a:hover,
-main .section.black .cards.news .cards-card-body a:hover {
-  text-decoration: underline;
+main .section.dark .cards.news .cards-card-body a,
+main .section.black .cards.news .cards-card-body a {
+  text-decoration: none;
 }
 
 @media (width >= 600px) {
