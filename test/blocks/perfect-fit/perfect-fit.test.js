@@ -136,3 +136,87 @@ describe('perfect-fit block', () => {
     expect(document.activeElement).to.equal(trigger);
   });
 });
+
+// The DA sheet serves /products.json as a multi-sheet workbook: the product
+// rows live under products.data, with array fields flattened to comma strings.
+const WORKBOOK = {
+  ':version': 3,
+  ':type': 'multi-sheet',
+  ':names': ['products', 'specs'],
+  products: {
+    total: 1,
+    offset: 0,
+    limit: 1,
+    data: [
+      {
+        slug: 'pure-ls', name: 'PureContact LS', category: 'Passenger', season: 'All-Season', image: '/p/pure.png', sizes: '195/65R15, 205/55R16', vehicleTypes: 'Cars, Crossovers',
+      },
+    ],
+  },
+  specs: {
+    total: 0, offset: 0, limit: 0, data: [],
+  },
+};
+
+describe('perfect-fit block, multi-sheet workbook', () => {
+  let fetchStub;
+  function build() {
+    document.body.innerHTML = `
+      <div class="perfect-fit block">
+        <div><div><p>Find your perfect fit:</p></div></div>
+        <div>
+          <div><span>By Vehicle</span></div>
+          <div><span>By Tire Size</span></div>
+          <div><span>By Plate</span></div>
+        </div>
+      </div>`;
+    return document.querySelector('.perfect-fit.block');
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('reads products.data and splits comma-delimited sizes into an array', async () => {
+    const block = build();
+    await decorate(block);
+    block.querySelectorAll('.perfect-fit-item')[1].click(); // By Tire Size
+
+    const panel = block.querySelector('#perfect-fit-panel-tire-size');
+    const setSelect = (name, value) => {
+      const el = panel.querySelector(`[name="${name}"]`);
+      el.value = value;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    setSelect('width', '195');
+    setSelect('aspect', '65');
+    setSelect('rim', '15');
+    panel.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+    const results = panel.querySelectorAll('.perfect-fit-result');
+    expect(results.length).to.equal(1);
+    expect(results[0].getAttribute('href')).to.equal('/tires/pure-ls');
+  });
+
+  it('splits comma-delimited vehicleTypes so the vehicle finder matches', async () => {
+    const block = build();
+    await decorate(block);
+    block.querySelectorAll('.perfect-fit-item')[0].click(); // By Vehicle
+
+    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    const setSelect = (name, value) => {
+      const el = panel.querySelector(`[name="${name}"]`);
+      el.value = value;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    setSelect('make', 'Toyota');
+    setSelect('model', 'Camry'); // maps to the "car" class
+    panel.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+    const results = panel.querySelectorAll('.perfect-fit-result');
+    expect(results.length).to.equal(1);
+    expect(results[0].getAttribute('href')).to.equal('/tires/pure-ls');
+  });
+});
