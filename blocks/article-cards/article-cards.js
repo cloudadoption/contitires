@@ -42,7 +42,7 @@ function buildCard(row) {
  */
 export function selectRows(rows, { category } = {}) {
   return rows
-    .filter((row) => row.image)
+    .filter((row) => row.image && !row.image.includes('/default-meta-image'))
     .filter((row) => !category || (row.category || '').toLowerCase() === category.toLowerCase())
     .sort((a, b) => Number(b.lastModified || 0) - Number(a.lastModified || 0));
 }
