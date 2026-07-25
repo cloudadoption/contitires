@@ -394,7 +394,23 @@ export default async function decorate(block) {
   let products = [];
   try {
     const resp = await fetch(PRODUCTS_URL);
-    if (resp.ok) ({ products = [] } = await resp.json());
+    if (resp.ok) {
+      const json = await resp.json();
+      // support both shapes: the multi-sheet DA workbook (products.data) and
+      // the legacy single-object file ({ products: [...] }).
+      const rows = (json.products && json.products.data)
+        ? json.products.data
+        : (json.products || []);
+      products = rows.map((product) => ({
+        ...product,
+        sizes: typeof product.sizes === 'string'
+          ? product.sizes.split(',').map((s) => s.trim()).filter(Boolean)
+          : (product.sizes || []),
+        vehicleTypes: typeof product.vehicleTypes === 'string'
+          ? product.vehicleTypes.split(',').map((s) => s.trim()).filter(Boolean)
+          : (product.vehicleTypes || []),
+      }));
+    }
   } catch (e) {
     products = [];
   }
