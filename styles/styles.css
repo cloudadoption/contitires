@@ -315,6 +315,12 @@ main > .section {
   margin: 40px 0;
 }
 
+/* the metadata block is stripped into <head>, leaving an empty trailing
+   section; collapse it so it adds no blank band before the footer */
+main > .section:empty {
+  display: none;
+}
+
 main > .section > div {
   max-width: 1200px;
   margin: auto;
