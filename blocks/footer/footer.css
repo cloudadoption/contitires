@@ -181,8 +181,6 @@ footer .footer-bottom a:focus-visible {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    /* 600 = 632 (half of 1264) minus the 32px column padding, so the legal
-       row's text lines up with the footer column text at wide widths */
     padding: 20px max(32px, calc(50% - 600px));
   }
 }
