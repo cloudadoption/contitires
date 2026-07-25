@@ -40,9 +40,25 @@ function buildCard(row) {
  * index path can be authored in the block; it defaults to the learn index.
  * @param {Element} block the article-cards block
  */
+export function selectRows(rows, { category } = {}) {
+  return rows
+    .filter((row) => row.image)
+    .filter((row) => !category || (row.category || '').toLowerCase() === category.toLowerCase())
+    .sort((a, b) => Number(b.lastModified || 0) - Number(a.lastModified || 0));
+}
+
 export default async function decorate(block) {
-  const configured = block.textContent.trim();
-  const source = configured.startsWith('/') ? configured : DEFAULT_SOURCE;
+  const cells = [...block.querySelectorAll(':scope > div > div')]
+    .map((cell) => cell.textContent.trim())
+    .filter(Boolean);
+  let source = DEFAULT_SOURCE;
+  let category = '';
+  let limit = 0;
+  cells.forEach((text) => {
+    if (text.startsWith('/')) source = text;
+    else if (/^\d+$/.test(text)) limit = Number(text);
+    else category = text;
+  });
   block.textContent = '';
 
   let rows = [];
@@ -53,12 +69,22 @@ export default async function decorate(block) {
     rows = [];
   }
 
-  rows = rows
-    .filter((row) => row.image)
-    .sort((a, b) => Number(b.lastModified || 0) - Number(a.lastModified || 0));
+  rows = selectRows(rows, { category });
 
   const list = document.createElement('ul');
   list.className = 'article-cards-list';
+
+  // an explicit limit renders a fixed featured set; otherwise render a first
+  // batch with a load-more button
+  if (limit) {
+    rows.slice(0, limit).forEach((row) => {
+      const li = document.createElement('li');
+      li.append(buildCard(row));
+      list.append(li);
+    });
+    block.append(list);
+    return;
+  }
 
   const more = document.createElement('button');
   more.type = 'button';

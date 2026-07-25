@@ -3,7 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
-import decorate from '../../../blocks/article-cards/article-cards.js';
+import decorate, { selectRows } from '../../../blocks/article-cards/article-cards.js';
 
 /** A query-index response with `count` article rows, newest last. */
 function indexResponse(count) {
@@ -66,5 +66,41 @@ describe('Article cards block', () => {
     await decorate(block);
 
     expect(block.querySelectorAll('.article-card')).to.have.length(2);
+  });
+
+  it('filters by an authored category', async () => {
+    const res = indexResponse(4);
+    res.data[0].category = 'Technology';
+    res.data[1].category = 'News';
+    res.data[2].category = 'Technology';
+    res.data[3].category = 'Tire Tips';
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(res)));
+    document.body.innerHTML = '<div class="article-cards block"><div><div>Technology</div></div></div>';
+    const block = document.querySelector('.article-cards.block');
+    await decorate(block);
+
+    expect(block.querySelectorAll('.article-card')).to.have.length(2);
+  });
+
+  it('renders a fixed featured set with no load-more when a limit is authored', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(10))));
+    document.body.innerHTML = '<div class="article-cards block"><div><div>3</div></div></div>';
+    const block = document.querySelector('.article-cards.block');
+    await decorate(block);
+
+    expect(block.querySelectorAll('.article-card')).to.have.length(3);
+    expect(block.querySelector('.article-cards-more')).to.not.exist;
+  });
+});
+
+describe('selectRows', () => {
+  it('keeps imageless rows out and filters by category', () => {
+    const rows = [
+      { image: '/a.png', category: 'News', lastModified: '3' },
+      { image: '', category: 'News', lastModified: '2' },
+      { image: '/c.png', category: 'Technology', lastModified: '1' },
+    ];
+    expect(selectRows(rows, { category: 'news' }).map((r) => r.lastModified)).to.deep.equal(['3']);
+    expect(selectRows(rows).length).to.equal(2);
   });
 });
