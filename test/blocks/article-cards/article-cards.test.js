@@ -122,10 +122,15 @@ describe('selectRows', () => {
       { image: '/c.png', weight: '1', lastModified: '5' },
       { image: '/d.png', weight: '2', lastModified: '1' },
       { image: '/e.png', lastModified: '50' },
+      // an empty-string weight is unweighted, not weight 0 (the index stores
+      // unweighted rows as '')
+      { image: '/f.png', weight: '', lastModified: '200' },
     ];
     const out = selectRows(rows);
-    expect(out.map((r) => r.weight || 'none')).to.deep.equal(['1', '2', '3', 'none', 'none']);
-    expect(out[3].lastModified).to.equal('100');
-    expect(out[4].lastModified).to.equal('50');
+    expect(out.map((r) => r.weight || 'none')).to.deep.equal(['1', '2', '3', 'none', 'none', 'none']);
+    // the empty-weight row (newest) leads the unweighted tail, not the whole list
+    expect(out[3].lastModified).to.equal('200');
+    expect(out[4].lastModified).to.equal('100');
+    expect(out[5].lastModified).to.equal('50');
   });
 });
