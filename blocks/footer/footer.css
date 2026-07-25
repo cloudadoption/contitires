@@ -74,10 +74,11 @@ footer .footer-links-group a .icon {
   flex-shrink: 0;
 }
 
-/* social icon row: dark bar, icons only, text kept for screen readers */
+/* social icon row: a dark bar at the top of the footer, above the columns,
+   matching live. Icons only, text kept for screen readers. */
 footer .footer-links-group.footer-social {
-  order: 99;
-  margin: 32px -24px -32px;
+  order: -2;
+  margin: -32px -24px 32px;
   background-color: var(--conti-dark-black);
   border-bottom: 4px solid var(--conti-yellow);
 }
@@ -174,7 +175,7 @@ footer .footer-bottom a:focus-visible {
 
   footer .footer-links-group.footer-social {
     flex: 1 1 100%;
-    margin: 40px -32px -40px;
+    margin: -40px -32px 40px;
   }
 
   footer .footer-bottom {
