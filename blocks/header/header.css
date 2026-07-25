@@ -488,6 +488,85 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
   }
 }
 
+/* mega-menu: a top item with a nested list opens a multi-column flyout on
+   hover (desktop). Each column is a heading plus a list of links. The
+   selectors carry the full .default-content-wrapper path so they win over
+   the single-column dropdown rules above. The :hover show rule raises
+   specificity but targets the flyout, not the deeper structural selectors,
+   so the descending-specificity warning here is a false positive. */
+/* stylelint-disable no-descending-specificity */
+@media (width >= 900px) {
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul {
+    display: none;
+    flex-flow: row wrap;
+    gap: 16px 48px;
+    left: 0;
+    min-width: max-content;
+    max-width: min(1100px, 92vw);
+    padding: 32px 40px;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop:hover > ul,
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop:focus-within > ul,
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop[aria-expanded='true'] > ul {
+    display: flex;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul > li {
+    display: block;
+    height: auto;
+    white-space: nowrap;
+    font-weight: 400;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul > li > p {
+    display: block;
+    height: auto;
+    margin: 0 0 8px;
+    padding: 0 0 10px;
+    border-bottom: 1px solid var(--conti-lightest-grey);
+    font-family: var(--heading-font-family);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--conti-black);
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul > li > p a {
+    color: inherit;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul > li > ul {
+    display: block;
+    position: static;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: none;
+    box-shadow: none;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul > li > ul > li {
+    font-weight: 400;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul > li > ul > li > a {
+    padding: 6px 0;
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--conti-darkest-grey);
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul > li > ul > li > a:hover,
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-drop > ul > li > ul > li > a:focus-visible {
+    color: var(--conti-black);
+  }
+}
+/* stylelint-enable no-descending-specificity */
+
 /* search panel */
 header .nav-search-panel {
   position: absolute;
