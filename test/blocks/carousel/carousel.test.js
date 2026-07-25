@@ -32,10 +32,12 @@ describe('Carousel block', () => {
     expect(block.querySelector('.carousel-viewport')).to.exist;
   });
 
-  it('builds prev/next arrows, one dot per slide, and a counter', () => {
+  it('builds prev/next arrows and a counter between them, with no dots', () => {
     expect(block.querySelector('.carousel-prev')).to.exist;
     expect(block.querySelector('.carousel-next')).to.exist;
-    expect(block.querySelectorAll('.carousel-dot')).to.have.length(3);
+    expect(block.querySelectorAll('.carousel-dot')).to.have.length(0);
+    const nav = block.querySelector('.carousel-nav');
+    expect(nav.children[1].classList.contains('carousel-counter')).to.be.true;
     expect(block.querySelector('.carousel-counter').textContent).to.equal('1 of 3');
   });
 
@@ -67,11 +69,6 @@ describe('Carousel block', () => {
 
   it('wraps around when going back from the first slide', () => {
     block.querySelector('.carousel-prev').click();
-    expect(block.querySelector('.carousel-counter').textContent).to.equal('3 of 3');
-  });
-
-  it('jumps to a slide via its dot', () => {
-    block.querySelectorAll('.carousel-dot')[2].click();
     expect(block.querySelector('.carousel-counter').textContent).to.equal('3 of 3');
   });
 });
