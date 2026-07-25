@@ -67,25 +67,15 @@ export default function decorate(block) {
   nextBtn.className = 'carousel-arrow carousel-next';
   nextBtn.setAttribute('aria-label', 'Next slide');
 
-  const dots = document.createElement('div');
-  dots.className = 'carousel-dots';
-  const dotButtons = rows.map((row, i) => {
-    const dot = document.createElement('button');
-    dot.type = 'button';
-    dot.className = 'carousel-dot';
-    dot.setAttribute('aria-label', `Show slide ${i + 1} of ${total}`);
-    dots.append(dot);
-    return dot;
-  });
-
   const counter = document.createElement('div');
   counter.className = 'carousel-counter';
   counter.setAttribute('aria-live', 'polite');
   counter.setAttribute('aria-atomic', 'true');
 
+  // live shows the counter between the two chevrons, with no dot indicators
   const nav = document.createElement('div');
   nav.className = 'carousel-nav';
-  nav.append(prevBtn, dots, nextBtn, counter);
+  nav.append(prevBtn, counter, nextBtn);
 
   let current = 0;
   const goTo = (index) => {
@@ -95,13 +85,11 @@ export default function decorate(block) {
       slide.setAttribute('aria-hidden', i === current ? 'false' : 'true');
       slide.toggleAttribute('inert', i !== current);
     });
-    dotButtons.forEach((dot, i) => dot.setAttribute('aria-current', i === current ? 'true' : 'false'));
     counter.textContent = `${current + 1} of ${total}`;
   };
 
   prevBtn.addEventListener('click', () => goTo(current - 1));
   nextBtn.addEventListener('click', () => goTo(current + 1));
-  dotButtons.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
   block.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') goTo(current - 1);
     if (e.key === 'ArrowRight') goTo(current + 1);
