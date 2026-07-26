@@ -19,6 +19,12 @@ main .section.perfect-fit-container {
   padding: 13px 24px;
 }
 
+.perfect-fit:not(:has(.perfect-fit-label)) .perfect-fit-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .perfect-fit-label {
   margin: 0;
   font-family: var(--heading-font-family);
