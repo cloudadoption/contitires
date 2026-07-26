@@ -9,6 +9,16 @@ header .nav-wrapper {
   position: fixed;
 }
 
+/* the rebate ribbon above the nav. Its row is the height the page reserved
+   for it, so the reservation and the render cannot drift apart. Live divides
+   the two yellow bands with a white hairline. */
+header .nav-wrapper .promo-bar-bar {
+  box-sizing: border-box;
+  height: var(--promo-bar-height);
+  align-items: center;
+  border-bottom: 1px solid var(--conti-white);
+}
+
 /* the collapsed mobile bar reads logo, then toggle, like the live site. Tools
    is hidden here and gets its own row once the drawer opens, so naming it
    between the two keeps the toggle at the right padding edge. */
@@ -502,7 +512,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
     box-sizing: border-box;
     position: fixed;
     inset-inline: 0;
-    top: var(--nav-height);
+    top: calc(var(--nav-height) + var(--promo-bar-height));
     width: 100%;
     min-width: 0;
     max-width: none;
