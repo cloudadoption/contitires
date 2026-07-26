@@ -181,7 +181,8 @@ export function buildUtilityNav() {
 }
 
 /**
- * Builds the mobile menu toggle and places it in the nav.
+ * Builds the mobile menu toggle and places it after the brand, matching the
+ * order a viewer sees: logo at the left edge, toggle at the right.
  * @param {Element} nav The nav element
  * @param {Function} onToggle Called when the button is clicked
  * @returns {Element} the hamburger wrapper
@@ -193,7 +194,9 @@ export function addHamburger(nav, onToggle) {
       <span class="nav-hamburger-icon"></span>
     </button>`;
   hamburger.addEventListener('click', onToggle);
-  nav.prepend(hamburger);
+  const navBrand = nav.querySelector('.nav-brand');
+  if (navBrand) navBrand.after(hamburger);
+  else nav.prepend(hamburger);
   return hamburger;
 }
 
