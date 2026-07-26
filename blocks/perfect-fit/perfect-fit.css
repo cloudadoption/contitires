@@ -90,16 +90,16 @@ main .section.perfect-fit-container {
   }
 }
 
-/* tire-finder modal, opened from the perfect-fit items above */
+/* tire-finder modal, opened from the perfect-fit items above. Live renders it
+   as a full-screen black takeover with the tabs on a white band across the top,
+   so the overlay is the surface and there is no floating dialog box. */
 .perfect-fit-overlay {
   position: fixed;
   inset: 0;
   z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgb(0 0 0 / 60%);
-  padding: 16px;
+  overflow-y: auto;
+  background-color: #000;
+  color: var(--conti-white);
 }
 
 .perfect-fit-overlay[hidden] {
@@ -113,61 +113,61 @@ body.perfect-fit-modal-open {
 .perfect-fit-dialog {
   position: relative;
   box-sizing: border-box;
-  width: 100%;
-  max-width: 560px;
-  max-height: calc(100vh - 32px);
-  overflow-y: auto;
-  background-color: var(--conti-white);
-  padding: 32px 24px 24px;
-  text-align: left;
+  min-height: 100%;
+
+  /* live leaves the top strip black, with the close button in it and the tab
+     band starting 54px down */
+  padding: 54px 0 48px;
 }
 
 .perfect-fit-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  width: 29px;
+  height: 29px;
   border: 0;
   background: none;
-  padding: 8px;
-  color: var(--conti-black);
+  padding: 0;
+  color: var(--conti-white);
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
 }
 
-.perfect-fit-modal-title {
-  margin: 0 0 20px;
-  color: var(--conti-black);
-  font-family: var(--heading-font-family);
-  font-size: var(--heading-font-size-s);
-  font-weight: 300;
+.perfect-fit-band {
+  background-color: var(--conti-white);
 }
 
 .perfect-fit-tablist {
   display: flex;
-  gap: 24px;
-  border-bottom: 1px solid var(--conti-grey);
-  margin-bottom: 20px;
+  max-width: 340px;
+  margin: 0 auto;
 }
 
 .perfect-fit-tab {
+  flex: 1;
+  height: 52px;
   border: 0;
-  border-bottom: 2px solid transparent;
   background: none;
-  margin-bottom: -1px;
-  padding: 0 0 12px;
-  color: var(--conti-darkest-grey);
+  padding: 0 10px;
+  color: var(--conti-black);
   font-family: var(--heading-font-family);
   font-size: 12px;
   font-weight: 700;
+  line-height: 16px;
   letter-spacing: 1.25px;
   text-transform: uppercase;
   cursor: pointer;
 }
 
-.perfect-fit-tab[aria-selected="true"] {
-  border-bottom-color: var(--conti-yellow);
-  color: var(--conti-black);
+.perfect-fit-tab[aria-selected="true"],
+.perfect-fit-tab:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--conti-dark-yellow);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 .perfect-fit-close:focus-visible,
@@ -176,37 +176,79 @@ body.perfect-fit-modal-open {
   outline-offset: 2px;
 }
 
+.perfect-fit-panels {
+  padding: 24px 20px 0;
+}
+
+.perfect-fit-question {
+  margin: 16px 0 20px;
+  color: var(--conti-white);
+  font-family: var(--heading-font-family);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  text-align: center;
+}
+
 .perfect-fit-form {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.perfect-fit-form-tire-size {
+  max-width: 496px;
+}
+
+.perfect-fit-fields {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 20px;
 }
 
-.perfect-fit-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.perfect-fit-form-tire-size .perfect-fit-fields {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
-.perfect-fit-field label {
-  color: var(--conti-black);
-  font-size: var(--body-font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+/* the field name reads as placeholder text inside the control, so the label is
+   left for assistive technology only */
+.perfect-fit-field-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .perfect-fit-field select,
 .perfect-fit-field input {
   box-sizing: border-box;
   width: 100%;
-  border: 1px solid var(--conti-grey);
-  border-radius: 0;
+  height: 44px;
+  border: 1px solid var(--conti-black);
+  border-radius: 25px;
   background-color: var(--conti-white);
-  padding: 10px 12px;
+  padding: 0 20px;
   color: var(--conti-black);
   font-family: var(--body-font-family);
-  font-size: var(--body-font-size-s);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  line-height: 1;
+}
+
+/* live outlines the steps that are not reachable yet and fills the one that is */
+.perfect-fit-field select:disabled,
+.perfect-fit-field input:disabled {
+  border-color: var(--conti-darkest-grey);
+  background-color: #000;
+  color: var(--conti-darkest-grey);
+}
+
+.perfect-fit-field input::placeholder {
+  color: var(--conti-black);
+  opacity: 1;
 }
 
 .perfect-fit-field select:focus-visible,
@@ -215,22 +257,59 @@ body.perfect-fit-modal-open {
   outline-offset: 2px;
 }
 
-.perfect-fit-form .button {
-  margin-top: 8px;
-  justify-self: start;
+.perfect-fit-terms {
+  margin: 38px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
 }
 
-@media (width >= 700px) {
-  .perfect-fit-form {
-    grid-template-columns: repeat(2, 1fr);
+.perfect-fit-terms a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.perfect-fit-form:has(.perfect-fit-search:disabled) .perfect-fit-terms {
+  color: var(--conti-dark-grey);
+}
+
+.perfect-fit-form .perfect-fit-search {
+  display: flex;
+  width: 100%;
+  margin: 24px auto 0;
+}
+
+/* on the black surface live greys the call to action down rather than up */
+.perfect-fit-form .perfect-fit-search:disabled,
+.perfect-fit-form .perfect-fit-search:disabled:hover {
+  border-color: var(--conti-black);
+  background-color: var(--conti-black);
+  color: var(--conti-darkest-grey);
+}
+
+@media (width >= 900px) {
+  .perfect-fit-dialog {
+    padding-top: 80px;
   }
 
-  .perfect-fit-form .button {
-    grid-column: 1 / -1;
+  .perfect-fit-close {
+    top: 24px;
+    right: 24px;
+  }
+
+  /* live stops stretching the call to action once there is room for it */
+  .perfect-fit-form .perfect-fit-search {
+    width: auto;
   }
 }
 
-/* search results */
+/* search results, shown on the modal's black surface */
+.perfect-fit-results {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
 .perfect-fit-results:empty {
   display: none;
 }
@@ -242,7 +321,7 @@ body.perfect-fit-modal-open {
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--conti-darkest-grey);
+  color: var(--conti-white);
 }
 
 .perfect-fit-results-list {
@@ -262,7 +341,7 @@ body.perfect-fit-modal-open {
   align-items: center;
   gap: 14px;
   padding: 10px;
-  border: 1px solid var(--conti-lightest-grey);
+  border: 1px solid var(--conti-darkest-grey);
   border-radius: 8px;
   color: inherit;
   text-decoration: none;
@@ -272,7 +351,7 @@ body.perfect-fit-modal-open {
 .perfect-fit-result:hover,
 .perfect-fit-result:focus-visible {
   border-color: var(--conti-yellow);
-  background-color: var(--conti-lightest-grey);
+  background-color: rgb(255 255 255 / 10%);
 }
 
 .perfect-fit-result-media {
@@ -301,5 +380,5 @@ body.perfect-fit-modal-open {
 .perfect-fit-result-body p {
   margin: 4px 0 0;
   font-size: 12px;
-  color: var(--conti-darkest-grey);
+  color: var(--conti-grey);
 }
