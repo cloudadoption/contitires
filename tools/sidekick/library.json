@@ -1,7 +1,7 @@
 {
-  "total": 9,
+  "total": 10,
   "offset": 0,
-  "limit": 9,
+  "limit": 10,
   "data": [
     { "name": "Hero", "path": "/tools/sidekick/blocks/hero" },
     { "name": "Cards", "path": "/tools/sidekick/blocks/cards" },
@@ -11,7 +11,8 @@
     { "name": "Category Tabs", "path": "/tools/sidekick/blocks/category-tabs" },
     { "name": "Promo Bar", "path": "/tools/sidekick/blocks/promo-bar" },
     { "name": "Perfect Fit", "path": "/tools/sidekick/blocks/perfect-fit" },
-    { "name": "Size List", "path": "/tools/sidekick/blocks/size-list" }
+    { "name": "Size List", "path": "/tools/sidekick/blocks/size-list" },
+    { "name": "Tire Listing", "path": "/tools/sidekick/blocks/tire-listing" }
   ],
   "columns": ["name", "path"],
   ":type": "sheet"
