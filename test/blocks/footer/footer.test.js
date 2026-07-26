@@ -2,7 +2,7 @@
 /* global describe it before */
 
 import { expect } from '@esm-bundle/chai';
-import { buildFooterContent } from '../../../blocks/footer/footer.js';
+import { buildFooterContent, setFooterDisclosures } from '../../../blocks/footer/footer.js';
 
 /** Builds a footer fragment: a social group, a nav column, and legal copy. */
 function buildFragment() {
@@ -46,6 +46,85 @@ describe('Footer content structure', () => {
     expect(socialIdx, 'social bar present').to.be.greaterThan(-1);
     expect(linksIdx, 'link columns present').to.be.greaterThan(-1);
     expect(socialIdx, 'social bar comes before the columns').to.be.lessThan(linksIdx);
+  });
+});
+
+describe('Footer disclosures', () => {
+  // Live collapses the plain link columns into disclosure rows while they are a
+  // single stack, and keeps the search column, whose links carry icons, open.
+  function buildLinks() {
+    const fragment = document.createElement('div');
+    fragment.innerHTML = `
+      <h3>Search for Tire</h3>
+      <ul>
+        <li><a href="/tire-search/by-vehicle"><span class="icon icon-vehicle"></span>By Vehicle</a></li>
+        <li><a href="/search"><span class="icon icon-search"></span>Search Site</a></li>
+      </ul>
+      <h3>Our Tires</h3>
+      <ul>
+        <li><a href="/tires/passenger">Passenger</a></li>
+        <li><a href="/tires/crossover">Crossover</a></li>
+      </ul>
+      <h3>Company Info</h3>
+      <ul>
+        <li><a href="/media">Brand Assets</a></li>
+      </ul>`;
+    return buildFooterContent(fragment).querySelector('.footer-links');
+  }
+
+  it('turns each plain link column into a collapsed disclosure', () => {
+    const links = buildLinks();
+    setFooterDisclosures(links, true);
+    const [, tires, company] = links.querySelectorAll('.footer-links-group');
+    [tires, company].forEach((group) => {
+      const label = group.querySelector('h3').textContent.trim();
+      const toggle = group.querySelector('h3 > button');
+      expect(toggle, `${label} has a toggle`).to.exist;
+      expect(toggle.tagName, `${label} toggles with a real button`).to.equal('BUTTON');
+      expect(toggle.type, `${label} does not submit`).to.equal('button');
+      expect(toggle.getAttribute('aria-expanded'), `${label} starts collapsed`).to.equal('false');
+      const list = group.querySelector('ul');
+      expect(toggle.getAttribute('aria-controls'), `${label} points at its list`)
+        .to.equal(list.id);
+      expect(list.hidden, `${label} list is hidden`).to.be.true;
+    });
+  });
+
+  it('keeps the icon column open', () => {
+    const links = buildLinks();
+    setFooterDisclosures(links, true);
+    const [search, tires] = links.querySelectorAll('.footer-links-group');
+    expect(tires.querySelector('button'), 'the plain columns did collapse').to.exist;
+    expect(search.querySelector('button'), 'the search column has no toggle').to.be.null;
+    expect(search.querySelector('ul').hidden, 'the search column stays open').to.be.false;
+  });
+
+  it('shows and hides the list on click, with aria-expanded in step', () => {
+    const links = buildLinks();
+    setFooterDisclosures(links, true);
+    const group = links.querySelectorAll('.footer-links-group')[1];
+    const toggle = group.querySelector('button');
+    const list = group.querySelector('ul');
+
+    toggle.click();
+    expect(toggle.getAttribute('aria-expanded'), 'expanded after a click').to.equal('true');
+    expect(list.hidden, 'list shown').to.be.false;
+
+    toggle.click();
+    expect(toggle.getAttribute('aria-expanded'), 'collapsed after a second click').to.equal('false');
+    expect(list.hidden, 'list hidden again').to.be.true;
+  });
+
+  it('restores the plain heading and list when the columns come back', () => {
+    const links = buildLinks();
+    setFooterDisclosures(links, true);
+    const group = links.querySelectorAll('.footer-links-group')[1];
+    expect(group.querySelector('button'), 'collapsed first').to.exist;
+
+    setFooterDisclosures(links, false);
+    expect(group.querySelector('button'), 'no toggle left').to.be.null;
+    expect(group.querySelector('h3').textContent.trim(), 'heading text kept').to.equal('Our Tires');
+    expect(group.querySelector('ul').hidden, 'list shown').to.be.false;
   });
 });
 
