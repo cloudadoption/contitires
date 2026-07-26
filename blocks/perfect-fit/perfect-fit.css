@@ -218,6 +218,7 @@ body.perfect-fit-modal-open {
   display: block;
   height: 12px;
   margin-left: 20px;
+
   /* the bar above centres its text and the modal inherits that */
   text-align: left;
   opacity: 0;
