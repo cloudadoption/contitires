@@ -1,8 +1,8 @@
 import { getMetadata, decorateIcons } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
-// media query match that indicates mobile/tablet width. header.css switches
-// the nav layout at the same width, so the two must move together.
+// media query match that indicates desktop width. header.css switches the
+// nav layout at the same width, so the two must move together.
 export const DESKTOP_MEDIA_QUERY = '(min-width: 1200px)';
 const isDesktop = window.matchMedia(DESKTOP_MEDIA_QUERY);
 
