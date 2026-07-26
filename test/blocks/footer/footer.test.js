@@ -49,6 +49,46 @@ describe('Footer content structure', () => {
   });
 });
 
+describe('Footer social band', () => {
+  // Live shows each icon with its network name from 769 up, and hides the name
+  // below that. The name has to be in the DOM for CSS to make that call.
+  function buildSocial() {
+    const fragment = document.createElement('div');
+    fragment.innerHTML = `
+      <h3>Follow Us</h3>
+      <ul>
+        <li><a href="https://www.facebook.com/continentaltire">Facebook</a></li>
+        <li><a href="https://twitter.com/continentaltire">X</a></li>
+        <li><a href="https://www.instagram.com/continental_tire/">Instagram</a></li>
+        <li><a href="https://www.youtube.com/user/continentaltire">Youtube</a></li>
+      </ul>`;
+    return buildFooterContent(fragment).querySelector('.footer-social');
+  }
+
+  it('keeps the network name as a label beside each icon', () => {
+    const links = [...buildSocial().querySelectorAll('a')];
+    expect(links.length, 'four social links').to.equal(4);
+    expect(
+      links.map((a) => a.querySelector('.footer-social-label')?.textContent),
+      'every link carries its network name',
+    ).to.eql(['Facebook', 'X', 'Instagram', 'Youtube']);
+    links.forEach((a) => {
+      expect([...a.children].map((el) => el.tagName), 'the icon comes before the label')
+        .to.eql(['svg', 'SPAN']);
+    });
+  });
+
+  it('names each link with the text it shows', () => {
+    [...buildSocial().querySelectorAll('a')].forEach((a) => {
+      const label = a.querySelector('.footer-social-label');
+      expect(label, 'the link shows a label').to.exist;
+      // the label is hidden below 769, so the name cannot come from it alone
+      expect(a.getAttribute('aria-label'), 'the name matches the label it shows')
+        .to.equal(label.textContent);
+    });
+  });
+});
+
 describe('Footer disclosures', () => {
   // Live collapses the plain link columns into disclosure rows while they are a
   // single stack, and keeps the search column, whose links carry icons, open.

@@ -148,10 +148,10 @@ footer .footer-links-toggle[aria-expanded="true"]::before {
 }
 
 /* social icon row: a full-width dark bar at the top of the footer, above the
-   columns, matching live. Icons only, text kept for screen readers. */
+   columns, matching live. Icons alone below 769, icon and name above. */
 footer .footer-links-group.footer-social {
   margin: 0;
-  background-color: var(--conti-dark-black);
+  background-color: var(--conti-black);
   border-bottom: 4px solid var(--conti-yellow);
 }
 
@@ -193,6 +193,16 @@ footer .footer-social a svg {
   width: 20px;
   height: 20px;
   fill: currentcolor;
+}
+
+/* the network name, hidden while the band is icons only */
+footer .footer-social-label {
+  display: none;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 12px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
 }
 
 /* bottom legal bar: full-width divider, content centered in a 1264 zone */
@@ -252,6 +262,19 @@ footer .footer-bottom a:focus-visible {
     align-items: center;
     justify-content: space-between;
     padding: 20px max(32px, calc(50% - 600px));
+  }
+}
+
+/* 769 is where live names each network instead of showing the icon alone. The
+   band grows 2px with it, 68 to 70, and live's 7px gap opens beside the icon. */
+@media (width >= 769px) {
+  footer .footer-social a {
+    gap: 7px;
+    padding: 23px 0;
+  }
+
+  footer .footer-social-label {
+    display: block;
   }
 }
 
