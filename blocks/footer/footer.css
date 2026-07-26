@@ -77,6 +77,76 @@ footer .footer-links-group a .icon {
   flex-shrink: 0;
 }
 
+/* stacked: the columns become a contiguous list of disclosure rows, dividers
+   running the full width and the content inset, as on live */
+footer .footer-links-stacked {
+  gap: 0;
+  padding-inline: 0;
+}
+
+footer .footer-links-stacked > * {
+  padding-inline: 24px;
+}
+
+footer .footer-links-stacked > :not(.footer-links-collapsible) {
+  margin-bottom: 32px;
+}
+
+footer .footer-links-collapsible {
+  padding-block: 16px;
+  border-top: 1px solid var(--conti-grey);
+}
+
+footer .footer-links-collapsible h3 {
+  margin: 0;
+}
+
+/* the links line up under the heading, past the toggle mark and its gap */
+footer .footer-links-collapsible ul {
+  margin-top: 12px;
+  padding-left: 26px;
+}
+
+/* the block gives the lists a display, which would beat the UA rule for
+   [hidden] */
+footer .footer-links-group ul[hidden] {
+  display: none;
+}
+
+footer .footer-links-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+
+  /* the UA drops these two on form controls, so the heading's own case and
+     tracking have to be asked for */
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* a plus that becomes a minus, the mark live uses for its disclosures */
+footer .footer-links-toggle::before {
+  content: '';
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(currentcolor, currentcolor) center / 14px 1px no-repeat,
+    linear-gradient(currentcolor, currentcolor) center / 1px 14px no-repeat;
+}
+
+footer .footer-links-toggle[aria-expanded="true"]::before {
+  background: linear-gradient(currentcolor, currentcolor) center / 14px 1px no-repeat;
+}
+
 /* social icon row: a full-width dark bar at the top of the footer, above the
    columns, matching live. Icons only, text kept for screen readers. */
 footer .footer-links-group.footer-social {

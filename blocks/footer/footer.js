@@ -47,6 +47,78 @@ function decorateSocialGroup(group) {
   });
 }
 
+/* the columns are a single stack below this width, which is where live shows
+   them as disclosure rows instead */
+const isStacked = window.matchMedia('(width < 600px)');
+
+/**
+ * A plain link column, the kind live collapses on mobile. Live keeps the search
+ * column open, and its links are the ones that carry icons.
+ * @param {Element} group a footer links group
+ * @returns {boolean}
+ */
+function isNavColumn(group) {
+  const links = [...group.querySelectorAll('a')];
+  return links.length > 0 && !links.some((link) => link.querySelector('.icon'));
+}
+
+/**
+ * Moves a group's heading text into a button that shows and hides its list. A
+ * real button gets Enter and Space from the browser, so there is no keydown
+ * handler to keep in step with the markup.
+ * @param {Element} group a footer links group
+ * @param {number} i index, used for the id the button points at
+ */
+function collapseGroup(group, i) {
+  const heading = group.querySelector('h3');
+  const list = group.querySelector('ul');
+  if (!heading || !list || heading.querySelector('button')) return;
+
+  if (!list.id) list.id = `footer-links-${i}`;
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'footer-links-toggle';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-controls', list.id);
+  toggle.append(...heading.childNodes);
+  heading.append(toggle);
+  list.hidden = true;
+  group.classList.add('footer-links-collapsible');
+
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    list.hidden = expanded;
+  });
+}
+
+/**
+ * Puts a group's heading text back where it was and shows its list again.
+ * @param {Element} group a footer links group
+ */
+function restoreGroup(group) {
+  const toggle = group.querySelector('.footer-links-toggle');
+  if (!toggle) return;
+  toggle.replaceWith(...toggle.childNodes);
+  group.querySelector('ul').hidden = false;
+  group.classList.remove('footer-links-collapsible');
+}
+
+/**
+ * Collapses the plain link columns into disclosures, or restores them.
+ * @param {Element} links the .footer-links region
+ * @param {boolean} collapsed whether the columns should be disclosure rows
+ */
+export function setFooterDisclosures(links, collapsed) {
+  links.classList.toggle('footer-links-stacked', collapsed);
+  [...links.querySelectorAll('.footer-links-group')]
+    .filter(isNavColumn)
+    .forEach((group, i) => {
+      if (collapsed) collapseGroup(group, i);
+      else restoreGroup(group);
+    });
+}
+
 /**
  * Groups the footer's flat authored content (headings, lists, a CTA paragraph,
  * legal copy) into a link-groups region and a bottom bar region.
@@ -113,4 +185,9 @@ export default async function decorate(block) {
   block.textContent = '';
   if (!fragment) return;
   block.append(buildFooterContent(fragment));
+
+  const links = block.querySelector('.footer-links');
+  if (!links) return;
+  setFooterDisclosures(links, isStacked.matches);
+  isStacked.addEventListener('change', () => setFooterDisclosures(links, isStacked.matches));
 }
