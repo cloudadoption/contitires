@@ -9,6 +9,9 @@ header .nav-wrapper {
   position: fixed;
 }
 
+/* the collapsed mobile bar reads logo, then toggle, like the live site. Tools
+   is hidden here and gets its own row once the drawer opens, so naming it
+   between the two keeps the toggle at the right padding edge. */
 header nav {
   box-sizing: border-box;
   display: grid;
