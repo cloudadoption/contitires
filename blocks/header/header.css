@@ -9,12 +9,15 @@ header .nav-wrapper {
   position: fixed;
 }
 
+/* the collapsed mobile bar reads logo, then toggle, like the live site. Tools
+   is hidden here and gets its own row once the drawer opens, so naming it
+   between the two keeps the toggle at the right padding edge. */
 header nav {
   box-sizing: border-box;
   display: grid;
   grid-template:
-    'hamburger brand tools' var(--nav-height)
-    'sections sections sections' 1fr / auto 1fr auto;
+    'brand tools hamburger' var(--nav-height)
+    'sections sections sections' 1fr / 1fr auto auto;
   align-items: center;
   gap: 0 16px;
   margin: auto;
@@ -27,9 +30,9 @@ header nav {
 
 header nav[aria-expanded='true'] {
   grid-template:
-    'hamburger brand' var(--nav-height)
+    'brand hamburger' var(--nav-height)
     'sections sections' 1fr
-    'tools tools' auto / auto 1fr;
+    'tools tools' auto / 1fr auto;
   overflow-y: auto;
   min-height: 100dvh;
   background-color: var(--conti-dark-black);

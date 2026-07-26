@@ -2,7 +2,9 @@
 /* global describe it before */
 
 import { expect } from '@esm-bundle/chai';
-import { buildUtilityNav, isMegaMenu, DESKTOP_MEDIA_QUERY } from '../../../blocks/header/header.js';
+import {
+  addHamburger, buildUtilityNav, isMegaMenu, DESKTOP_MEDIA_QUERY,
+} from '../../../blocks/header/header.js';
 
 /** Index of the first child carrying `className` in an element's children. */
 function childIndex(el, className) {
@@ -66,6 +68,81 @@ describe('Header desktop breakpoint', () => {
     const cssWidth = Number(hamburgerRule.conditionText.match(/(\d+)px/)[1]);
     const jsWidth = Number(DESKTOP_MEDIA_QUERY.match(/(\d+)px/)[1]);
     expect(cssWidth, 'header.css and header.js agree').to.equal(jsWidth);
+  });
+});
+
+describe('Header mobile toggle', () => {
+  /** A decorated nav before the toggle is added: brand, sections, tools. */
+  function buildNav() {
+    const nav = document.createElement('nav');
+    nav.innerHTML = `<div class="section nav-brand"></div>
+      <div class="section nav-sections"></div>
+      <div class="section nav-tools"></div>`;
+    return nav;
+  }
+
+  /** The nav's children, named by the nav-* class each one carries. */
+  function order(nav) {
+    return [...nav.children]
+      .map((c) => [...c.classList].find((n) => n.startsWith('nav-')));
+  }
+
+  it('places the toggle after the brand, so the logo comes first', () => {
+    const nav = buildNav();
+    addHamburger(nav, () => {});
+    expect(order(nav)).to.eql(['nav-brand', 'nav-hamburger', 'nav-sections', 'nav-tools']);
+  });
+
+  it('starts the nav when authors omit the brand', () => {
+    const nav = document.createElement('nav');
+    nav.innerHTML = '<div class="section nav-sections"></div>';
+    addHamburger(nav, () => {});
+    expect(order(nav)).to.eql(['nav-hamburger', 'nav-sections']);
+  });
+
+  it('runs the callback when its button is clicked', () => {
+    const nav = buildNav();
+    let clicks = 0;
+    const hamburger = addHamburger(nav, () => { clicks += 1; });
+    hamburger.querySelector('button').click();
+    expect(clicks, 'the click reached the callback').to.equal(1);
+  });
+});
+
+describe('Header mobile layout order', () => {
+  // The live site puts the logo at the left edge and the toggle at the right.
+  // Below the desktop breakpoint our nav is a grid, so the named areas decide
+  // what a mobile viewer sees.
+  let sheet;
+
+  before(async () => {
+    const res = await fetch('/blocks/header/header.css');
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await res.text());
+  });
+
+  /** Area names in the first row of a selector's grid template. */
+  function firstRowAreas(selector) {
+    const norm = (s) => (s || '').replaceAll('"', "'");
+    const rule = [...sheet.cssRules]
+      .find((r) => norm(r.selectorText) === norm(selector));
+    expect(rule, `${selector} is styled`).to.exist;
+    const template = rule.style.getPropertyValue('grid-template')
+      || rule.style.getPropertyValue('grid-template-areas');
+    expect(template, `${selector} names its grid areas`).to.match(/["']/);
+    return template.split(/["']/)[1].trim().split(/\s+/);
+  }
+
+  it('puts the brand left of the toggle in the collapsed header', () => {
+    const areas = firstRowAreas('header nav');
+    expect(areas.indexOf('brand'), 'brand comes first')
+      .to.be.lessThan(areas.indexOf('hamburger'));
+  });
+
+  it('keeps that order when the drawer is open', () => {
+    const areas = firstRowAreas('header nav[aria-expanded=\'true\']');
+    expect(areas.indexOf('brand'), 'brand comes first')
+      .to.be.lessThan(areas.indexOf('hamburger'));
   });
 });
 
