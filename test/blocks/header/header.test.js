@@ -3,7 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import {
-  addHamburger, buildUtilityNav, isMegaMenu, DESKTOP_MEDIA_QUERY,
+  addHamburger, buildUtilityNav, hasOwnPromoBar, isMegaMenu, DESKTOP_MEDIA_QUERY,
 } from '../../../blocks/header/header.js';
 
 /** Index of the first child carrying `className` in an element's children. */
@@ -143,6 +143,73 @@ describe('Header mobile layout order', () => {
     const areas = firstRowAreas('header nav[aria-expanded=\'true\']');
     expect(areas.indexOf('brand'), 'brand comes first')
       .to.be.lessThan(areas.indexOf('hamburger'));
+  });
+});
+
+describe('Header promo ribbon', () => {
+  // Live puts the rebate ribbon above the header on every page but the
+  // homepage, which authors its own promo bar below the hero. The header
+  // renders the shared ribbon only for pages that carry none.
+  /** A page whose main holds the given inner HTML. */
+  function page(html) {
+    const root = document.createElement('div');
+    root.innerHTML = `<header></header><main>${html}</main>`;
+    return root;
+  }
+
+  it('leaves the ribbon to the header when the page authors no promo bar', () => {
+    expect(hasOwnPromoBar(page('<div class="section"><p>Tires</p></div>'))).to.be.false;
+  });
+
+  it('yields to a promo bar the page authors itself', () => {
+    expect(hasOwnPromoBar(page('<div class="section"><div class="promo-bar"></div></div>'))).to.be.true;
+  });
+
+  it('ignores a promo bar that is already in the header', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<header><div class="promo-bar"></div></header><main></main>';
+    expect(hasOwnPromoBar(root)).to.be.false;
+  });
+});
+
+describe('Header promo ribbon layout', () => {
+  // The ribbon rides inside the sticky wrapper above the nav, so the header
+  // has to reserve its height from the first paint. The mega-menu panel drops
+  // from the bottom of that wrapper, so it reserves the same height again.
+  let headerRule;
+  let ownPromoRule;
+  let panelRule;
+
+  before(async () => {
+    const global = new CSSStyleSheet();
+    await global.replace(await (await fetch('/styles/styles.css')).text());
+    headerRule = [...global.cssRules].find((rule) => rule.selectorText === 'header');
+    ownPromoRule = [...global.cssRules]
+      .find((rule) => rule.selectorText?.includes(':has(main .promo-bar)'));
+
+    const header = new CSSStyleSheet();
+    await header.replace(await (await fetch('/blocks/header/header.css')).text());
+    const selector = 'header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul';
+    panelRule = [...header.cssRules]
+      .filter((rule) => rule instanceof CSSMediaRule)
+      .flatMap((rule) => [...rule.cssRules])
+      .find((rule) => rule.selectorText === selector && rule.style.position === 'fixed');
+  });
+
+  it('reserves the ribbon height on top of the nav height', () => {
+    expect(headerRule, 'the header reserves its own height').to.exist;
+    expect(headerRule.style.height).to.contain('--nav-height');
+    expect(headerRule.style.height).to.contain('--promo-bar-height');
+  });
+
+  it('reserves nothing on pages that author their own promo bar', () => {
+    expect(ownPromoRule, 'pages with their own promo bar are styled').to.exist;
+    expect(ownPromoRule.style.getPropertyValue('--promo-bar-height').trim()).to.equal('0px');
+  });
+
+  it('drops the mega-menu panel to the bottom of the header', () => {
+    expect(panelRule, 'the open panel is styled').to.exist;
+    expect(panelRule.style.top).to.equal(headerRule.style.height);
   });
 });
 
