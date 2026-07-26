@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it */
+/* global describe it before */
 
 import { expect } from '@esm-bundle/chai';
 import { buildFooterContent } from '../../../blocks/footer/footer.js';
@@ -61,16 +61,18 @@ describe('Footer column layout', () => {
     await sheet.replace(await res.text());
   });
 
-  /** The .footer-links rule inside the breakpoint that starts at `width`. */
+  /** The .footer-links rule that wins at a viewport `width` wide. */
   function linksRuleAt(width) {
-    const media = [...sheet.cssRules]
+    const applicable = [...sheet.cssRules]
       .filter((rule) => rule instanceof CSSMediaRule)
-      .find((rule) => rule.conditionText.includes(`${width}px`));
-    expect(media, `a ${width}px breakpoint exists`).to.exist;
-    const rule = [...media.cssRules]
-      .find((r) => r.selectorText === 'footer .footer-links');
-    expect(rule, `.footer-links is laid out at ${width}`).to.exist;
-    return rule;
+      .map((media) => ({
+        from: Number(media.conditionText.match(/(\d+)px/)?.[1]),
+        rule: [...media.cssRules].find((r) => r.selectorText === 'footer .footer-links'),
+      }))
+      .filter((m) => m.rule && m.from <= width)
+      .sort((a, b) => b.from - a.from);
+    expect(applicable[0], `.footer-links is laid out at ${width}`).to.exist;
+    return applicable[0].rule;
   }
 
   /** Track count of a rule's grid-template-columns, repeat() included. */
@@ -81,13 +83,14 @@ describe('Footer column layout', () => {
     return value.split(/\s+(?![^(]*\))/).filter(Boolean).length;
   }
 
-  it('gives the six groups a row of six tracks on wide desktop', () => {
-    expect(trackCount(linksRuleAt(1200)), 'six columns').to.equal(6);
+  it('gives the six groups a row of six tracks at 1440', () => {
+    expect(trackCount(linksRuleAt(1440)), 'six columns').to.equal(6);
   });
 
-  it('drops to three tracks below that instead of reflowing', () => {
-    const rule = linksRuleAt(900);
-    expect(rule.style.display, 'a grid, so the track count is fixed').to.equal('grid');
+  it('drops to three tracks at 1000 instead of reflowing', () => {
+    const rule = linksRuleAt(1000);
     expect(trackCount(rule), 'three columns').to.equal(3);
+    expect(linksRuleAt(900).style.display, 'a grid, so the track count is fixed')
+      .to.equal('grid');
   });
 });
