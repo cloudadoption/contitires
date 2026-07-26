@@ -76,6 +76,17 @@ function icon(name) {
 /** Splits a ", "-delimited sheet cell, tolerating a missing space or a trailing comma. */
 const splitList = (value) => String(value ?? '').split(',').map((part) => part.trim()).filter(Boolean);
 
+/** Parses "Winter:2, Passenger:14" into { Winter: 2, Passenger: 14 }. */
+function parseFacetWeights(value) {
+  const out = {};
+  splitList(value).forEach((pair) => {
+    const at = pair.lastIndexOf(':');
+    const weight = parseFloat(pair.slice(at + 1));
+    if (at > 0 && !Number.isNaN(weight)) out[pair.slice(0, at).trim()] = weight;
+  });
+  return out;
+}
+
 /**
  * Reads the authored config off the block, by cell shape rather than position:
  * a cell starting with "/" is the catalog source, an all-digits cell is the page
@@ -125,6 +136,7 @@ export function parseRows(sheet) {
       // parseFloat, not Number: the sheet serves an unweighted row as '', and
       // Number('') is 0, which would sort it first instead of last
       weight: parseFloat(row.weight),
+      facetWeights: parseFacetWeights(row.facetWeights),
       isNew: !/^(|false|no|0)$/i.test(String(row.isNew ?? '').trim()),
       promo: promo ? { text: promo, href: String(row.promoPath ?? '').trim() } : null,
     };
@@ -154,13 +166,22 @@ export function filterRows(rows, selection = {}) {
  * and a row can never move between pages.
  * @param {Array<Object>} rows normalized rows
  * @param {string} key one of featured, rating, az
+ * @param {string} [facet] a category page's facet, whose own editorial order
+ *   wins over the all-tires order, as it does on live
  * @returns {Array<Object>} a new array
  */
-export function sortRows(rows, key) {
+export function sortRows(rows, key, facet) {
   const byName = (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase(), 'en');
   const weightOf = (row) => (Number.isNaN(row.weight) ? Infinity : row.weight);
+  // on a category page the facet's own order wins; a tire that facet does not
+  // rank falls in behind the ranked ones, on the all-tires weight
+  const facetRank = (row) => {
+    if (!facet) return 0;
+    const ranked = row.facetWeights ? row.facetWeights[facet] : undefined;
+    return ranked === undefined ? Number.MAX_SAFE_INTEGER : ranked;
+  };
   const comparators = {
-    featured: (a, b) => weightOf(a) - weightOf(b) || byName(a, b),
+    featured: (a, b) => facetRank(a) - facetRank(b) || weightOf(a) - weightOf(b) || byName(a, b),
     rating: (a, b) => b.rating - a.rating || b.reviews - a.reviews
       || weightOf(a) - weightOf(b) || byName(a, b),
     az: byName,
@@ -581,7 +602,7 @@ export default async function decorate(block) {
 
   let rendered = false;
   const render = () => {
-    const matched = sortRows(filterRows(rows, state.selection), state.sort);
+    const matched = sortRows(filterRows(rows, state.selection), state.sort, preset);
     const view = paginate(matched, state.page, pageSize);
     state.page = view.page;
 
