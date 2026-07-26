@@ -48,3 +48,46 @@ describe('Footer content structure', () => {
     expect(socialIdx, 'social bar comes before the columns').to.be.lessThan(linksIdx);
   });
 });
+
+describe('Footer column layout', () => {
+  // Live lays the groups on a fixed column grid: six tracks on wide desktop,
+  // three below that. Reflowing with flex-wrap left one orphan group on a
+  // second row between 900 and 1183.
+  let sheet;
+
+  before(async () => {
+    const res = await fetch('/blocks/footer/footer.css');
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await res.text());
+  });
+
+  /** The .footer-links rule inside the breakpoint that starts at `width`. */
+  function linksRuleAt(width) {
+    const media = [...sheet.cssRules]
+      .filter((rule) => rule instanceof CSSMediaRule)
+      .find((rule) => rule.conditionText.includes(`${width}px`));
+    expect(media, `a ${width}px breakpoint exists`).to.exist;
+    const rule = [...media.cssRules]
+      .find((r) => r.selectorText === 'footer .footer-links');
+    expect(rule, `.footer-links is laid out at ${width}`).to.exist;
+    return rule;
+  }
+
+  /** Track count of a rule's grid-template-columns, repeat() included. */
+  function trackCount(rule) {
+    const value = rule.style.getPropertyValue('grid-template-columns');
+    const repeat = value.match(/^repeat\(\s*(\d+)\s*,/);
+    if (repeat) return Number(repeat[1]);
+    return value.split(/\s+(?![^(]*\))/).filter(Boolean).length;
+  }
+
+  it('gives the six groups a row of six tracks on wide desktop', () => {
+    expect(trackCount(linksRuleAt(1200)), 'six columns').to.equal(6);
+  });
+
+  it('drops to three tracks below that instead of reflowing', () => {
+    const rule = linksRuleAt(900);
+    expect(rule.style.display, 'a grid, so the track count is fixed').to.equal('grid');
+    expect(trackCount(rule), 'three columns').to.equal(3);
+  });
+});
