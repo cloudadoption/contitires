@@ -14,7 +14,7 @@ import decorate, {
   searchFromState,
   renderName,
 } from '../../../blocks/tire-listing/tire-listing.js';
-import { CATALOG, LIVE_COUNTS } from './catalog.fixture.js';
+import { CATALOG, LIVE_COUNTS, LIVE_CATEGORY_ORDER } from './catalog.fixture.js';
 
 /** A catalog sheet response, as /products.json?sheet=catalog serves it. */
 function sheet(rows) {
@@ -117,6 +117,11 @@ describe('parseRows', () => {
     expect(row.badges).to.deep.equal(['Passenger', 'Summer']);
   });
 
+  it('reads the per-facet editorial order a category page needs', () => {
+    const [row] = parseRows(sheet([{ facetWeights: 'Winter:2, Passenger:14' }]));
+    expect(row.facetWeights).to.deep.equal({ Winter: 2, Passenger: 14 });
+  });
+
   it('falls back to the plain name when no display markup is authored', () => {
     const rows = parseRows(sheet([
       { name: 'TrueContact Tour54', nameHtml: 'TrueContact Tour<sup>54</sup>' },
@@ -215,6 +220,35 @@ describe('sortRows', () => {
       expect(out, key).to.have.length(46);
       expect(new Set(out.map((r) => r.slug)).size, key).to.equal(46);
     });
+  });
+
+  it('orders Featured by the facet\'s own weight on a category page', () => {
+    // live's /tires/winter puts VikingContact 8 second; the same filter applied
+    // to /tires puts it third, because each taxonomy term carries its own order
+    const winter = filterRows(rows(), { weather: ['Winter'] });
+    expect(sortRows(winter, 'featured', 'Winter').map((r) => r.slug))
+      .to.deep.equal(LIVE_CATEGORY_ORDER.Winter);
+    expect(sortRows(winter, 'featured').map((r) => r.slug))
+      .to.not.deep.equal(LIVE_CATEGORY_ORDER.Winter);
+  });
+
+  it('reproduces every live category page order', () => {
+    Object.entries(LIVE_CATEGORY_ORDER).forEach(([facet, slugs]) => {
+      const group = FACET_GROUPS.find((g) => g.labels.includes(facet));
+      const matched = filterRows(rows(), { [group.key]: [facet] });
+      expect(sortRows(matched, 'featured', facet).map((r) => r.slug), facet)
+        .to.deep.equal(slugs);
+    });
+  });
+
+  it('falls back to the global weight for a tire the facet does not rank', () => {
+    const out = sortRows(parseRows(sheet([
+      { slug: 'a', name: 'A', weight: '1' },
+      {
+        slug: 'b', name: 'B', weight: '2', facetWeights: 'Winter:1',
+      },
+    ])), 'featured', 'Winter');
+    expect(out.map((r) => r.slug)).to.deep.equal(['b', 'a']);
   });
 
   it('leaves the input array untouched', () => {
@@ -451,6 +485,17 @@ describe('Tire listing block', () => {
 
     expect(block.querySelector('.tire-listing-count').textContent).to.equal('15 Results');
     expect(block.querySelector('input[value="Ultra-High Performance"]').checked).to.be.true;
+  });
+
+  it('renders a category page in that category\'s own order', async () => {
+    stubCatalog();
+    const block = buildBlock('<div><div>Winter</div></div>');
+    await decorate(block);
+
+    const titles = [...block.querySelectorAll('.tire-listing-card-title')]
+      .map((el) => el.textContent.trim());
+    expect(titles[0]).to.contain('VikingContact 7');
+    expect(titles[1]).to.contain('VikingContact 8');
   });
 
   it('clears everything on reset', async () => {
