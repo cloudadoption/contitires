@@ -499,6 +499,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
 /* stylelint-disable no-descending-specificity */
 @media (width >= 1200px) {
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul {
+    box-sizing: border-box;
     position: fixed;
     inset-inline: 0;
     top: var(--nav-height);
