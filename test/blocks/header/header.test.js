@@ -53,15 +53,19 @@ describe('Header desktop breakpoint', () => {
     expect(DESKTOP_MEDIA_QUERY).to.equal('(min-width: 1200px)');
   });
 
-  it('keeps header.css media queries in lockstep with the script', async () => {
+  it('hides the hamburger at the same width the script calls desktop', async () => {
     const res = await fetch('/blocks/header/header.css');
     expect(res.ok, 'header.css is served').to.be.true;
-    const css = await res.text();
-    const widths = [...css.matchAll(/@media\s*\(\s*width\s*>=\s*(\d+)px/g)]
-      .map((m) => Number(m[1]));
-    expect(widths.length, 'header.css has width media queries').to.be.greaterThan(0);
+    const sheet = new CSSStyleSheet();
+    await sheet.replace(await res.text());
+    const hamburgerRule = [...sheet.cssRules]
+      .filter((rule) => rule instanceof CSSMediaRule)
+      .find((rule) => [...rule.cssRules].some((r) => r.selectorText?.includes('.nav-hamburger')
+        && r.style.display === 'none'));
+    expect(hamburgerRule, 'a media query hides the hamburger').to.exist;
+    const cssWidth = Number(hamburgerRule.conditionText.match(/(\d+)px/)[1]);
     const jsWidth = Number(DESKTOP_MEDIA_QUERY.match(/(\d+)px/)[1]);
-    expect([...new Set(widths)]).to.deep.equal([jsWidth]);
+    expect(cssWidth, 'header.css and header.js agree').to.equal(jsWidth);
   });
 });
 
