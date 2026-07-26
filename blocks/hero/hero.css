@@ -151,6 +151,20 @@ main .section.hero-container {
     linear-gradient(to top, rgb(0 0 0 / 60%) 0%, rgb(0 0 0 / 0%) 40%);
 }
 
+/* section-header variant: the shorter band the listing pages use, with the
+   photo pinned top right and no scrim, matching live's marquee there */
+.hero.short {
+  min-height: 220px;
+}
+
+.hero.short .hero-image img {
+  object-position: top right;
+}
+
+.hero.short .hero-image::after {
+  background: none;
+}
+
 @media (width >= 600px) {
   .hero.has-mobile-image .hero-image-mobile {
     display: none;
@@ -176,6 +190,11 @@ main .section.hero-container {
 
   .hero.left {
     min-height: 560px;
+  }
+
+  .hero.short,
+  .hero.left.short {
+    min-height: 345px;
   }
 
   .hero.left .hero-content p {

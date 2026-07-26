@@ -130,3 +130,25 @@ describe('Tire specs block, multi-sheet workbook', () => {
     expect(block.querySelector('.tire-specs-select')).to.not.exist;
   });
 });
+
+describe('Tire specs block, single-sheet request', () => {
+  let fetchStub;
+  afterEach(() => fetchStub?.restore());
+
+  // the workbook also carries the products and catalog sheets a PDP never reads
+  it('asks for the specs sheet, not the whole workbook', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK.specs });
+    await decorate(build('my-tire'));
+    expect(fetchStub.firstCall.args[0]).to.equal('/products.json?sheet=specs');
+  });
+
+  it('reads the rows a single-sheet response puts at data', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK.specs });
+    const block = build('vikingcontact-7');
+    await decorate(block);
+
+    const opts = block.querySelectorAll('.tire-specs-select option');
+    expect(opts).to.have.length(2);
+    expect(opts[0].textContent).to.equal('155/70 R 19');
+  });
+});

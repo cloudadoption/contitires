@@ -1,20 +1,24 @@
-const PRODUCTS_URL = '/products.json';
+// ask for the specs sheet alone: the workbook also carries the products and
+// catalog sheets, which a product page never reads
+const SPECS_URL = '/products.json?sheet=specs';
 const LEGACY_SPECS_URL = '/product-specs.json';
 
 /**
- * Loads one product's per-size specs. Reads the multi-sheet DA workbook first:
- * specs.data is a flat list of rows keyed by slug, each row carrying the spec
- * fields in column order. Falls back to the legacy /product-specs.json shape
- * ({ slug: [{ size, specs }] }) when the workbook has no specs sheet.
+ * Loads one product's per-size specs. Reads the DA sheet first: its rows are a
+ * flat list keyed by slug, each carrying the spec fields in column order. A
+ * single-sheet response puts them at data, a whole workbook at specs.data.
+ * Falls back to the legacy /product-specs.json shape
+ * ({ slug: [{ size, specs }] }) when neither has rows.
  * @param {string} slug the product slug
  * @returns {Promise<Array<{size: string, specs: Object}>>}
  */
 async function loadSizes(slug) {
-  const resp = await fetch(PRODUCTS_URL);
+  const resp = await fetch(SPECS_URL);
   if (!resp.ok) return [];
   const data = await resp.json();
-  if (data.specs && data.specs.data) {
-    return data.specs.data
+  const rows = data.data || (data.specs && data.specs.data);
+  if (rows) {
+    return rows
       .filter((row) => row.slug === slug)
       .map((row) => {
         const specs = { ...row };
