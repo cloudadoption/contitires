@@ -49,6 +49,34 @@ describe('Footer content structure', () => {
   });
 });
 
+describe('Footer tire search column', () => {
+  // Live opens the finder from these three. Ours pointed at /tire-search, which
+  // the POC does not have, so all three were dead on every page.
+  function buildSearchColumn() {
+    const fragment = document.createElement('div');
+    fragment.innerHTML = `
+      <h3>Search for Tire</h3>
+      <ul>
+        <li><a href="/tire-search/by-vehicle">By Vehicle</a></li>
+        <li><a href="/tire-search">By Tire</a></li>
+        <li><a href="/tire-search">By License Plate</a></li>
+        <li><a href="/search">Search Site</a></li>
+      </ul>`;
+    return buildFooterContent(fragment);
+  }
+
+  it('opens the finder from the three tire searches', () => {
+    const triggers = [...buildSearchColumn().querySelectorAll('[data-tire-finder]')];
+    expect(triggers.map((t) => t.dataset.tireFinder)).to.eql(['vehicle', 'tire-size', 'plate']);
+  });
+
+  it('leaves the site search a link', () => {
+    const siteSearch = buildSearchColumn().querySelector('a[href="/search"]');
+    expect(siteSearch, 'site search is still a link').to.exist;
+    expect(siteSearch.dataset.tireFinder).to.be.undefined;
+  });
+});
+
 describe('Footer social band', () => {
   // Live shows each icon with its network name from 769 up, and hides the name
   // below that. The name has to be in the DOM for CSS to make that call.

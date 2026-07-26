@@ -4,7 +4,7 @@
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
 import decorate, {
-  parseSize, sizeOptions, findBySize, findByVehicleClass,
+  parseSize, sizeOptions, findBySize, findByVehicleClass, openTireFinder,
 } from '../../../blocks/perfect-fit/perfect-fit.js';
 
 const PRODUCTS = {
@@ -426,5 +426,55 @@ describe('perfect-fit block, single-sheet request', () => {
     const results = panel.querySelectorAll('.perfect-fit-result');
     expect(results.length).to.equal(1);
     expect(results[0].getAttribute('href')).to.equal('/tires/pure-ls');
+  });
+});
+
+// The header, the footer and the product pages offer the finder on pages that
+// carry no perfect-fit bar, so the modal has to open without a block.
+describe('perfect-fit modal, opened without a block', () => {
+  let fetchStub;
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    document.body.innerHTML = '<main><div class="section"><p>a page with no bar</p></div></main>';
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('opens on the requested tab', async () => {
+    await openTireFinder('plate');
+    const overlay = document.querySelector('.perfect-fit-overlay');
+    expect(overlay).to.exist;
+    expect(overlay.hidden).to.be.false;
+    expect(document.querySelector('#perfect-fit-panel-plate').hidden).to.be.false;
+    expect(document.querySelector('#perfect-fit-panel-vehicle').hidden).to.be.true;
+  });
+
+  // #149 anchored two of its fixes on `main .section`, so the modal has to stay
+  // inside a section rather than hang off the body
+  it('hosts the modal inside main, where the block styles reach it', async () => {
+    await openTireFinder('vehicle');
+    const overlay = document.querySelector('.perfect-fit-overlay');
+    expect(overlay.closest('main .section')).to.exist;
+  });
+
+  it('builds one modal however often it is opened', async () => {
+    await openTireFinder('vehicle');
+    await openTireFinder('tire-size');
+    expect(document.querySelectorAll('.perfect-fit-overlay')).to.have.length(1);
+    expect(document.querySelector('#perfect-fit-panel-tire-size').hidden).to.be.false;
+  });
+
+  it('returns focus to the control that opened it', async () => {
+    const trigger = document.createElement('button');
+    document.querySelector('main .section').append(trigger);
+    await openTireFinder('vehicle', trigger);
+    document.querySelector('.perfect-fit-close').click();
+    expect(document.activeElement).to.equal(trigger);
+  });
+
+  it('loads the block stylesheet, which no other block on the page pulls in', async () => {
+    await openTireFinder('vehicle');
+    expect(document.querySelector('head > link[href$="/blocks/perfect-fit/perfect-fit.css"]')).to.exist;
   });
 });
