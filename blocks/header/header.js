@@ -181,6 +181,23 @@ export function buildUtilityNav() {
 }
 
 /**
+ * Builds the mobile menu toggle and places it in the nav.
+ * @param {Element} nav The nav element
+ * @param {Function} onToggle Called when the button is clicked
+ * @returns {Element} the hamburger wrapper
+ */
+export function addHamburger(nav, onToggle) {
+  const hamburger = document.createElement('div');
+  hamburger.classList.add('nav-hamburger');
+  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
+      <span class="nav-hamburger-icon"></span>
+    </button>`;
+  hamburger.addEventListener('click', onToggle);
+  nav.prepend(hamburger);
+  return hamburger;
+}
+
+/**
  * Turns the authored :search: icon into a search trigger button and builds
  * the expandable search panel. Returns null when authors omit the icon.
  * @param {Element} navTools The nav-tools section
@@ -294,16 +311,10 @@ export default async function decorate(block) {
   }
 
   // hamburger for mobile
-  const hamburger = document.createElement('div');
-  hamburger.classList.add('nav-hamburger');
-  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      <span class="nav-hamburger-icon"></span>
-    </button>`;
-  hamburger.addEventListener('click', () => {
+  addHamburger(nav, () => {
     if (search) closeSearch(search.button, search.panel);
     toggleMenu(nav, navSections);
   });
-  nav.prepend(hamburger);
   nav.setAttribute('aria-expanded', 'false');
   // prevent mobile nav behavior on window resize
   toggleMenu(nav, navSections, isDesktop.matches);
