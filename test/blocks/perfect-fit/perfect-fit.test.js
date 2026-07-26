@@ -242,6 +242,28 @@ describe('perfect-fit modal, rebuilt against live', () => {
     expect(button.disabled).to.be.false;
   });
 
+  it('floats the field name above the control once it holds a value', async () => {
+    const block = build();
+    await decorate(block);
+    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    const wrapper = panel.querySelector('[name="make"]').closest('.perfect-fit-field');
+    expect(wrapper.classList.contains('perfect-fit-field-filled'), 'empty').to.be.false;
+    setField(panel, 'make', 'Toyota');
+    expect(wrapper.classList.contains('perfect-fit-field-filled'), 'filled').to.be.true;
+  });
+
+  it('takes the floated name away when the cascade clears the field below', async () => {
+    const block = build();
+    await decorate(block);
+    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    const model = panel.querySelector('[name="model"]').closest('.perfect-fit-field');
+    setField(panel, 'make', 'Toyota');
+    setField(panel, 'model', 'Camry');
+    expect(model.classList.contains('perfect-fit-field-filled')).to.be.true;
+    setField(panel, 'make', 'Ford');
+    expect(model.classList.contains('perfect-fit-field-filled'), 'cleared with the make').to.be.false;
+  });
+
   it('names the dialog after the panel on show', async () => {
     const block = build();
     await decorate(block);
