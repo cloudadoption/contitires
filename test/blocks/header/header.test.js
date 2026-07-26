@@ -2,7 +2,7 @@
 /* global describe it before */
 
 import { expect } from '@esm-bundle/chai';
-import { buildUtilityNav, isMegaMenu } from '../../../blocks/header/header.js';
+import { buildUtilityNav, isMegaMenu, DESKTOP_MEDIA_QUERY } from '../../../blocks/header/header.js';
 
 /** Index of the first child carrying `className` in an element's children. */
 function childIndex(el, className) {
@@ -41,6 +41,27 @@ describe('Header utility nav', () => {
     const labelIdx = childIndex(nonPill, 'nav-tools-utility-label');
     const iconIdx = childIndex(nonPill, 'icon');
     expect(iconIdx, 'icon comes before the label').to.be.lessThan(labelIdx);
+  });
+});
+
+describe('Header desktop breakpoint', () => {
+  // The desktop nav needs 1180px of horizontal room (measured on production:
+  // 32px padding + 150px brand + 24px gap + 707px sections + 24px gap + 211px
+  // tools + 32px padding). Engaging it below that scrolls every page
+  // sideways, so it starts at the project's 1200px desktop breakpoint.
+  it('switches to the desktop nav at 1200px', () => {
+    expect(DESKTOP_MEDIA_QUERY).to.equal('(min-width: 1200px)');
+  });
+
+  it('keeps header.css media queries in lockstep with the script', async () => {
+    const res = await fetch('/blocks/header/header.css');
+    expect(res.ok, 'header.css is served').to.be.true;
+    const css = await res.text();
+    const widths = [...css.matchAll(/@media\s*\(\s*width\s*>=\s*(\d+)px/g)]
+      .map((m) => Number(m[1]));
+    expect(widths.length, 'header.css has width media queries').to.be.greaterThan(0);
+    const jsWidth = Number(DESKTOP_MEDIA_QUERY.match(/(\d+)px/)[1]);
+    expect([...new Set(widths)]).to.deep.equal([jsWidth]);
   });
 });
 
