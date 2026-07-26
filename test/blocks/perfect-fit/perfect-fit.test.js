@@ -220,3 +220,54 @@ describe('perfect-fit block, multi-sheet workbook', () => {
     expect(results[0].getAttribute('href')).to.equal('/tires/pure-ls');
   });
 });
+
+describe('perfect-fit block, single-sheet request', () => {
+  let fetchStub;
+  function build() {
+    document.body.innerHTML = `
+      <div class="perfect-fit block">
+        <div><div><p>Find your perfect fit:</p></div></div>
+        <div>
+          <div><span>By Vehicle</span></div>
+          <div><span>By Tire Size</span></div>
+          <div><span>By Plate</span></div>
+        </div>
+      </div>`;
+    return document.querySelector('.perfect-fit.block');
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+  });
+  afterEach(() => fetchStub.restore());
+
+  // the workbook carries a 1315-row specs sheet the finder never reads, so ask
+  // the sheet API for the products sheet alone
+  it('asks for the products sheet, not the whole workbook', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+    await decorate(build());
+    expect(fetchStub.firstCall.args[0]).to.equal('/products.json?sheet=products');
+  });
+
+  it('reads the rows a single-sheet response puts at data', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK.products)));
+    const block = build();
+    await decorate(block);
+    block.querySelectorAll('.perfect-fit-item')[1].click(); // By Tire Size
+
+    const panel = block.querySelector('#perfect-fit-panel-tire-size');
+    const setSelect = (name, value) => {
+      const el = panel.querySelector(`[name="${name}"]`);
+      el.value = value;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    setSelect('width', '195');
+    setSelect('aspect', '65');
+    setSelect('rim', '15');
+    panel.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+    const results = panel.querySelectorAll('.perfect-fit-result');
+    expect(results.length).to.equal(1);
+    expect(results[0].getAttribute('href')).to.equal('/tires/pure-ls');
+  });
+});
