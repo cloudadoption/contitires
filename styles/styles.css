@@ -97,6 +97,11 @@ body:has(main .promo-bar) {
   --promo-bar-height: 0px;
 }
 
+/* block-library previews load no header, so they reserve no ribbon either */
+body.block-preview {
+  --promo-bar-height: 0px;
+}
+
 header {
   height: calc(var(--nav-height) + var(--promo-bar-height));
 }
