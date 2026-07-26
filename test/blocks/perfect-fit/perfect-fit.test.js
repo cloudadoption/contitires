@@ -273,6 +273,15 @@ describe('perfect-fit modal, rebuilt against live', () => {
     expect(block.querySelector(`#${labelledBy}`).textContent).to.equal('What\'s your tire size?');
   });
 
+  it('puts focus on the dialog rather than into the first field', async () => {
+    const block = build();
+    await decorate(block);
+    block.querySelectorAll('.perfect-fit-item')[0].click();
+    const dialog = block.querySelector('.perfect-fit-dialog');
+    expect(dialog.getAttribute('tabindex')).to.equal('-1');
+    expect(document.activeElement).to.equal(dialog);
+  });
+
   it('opens on the vehicle tab when the bar is authored as a single item', async () => {
     const block = build(['Find your perfect fit'], '');
     await decorate(block);
