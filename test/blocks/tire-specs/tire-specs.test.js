@@ -66,6 +66,14 @@ function build(slug) {
   return document.querySelector('.tire-specs.block');
 }
 
+/** The same block in the section and wrapper the page decoration puts it in. */
+function buildInSection(slug) {
+  document.body.innerHTML = `<div class="section tire-specs-container"><div class="tire-specs-wrapper">
+    <div class="tire-specs block"><div><div>${slug}</div></div></div>
+  </div></div>`;
+  return document.querySelector('.tire-specs.block');
+}
+
 describe('Tire specs block, legacy product-specs.json', () => {
   let fetchStub;
   afterEach(() => fetchStub?.restore());
@@ -128,6 +136,26 @@ describe('Tire specs block, multi-sheet workbook', () => {
     await decorate(block);
 
     expect(block.querySelector('.tire-specs-select')).to.not.exist;
+  });
+
+  // an empty block still paints its dark band, leaving a black stripe under the
+  // hero on the products live has no sizes for
+  it('takes its wrapper out of the section when the slug has no rows', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildInSection('purecontact-ls');
+    await decorate(block);
+
+    expect(document.querySelectorAll('.tire-specs-wrapper').length).to.equal(0);
+    expect(document.querySelector('.tire-specs-container').children.length).to.equal(0);
+  });
+
+  it('keeps its wrapper when the slug has rows', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildInSection('vikingcontact-7');
+    await decorate(block);
+
+    expect(document.querySelectorAll('.tire-specs-wrapper').length).to.equal(1);
+    expect(block.querySelectorAll('.tire-specs-select option').length).to.equal(2);
   });
 });
 
