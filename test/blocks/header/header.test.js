@@ -179,6 +179,7 @@ describe('Header promo ribbon layout', () => {
   let headerRule;
   let ownPromoRule;
   let panelRule;
+  let ribbonRule;
 
   before(async () => {
     const global = new CSSStyleSheet();
@@ -194,6 +195,8 @@ describe('Header promo ribbon layout', () => {
       .filter((rule) => rule instanceof CSSMediaRule)
       .flatMap((rule) => [...rule.cssRules])
       .find((rule) => rule.selectorText === selector && rule.style.position === 'fixed');
+    ribbonRule = [...header.cssRules]
+      .find((rule) => rule.selectorText?.includes('.nav-wrapper .promo-bar-bar'));
   });
 
   it('reserves the ribbon height on top of the nav height', () => {
@@ -205,6 +208,11 @@ describe('Header promo ribbon layout', () => {
   it('reserves nothing on pages that author their own promo bar', () => {
     expect(ownPromoRule, 'pages with their own promo bar are styled').to.exist;
     expect(ownPromoRule.style.getPropertyValue('--promo-bar-height').trim()).to.equal('0px');
+  });
+
+  it('gives the ribbon the height the page reserved for it', () => {
+    expect(ribbonRule, 'the ribbon row is styled in the header').to.exist;
+    expect(ribbonRule.style.height).to.equal('var(--promo-bar-height)');
   });
 
   it('drops the mega-menu panel to the bottom of the header', () => {
