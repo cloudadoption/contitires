@@ -327,6 +327,9 @@ function buildModal(products) {
   dialog.className = 'perfect-fit-dialog';
   dialog.setAttribute('role', 'dialog');
   dialog.setAttribute('aria-modal', 'true');
+  // focus lands here on open, so the dialog announces its question and no
+  // control opens wearing a focus ring
+  dialog.tabIndex = -1;
 
   const closeButton = document.createElement('button');
   closeButton.type = 'button';
@@ -402,7 +405,7 @@ function buildModal(products) {
     switchTab(tabId);
     overlay.hidden = false;
     document.body.classList.add('perfect-fit-modal-open');
-    (getFocusable(panels[tabId])[0] || closeButton).focus();
+    dialog.focus();
   }
 
   closeButton.addEventListener('click', close);

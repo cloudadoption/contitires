@@ -301,9 +301,10 @@ main .section .perfect-fit-form .perfect-fit-terms a:any-link {
   margin: 24px auto 0;
 }
 
-/* on the black surface live greys the call to action down rather than up */
-.perfect-fit-form .perfect-fit-search:disabled,
-.perfect-fit-form .perfect-fit-search:disabled:hover {
+/* on the black surface live greys the call to action down rather than up. The
+   global button rule is (0,3,1), so this has to out-specify it. */
+.perfect-fit-panels .perfect-fit-form button.perfect-fit-search:disabled,
+.perfect-fit-panels .perfect-fit-form button.perfect-fit-search:disabled:hover {
   border-color: var(--conti-black);
   background-color: var(--conti-black);
   color: var(--conti-darkest-grey);
