@@ -185,8 +185,22 @@ footer .footer-bottom a:focus-visible {
   }
 }
 
+/* from here up the groups sit on a fixed grid, so the row cannot go ragged.
+   Live does the same: three 200px columns, then six 160px ones on wide
+   desktop. */
 @media (width >= 900px) {
-  footer .footer-links-group {
-    flex: 1 1 160px;
+  footer .footer-links {
+    display: grid;
+    grid-template-columns: repeat(3, 200px);
+    justify-content: start;
+  }
+}
+
+/* 1184 = six 160px tracks + five 32px gutters + the container's 32px padding
+   on each side, so this is the width at which all six first fit */
+@media (width >= 1184px) {
+  footer .footer-links {
+    grid-template-columns: repeat(6, 160px);
+    justify-content: space-between;
   }
 }
