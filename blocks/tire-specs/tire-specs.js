@@ -70,7 +70,11 @@ export default async function decorate(block) {
   } catch (e) {
     sizes = [];
   }
-  if (!sizes.length) return;
+  // nothing to show: take the block out rather than leave its dark band empty
+  if (!sizes.length) {
+    (block.closest('.tire-specs-wrapper') || block).remove();
+    return;
+  }
 
   const heading = document.createElement('h2');
   heading.textContent = 'Specifications';
