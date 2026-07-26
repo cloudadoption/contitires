@@ -179,6 +179,7 @@ describe('Header promo ribbon layout', () => {
   let headerRule;
   let ownPromoRule;
   let panelRule;
+  let previewRule;
   let ribbonRule;
 
   before(async () => {
@@ -187,6 +188,8 @@ describe('Header promo ribbon layout', () => {
     headerRule = [...global.cssRules].find((rule) => rule.selectorText === 'header');
     ownPromoRule = [...global.cssRules]
       .find((rule) => rule.selectorText?.includes(':has(main .promo-bar)'));
+    previewRule = [...global.cssRules]
+      .find((rule) => rule.selectorText?.includes('.block-preview'));
 
     const header = new CSSStyleSheet();
     await header.replace(await (await fetch('/blocks/header/header.css')).text());
@@ -208,6 +211,11 @@ describe('Header promo ribbon layout', () => {
   it('reserves nothing on pages that author their own promo bar', () => {
     expect(ownPromoRule, 'pages with their own promo bar are styled').to.exist;
     expect(ownPromoRule.style.getPropertyValue('--promo-bar-height').trim()).to.equal('0px');
+  });
+
+  it('reserves nothing on block-library previews, which load no header', () => {
+    expect(previewRule, 'block-library previews are styled').to.exist;
+    expect(previewRule.style.getPropertyValue('--promo-bar-height').trim()).to.equal('0px');
   });
 
   it('gives the ribbon the height the page reserved for it', () => {
