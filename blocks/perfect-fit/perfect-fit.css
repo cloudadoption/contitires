@@ -114,6 +114,7 @@ body.perfect-fit-modal-open {
   position: relative;
   box-sizing: border-box;
   min-height: 100%;
+  outline: none;
 
   /* live leaves the top strip black, with the close button in it and the tab
      band starting 54px down */
