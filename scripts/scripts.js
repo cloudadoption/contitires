@@ -37,15 +37,10 @@ if (window.trustedTypes && window.trustedTypes.createPolicy) {
   });
 }
 
-/**
- * Block-library sample pages (/tools/sidekick/blocks/<name>) render in the DA
- * library preview iframe. They show the block alone, with no site header or
- * footer, and reserve no room for either.
- * @returns {boolean}
- */
-function isBlockPreview() {
-  return window.location.pathname.startsWith('/tools/sidekick/blocks/');
-}
+// block-library sample pages (/tools/sidekick/blocks/<name>) render in the DA
+// library preview iframe; keep them to the block itself by not loading the
+// site header and footer there, and by reserving no room for either
+const isBlockPreview = window.location.pathname.startsWith('/tools/sidekick/blocks/');
 
 /**
  * load fonts.css and set a session storage flag
@@ -176,7 +171,7 @@ async function loadEager(doc) {
   if (document.body.classList.contains('article')) {
     loadCSS(`${window.hlx.codeBasePath}/styles/article.css`);
   }
-  if (isBlockPreview()) document.body.classList.add('block-preview');
+  if (isBlockPreview) document.body.classList.add('block-preview');
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
@@ -200,7 +195,7 @@ async function loadEager(doc) {
  */
 async function loadLazy(doc) {
   const header = doc.querySelector('header');
-  if (header && !isBlockPreview()) loadHeader(header);
+  if (header && !isBlockPreview) loadHeader(header);
 
   const main = doc.querySelector('main');
   await loadSections(main);
@@ -210,7 +205,7 @@ async function loadLazy(doc) {
   if (hash && element) element.scrollIntoView();
 
   const footer = doc.querySelector('footer');
-  if (footer && !isBlockPreview()) loadFooter(footer);
+  if (footer && !isBlockPreview) loadFooter(footer);
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
