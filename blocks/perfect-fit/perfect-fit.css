@@ -284,7 +284,9 @@ body.perfect-fit-modal-open {
   text-align: center;
 }
 
-.perfect-fit-terms a {
+/* dark sections colour their own links, so out-specify that and let the link
+   follow the sentence, which greys with the disabled call to action */
+main .section .perfect-fit-form .perfect-fit-terms a:any-link {
   color: inherit;
   text-decoration: underline;
 }
