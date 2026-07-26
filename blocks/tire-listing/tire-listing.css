@@ -1,0 +1,633 @@
+/* Star SVGs, drawn the way live draws them: an outline row with a filled row
+   clipped to the rating. Both are the live path, moved into a 0-28 viewBox. */
+.tire-listing {
+  --tire-listing-star-off: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 28 28"><path fill="none" stroke="%23C27D00" d="m14 1.54294637 2.899853 8.46574903 8.947509.1418633-7.155302 5.373984 2.630012 8.5534254-7.322072-5.1444442-7.322072 5.1444442 2.630012-8.5534254-7.155302-5.373984 8.947509-.1418633z"/></svg>');
+  --tire-listing-star-on: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 28 28"><path fill="%23C27D00" fill-rule="evenodd" d="m14 19.5445964-8.228994 5.7816415 2.95577-9.6128634-8.041567-6.03961242 10.055759-.15943476 3.259032-9.51432732 3.259032 9.51432732 10.055759.15943476-8.041567 6.03961242 2.95577 9.6128634z"/></svg>');
+  --tire-listing-meta-font: 700 12px/16px var(--body-font-family);
+
+  padding: 38px 0;
+}
+
+.tire-listing .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tire-listing ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- layout ---------- */
+
+.tire-listing .tire-listing-layout {
+  display: block;
+}
+
+.tire-listing .tire-listing-panel {
+  display: none;
+}
+
+.tire-listing.tire-listing-open .tire-listing-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: block;
+  padding: 54px 20px 20px;
+  background-color: var(--conti-white);
+  overflow-y: auto;
+}
+
+.tire-listing .tire-listing-toggle {
+  margin-bottom: 20px;
+  padding: 8px 12px;
+}
+
+.tire-listing.tire-listing-open .tire-listing-toggle {
+  visibility: hidden;
+}
+
+/* ---------- filter form ---------- */
+
+.tire-listing .tire-listing-filters h2 {
+  margin: 0;
+  border-bottom: 1px solid var(--conti-grey);
+  padding-bottom: 20px;
+  font-size: var(--heading-font-size-l);
+  font-weight: 400;
+  line-height: 1.27;
+  text-align: center;
+}
+
+.tire-listing .tire-listing-filters fieldset {
+  margin: 20px 0 0;
+  border: 0;
+  border-bottom: 1px solid var(--conti-grey);
+  padding: 0 0 20px;
+}
+
+.tire-listing .tire-listing-filters legend {
+  padding: 0;
+  font: var(--tire-listing-meta-font);
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+}
+
+.tire-listing .tire-listing-filters ul {
+  margin-top: 8px;
+}
+
+.tire-listing .tire-listing-filters li {
+  display: flex;
+  align-items: center;
+}
+
+.tire-listing .tire-listing-filters li + li {
+  margin-top: 8px;
+}
+
+.tire-listing .tire-listing-filters input[type="checkbox"] {
+  position: relative;
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  border: 1px solid var(--conti-dark-grey);
+  border-radius: 3px;
+  padding: 0;
+  background: var(--conti-white);
+  cursor: pointer;
+  appearance: none;
+  transition: border-color 0.3s;
+}
+
+.tire-listing .tire-listing-filters input[type="checkbox"]:checked,
+.tire-listing .tire-listing-filters input[type="checkbox"]:hover:not(:checked) {
+  border-color: var(--conti-yellow);
+}
+
+.tire-listing .tire-listing-filters input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid var(--conti-black);
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(43deg);
+}
+
+.tire-listing .tire-listing-filters label {
+  margin-left: 12px;
+  font-size: var(--body-font-size-xs);
+  line-height: 1.43;
+  cursor: pointer;
+}
+
+.tire-listing .tire-listing-reset {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  border: 0;
+  padding: 0 0 20px;
+  background: none;
+  color: var(--conti-black);
+  font: var(--tire-listing-meta-font);
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tire-listing .tire-listing-reset .icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.tire-listing .tire-listing-apply {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* ---------- results header ---------- */
+
+.tire-listing .tire-listing-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.tire-listing .tire-listing-status {
+  align-self: flex-end;
+}
+
+.tire-listing .tire-listing-count {
+  margin: 0;
+  font-size: var(--heading-font-size-m);
+  font-weight: 400;
+  line-height: 1.33;
+  text-align: right;
+}
+
+.tire-listing .tire-listing-count:focus-visible {
+  outline: 2px solid var(--conti-yellow);
+  outline-offset: 4px;
+}
+
+.tire-listing .tire-listing-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  border-top: 1px solid var(--conti-grey);
+  padding-top: 8px;
+}
+
+.tire-listing .tire-listing-print {
+  display: flex;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--conti-black);
+  font: var(--tire-listing-meta-font);
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tire-listing .tire-listing-print .icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.tire-listing .tire-listing-sort {
+  display: inline-flex;
+  align-items: center;
+}
+
+.tire-listing .tire-listing-sort label {
+  margin-right: 8px;
+  font: 700 12px/22px var(--body-font-family);
+}
+
+.tire-listing .tire-listing-sort select {
+  border: 0;
+  border-radius: 25px;
+  padding: 0 4px;
+  background: none;
+  color: var(--conti-black);
+  font: 700 12px/1 var(--body-font-family);
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+/* ---------- cards ---------- */
+
+.tire-listing .tire-listing-cards {
+  margin-top: 12px;
+}
+
+.tire-listing .tire-listing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 12px;
+  padding: 20px 24px 28px;
+  background-color: var(--conti-white);
+  box-shadow: rgb(0 0 0 / 10%) 0 0 40px 0;
+  overflow: hidden;
+}
+
+.tire-listing .tire-listing-card + .tire-listing-card {
+  margin-top: 20px;
+}
+
+.tire-listing .tire-listing-card:hover {
+  box-shadow: rgb(0 0 0 / 20%) 0 0 40px 0;
+}
+
+.tire-listing .tire-listing-promo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 2px 16px 2px 12px;
+  background-color: var(--conti-yellow);
+  color: var(--conti-dark-black);
+  font: 700 11px/16px var(--body-font-family);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%);
+}
+
+.tire-listing a.tire-listing-promo:any-link {
+  color: var(--conti-dark-black);
+  text-decoration: none;
+}
+
+.tire-listing .tire-listing-card-media img {
+  display: block;
+  width: 100px;
+  height: auto;
+}
+
+.tire-listing .tire-listing-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-top: 16px;
+}
+
+.tire-listing .tire-listing-card-title {
+  margin: 0;
+  font-size: var(--body-font-size-xs);
+  font-weight: 700;
+  line-height: 1.43;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.tire-listing .tire-listing-card-title a:any-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--conti-black);
+  letter-spacing: 0.25px;
+  text-decoration: underline;
+}
+
+.tire-listing .tire-listing-new {
+  flex: 0 0 auto;
+  margin-right: 8px;
+  border: 1px solid currentcolor;
+  padding: 1px 7px 1px 5px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  clip-path: polygon(0 0, 100% 0, 88% 50%, 100% 100%, 0 100%);
+}
+
+.tire-listing .tire-listing-rating {
+  display: flex;
+  align-items: center;
+  margin: 4px 0 0;
+  font: var(--tire-listing-meta-font);
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+}
+
+.tire-listing .tire-listing-stars {
+  position: relative;
+  width: 90px;
+  height: 18px;
+  margin-right: 4px;
+  background-image: var(--tire-listing-star-off);
+  background-repeat: repeat-x;
+  background-size: 18px 18px;
+}
+
+.tire-listing .tire-listing-stars-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background-image: var(--tire-listing-star-on);
+  background-repeat: repeat-x;
+  background-size: 18px 18px;
+  overflow: hidden;
+}
+
+.tire-listing .tire-listing-badges {
+  display: grid;
+  grid-template-columns: repeat(6, 30px);
+  gap: 16px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.tire-listing .tire-listing-badge {
+  display: flex;
+  align-items: center;
+}
+
+.tire-listing .tire-listing-badge .icon {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+}
+
+.tire-listing .tire-listing-badge .icon img {
+  width: 100%;
+  height: 100%;
+}
+
+.tire-listing .tire-listing-badge-label {
+  display: none;
+}
+
+.tire-listing .tire-listing-card-desc {
+  align-self: stretch;
+  margin: 8px 0 0;
+  font-size: 14.88px;
+  line-height: 1.48;
+}
+
+.tire-listing .tire-listing-cta {
+  width: 100%;
+  margin-top: 20px;
+  border-color: var(--conti-yellow);
+  padding: 12px 20px;
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+}
+
+.tire-listing .tire-listing-cta:hover,
+.tire-listing .tire-listing-cta:focus-visible {
+  border-color: var(--conti-yellow);
+  background-color: var(--conti-yellow);
+  color: var(--conti-black);
+  text-decoration: none;
+}
+
+/* ---------- empty state ---------- */
+
+.tire-listing .tire-listing-empty {
+  margin-top: 20px;
+  border-radius: 12px;
+  padding: 40px 24px;
+  background-color: var(--conti-white);
+  box-shadow: rgb(0 0 0 / 10%) 0 0 40px 0;
+  text-align: center;
+}
+
+.tire-listing .tire-listing-empty-title {
+  margin: 0;
+  font-size: var(--heading-font-size-s);
+}
+
+.tire-listing .tire-listing-empty-reset {
+  margin-top: 20px;
+}
+
+/* ---------- pager ---------- */
+
+.tire-listing .tire-listing-pager {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.tire-listing .tire-listing-summary {
+  margin: 0;
+  font-size: 14.88px;
+  line-height: 1.48;
+}
+
+.tire-listing .tire-listing-pages {
+  margin-top: 8px;
+}
+
+.tire-listing .tire-listing-page {
+  display: inline-block;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  padding: 0 4px;
+  color: var(--conti-black);
+  font: 700 14px/22px var(--body-font-family);
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+}
+
+.tire-listing .tire-listing-page + .tire-listing-page {
+  margin-left: 8px;
+}
+
+.tire-listing a.tire-listing-page:any-link {
+  color: var(--conti-black);
+  text-decoration: underline;
+}
+
+.tire-listing .tire-listing-page-active {
+  border-bottom-color: var(--conti-yellow);
+  text-decoration: none;
+}
+
+/* ---------- tablet and up ---------- */
+
+@media (width >= 600px) {
+  .tire-listing .tire-listing-card {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 32px 20px;
+  }
+
+  .tire-listing .tire-listing-card-media {
+    flex: 0 0 auto;
+    width: 170px;
+    margin-right: 28px;
+  }
+
+  .tire-listing .tire-listing-card-media img {
+    width: 170px;
+  }
+
+  .tire-listing .tire-listing-card-body {
+    display: grid;
+    grid-template-areas:
+      'title cta'
+      'rating cta'
+      'badges badges'
+      'desc desc';
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: start;
+    align-items: start;
+    padding-top: 8px;
+  }
+
+  .tire-listing .tire-listing-card-title {
+    grid-area: title;
+    font-size: var(--heading-font-size-s);
+    line-height: 1.5;
+    letter-spacing: normal;
+    text-align: left;
+  }
+
+  .tire-listing .tire-listing-rating {
+    grid-area: rating;
+    margin-top: 8px;
+  }
+
+  .tire-listing .tire-listing-badges {
+    grid-area: badges;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    justify-content: flex-start;
+  }
+
+  .tire-listing .tire-listing-badge .icon {
+    margin-right: 8px;
+  }
+
+  .tire-listing .tire-listing-badge-label {
+    display: inline-flex;
+    align-items: center;
+    font: var(--tire-listing-meta-font);
+    letter-spacing: 1.25px;
+    text-transform: uppercase;
+  }
+
+  .tire-listing .tire-listing-card-desc {
+    grid-area: desc;
+  }
+
+  .tire-listing .tire-listing-cta {
+    grid-area: cta;
+    width: auto;
+    margin: -20px 0 0 16px;
+    padding: 12px 26px;
+  }
+
+  .tire-listing .tire-listing-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tire-listing .tire-listing-status {
+    align-self: auto;
+  }
+
+  .tire-listing .tire-listing-count {
+    font-size: var(--heading-font-size-l);
+    text-align: left;
+  }
+
+  .tire-listing .tire-listing-tools {
+    justify-content: flex-end;
+    gap: 20px;
+    margin-top: 0;
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .tire-listing .tire-listing-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .tire-listing .tire-listing-pages {
+    margin-top: 0;
+  }
+}
+
+/* ---------- desktop: the filter panel becomes a column ---------- */
+
+@media (width >= 900px) {
+  .tire-listing {
+    padding: 80px 0;
+  }
+
+  .tire-listing .tire-listing-layout {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    column-gap: 48px;
+  }
+
+  .tire-listing .tire-listing-toggle,
+  .tire-listing .tire-listing-apply {
+    display: none;
+  }
+
+  .tire-listing .tire-listing-panel,
+  .tire-listing.tire-listing-open .tire-listing-panel {
+    position: static;
+    display: block;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .tire-listing .tire-listing-filters h2 {
+    text-align: left;
+  }
+}
+
+@media (width >= 1200px) {
+  .tire-listing .tire-listing-layout {
+    column-gap: 130px;
+  }
+}
+
+/* ---------- print: the results, without the chrome ---------- */
+
+@media print {
+  .tire-listing .tire-listing-side,
+  .tire-listing .tire-listing-tools,
+  .tire-listing .tire-listing-pages,
+  .tire-listing .tire-listing-cta {
+    display: none;
+  }
+
+  .tire-listing .tire-listing-card {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tire-listing * {
+    transition: none;
+  }
+}

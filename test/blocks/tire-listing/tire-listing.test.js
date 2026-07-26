@@ -184,10 +184,18 @@ describe('sortRows', () => {
 
   it('orders Highest rated by rating, then review count', () => {
     const out = sortRows(parseRows(sheet([
-      { slug: 'few', name: 'Few', rating: '5', reviews: '1' },
-      { slug: 'low', name: 'Low', rating: '4.1', reviews: '900' },
-      { slug: 'many', name: 'Many', rating: '5', reviews: '400' },
-      { slug: 'none', name: 'None', rating: '0', reviews: '0' },
+      {
+        slug: 'few', name: 'Few', rating: '5', reviews: '1',
+      },
+      {
+        slug: 'low', name: 'Low', rating: '4.1', reviews: '900',
+      },
+      {
+        slug: 'many', name: 'Many', rating: '5', reviews: '400',
+      },
+      {
+        slug: 'none', name: 'None', rating: '0', reviews: '0',
+      },
     ])), 'rating');
     expect(out.map((r) => r.slug)).to.deep.equal(['many', 'few', 'low', 'none']);
   });
