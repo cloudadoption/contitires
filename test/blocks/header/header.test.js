@@ -146,6 +146,35 @@ describe('Header mobile layout order', () => {
   });
 });
 
+describe('Header mega-menu panel width', () => {
+  // The open panel is fixed and spans the viewport, with padding that pushes
+  // its columns onto the 1264px container. Padding must count inside that
+  // width, or the panel runs past the right edge and clips its last column.
+  let panelRule;
+
+  before(async () => {
+    const res = await fetch('/blocks/header/header.css');
+    const sheet = new CSSStyleSheet();
+    await sheet.replace(await res.text());
+    const selector = 'header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul';
+    panelRule = [...sheet.cssRules]
+      .filter((rule) => rule instanceof CSSMediaRule)
+      .flatMap((rule) => [...rule.cssRules])
+      .find((rule) => rule.selectorText === selector && rule.style.position === 'fixed');
+    expect(panelRule, 'the open panel is styled').to.exist;
+  });
+
+  it('spans the viewport and pads its columns', () => {
+    expect(panelRule.style.width, 'the panel spans its containing block').to.equal('100%');
+    expect(panelRule.style.getPropertyValue('padding-inline'), 'the panel pads its columns')
+      .to.not.equal('');
+  });
+
+  it('counts that padding inside the width', () => {
+    expect(panelRule.style.boxSizing).to.equal('border-box');
+  });
+});
+
 describe('Header mega-menu detection', () => {
   // a multi-column drop with sub-lists, like Tires/Experience
   const tires = navItem(`<p><a href="/tires">Tires</a></p>
