@@ -6,6 +6,11 @@ import { loadFragment } from '../fragment/fragment.js';
 export const DESKTOP_MEDIA_QUERY = '(min-width: 1200px)';
 const isDesktop = window.matchMedia(DESKTOP_MEDIA_QUERY);
 
+// the rebate ribbon above the nav, authored once and shown site-wide. Live
+// carries it on every page except the homepage, which authors its own promo
+// bar below the hero.
+const PROMO_BAR_PATH = '/fragments/promo-bar';
+
 // utility row shown next to the search trigger. This is theme chrome, not
 // part of the authored nav content, so it lives here rather than in nav.html.
 const UTILITY_LINKS = [
@@ -81,6 +86,27 @@ function focusNavSection() {
  */
 export function isMegaMenu(navSection) {
   return !!navSection.querySelector(':scope > ul');
+}
+
+/**
+ * Whether the page carries a promo bar of its own, which the header ribbon
+ * would duplicate.
+ * @param {Element|Document} root The page root
+ * @returns {boolean}
+ */
+export function hasOwnPromoBar(root = document) {
+  return !!root.querySelector('main .promo-bar');
+}
+
+/**
+ * Loads the shared promo ribbon. Returns null when the page authors its own
+ * promo bar, or when the fragment is missing.
+ * @returns {Promise<Element|null>} the promo-bar block
+ */
+async function loadPromoBar() {
+  if (hasOwnPromoBar()) return null;
+  const fragment = await loadFragment(PROMO_BAR_PATH);
+  return fragment ? fragment.querySelector('.promo-bar') : null;
 }
 
 /**
@@ -266,7 +292,7 @@ export default async function decorate(block) {
   // load nav as fragment
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
-  const fragment = await loadFragment(navPath);
+  const [fragment, promoBar] = await Promise.all([loadFragment(navPath), loadPromoBar()]);
 
   // decorate nav DOM
   block.textContent = '';
@@ -325,6 +351,8 @@ export default async function decorate(block) {
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
+  // the ribbon rides with the nav so both stay pinned together
+  if (promoBar) navWrapper.append(promoBar);
   navWrapper.append(nav);
   if (search) navWrapper.append(search.panel);
   block.append(navWrapper);

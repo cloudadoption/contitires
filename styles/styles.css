@@ -56,6 +56,9 @@
 
   /* nav height */
   --nav-height: 72px;
+
+  /* rebate ribbon above the nav, reserved before the header loads */
+  --promo-bar-height: 40px;
 }
 
 @media (width >= 900px) {
@@ -89,8 +92,13 @@ body.appear {
   display: block;
 }
 
+/* a page that authors its own promo bar keeps it and gets no ribbon */
+body:has(main .promo-bar) {
+  --promo-bar-height: 0px;
+}
+
 header {
-  height: var(--nav-height);
+  height: calc(var(--nav-height) + var(--promo-bar-height));
 }
 
 header .header,
