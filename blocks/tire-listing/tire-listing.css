@@ -358,7 +358,7 @@
   grid-template-columns: repeat(6, 30px);
   gap: 16px;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 15px;
 }
 
 .tire-listing .tire-listing-badge {
@@ -518,6 +518,7 @@
     flex-wrap: wrap;
     gap: 0 16px;
     justify-content: flex-start;
+    margin-top: 8px;
   }
 
   .tire-listing .tire-listing-badge .icon {
