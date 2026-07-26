@@ -2,7 +2,7 @@
 /* global describe it before */
 
 import { expect } from '@esm-bundle/chai';
-import { buildUtilityNav, isMegaMenu } from '../../../blocks/header/header.js';
+import { buildUtilityNav, isMegaMenu, DESKTOP_MEDIA_QUERY } from '../../../blocks/header/header.js';
 
 /** Index of the first child carrying `className` in an element's children. */
 function childIndex(el, className) {
@@ -41,6 +41,31 @@ describe('Header utility nav', () => {
     const labelIdx = childIndex(nonPill, 'nav-tools-utility-label');
     const iconIdx = childIndex(nonPill, 'icon');
     expect(iconIdx, 'icon comes before the label').to.be.lessThan(labelIdx);
+  });
+});
+
+describe('Header desktop breakpoint', () => {
+  // The desktop nav needs 1180px of horizontal room (measured on production:
+  // 32px padding + 150px brand + 24px gap + 707px sections + 24px gap + 211px
+  // tools + 32px padding). Engaging it below that scrolls every page
+  // sideways, so it starts at the project's 1200px desktop breakpoint.
+  it('switches to the desktop nav at 1200px', () => {
+    expect(DESKTOP_MEDIA_QUERY).to.equal('(min-width: 1200px)');
+  });
+
+  it('hides the hamburger at the same width the script calls desktop', async () => {
+    const res = await fetch('/blocks/header/header.css');
+    expect(res.ok, 'header.css is served').to.be.true;
+    const sheet = new CSSStyleSheet();
+    await sheet.replace(await res.text());
+    const hamburgerRule = [...sheet.cssRules]
+      .filter((rule) => rule instanceof CSSMediaRule)
+      .find((rule) => [...rule.cssRules].some((r) => r.selectorText?.includes('.nav-hamburger')
+        && r.style.display === 'none'));
+    expect(hamburgerRule, 'a media query hides the hamburger').to.exist;
+    const cssWidth = Number(hamburgerRule.conditionText.match(/(\d+)px/)[1]);
+    const jsWidth = Number(DESKTOP_MEDIA_QUERY.match(/(\d+)px/)[1]);
+    expect(cssWidth, 'header.css and header.js agree').to.equal(jsWidth);
   });
 });
 
