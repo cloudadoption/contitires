@@ -258,12 +258,15 @@ body.perfect-fit-modal-open {
   text-transform: uppercase;
 }
 
-/* live outlines the steps that are not reachable yet and fills the one that is */
+/* live outlines the steps that are not reachable yet and fills the one that is.
+   opacity 1 because the browser dims a disabled select, and live's own control
+   is a button that keeps its full strength. */
 .perfect-fit-field select:disabled,
 .perfect-fit-field input:disabled {
   border-color: var(--conti-darkest-grey);
   background-color: #000;
   color: var(--conti-darkest-grey);
+  opacity: 1;
 }
 
 .perfect-fit-field input::placeholder {
