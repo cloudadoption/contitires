@@ -137,6 +137,163 @@ describe('perfect-fit block', () => {
   });
 });
 
+// Copy taken verbatim from live's own tire-finder components. Live renders the
+// button label in sentence case and uppercases it in CSS, so the DOM text is
+// "See tires that fit".
+const TERMS = 'By selecting "See Tires That Fit" I confirm that I have read the '
+  + 'Tire Selector Terms of Use and I accept the terms.';
+
+describe('perfect-fit modal, rebuilt against live', () => {
+  let fetchStub;
+  function build(items = ['By Vehicle', 'By Tire Size', 'By Plate'], label = 'Find your perfect fit:') {
+    document.body.innerHTML = `
+      <div class="perfect-fit block">
+        <div><div>${label ? `<p>${label}</p>` : ''}</div></div>
+        <div>${items.map((item) => `<div><span>${item}</span></div>`).join('')}</div>
+      </div>`;
+    return document.querySelector('.perfect-fit.block');
+  }
+  const setField = (panel, name, value) => {
+    const el = panel.querySelector(`[name="${name}"]`);
+    el.value = value;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('leads the vehicle form with make, then model, then year', async () => {
+    const block = build();
+    await decorate(block);
+    const names = [...block.querySelectorAll('#perfect-fit-panel-vehicle [name]')]
+      .map((el) => el.name);
+    expect(names).to.deep.equal(['make', 'model', 'year']);
+  });
+
+  it('heads each panel with live\'s question', async () => {
+    const block = build();
+    await decorate(block);
+    const heading = (id) => block.querySelector(`#perfect-fit-panel-${id} h2`).textContent;
+    expect(heading('vehicle')).to.equal('What are you driving?');
+    expect(heading('tire-size')).to.equal('What\'s your tire size?');
+    expect(heading('plate')).to.equal('Enter your license plate.');
+  });
+
+  it('shows the terms sentence, with Terms of Use linking to the legal page', async () => {
+    const block = build();
+    await decorate(block);
+    ['vehicle', 'tire-size', 'plate'].forEach((id) => {
+      const terms = block.querySelector(`#perfect-fit-panel-${id} .perfect-fit-terms`);
+      expect(terms, `${id} panel has terms`).to.exist;
+      expect(terms.textContent.replace(/\s+/g, ' ').trim()).to.equal(TERMS);
+      expect(terms.querySelector('a').getAttribute('href')).to.equal('/legal');
+      expect(terms.querySelector('a').textContent).to.equal('Terms of Use');
+    });
+  });
+
+  it('labels the call to action the way live does', async () => {
+    const block = build();
+    await decorate(block);
+    block.querySelectorAll('.perfect-fit-search').forEach((button) => {
+      expect(button.textContent).to.equal('See tires that fit');
+    });
+  });
+
+  it('keeps the vehicle call to action disabled until every field has a value', async () => {
+    const block = build();
+    await decorate(block);
+    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    const button = panel.querySelector('.perfect-fit-search');
+    expect(button.disabled, 'disabled before any choice').to.be.true;
+    setField(panel, 'make', 'Toyota');
+    expect(button.disabled, 'still disabled after make').to.be.true;
+    setField(panel, 'model', 'Camry');
+    expect(button.disabled, 'still disabled after model').to.be.true;
+    setField(panel, 'year', '2024');
+    expect(button.disabled, 'enabled once year lands').to.be.false;
+  });
+
+  it('keeps the tire size call to action disabled until the size is complete', async () => {
+    const block = build();
+    await decorate(block);
+    const panel = block.querySelector('#perfect-fit-panel-tire-size');
+    const button = panel.querySelector('.perfect-fit-search');
+    expect(button.disabled).to.be.true;
+    setField(panel, 'width', '245');
+    setField(panel, 'aspect', '40');
+    expect(button.disabled, 'still disabled without a rim').to.be.true;
+    setField(panel, 'rim', '18');
+    expect(button.disabled).to.be.false;
+  });
+
+  it('keeps the plate call to action disabled until plate and state are given', async () => {
+    const block = build();
+    await decorate(block);
+    const panel = block.querySelector('#perfect-fit-panel-plate');
+    const button = panel.querySelector('.perfect-fit-search');
+    expect(button.disabled).to.be.true;
+    setField(panel, 'plate', 'ABC1234');
+    expect(button.disabled, 'still disabled without a state').to.be.true;
+    setField(panel, 'state', 'Texas');
+    expect(button.disabled).to.be.false;
+  });
+
+  it('floats the field name above the control once it holds a value', async () => {
+    const block = build();
+    await decorate(block);
+    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    const wrapper = panel.querySelector('[name="make"]').closest('.perfect-fit-field');
+    expect(wrapper.classList.contains('perfect-fit-field-filled'), 'empty').to.be.false;
+    setField(panel, 'make', 'Toyota');
+    expect(wrapper.classList.contains('perfect-fit-field-filled'), 'filled').to.be.true;
+  });
+
+  it('takes the floated name away when the cascade clears the field below', async () => {
+    const block = build();
+    await decorate(block);
+    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    const model = panel.querySelector('[name="model"]').closest('.perfect-fit-field');
+    setField(panel, 'make', 'Toyota');
+    setField(panel, 'model', 'Camry');
+    expect(model.classList.contains('perfect-fit-field-filled')).to.be.true;
+    setField(panel, 'make', 'Ford');
+    expect(model.classList.contains('perfect-fit-field-filled'), 'cleared with the make').to.be.false;
+  });
+
+  it('names the dialog after the panel on show', async () => {
+    const block = build();
+    await decorate(block);
+    block.querySelectorAll('.perfect-fit-item')[1].click();
+    const dialog = block.querySelector('.perfect-fit-dialog');
+    const labelledBy = dialog.getAttribute('aria-labelledby');
+    expect(block.querySelector(`#${labelledBy}`).textContent).to.equal('What\'s your tire size?');
+  });
+
+  it('puts focus on the dialog rather than into the first field', async () => {
+    const block = build();
+    await decorate(block);
+    block.querySelectorAll('.perfect-fit-item')[0].click();
+    const dialog = block.querySelector('.perfect-fit-dialog');
+    expect(dialog.getAttribute('tabindex')).to.equal('-1');
+    expect(document.activeElement).to.equal(dialog);
+  });
+
+  it('opens on the vehicle tab when the bar is authored as a single item', async () => {
+    const block = build(['Find your perfect fit'], '');
+    await decorate(block);
+    const items = block.querySelectorAll('.perfect-fit-item');
+    expect(items).to.have.length(1);
+    expect(block.querySelector('.perfect-fit-label')).to.not.exist;
+    items[0].click();
+    expect(block.querySelector('.perfect-fit-overlay').hidden).to.be.false;
+    expect(block.querySelector('#perfect-fit-panel-vehicle').hidden).to.be.false;
+  });
+});
+
 // The DA sheet serves /products.json as a multi-sheet workbook: the product
 // rows live under products.data, with array fields flattened to comma strings.
 const WORKBOOK = {

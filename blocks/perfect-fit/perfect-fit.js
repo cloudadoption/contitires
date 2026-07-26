@@ -96,7 +96,10 @@ function createField(tag, name, labelText) {
   const wrapper = document.createElement('div');
   wrapper.className = 'perfect-fit-field';
   const id = `perfect-fit-${name}`;
+  // live reads the field name inside the control while it is empty, then floats
+  // it above once a value lands
   const label = document.createElement('label');
+  label.className = 'perfect-fit-field-label';
   label.setAttribute('for', id);
   label.textContent = labelText;
   const field = document.createElement(tag);
@@ -124,8 +127,64 @@ function searchButton() {
   const button = document.createElement('button');
   button.type = 'submit';
   button.className = 'button primary perfect-fit-search';
-  button.textContent = 'Search';
+  // sentence case in the DOM, uppercased in CSS, as live does it
+  button.textContent = 'See tires that fit';
+  button.disabled = true;
   return button;
+}
+
+/** Live's terms sentence, shown above the call to action on every tab. */
+function termsNote() {
+  const note = document.createElement('p');
+  note.className = 'perfect-fit-terms';
+  const link = document.createElement('a');
+  link.href = '/legal';
+  link.textContent = 'Terms of Use';
+  note.append(
+    'By selecting "See Tires That Fit" I confirm that I have read the Tire Selector ',
+    link,
+    ' and I accept the terms.',
+  );
+  return note;
+}
+
+/**
+ * Tracks which controls hold a value: the field name floats above a filled
+ * control, and the call to action waits for the whole form.
+ */
+function wireFormState(form) {
+  const button = form.querySelector('.perfect-fit-search');
+  const fields = [...form.querySelectorAll('select, input')];
+  const update = () => {
+    fields.forEach((field) => field.closest('.perfect-fit-field')
+      .classList.toggle('perfect-fit-field-filled', !!field.value));
+    button.disabled = fields.some((field) => !field.value);
+  };
+  form.addEventListener('change', update);
+  form.addEventListener('input', update);
+  update();
+}
+
+/**
+ * Assembles one tab's form: live's question, the fields, the terms sentence,
+ * and the call to action.
+ */
+function buildForm(tabId, headingText, fields, onSubmit) {
+  const form = document.createElement('form');
+  form.className = `perfect-fit-form perfect-fit-form-${tabId}`;
+  const heading = document.createElement('h2');
+  heading.id = `perfect-fit-heading-${tabId}`;
+  heading.className = 'perfect-fit-question';
+  heading.textContent = headingText;
+  const grid = document.createElement('div');
+  grid.className = 'perfect-fit-fields';
+  grid.append(...fields);
+  form.append(heading, grid, termsNote(), searchButton());
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    onSubmit();
+  });
+  return form;
 }
 
 function productCard(product) {
@@ -165,8 +224,6 @@ function renderResults(container, products) {
 
 function buildTireSizeForm(products, onResults) {
   const opts = sizeOptions(products);
-  const form = document.createElement('form');
-  form.className = 'perfect-fit-form';
   const width = createField('select', 'width', 'Width');
   fillSelect(width.field, opts.widths, 'Width');
   const aspect = createField('select', 'aspect', 'Aspect Ratio');
@@ -187,55 +244,60 @@ function buildTireSizeForm(products, onResults) {
     rim.field.disabled = false;
   });
 
-  form.append(width.wrapper, aspect.wrapper, rim.wrapper, searchButton());
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!width.field.value || !aspect.field.value || !rim.field.value) return;
-    onResults(findBySize(products, {
+  const form = buildForm(
+    'tire-size',
+    "What's your tire size?",
+    [width.wrapper, aspect.wrapper, rim.wrapper],
+    () => onResults(findBySize(products, {
       width: width.field.value, aspect: aspect.field.value, rim: rim.field.value,
-    }));
-  });
+    })),
+  );
+  wireFormState(form);
   return form;
 }
 
+// live orders the vehicle fields make, model, year
 function buildVehicleForm(products, onResults) {
-  const form = document.createElement('form');
-  form.className = 'perfect-fit-form';
-  const year = createField('select', 'year', 'Year');
-  fillSelect(year.field, YEARS, 'Year');
   const make = createField('select', 'make', 'Make');
   fillSelect(make.field, Object.keys(VEHICLES), 'Make');
   const model = createField('select', 'model', 'Model');
   fillSelect(model.field, [], 'Model');
   model.field.disabled = true;
+  const year = createField('select', 'year', 'Year');
+  fillSelect(year.field, YEARS, 'Year');
   make.field.addEventListener('change', () => {
     fillSelect(model.field, Object.keys(VEHICLES[make.field.value] || {}), 'Model');
     model.field.disabled = false;
   });
-  form.append(year.wrapper, make.wrapper, model.wrapper, searchButton());
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const vehicleClass = (VEHICLES[make.field.value] || {})[model.field.value];
-    onResults(findByVehicleClass(products, vehicleClass));
-  });
+  const form = buildForm(
+    'vehicle',
+    'What are you driving?',
+    [make.wrapper, model.wrapper, year.wrapper],
+    () => {
+      const vehicleClass = (VEHICLES[make.field.value] || {})[model.field.value];
+      onResults(findByVehicleClass(products, vehicleClass));
+    },
+  );
+  wireFormState(form);
   return form;
 }
 
 function buildPlateForm(products, onResults) {
-  const form = document.createElement('form');
-  form.className = 'perfect-fit-form';
   const plate = createField('input', 'plate', 'License Plate');
   plate.field.type = 'text';
   plate.field.autocomplete = 'off';
+  plate.field.placeholder = 'License Plate';
   const state = createField('select', 'state', 'State');
   fillSelect(state.field, STATES, 'State');
-  form.append(plate.wrapper, state.wrapper, searchButton());
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
+  const form = buildForm(
+    'plate',
+    'Enter your license plate.',
+    [plate.wrapper, state.wrapper],
     // plate lookup is not wired to a registration service, so recommend the
     // all-weather touring range as a sensible default
-    onResults(products.filter((product) => /all-season|all-weather/i.test(product.season || '')));
-  });
+    () => onResults(products.filter((product) => /all-season|all-weather/i.test(product.season || ''))),
+  );
+  wireFormState(form);
   return form;
 }
 
@@ -265,7 +327,9 @@ function buildModal(products) {
   dialog.className = 'perfect-fit-dialog';
   dialog.setAttribute('role', 'dialog');
   dialog.setAttribute('aria-modal', 'true');
-  dialog.setAttribute('aria-labelledby', 'perfect-fit-modal-title');
+  // focus lands here on open, so the dialog announces its question and no
+  // control opens wearing a focus ring
+  dialog.tabIndex = -1;
 
   const closeButton = document.createElement('button');
   closeButton.type = 'button';
@@ -273,10 +337,8 @@ function buildModal(products) {
   closeButton.setAttribute('aria-label', 'Close');
   closeButton.textContent = '×';
 
-  const title = document.createElement('h2');
-  title.id = 'perfect-fit-modal-title';
-  title.className = 'perfect-fit-modal-title';
-  title.textContent = 'Find Your Perfect Fit';
+  const band = document.createElement('div');
+  band.className = 'perfect-fit-band';
 
   const tablist = document.createElement('div');
   tablist.className = 'perfect-fit-tablist';
@@ -315,7 +377,8 @@ function buildModal(products) {
     panels[id] = panel;
   });
 
-  dialog.append(closeButton, title, tablist, panelsWrapper);
+  band.append(tablist);
+  dialog.append(closeButton, band, panelsWrapper);
   overlay.append(dialog);
 
   let lastTrigger = null;
@@ -327,6 +390,8 @@ function buildModal(products) {
       tabs[id].tabIndex = selected ? 0 : -1;
       panels[id].hidden = !selected;
     });
+    // the visible panel's question names the dialog
+    dialog.setAttribute('aria-labelledby', `perfect-fit-heading-${tabId}`);
   }
 
   function close() {
@@ -340,7 +405,7 @@ function buildModal(products) {
     switchTab(tabId);
     overlay.hidden = false;
     document.body.classList.add('perfect-fit-modal-open');
-    (getFocusable(panels[tabId])[0] || closeButton).focus();
+    dialog.focus();
   }
 
   closeButton.addEventListener('click', close);
