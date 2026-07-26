@@ -5,7 +5,12 @@
   --tire-listing-star-on: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 28 28"><path fill="%23C27D00" fill-rule="evenodd" d="m14 19.5445964-8.228994 5.7816415 2.95577-9.6128634-8.041567-6.03961242 10.055759-.15943476 3.259032-9.51432732 3.259032 9.51432732 10.055759.15943476-8.041567 6.03961242 2.95577 9.6128634z"/></svg>');
   --tire-listing-meta-font: 700 12px/16px var(--body-font-family);
 
-  padding: 38px 0;
+  /* live's own container: 1168px wide, 20px gutters on mobile and 16px above.
+     The section is authored full-width so the block holds the container. */
+  box-sizing: border-box;
+  max-width: 1168px;
+  margin: 0 auto;
+  padding: 38px 20px;
 }
 
 .tire-listing .sr-only {
@@ -577,7 +582,7 @@
 
 @media (width >= 900px) {
   .tire-listing {
-    padding: 80px 0;
+    padding: 80px 16px;
   }
 
   .tire-listing .tire-listing-layout {
