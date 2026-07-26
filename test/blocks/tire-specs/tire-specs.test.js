@@ -144,11 +144,11 @@ describe('Tire specs block, single-sheet request', () => {
 
   it('reads the rows a single-sheet response puts at data', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK.specs });
-    const block = build('my-tire');
+    const block = build('vikingcontact-7');
     await decorate(block);
 
     const opts = block.querySelectorAll('.tire-specs-select option');
     expect(opts).to.have.length(2);
-    expect(opts[0].textContent).to.equal('205/45 ZR 16');
+    expect(opts[0].textContent).to.equal('155/70 R 19');
   });
 });

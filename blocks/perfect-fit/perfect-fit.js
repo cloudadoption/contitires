@@ -7,7 +7,9 @@ import { createOptimizedPicture, decorateIcons } from '../../scripts/aem.js';
  * the matching tires.
  */
 
-const PRODUCTS_URL = '/products.json';
+// ask for the products sheet alone: the workbook also carries a 1315-row specs
+// sheet the finder never reads
+const PRODUCTS_URL = '/products.json?sheet=products';
 
 const TABS = [
   { id: 'vehicle', label: 'By Vehicle' },
@@ -396,11 +398,13 @@ export default async function decorate(block) {
     const resp = await fetch(PRODUCTS_URL);
     if (resp.ok) {
       const json = await resp.json();
-      // support both shapes: the multi-sheet DA workbook (products.data) and
-      // the legacy single-object file ({ products: [...] }).
-      const rows = (json.products && json.products.data)
-        ? json.products.data
-        : (json.products || []);
+      // support all three shapes: a single-sheet response (data), the whole
+      // multi-sheet workbook (products.data), and the legacy single-object
+      // file ({ products: [...] }).
+      const rows = json.data
+        || (json.products && json.products.data)
+        || json.products
+        || [];
       products = rows.map((product) => ({
         ...product,
         sizes: typeof product.sizes === 'string'
