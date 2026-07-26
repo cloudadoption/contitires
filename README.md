@@ -1,6 +1,6 @@
 # Continental Tire on AEM Edge Delivery Services
 
-A proof-of-concept migration of [continentaltire.com](https://continentaltire.com/) (Drupal 11) onto [AEM Edge Delivery Services](https://www.aem.live/) with [DA](https://da.live/) as the content source. Built in two days (2026-07-24/25) to show how the existing Drupal implementation carries over: what maps cleanly, what needs real backends, and what authoring looks like afterwards.
+A proof-of-concept migration of [continentaltire.com](https://continentaltire.com/) (Drupal 11) onto [AEM Edge Delivery Services](https://www.aem.live/) with [DA](https://da.live/) as the content source. Built in three days (2026-07-24/26) to show how the existing Drupal implementation carries over: what maps cleanly, what needs real backends, and what authoring looks like afterwards.
 
 This is a technical demo, not Continental's site. All content, images, product data, and trademarks belong to Continental and were taken from the public site for migration purposes only.
 
@@ -69,7 +69,7 @@ Each item links the live original, the POC page, the code, and the DA authoring 
 
 [styles/styles.css](styles/styles.css) ports the design tokens out of the live site's 582 KB theme CSS: the `#ffa500` yellow, pill buttons, dark sections, and the Stag Sans type system. The type scale was measured element by element against live with `getComputedStyle`; headings are Stag Sans weight 300, capped at 42px. [styles/fonts.css](styles/fonts.css) loads the fonts from the live site's own URLs, which works because live serves them with an open CORS header. A production build must license and self-host them; the file says so.
 
-Differs from live: nothing measurable on the pages that exist. That was the point of two fix rounds.
+Differs from live: a full audit on 2026-07-26 (27 pages, three widths, screenshot plus DOM comparison) found the remaining gaps and filed them as issues #75 to #127. The systemic ones: the desktop nav overflows the viewport at tablet widths (#75), the rebate ribbon exists only on the homepage (#78), the mobile footer lacks live's accordions (#79), the social band lacks its network labels (#81), and standalone pages miss live's dark title bands (#82). Content substance matches on almost every page; treatment gaps dominate.
 
 ### Header and mega-menu
 
@@ -80,7 +80,7 @@ Differs from live: nothing measurable on the pages that exist. That was the poin
 - Code: [blocks/header/header.js](blocks/header/header.js), [blocks/header/header.css](blocks/header/header.css)
 - Author: [nav in DA](https://da.live/edit#/cloudadoption/contitires/nav)
 
-Differs from live: the search field submits to `/search`, which has no results page (see [site search](#site-search)). The three finder entries in the Tires panel are dead links; on live they trigger JS. A few menu targets point at pages the POC does not have, mostly `/Store-finder`.
+Differs from live: the search field submits to `/search`, which has no results page (see [site search](#site-search), #107). The three finder entries in the Tires panel are dead links; on live they trigger JS. A few menu targets point at pages the POC does not have, mostly `/Store-finder`; others rely on live's redirect aliases (#103). The desktop nav overflows the viewport between 900px and about 1120px (#75), the open mega panel is wider than the viewport (#76), and dropdown keyboard state is broken (#106).
 
 ### Footer
 
@@ -130,7 +130,7 @@ The 11 category pages are the same block with one facet authored into it. Each t
 
 Differs from live on purpose. Filtering, sorting and paging happen in the browser rather than as a page load. An out-of-range page number clamps instead of rendering an empty list. Every sort has a full tiebreak, so a tire cannot move between pages. The result count is announced to a screen reader. Filter state goes into the URL as readable parameters (`?vehicle=passenger&weather=summer`), and the Drupal term-id parameters live deep-links with are still read, so an inbound link keeps working. Ratings are reconstructed from live's star widths, so they are exact to one decimal rather than to live's stored value. Live's own listing links VanContact A/S Ultra at a path that 404s; the POC links the page.
 
-Measured against live at 375, 900 and 1440: the card width, tire image, badge rows, description line count and desktop title match. The mobile card is about 10% shorter, a difference in vertical rhythm rather than in content.
+Measured against live at 375, 900 and 1440: the card width, tire image, badge rows, description line count and desktop title match. The mobile card is about 10% shorter, a difference in vertical rhythm rather than in content. Mobile page height runs longer than live because of the footer (#79), not the listing.
 
 ### Product pages and the products workbook
 
@@ -141,7 +141,7 @@ Measured against live at 375, 900 and 1440: the card width, tire image, badge ro
 - Code: [blocks/tire-specs](blocks/tire-specs/tire-specs.js), [blocks/size-list](blocks/size-list/size-list.js)
 - Author: [products sheet](https://da.live/sheet#/cloudadoption/contitires/products), [a PDP in DA](https://da.live/edit#/cloudadoption/contitires/tires/extremecontact-sport-02)
 
-Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. No reviews, media gallery, or fitment checker (see the gaps), no Product JSON-LD, and the social-preview images still point at live's asset URLs.
+Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. purecontact-ls also renders only its hero, with the page body missing (#93). No reviews, media gallery, or fitment checker (see the gaps), no Product JSON-LD, and the social-preview images still point at live's asset URLs.
 
 ### Learn hub and articles
 
@@ -213,13 +213,15 @@ The racer tire program page is a Drupal webform on live and a design shell here,
 
 ### Video articles
 
-About 43 learn articles are video pages whose player live injects client-side; the server HTML has no video URL. They shipped as stubs (title, thumbnail, blurb). The thumbnail filenames look like YouTube IDs, so a browser-driven pass could recover the videos and a small embed block would complete the pages.
+48 learn articles are video pages whose player live injects client-side; the server HTML has no video URL. They shipped as stubs (title, thumbnail, blurb). The thumbnail filenames look like YouTube IDs, so a browser-driven pass could recover the videos and a small embed block would complete the pages.
 
 ## Global caveats
 
 - Fonts are hotlinked from the live site. A production build licenses and self-hosts them.
 - Links into unbuilt territory 404: `/Store-finder`, `/tire-search`, `/search`, and a few nav paths with mismatched slugs.
-- Product-page social-preview images still point at continentaltire.com assets, and so do the tire images the listing renders.
+- Images are hotlinked from continentaltire.com across the content, not only social previews; media has not been migrated into DA (#119).
+- Both `.aem.page` and `.aem.live` send `x-robots-tag: noindex` until a production domain exists. Right for a demo, and it caps Lighthouse SEO crawlability scores on these hosts.
+- The remaining parity, code, and authoring findings from the 2026-07-26 audit are tracked as issues #75 to #127.
 - Article ordering rests on scraped editorial order, not real publish dates; live does not expose any. The same holds for the tire listing, where the order is scraped per category.
 - The learn index has 217 rows for the 218 pages under `/learn/`; 3 articles have no category.
 
