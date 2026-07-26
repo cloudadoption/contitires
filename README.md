@@ -18,13 +18,13 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [Footer](#footer)
   - [Homepage](#homepage)
   - [Tire finder](#tire-finder)
+  - [Tire listing and category pages](#tire-listing-and-category-pages)
   - [Product pages and the products workbook](#product-pages-and-the-products-workbook)
   - [Learn hub and articles](#learn-hub-and-articles)
   - [Experience section](#experience-section)
   - [Simple content pages](#simple-content-pages)
   - [Author tooling](#author-tooling)
 - [What did not carry over, and how it would](#what-did-not-carry-over-and-how-it-would)
-  - [Tire category listings](#tire-category-listings)
   - [Store finder](#store-finder)
   - [Site search](#site-search)
   - [Vehicle and plate lookup in the tire finder](#vehicle-and-plate-lookup-in-the-tire-finder)
@@ -39,11 +39,11 @@ This is a technical demo, not Continental's site. All content, images, product d
 
 ## The short version
 
-The live site's sitemap lists 319 URLs. The POC publishes 284 pages: 214 learn articles plus their 4 category pages, 16 experience pages, 13 tire product pages, 28 standalone pages, and 9 block-library pages. The remaining live URLs are the data-driven part: tire category listings, the store finder, and the standalone tire-search tools.
+The live site's sitemap lists 319 URLs. The POC publishes 329 pages: 214 learn articles plus their 4 category pages, 16 experience pages, 46 tire product pages, the tire listing and its 11 category pages, 28 standalone pages, and 9 block-library pages. The remaining live URLs are the data-driven part: the store finder and the standalone tire-search tools.
 
-The build started with three deliberately simple pages (newsletter signup, online retailers, customer support), then grew into a full 1:1 migration. Day 1: extract the live theme CSS and rebuild the design system, build header, footer, hero, cards, and the article template, rebuild the homepage, then bulk-migrate all 214 learn articles with a scripted extractor (curl + BeautifulSoup against the server-rendered Drupal pages, pushed through the DA admin API, zero failures). Day 2: unit-test harness and CI, a query index for the learn section, the learn hub and category pages, a 13-product catalog with generated product pages, an author-facing block library, and two rounds of visual-fidelity fixes driven by screenshot and computed-style comparison against live (34 issues, 40 merged PRs total).
+The build started with three deliberately simple pages (newsletter signup, online retailers, customer support), then grew into a full 1:1 migration. Day 1: extract the live theme CSS and rebuild the design system, build header, footer, hero, cards, and the article template, rebuild the homepage, then bulk-migrate all 214 learn articles with a scripted extractor (curl + BeautifulSoup against the server-rendered Drupal pages, pushed through the DA admin API, zero failures). Day 2: unit-test harness and CI, a query index for the learn section, the learn hub and category pages, a 13-product catalog with generated product pages, an author-facing block library, and two rounds of visual-fidelity fixes driven by screenshot and computed-style comparison against live (34 issues, 40 merged PRs total). Day 3: the tire listing behind `/tires`, its 11 category pages, and the 33 product pages they link to.
 
-Lighthouse on the homepage: performance 99-100, accessibility 94-96, best practices 100. The repo has 17 blocks (10 built for this site) and 10 unit-test files.
+Lighthouse on the homepage: performance 99-100, accessibility 94-96, best practices 100. The repo has 18 blocks (11 built for this site) and 11 unit-test files.
 
 ## How the site is put together
 
@@ -55,6 +55,7 @@ The Drupal concepts map like this:
 |---|---|---|
 | Paragraph bundle | Block + authored document | Hero and promo bar on [the homepage](https://main--contitires--cloudadoption.aem.live/) |
 | Views listing | Query index + block | [article-cards](blocks/article-cards/article-cards.js) over `/learn/query-index.json` |
+| Faceted view + taxonomy term pages | Sheet + one block, one facet per page | [tire-listing](blocks/tire-listing/tire-listing.js) over `/products.json?sheet=catalog` |
 | `con-*` custom element | Block decorator JS | [perfect-fit](blocks/perfect-fit/perfect-fit.js), [tire-specs](blocks/tire-specs/tire-specs.js) |
 | Structured entity data | DA sheet (workbook) | [/products.json](https://main--contitires--cloudadoption.aem.live/products.json) |
 | Webform / embedded form | Widget embed or external link | [HubSpot newsletter widget](widgets/hubspot/newsletter.html) |
@@ -79,7 +80,7 @@ Differs from live: nothing measurable on the pages that exist. That was the poin
 - Code: [blocks/header/header.js](blocks/header/header.js), [blocks/header/header.css](blocks/header/header.css)
 - Author: [nav in DA](https://da.live/edit#/cloudadoption/contitires/nav)
 
-Differs from live: the search field submits to `/search`, which has no results page (see [site search](#site-search)). The three finder entries in the Tires panel are dead links; on live they trigger JS. Some menu targets point at pages the POC does not have, mostly `/tires/{category}` and `/Store-finder`.
+Differs from live: the search field submits to `/search`, which has no results page (see [site search](#site-search)). The three finder entries in the Tires panel are dead links; on live they trigger JS. A few menu targets point at pages the POC does not have, mostly `/Store-finder`.
 
 ### Footer
 
@@ -101,7 +102,7 @@ One DA document, authored block by block in the live page's order: hero, promo b
 - Code: [blocks/hero](blocks/hero/hero.js), [blocks/promo-bar](blocks/promo-bar/promo-bar.js), [blocks/carousel](blocks/carousel/carousel.js), [blocks/cards/cards.css](blocks/cards/cards.css)
 - Author: [index in DA](https://da.live/edit#/cloudadoption/contitires/index)
 
-Differs from live: the carousel slides use substituted product images, because live renders its slides inside a shadow-DOM component whose images are not reachable statically. The news band shows one static customer quote where live pulls Bazaarvoice data. The EmbedSocial wall and the rebate popup modal are not reproduced. The category tiles link to `/tires/{category}` listings that do not exist here.
+Differs from live: the carousel slides use substituted product images, because live renders its slides inside a shadow-DOM component whose images are not reachable statically. The news band shows one static customer quote where live pulls Bazaarvoice data. The EmbedSocial wall and the rebate popup modal are not reproduced.
 
 ### Tire finder
 
@@ -114,16 +115,33 @@ The live site's core tool, rebuilt as the [perfect-fit](blocks/perfect-fit/perfe
 
 Differs from live: By Vehicle runs on a small curated make/model set, By Plate returns a canned recommendation. Both need data the public site does not expose; see [the gap entry](#vehicle-and-plate-lookup-in-the-tire-finder). 5 of 13 products carry representative rather than scraped size lists.
 
+### Tire listing and category pages
+
+Live's tire catalog, rebuilt as the [tire-listing](blocks/tire-listing/tire-listing.js) block: 46 tires, three filter groups, three sorts and ten results per page, over one fetch of the catalog sheet. Every interaction after that is a local array operation, so nothing costs a request.
+
+The filter semantics follow live, including its asymmetry: checked Vehicle Type boxes are intersected, Driving Condition and Weather Condition are unioned, and the three groups are intersected with each other. The unit tests assert the result total live itself reports for each of the twelve facets, and the slug order each of the eleven category pages renders.
+
+The 11 category pages are the same block with one facet authored into it. Each taxonomy term on live has its own editorial order, and it is not the all-tires order, so the catalog sheet records a tire's position per facet as well as its position in the full list.
+
+- Live: [/tires](https://continentaltire.com/tires), [/tires/ultra-high-performance](https://continentaltire.com/tires/ultra-high-performance)
+- POC: [/tires](https://main--contitires--cloudadoption.aem.live/tires), [/tires/ultra-high-performance](https://main--contitires--cloudadoption.aem.live/tires/ultra-high-performance), data at [/products.json?sheet=catalog](https://main--contitires--cloudadoption.aem.live/products.json?sheet=catalog)
+- Code: [blocks/tire-listing](blocks/tire-listing/tire-listing.js)
+- Author: [catalog sheet](https://da.live/sheet#/cloudadoption/contitires/products), [tires in DA](https://da.live/edit#/cloudadoption/contitires/tires)
+
+Differs from live on purpose. Filtering, sorting and paging happen in the browser rather than as a page load. An out-of-range page number clamps instead of rendering an empty list. Every sort has a full tiebreak, so a tire cannot move between pages. The result count is announced to a screen reader. Filter state goes into the URL as readable parameters (`?vehicle=passenger&weather=summer`), and the Drupal term-id parameters live deep-links with are still read, so an inbound link keeps working. Ratings are reconstructed from live's star widths, so they are exact to one decimal rather than to live's stored value. Live's own listing links VanContact A/S Ultra at a path that 404s; the POC links the page.
+
+Measured against live at 375, 900 and 1440: the card width, tire image, badge rows, description line count and desktop title match. The mobile card is about 10% shorter, a difference in vertical rhythm rather than in content.
+
 ### Product pages and the products workbook
 
-13 tire product pages, generated from scraped live data and pushed to DA as normal editable documents: product hero (image, name, description, Best for and Technology lists) plus a [tire-specs](blocks/tire-specs/tire-specs.js) block with a size selector and per-size spec grid (UTQG, load index, tread depth, 19 fields). The data behind both the finder and the spec tables is a single multi-sheet DA workbook, `/products.json`: a `products` sheet (13 rows) and a `specs` sheet (596 size rows). Authors edit it like a spreadsheet; no deploy involved. Live builds its spec table client-side from JSON too, so the mechanism matches.
+46 tire product pages, generated from scraped live data and pushed to DA as normal editable documents: product hero (image, name, description, Highlights, Best for and Technology lists) plus a [tire-specs](blocks/tire-specs/tire-specs.js) block with a size selector and per-size spec grid (UTQG, load index, tread depth, 19 fields). The data behind the finder, the listing and the spec tables is a single multi-sheet DA workbook, `/products.json`: a `products` sheet (46 rows), a `specs` sheet (1315 size rows) and a `catalog` sheet (46 rows, what the listing renders). Authors edit it like a spreadsheet; no deploy involved. Live builds its spec table client-side from JSON too, so the mechanism matches. Each block asks for the one sheet it needs, so no page pays for the whole workbook.
 
 - Live: [/tires/extremecontact-sport-02](https://continentaltire.com/tires/extremecontact-sport-02)
 - POC: [/tires/extremecontact-sport-02](https://main--contitires--cloudadoption.aem.live/tires/extremecontact-sport-02), data at [/products.json](https://main--contitires--cloudadoption.aem.live/products.json)
 - Code: [blocks/tire-specs](blocks/tire-specs/tire-specs.js), [blocks/size-list](blocks/size-list/size-list.js)
 - Author: [products sheet](https://da.live/sheet#/cloudadoption/contitires/products), [a PDP in DA](https://da.live/edit#/cloudadoption/contitires/tires/extremecontact-sport-02)
 
-Differs from live: 13 pages exist out of live's 45 or so product pages. Two (purecontact-ls, truecontact-tour) have no spec rows; live shows empty spec selectors for those two as well. No reviews, media gallery, or fitment checker (see the gaps), no Product JSON-LD, and the social-preview images still point at live's asset URLs.
+Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. No reviews, media gallery, or fitment checker (see the gaps), no Product JSON-LD, and the social-preview images still point at live's asset URLs.
 
 ### Learn hub and articles
 
@@ -165,10 +183,6 @@ Authors get a block library: 9 sample documents under [/tools/sidekick/blocks/](
 
 The pattern in every entry: the UI part is an ordinary block, the hard part is data the public site does not expose.
 
-### Tire category listings
-
-Live: [/tires/ultra-high-performance](https://continentaltire.com/tires/ultra-high-performance), a filterable listing with facet checkboxes and sorting over 57 `/tires` sitemap URLs. Not built; homepage tiles and nav still link there, which is the POC's most visible set of dead links. In EDS this is the article-cards pattern applied to products: the [products sheet](https://da.live/sheet#/cloudadoption/contitires/products) already carries `category`, `season`, and `vehicleTypes` columns, so a listing block filters that client-side. It needs the remaining product pages extracted first so listings are complete.
-
 ### Store finder
 
 Live: [/Store-finder](https://continentaltire.com/Store-finder), store search with map and list. The POC's [store-locator block](blocks/store-locator/store-locator.js) is a static mock by design: disabled input, one hardcoded example store. There is no public store database to scrape. A real version needs the dealer list (a DA sheet works for a static set), a geocoding service, and a lazily loaded map library; the block then queries the data client-side. Live's own map provider is not visible in its static HTML.
@@ -204,9 +218,9 @@ About 43 learn articles are video pages whose player live injects client-side; t
 ## Global caveats
 
 - Fonts are hotlinked from the live site. A production build licenses and self-hosts them.
-- Links into unbuilt territory 404: `/tires/{category}`, `/Store-finder`, `/tire-search`, `/search`, and a few nav paths with mismatched slugs.
-- Product-page social-preview images still point at continentaltire.com assets.
-- Article ordering rests on scraped editorial order, not real publish dates; live does not expose any.
+- Links into unbuilt territory 404: `/Store-finder`, `/tire-search`, `/search`, and a few nav paths with mismatched slugs.
+- Product-page social-preview images still point at continentaltire.com assets, and so do the tire images the listing renders.
+- Article ordering rests on scraped editorial order, not real publish dates; live does not expose any. The same holds for the tire listing, where the order is scraped per category.
 - The learn index has 217 rows for the 218 pages under `/learn/`; 3 articles have no category.
 
 ## Working on this repo
@@ -224,7 +238,7 @@ Before pushing:
 
 ```sh
 npm run lint
-npm test        # @web/test-runner; 10 test suites cover the blocks with JS logic
+npm test        # @web/test-runner; 11 test suites cover the blocks with JS logic
 ```
 
 ## Documentation
