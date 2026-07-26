@@ -42,8 +42,13 @@ function decorateSocialGroup(group) {
   if (heading) heading.className = 'footer-social-heading';
   items.forEach((link, i) => {
     const label = link.textContent.trim();
+    // the label is hidden below 769, so the name cannot come from it alone
     link.setAttribute('aria-label', label);
     link.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${icons[i]}"/></svg>`;
+    const name = document.createElement('span');
+    name.className = 'footer-social-label';
+    name.textContent = label;
+    link.append(name);
   });
 }
 
