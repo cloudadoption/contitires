@@ -96,8 +96,8 @@ function createField(tag, name, labelText) {
   const wrapper = document.createElement('div');
   wrapper.className = 'perfect-fit-field';
   const id = `perfect-fit-${name}`;
-  // live shows the field name inside the control rather than above it, so the
-  // label carries the accessible name and the placeholder carries the text
+  // live reads the field name inside the control while it is empty, then floats
+  // it above once a value lands
   const label = document.createElement('label');
   label.className = 'perfect-fit-field-label';
   label.setAttribute('for', id);
@@ -148,11 +148,16 @@ function termsNote() {
   return note;
 }
 
-/** Keeps the call to action disabled until every control in the form has a value. */
-function wireSubmitState(form) {
+/**
+ * Tracks which controls hold a value: the field name floats above a filled
+ * control, and the call to action waits for the whole form.
+ */
+function wireFormState(form) {
   const button = form.querySelector('.perfect-fit-search');
   const fields = [...form.querySelectorAll('select, input')];
   const update = () => {
+    fields.forEach((field) => field.closest('.perfect-fit-field')
+      .classList.toggle('perfect-fit-field-filled', !!field.value));
     button.disabled = fields.some((field) => !field.value);
   };
   form.addEventListener('change', update);
@@ -247,7 +252,7 @@ function buildTireSizeForm(products, onResults) {
       width: width.field.value, aspect: aspect.field.value, rim: rim.field.value,
     })),
   );
-  wireSubmitState(form);
+  wireFormState(form);
   return form;
 }
 
@@ -273,7 +278,7 @@ function buildVehicleForm(products, onResults) {
       onResults(findByVehicleClass(products, vehicleClass));
     },
   );
-  wireSubmitState(form);
+  wireFormState(form);
   return form;
 }
 
@@ -292,7 +297,7 @@ function buildPlateForm(products, onResults) {
     // all-weather touring range as a sensible default
     () => onResults(products.filter((product) => /all-season|all-weather/i.test(product.season || ''))),
   );
-  wireSubmitState(form);
+  wireFormState(form);
   return form;
 }
 

@@ -210,15 +210,26 @@ body.perfect-fit-modal-open {
   gap: 8px;
 }
 
-/* the field name reads as placeholder text inside the control, so the label is
-   left for assistive technology only */
+/* the field name reads inside the control while it is empty and floats into the
+   12px strip above it once a value lands, which keeps the row 56px tall either
+   way, as live does */
 .perfect-fit-field-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  display: block;
+  height: 12px;
+  margin-left: 20px;
+  opacity: 0;
+  color: var(--conti-white);
+  font-family: var(--heading-font-family);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  transition: opacity 0.2s ease;
+}
+
+.perfect-fit-field-filled .perfect-fit-field-label {
+  opacity: 1;
 }
 
 .perfect-fit-field select,
@@ -236,6 +247,14 @@ body.perfect-fit-modal-open {
   font-weight: 700;
   letter-spacing: 1.25px;
   line-height: 1;
+}
+
+/* the name inside an empty control is set the way live sets it */
+.perfect-fit-field:not(.perfect-fit-field-filled) select,
+.perfect-fit-field:not(.perfect-fit-field-filled) input {
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
 /* live outlines the steps that are not reachable yet and fills the one that is */
