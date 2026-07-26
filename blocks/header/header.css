@@ -36,7 +36,7 @@ header nav[aria-expanded='true'] {
   color: var(--conti-white);
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header .nav-wrapper {
     position: sticky;
     top: 0;
@@ -143,7 +143,7 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
   transform: rotate(-45deg);
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav .nav-hamburger {
     display: none;
     visibility: hidden;
@@ -169,7 +169,7 @@ header nav[aria-expanded='true'] .nav-brand img {
   filter: invert(1);
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav .nav-brand img {
     width: 150px;
   }
@@ -272,7 +272,7 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
  * their desktop layout regardless of that attribute. Labels stay
  * icon-only on desktop except for the Chat now pill.
  */
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav[aria-expanded='true'] .nav-tools {
     flex-direction: row;
     align-items: center;
@@ -405,7 +405,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
   letter-spacing: normal;
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav .nav-sections {
     display: block;
     visibility: visible;
@@ -494,7 +494,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
    not the deeper structural selectors, so the descending-specificity warning
    is a false positive. */
 /* stylelint-disable no-descending-specificity */
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul {
     position: fixed;
     inset-inline: 0;
@@ -667,7 +667,7 @@ header .nav-search-form button[type='submit']:hover {
   border-color: var(--conti-dark-yellow);
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header .nav-search-panel {
     padding: 32px;
   }
