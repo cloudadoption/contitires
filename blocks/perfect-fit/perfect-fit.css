@@ -13,6 +13,12 @@ main .section.perfect-fit-container {
   text-align: center;
 }
 
+/* listing pages author the bar as a single CTA with no label; live renders that
+   strip half the height of the homepage's three-item bar */
+.perfect-fit:not(:has(.perfect-fit-label)) {
+  padding: 13px 24px;
+}
+
 .perfect-fit-label {
   margin: 0;
   font-family: var(--heading-font-family);

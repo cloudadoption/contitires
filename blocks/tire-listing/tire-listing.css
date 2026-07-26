@@ -585,10 +585,20 @@
     padding: 80px 16px;
   }
 
+  /* live's grid: a 250px track holding a 230px form, then the results track
+     with its own 20px inset, which is what puts the card at 736px */
   .tire-listing .tire-listing-layout {
     display: grid;
-    grid-template-columns: 230px minmax(0, 1fr);
+    grid-template-columns: 250px minmax(0, 1fr);
     column-gap: 48px;
+  }
+
+  .tire-listing .tire-listing-side {
+    padding-left: 20px;
+  }
+
+  .tire-listing .tire-listing-results {
+    padding-right: 20px;
   }
 
   .tire-listing .tire-listing-toggle,
