@@ -7,9 +7,9 @@
  * decorateTemplateAndTheme() (scripts/aem.js) turns into an "article" class
  * on <body>; scripts.js then loads this stylesheet.
  *
- * From 769 the body sits in a 755px column beside a 300px sidebar holding the
- * sharebar and, where an editor picked some, a related-articles list. Below
- * that the sidebar follows the body.
+ * From 769 the body sits beside a 300px sidebar holding the sharebar and,
+ * where an editor picked some, a related-articles list. Below that the sidebar
+ * follows the body.
  */
 
 body.article main .section {
@@ -173,29 +173,39 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
 }
 
 @media (width >= 769px) {
-  /* A block in the middle of an article splits the body into more than one
-     wrapper, so the reading column takes every wrapper the sidebar does not,
-     in the order they were authored. The sidebar keeps its two rows. */
+  /* 755px is the widest the body column gets, not a width it always takes.
+     Live draws it inside a 1168px container with 16px padding, so the grid
+     measures min(1136, viewport - 32) and the column takes what the 300px
+     sidebar and the 45px gap leave: 755 from 1136 of grid, 523 at a 900px
+     viewport, 392 at 769. Declaring the 755 flat is what made every article
+     scroll sideways below 1124 and made every block measured in the column
+     at 900 read too wide. (#190) */
   body.article main .section:has(.share-wrapper) {
-    max-width: 1100px;
-    grid-template-columns: 755px 300px;
+    max-width: 1136px;
+    padding-inline: 16px;
+    grid-template-columns: minmax(0, 755px) 300px;
     grid-auto-rows: auto;
     gap: 45px;
   }
 
+  /* A block in the middle of an article splits the body into more than one
+     wrapper, so the reading column takes every wrapper the sidebar does not,
+     in the order they were authored. The sidebar keeps its two rows. */
   body.article main .section:has(.share-wrapper) > * {
     grid-column: 1;
   }
 
+  /* live holds its copy to 74% of the column, whatever the column measures:
+     559 of 755, 479 of 647, 387 of 523, 290 of 392 */
   body.article main .section:has(.share-wrapper) .default-content-wrapper {
-    max-width: 559px;
+    max-width: 74%;
     margin-inline: auto;
   }
 
   /* the player takes the reading measure, so it lines up with the stills and
      the text around it rather than standing wider than both */
   body.article main .section:has(.share-wrapper) .video {
-    max-width: 559px;
+    max-width: 74%;
     margin-inline: auto;
   }
 

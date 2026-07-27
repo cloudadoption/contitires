@@ -106,7 +106,7 @@ describe('Article layout', () => {
   // 1136px of grid the column takes what is left beside the sidebar. See
   // article-column.test.js for the widths it lands on. (#190)
   it("sets the body beside a 300px sidebar at live's 769", () => {
-    expect(value(BODY, 'grid-template-columns', '769px')).to.equal('minmax(0, 755px) 300px');
+    expect(value(BODY, 'grid-template-columns', '769px')).to.equal('minmax(0px, 755px) 300px');
     expect(value(BODY, 'gap', '769px')).to.equal('45px');
   });
 
