@@ -44,15 +44,16 @@ describe('tire finder triggers', () => {
       .to.eql(['By Vehicle', 'By Tire Size', 'By Plate']);
   });
 
-  it('replaces the dead links with buttons, since there is no page to go to', () => {
+  // header.css and footer.css style these lists through their `a` selectors.
+  // Swapping the element for a button dropped every one of them: the controls
+  // painted as raw UA buttons, #efefef with a 2px outset border.
+  it('marks the authored link rather than replacing it', () => {
     const submenu = headerSubmenu();
     markFinderTriggers(submenu);
 
-    expect(submenu.querySelectorAll('a')).to.have.length(0);
-    submenu.querySelectorAll('[data-tire-finder]').forEach((trigger) => {
-      expect(trigger.tagName).to.equal('BUTTON');
-      expect(trigger.type).to.equal('button');
-    });
+    const triggers = [...submenu.querySelectorAll('[data-tire-finder]')];
+    expect(triggers).to.have.length(3);
+    triggers.forEach((trigger) => expect(trigger.tagName).to.equal('A'));
   });
 
   it('reads the footer wording, which names the same three searches differently', () => {
@@ -100,6 +101,6 @@ describe('tire finder triggers', () => {
     expect(trigger).to.exist;
     expect(trigger.dataset.tireFinder).to.equal('vehicle');
     expect(trigger.textContent.trim()).to.equal('Find your size');
-    expect(main.querySelector('a[href="/perfect-fit"]')).to.not.exist;
+    expect(trigger.tagName).to.equal('A');
   });
 });
