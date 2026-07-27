@@ -95,6 +95,6 @@ describe('Carousel, the pagination and the pill', () => {
   }
 
   it('reserves the pinned pagination room in the content column', () => {
-    expect(value('.carousel-content', 'padding', '900px')).to.equal('0 0 72px');
+    expect(value('.carousel-content', 'padding', '900px')).to.equal('0px 0px 72px');
   });
 });

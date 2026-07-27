@@ -115,7 +115,7 @@ describe('Hero, the stacked variant', () => {
 
   it('stacks the photo over the copy below the breakpoint', () => {
     expect(value('.hero.stacked', 'flex-direction')).to.equal('column');
-    expect(value('.hero.stacked', 'background-color')).to.equal('#000');
+    expect(value('.hero.stacked', 'background-color')).to.equal('rgb(0, 0, 0)');
   });
 
   it("holds the photo strip to live's 200px", () => {
@@ -131,5 +131,11 @@ describe('Hero, the stacked variant', () => {
   it('returns to the overlay at 1025', () => {
     expect(value('.hero.stacked .hero-image', 'position', '1025px')).to.equal('absolute');
     expect(value('.hero.stacked', 'flex-direction', '1025px')).to.equal('row');
+  });
+
+  // the stacked heading is 30px, and the variant held it there at every width,
+  // so the desktop hero read 30px against live's 42px
+  it("gives the heading back live's 42px at 1025", () => {
+    expect(value('.hero.stacked .hero-content h1', 'font-size', '1025px')).to.equal('42px');
   });
 });

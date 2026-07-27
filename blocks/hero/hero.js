@@ -1,3 +1,24 @@
+// the width at which the hero stops stacking, so the desktop art starts here
+const DESKTOP_MEDIA = '(min-width: 1025px)';
+
+/**
+ * Folds an authored desktop and mobile picture into one, so a viewport
+ * downloads a single image. The desktop sources lead, behind the breakpoint,
+ * because a picture takes the first source that matches.
+ * @param {Element} desktop the first authored picture
+ * @param {Element} mobile the second authored picture
+ * @returns {Element} the merged picture
+ */
+function mergePictures(desktop, mobile) {
+  // only the wide sources are worth keeping above the breakpoint
+  [...desktop.querySelectorAll('source[media]')].reverse().forEach((source) => {
+    source.media = DESKTOP_MEDIA;
+    mobile.prepend(source);
+  });
+  desktop.remove();
+  return mobile;
+}
+
 /**
  * Reuses whatever the author placed in the block: up to two pictures
  * (desktop + optional mobile art direction), a heading, subcopy paragraphs
@@ -16,11 +37,20 @@ export default function decorate(block) {
 
   const imageWrap = document.createElement('div');
   imageWrap.className = 'hero-image';
-  pictures.slice(0, 2).forEach((picture, i) => {
-    picture.classList.add(i === 0 ? 'hero-image-desktop' : 'hero-image-mobile');
+  const picture = pictures.length > 1
+    ? mergePictures(pictures[0], pictures[1])
+    : pictures[0];
+  if (picture) {
     imageWrap.append(picture);
-  });
-  if (pictures.length > 1) block.classList.add('has-mobile-image');
+    // the hero that opens the page holds the LCP image, and it is the only
+    // image in it now, so it can be asked for first
+    const section = block.closest('.section');
+    if (section && section === section.parentElement.firstElementChild) {
+      const img = picture.querySelector('img');
+      img.setAttribute('loading', 'eager');
+      img.setAttribute('fetchpriority', 'high');
+    }
+  }
 
   const content = document.createElement('div');
   content.className = 'hero-content';
