@@ -2,6 +2,11 @@
   border-top: 1px solid var(--conti-grey);
   border-bottom: 1px solid var(--conti-grey);
   padding: 8px;
+
+  /* the block is empty until its own JS runs. Without a reserved row the page
+     below it jumps: PSI read a mobile CLS of 0.123 on an article. 21px is the
+     settled height of the icon row. */
+  min-height: 21px;
 }
 
 .share ul {
