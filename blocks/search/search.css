@@ -215,8 +215,12 @@ main .search .search-pager-nav a:hover {
 
 main .search .search-pager-page-active {
   font-weight: 700;
-  background-color: var(--conti-yellow);
-  color: var(--conti-black);
+  border-bottom: 2px solid var(--conti-yellow);
+  border-radius: 0;
+}
+
+main .search .search-pager-step {
+  text-transform: uppercase;
 }
 
 main .search .search-pager-hidden {
@@ -297,6 +301,18 @@ main .search .search-no-results .button:hover {
   }
 
   main .search .search-result-title {
-    font-size: var(--heading-font-size-m);
+    font-size: 22px;
+  }
+
+  /* live puts the count at the left of the pager row and the pages at the right */
+  main .search .search-pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  main .search .search-pager-summary {
+    padding: 0;
   }
 }

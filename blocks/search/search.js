@@ -5,6 +5,9 @@ import {
 
 const DEFAULT_SOURCE = '/query-index.json';
 
+/** where an image the index holds as a Drupal path is served from */
+const LIVE_ORIGIN = 'https://continentaltire.com';
+
 /** words kept either side of a match, and how many snippets an excerpt holds */
 const SNIPPET_WORDS = 8;
 const MAX_SNIPPETS = 3;
@@ -149,6 +152,25 @@ function bodyText(row) {
   return body;
 }
 
+/**
+ * The thumbnail for a row, or null when it has none worth showing. An image the
+ * index holds as a Drupal path is served by the live host, as it is everywhere
+ * else in this POC; anything else is one of ours and gets optimized.
+ */
+function thumbnail(src) {
+  if (!src || src.includes('/default-meta-image')) return null;
+  if (src.startsWith('/sites/')) {
+    const img = document.createElement('img');
+    img.src = `${LIVE_ORIGIN}${src}`;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.width = 152;
+    img.height = 114;
+    return img;
+  }
+  return createOptimizedPicture(src, '', false, [{ width: '750' }]);
+}
+
 /** One result: title link, optional 4:3 thumbnail, highlighted excerpt. */
 function buildResult(row, terms) {
   const item = document.createElement('li');
@@ -165,14 +187,15 @@ function buildResult(row, terms) {
   const content = document.createElement('div');
   content.className = 'search-result-content';
 
-  if (row.image && !row.image.includes('/default-meta-image')) {
+  const image = thumbnail(row.image);
+  if (image) {
     const figure = document.createElement('div');
     figure.className = 'search-result-image';
     const thumb = document.createElement('a');
     thumb.href = row.path;
     thumb.setAttribute('tabindex', '-1');
     thumb.setAttribute('aria-hidden', 'true');
-    thumb.append(createOptimizedPicture(row.image, '', false, [{ width: '750' }]));
+    thumb.append(image);
     figure.append(thumb);
     content.append(figure);
   }
