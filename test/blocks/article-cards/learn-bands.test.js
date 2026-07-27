@@ -122,8 +122,17 @@ describe('Learn hub band treatments', () => {
     const BAND = 'main .section.cards-container:has(.cards.highlights)';
 
     it("gives the band live's own padding rather than the shared 56px", () => {
-      expect(cards(BAND, 'padding')).to.equal('38px 0');
-      expect(cards(BAND, 'padding', '769px')).to.equal('80px 0 38px');
+      expect(cards(BAND, 'padding')).to.equal('38px 0px');
+      expect(cards(BAND, 'padding', '769px')).to.equal('80px 0px 38px');
+    });
+
+    // live's tile footer is one 54px row: the product name on the left, the
+    // Tire details link on the right. Ours stacks them, which makes each tile
+    // taller and the band 76px taller than live's.
+    it('puts the tile name and its link on one row', () => {
+      expect(cards('.cards.highlights .cards-card-body', 'flex-direction')).to.equal('row');
+      expect(cards('.cards.highlights .cards-card-body', 'justify-content')).to.equal('space-between');
+      expect(cards('.cards.highlights .cards-card-body', 'align-items')).to.equal('center');
     });
 
     it('uppercases the band heading, as live does', () => {

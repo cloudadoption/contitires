@@ -234,9 +234,10 @@
 }
 
 @media (width >= 769px) {
+  /* the image column spans these three rows, so they have to be explicit:
+     grid-row 1 / -1 counts lines in the explicit grid */
   .article-cards.feature {
-    grid-template-columns: 460px 1fr;
-    grid-template-areas: none;
+    grid-template: auto auto 1fr / 460px 1fr;
     gap: 28px 100px;
     align-items: start;
   }
