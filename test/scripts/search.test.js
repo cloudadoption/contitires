@@ -94,6 +94,14 @@ describe('rank field weights', () => {
     expect(paths(rank(docs, 'tire'))).to.deep.equal(['/tire']);
   });
 
+  it('puts a title covering both terms above a title covering one', () => {
+    const docs = [
+      row('/one', 'Winter guide', '', 'tire tire tire tire'),
+      row('/both', 'Winter tires', '', ''),
+    ];
+    expect(paths(rank(docs, 'winter tires'))).to.deep.equal(['/both', '/one']);
+  });
+
   it('drops rows that match no term', () => {
     const docs = [row('/a', 'Widget', '', ''), row('/b', 'Nothing', '', '')];
     expect(paths(rank(docs, 'widget'))).to.deep.equal(['/a']);
@@ -130,18 +138,28 @@ describe('rank against the golden set', () => {
     });
   });
 
-  it('treats a two-word query as OR over stemmed terms, not as a phrase', () => {
-    const both = new Set(paths(rank(rows, 'winter tires')));
-    const union = new Set([
-      ...paths(rank(rows, 'winter')),
-      ...paths(rank(rows, 'tires')),
-    ]);
-    expect(both.size).to.equal(union.size);
-    [...union].forEach((p) => expect(both.has(p)).to.be.true);
-    // a phrase matcher would return only rows holding the two words together
-    const phraseOnly = rank(rows, 'winter tires')
-      .filter((r) => `${r.title} ${r.description} ${r.body}`.toLowerCase().includes('winter tire'));
-    expect(phraseOnly.length).to.be.below(both.size);
+  it('takes a two-word query as separate stemmed terms, not as a phrase', () => {
+    const results = rank(rows, 'winter tires');
+    const apart = results.filter((r) => !`${r.title} ${r.description} ${r.body}`
+      .toLowerCase().includes('winter tire'));
+    // a phrase matcher would return none of these
+    expect(apart.length).to.be.above(0);
+  });
+
+  it('requires every term, so a two-word query narrows one of its terms', () => {
+    const both = paths(rank(rows, 'winter tires'));
+    const tires = new Set(paths(rank(rows, 'tires')));
+    expect(both.length).to.be.below(tires.size);
+    both.forEach((path) => expect(tires.has(path)).to.be.true);
+    rank(rows, 'winter tires').forEach((r) => {
+      const text = `${r.title} ${r.description} ${r.body}`.toLowerCase();
+      expect(text).to.include('winter');
+      expect(text).to.include('tire');
+    });
+  });
+
+  it('returns nothing when one term of a query matches no row', () => {
+    expect(rank(rows, 'tire zzzqqq')).to.deep.equal([]);
   });
 
   it('returns results for a two-letter query, unlike live', () => {
