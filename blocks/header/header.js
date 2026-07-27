@@ -254,7 +254,7 @@ export function buildSearch(navTools, closeMenu) {
   panel.className = 'nav-search-panel';
   panel.hidden = true;
   panel.innerHTML = `<form class="nav-search-form" role="search" action="/search" method="get">
-      <input type="search" name="q" placeholder="Search continentaltire.com" aria-label="Search continentaltire.com" required>
+      <input type="search" name="keywords" placeholder="Search continentaltire.com" aria-label="Search continentaltire.com" required>
       <button type="submit">Search</button>
     </form>`;
 
