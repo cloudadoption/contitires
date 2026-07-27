@@ -3,7 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import {
-  addHamburger, buildUtilityNav, hasOwnPromoBar, isMegaMenu, DESKTOP_MEDIA_QUERY,
+  addHamburger, buildSearch, buildUtilityNav, hasOwnPromoBar, isMegaMenu, DESKTOP_MEDIA_QUERY,
 } from '../../../blocks/header/header.js';
 
 /** Index of the first child carrying `className` in an element's children. */
@@ -304,5 +304,29 @@ describe('Header mega-menu detection', () => {
 
   it('does not tag a plain link with no dropdown', () => {
     expect(isMegaMenu(plainLink)).to.be.false;
+  });
+});
+
+describe('Header search form', () => {
+  /** The nav-tools section as authors leave it, with the :search: icon. */
+  function navTools() {
+    const div = document.createElement('div');
+    div.className = 'nav-tools';
+    div.innerHTML = '<p><span class="icon icon-search"></span></p>';
+    return div;
+  }
+
+  it('sends live\'s keywords parameter to /search', () => {
+    const { panel } = buildSearch(navTools(), () => {});
+    const form = panel.querySelector('form');
+    expect(form.getAttribute('action')).to.equal('/search');
+    expect(form.getAttribute('method')).to.equal('get');
+    expect(form.querySelector('input[name="keywords"]'), 'input named keywords').to.exist;
+    expect(form.querySelector('input[name="q"]'), 'no input named q').to.not.exist;
+  });
+
+  it('returns nothing when authors leave the search icon out', () => {
+    const empty = document.createElement('div');
+    expect(buildSearch(empty, () => {})).to.equal(null);
   });
 });
