@@ -100,10 +100,18 @@ main .section.cards-container {
   text-decoration: none;
 }
 
-/* ---- highlights: product highlight cards ---- */
+/* ---- highlights: product highlight cards. Live runs them 2x2 on a black
+   band, not as one row that thins each tile out. ---- */
 .cards.highlights > ul {
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: 1fr;
   gap: 20px;
+}
+
+@media (width >= 769px) {
+  .cards.highlights > ul {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
 }
 
 .cards.highlights > ul > li {

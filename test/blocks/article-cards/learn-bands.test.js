@@ -21,14 +21,17 @@ describe('Learn hub band treatments', () => {
     sheets.highlights = await load('/blocks/cards/cards.css');
   });
 
-  /** The value a property takes in the rule for `selector`, at `media`. */
+  /**
+   * The value a property takes in the rule for `selector`, at `media`. A rule
+   * that groups several selectors counts for each of them.
+   */
   function value(sheet, selector, prop, media) {
     const rules = media
       ? [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
         && r.conditionText.includes(media)).flatMap((r) => [...r.cssRules])
       : [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
-    const rule = [...rules].reverse().find((r) => r.selectorText === selector
-      && r.style.getPropertyValue(prop));
+    const matches = (r) => r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
     return rule ? rule.style.getPropertyValue(prop).trim() : null;
   }
 
@@ -55,10 +58,10 @@ describe('Learn hub band treatments', () => {
       expect(feature('.article-cards.feature .article-cards-media', 'grid-area')).to.equal('media');
       expect(feature('.article-cards.feature .article-cards-intro', 'grid-area')).to.equal('media');
       expect(feature('.article-cards.feature .article-cards-media::after', 'background-color'))
-        .to.equal('rgb(0 0 0 / 50%)');
-      // at desktop the intro moves out of the image cell into the text column
-      expect(feature('.article-cards.feature .article-cards-intro', 'grid-area', '769px'))
-        .to.equal('auto');
+        .to.equal('rgba(0, 0, 0, 0.5)');
+      // at desktop the intro leaves the image cell for the text column
+      expect(feature('.article-cards.feature .article-cards-intro', 'grid-column', '769px'))
+        .to.equal('2');
       expect(feature('.article-cards.feature .article-cards-media::after', 'content', '769px'))
         .to.equal('none');
     });
@@ -79,7 +82,7 @@ describe('Learn hub band treatments', () => {
     });
 
     it('keeps the category image square', () => {
-      expect(feature('.article-cards.feature .article-cards-media img', 'aspect-ratio')).to.equal('1');
+      expect(feature('.article-cards.feature .article-cards-media img', 'aspect-ratio')).to.equal('1 / 1');
     });
   });
 
