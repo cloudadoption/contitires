@@ -94,6 +94,8 @@ export default function decorate(block) {
       } else {
         stage.replaceChildren(full);
       }
+      // the dialog is named for whatever the tile said it would open
+      modal.setAttribute('aria-label', tile.getAttribute('aria-label'));
       modal.showModal();
     });
 

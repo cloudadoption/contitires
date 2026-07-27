@@ -109,6 +109,36 @@ describe('Media gallery block', () => {
     expect(modal.querySelectorAll('iframe').length, 'player torn out on the key').to.equal(0);
   });
 
+  // the tile hands its own still and link to the player, and the player takes
+  // them over. Opening the same tile twice has to find them again
+  it('opens the same video tile a second time', () => {
+    decorate(science());
+    const first = block.querySelectorAll('.media-gallery-tile')[0];
+    const modal = block.querySelector('dialog');
+    first.click();
+    modal.querySelector('.media-gallery-close').click();
+    first.click();
+    expect(modal.open, 'open again').to.be.true;
+    expect(modal.querySelector('iframe')?.getAttribute('src') ?? '')
+      .to.contain('youtube-nocookie.com/embed/K6Cy13grU5A');
+  });
+
+  it('opens the same still tile a second time', () => {
+    decorate(science());
+    const still = block.querySelectorAll('.media-gallery-tile')[2];
+    const modal = block.querySelector('dialog');
+    still.click();
+    modal.querySelector('.media-gallery-close').click();
+    still.click();
+    expect(modal.querySelector('img')?.getAttribute('src')).to.equal('/media/duo-car.png');
+  });
+
+  it('names the modal for the tile that opened it', () => {
+    decorate(science());
+    block.querySelectorAll('.media-gallery-tile')[2].click();
+    expect(block.querySelector('dialog').getAttribute('aria-label')).to.equal('View duo car shot csg');
+  });
+
   it('skips a row that carries neither a still nor a video', () => {
     decorate(authored([tile('/media/a.png', 'a', '', ''), '<div><div></div><div></div></div>']));
     expect(block.querySelectorAll('.media-gallery-tile').length).to.equal(1);
