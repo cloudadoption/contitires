@@ -7,6 +7,7 @@ import {
   markProductFinderLinks,
   repointSearchLinks,
 } from '../../scripts/tire-finder.js';
+import { decorateMain } from '../../scripts/scripts.js';
 
 /** The header submenu, as nav.html authors it: a label plus three dead links. */
 function headerSubmenu() {
@@ -160,5 +161,32 @@ describe('tire search results link', () => {
     root.innerHTML = '<a href="/tire-search">Find Tires</a><a href="/tires">Our Tires</a>';
 
     expect(repointSearchLinks(root)).to.have.length(1);
+  });
+
+  // loadFragment runs decorateMain over the footer fragment before footer.js
+  // ever sees it, so decorateMain has to claim the triggers itself. Otherwise
+  // the repoint runs first and moves two hrefs it was told to leave alone.
+  it('claims the finder triggers before moving anything, on a fragment', () => {
+    const main = document.createElement('main');
+    main.innerHTML = `
+      <div>
+        <p><a href="/tire-search" class="button">Find Tires</a></p>
+        <h3>Search for Tire</h3>
+        <ul>
+          <li><a href="/tire-search/by-vehicle">By Vehicle</a></li>
+          <li><a href="/tire-search">By Tire</a></li>
+          <li><a href="/tire-search">By License Plate</a></li>
+        </ul>
+      </div>`;
+    decorateMain(main);
+
+    const byText = (t) => [...main.querySelectorAll('a')]
+      .find((a) => a.textContent.trim() === t);
+    expect(byText('By Tire').getAttribute('href'), 'By Tire opens the modal, so it stays')
+      .to.equal('/tire-search');
+    expect(byText('By License Plate').getAttribute('href'), 'By License Plate stays')
+      .to.equal('/tire-search');
+    expect(byText('Find Tires').getAttribute('href'), 'the navigation moves')
+      .to.equal('/tires');
   });
 });
