@@ -355,7 +355,7 @@ body.perfect-fit-modal-open {
 .perfect-fit-field input:disabled {
   border-color: var(--conti-darkest-grey);
   background-color: #000;
-  color: var(--conti-darkest-grey);
+  color: var(--conti-text-grey);
   opacity: 1;
 }
 
@@ -401,7 +401,7 @@ main .section .perfect-fit-form .perfect-fit-terms a:any-link {
 .perfect-fit-panels .perfect-fit-form button.perfect-fit-search:disabled:hover {
   border-color: var(--conti-black);
   background-color: var(--conti-black);
-  color: var(--conti-darkest-grey);
+  color: var(--conti-text-grey);
 }
 
 @media (width >= 900px) {
