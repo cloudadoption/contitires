@@ -85,7 +85,20 @@ body.article main .section picture img {
 /* The player's box before its block decorates. This sheet is in effect before
    the page is revealed, and the block loads after it, so without this the
    article shifts when the link paragraph gives way to the frame. The link is
-   over the poster until then, which is what a reader without JavaScript gets. */
+   over the poster until then, which is what a reader without JavaScript gets.
+
+   A still above takes the 2:1 crop set higher up. A poster is the frame of a
+   video, so it keeps the video's ratio, and it holds that ratio from the first
+   paint rather than changing to it when the block arrives. */
+body.article main .video picture {
+  margin: 0;
+  border-radius: 0;
+}
+
+body.article main .video picture img {
+  aspect-ratio: 16 / 9;
+}
+
 body.article main .video > div > div:has(picture) {
   position: relative;
 }
