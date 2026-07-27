@@ -275,6 +275,19 @@ describe('Search block: results', () => {
     expect(block.querySelector('.search-result-excerpt strong').textContent).to.equal('dealer');
   });
 
+  it('does not open the excerpt with the title, which sits above it', async () => {
+    // the indexed body starts with the page heading, so the raw text repeats the title
+    const repeated = row(5, {
+      title: 'How Tire Rotation Can Extend the Life of Your Tires | Continental Tire',
+      body: 'How Tire Rotation Can Extend the Life of Your Tires Why should I rotate my tires? It helps.',
+    });
+    const { block } = await decorateWith('?keywords=tires', indexResponse(0, [repeated]));
+    await waitFor(() => block.querySelector('.search-result'), 'results');
+    const text = block.querySelector('.search-result-excerpt').textContent;
+    expect(text).to.not.contain('How Tire Rotation Can Extend');
+    expect(text).to.contain('Why should I rotate my tires');
+  });
+
   it('leaves out the image when a row has none', async () => {
     const noImage = row(9, { image: '' });
     const { block } = await decorateWith('?keywords=tires', indexResponse(0, [noImage]));
