@@ -102,13 +102,16 @@ describe('Article layout', () => {
 
   const BODY = 'body.article main .section:has(.share-wrapper)';
 
+  // 755px is the column live caps at, not the column it always draws: below
+  // 1136px of grid the column takes what is left beside the sidebar. See
+  // article-column.test.js for the widths it lands on. (#190)
   it("sets the body beside a 300px sidebar at live's 769", () => {
-    expect(value(BODY, 'grid-template-columns', '769px')).to.equal('755px 300px');
+    expect(value(BODY, 'grid-template-columns', '769px')).to.equal('minmax(0px, 755px) 300px');
     expect(value(BODY, 'gap', '769px')).to.equal('45px');
   });
 
   it('holds the reading column to live\'s measure inside its own column', () => {
-    expect(value(`${BODY} .default-content-wrapper`, 'max-width', '769px')).to.equal('559px');
+    expect(value(`${BODY} .default-content-wrapper`, 'max-width', '769px')).to.equal('74%');
     expect(value(`${BODY} > *`, 'grid-column', '769px')).to.equal('1');
   });
 
