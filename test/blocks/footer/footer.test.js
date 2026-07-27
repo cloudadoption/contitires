@@ -162,8 +162,8 @@ describe('Footer disclosures', () => {
     const links = buildLinks();
     setFooterDisclosures(links, true);
     const [search, tires] = links.querySelectorAll('.footer-links-group');
-    expect(tires.querySelector('button'), 'the plain columns did collapse').to.exist;
-    expect(search.querySelector('button'), 'the search column has no toggle').to.be.null;
+    expect(tires.querySelector('.footer-links-toggle'), 'the plain columns did collapse').to.exist;
+    expect(search.querySelector('.footer-links-toggle'), 'the search column has no toggle').to.be.null;
     expect(search.querySelector('ul').hidden, 'the search column stays open').to.be.false;
   });
 

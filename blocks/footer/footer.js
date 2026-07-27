@@ -1,5 +1,6 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
+import { markFinderTriggers } from '../../scripts/tire-finder.js';
 
 /* known social hostnames -> icon path data, so authors just paste a normal link */
 const SOCIAL_ICONS = {
@@ -164,6 +165,8 @@ export function buildFooterContent(fragment) {
   }
 
   links.querySelectorAll('.footer-links-group').forEach(decorateSocialGroup);
+  // the three tire searches open the finder, the way live opens it from here
+  markFinderTriggers(links);
 
   const content = document.createElement('div');
   content.className = 'footer-content';

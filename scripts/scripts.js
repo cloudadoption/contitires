@@ -11,6 +11,7 @@ import {
   loadCSS,
   buildBlock,
 } from './aem.js';
+import { initFinderTriggers, markProductFinderLinks } from './tire-finder.js';
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
   const innerTT = window.trustedTypes.createPolicy('tt-inner', {
@@ -154,6 +155,7 @@ function decorateButtons(main) {
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
+  markProductFinderLinks(main);
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
@@ -209,6 +211,7 @@ async function loadLazy(doc) {
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
+  initFinderTriggers(doc);
 }
 
 /**

@@ -4,6 +4,12 @@ main .section.perfect-fit-container {
   padding: 0;
 }
 
+/* pages with no bar host the modal in a section of their own, so the block
+   styles still reach it; that section carries nothing else and adds no band */
+main > .section.perfect-fit-host {
+  margin: 0;
+}
+
 .perfect-fit {
   display: flex;
   flex-direction: column;
