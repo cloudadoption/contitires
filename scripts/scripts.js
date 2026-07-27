@@ -11,7 +11,7 @@ import {
   loadCSS,
   buildBlock,
 } from './aem.js';
-import { initFinderTriggers, markProductFinderLinks, repointSearchLinks } from './tire-finder.js';
+import { initFinderTriggers, markProductFinderLinks } from './tire-finder.js';
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
   const innerTT = window.trustedTypes.createPolicy('tt-inner', {
@@ -156,7 +156,6 @@ function decorateButtons(main) {
 export function decorateMain(main) {
   decorateIcons(main);
   markProductFinderLinks(main);
-  repointSearchLinks(main);
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);

@@ -15,15 +15,9 @@ const FINDER_TABS = {
   'by license plate': 'plate',
 };
 
-// the product pages send this at a page the site does not have
+// the product pages send this at a page the site does not have. The redirects
+// sheet answers the path, so the href is left as authored.
 const PRODUCT_LINK = 'a[href="/perfect-fit"]';
-
-// live's search results page, which the site does not have, and what we send
-// those two navigations at instead. Exact, because a deeper path under it is
-// always a finder trigger.
-const RESULTS_LINK = 'a[href="/tire-search"]:not([data-tire-finder])';
-
-const TIRE_LISTING = '/tires';
 
 const SEARCH_HEADING = /^search for tire$/i;
 
@@ -66,22 +60,6 @@ export function markFinderTriggers(root) {
  */
 export function markProductFinderLinks(main) {
   return [...main.querySelectorAll(PRODUCT_LINK)].map((link) => toTrigger(link, 'vehicle'));
-}
-
-/**
- * Sends the plain "find tires" navigations at the tire listing. Claims the
- * finder triggers first rather than trusting the caller to have done it: two
- * of them carry this same href, and loadFragment decorates a fragment before
- * its own block runs.
- * @param {Element} root the container holding the links
- * @returns {Element[]} the links moved
- */
-export function repointSearchLinks(root) {
-  markFinderTriggers(root);
-  return [...root.querySelectorAll(RESULTS_LINK)].map((link) => {
-    link.href = TIRE_LISTING;
-    return link;
-  });
 }
 
 /**

@@ -1,6 +1,6 @@
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { markFinderTriggers, repointSearchLinks } from '../../scripts/tire-finder.js';
+import { markFinderTriggers } from '../../scripts/tire-finder.js';
 
 /* known social hostnames -> icon path data, so authors just paste a normal link */
 const SOCIAL_ICONS = {
@@ -176,10 +176,6 @@ export function buildFooterContent(fragment) {
   if (social) content.append(social);
   if (links.children.length) content.append(links);
   if (bottom.children.length) content.append(bottom);
-  // "Find Tires" navigates rather than opening the finder, so it goes to the
-  // listing page. Run on the whole footer: whether it reads as a call to
-  // action decides which region it lands in.
-  repointSearchLinks(content);
   return content;
 }
 
