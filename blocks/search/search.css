@@ -109,9 +109,10 @@ main .search .search-status:empty {
   padding-bottom: 40px;
 }
 
-/* the grey band only exists once there is something to show in it */
-main .search .search-results-wrapper:not(:empty) {
-  min-height: calc(100vh - 320px);
+/* the band exists as soon as there is a query, holding its height before the
+   results land, and stays out of the way when there is nothing to show */
+main .search .search-results-wrapper.search-band {
+  min-height: calc(100vh - 200px);
   background-color: var(--conti-black);
   padding: 24px 24px 48px;
 }
@@ -240,8 +241,10 @@ main .search .search-no-results {
 }
 
 main .search .search-no-results h2 {
-  margin: 0 0 24px;
-  font-size: var(--heading-font-size-m);
+  max-width: 11em;
+  margin: 0 auto 32px;
+  font-size: var(--heading-font-size-l);
+  line-height: 1.2;
   color: var(--conti-white);
 }
 
@@ -292,7 +295,7 @@ main .search .search-no-results .button:hover {
     text-align: left;
   }
 
-  main .search .search-results-wrapper:not(:empty) {
+  main .search .search-results-wrapper.search-band {
     padding: 40px 24px 64px;
   }
 
@@ -314,5 +317,13 @@ main .search .search-no-results .button:hover {
 
   main .search .search-pager-summary {
     padding: 0;
+  }
+
+  main .search .search-no-results {
+    padding: 72px 0;
+  }
+
+  main .search .search-no-results h2 {
+    font-size: var(--heading-font-size-xxl);
   }
 }

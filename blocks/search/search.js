@@ -356,6 +356,9 @@ export default async function decorate(block) {
 
   block.replaceChildren(form, status, results);
   if (!query) return;
+  // hold the results area open while the index is in flight, so the footer paints
+  // where it lands rather than being pushed down when the results arrive
+  results.classList.add('search-band');
 
   // the index is 172.5 KB gzip, so it is fetched once the page has painted
   const fill = () => { fillResults(block, source, query, page); };
