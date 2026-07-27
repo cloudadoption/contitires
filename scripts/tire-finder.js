@@ -21,21 +21,16 @@ const PRODUCT_LINK = 'a[href="/perfect-fit"]';
 const SEARCH_HEADING = /^search for tire$/i;
 
 /**
- * Replaces a link with a button that opens the finder. The link target is
- * either a dead `#` or a page the POC does not have, so nothing is lost, and a
- * button says what the control does.
+ * Marks a link as a finder trigger. The link is left in place: header.css and
+ * footer.css style these lists through their `a` selectors, so a button in its
+ * place paints as a raw UA button. Live marks its footer links the same way.
  * @param {Element} link the authored link
  * @param {string} tab the tab to open
- * @returns {Element} the button
+ * @returns {Element} the link
  */
 function toTrigger(link, tab) {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = link.className;
-  button.dataset.tireFinder = tab;
-  while (link.firstChild) button.append(link.firstChild);
-  link.replaceWith(button);
-  return button;
+  link.dataset.tireFinder = tab;
+  return link;
 }
 
 /**
