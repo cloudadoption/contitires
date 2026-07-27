@@ -271,8 +271,8 @@ describe('Header promo ribbon layout', () => {
       .find((rule) => rule.selectorText?.includes('.nav-wrapper .promo-bar-bar'));
   });
 
-  it('reserves live\'s 36px ribbon row', () => {
-    expect(rootRule.style.getPropertyValue('--promo-bar-height').trim()).to.equal('36px');
+  it('reserves live\'s 36px ribbon row and the hairline below it', () => {
+    expect(rootRule.style.getPropertyValue('--promo-bar-height').trim()).to.equal('37px');
   });
 
   it('reserves the ribbon row on top of the nav height', () => {
@@ -296,10 +296,10 @@ describe('Header promo ribbon layout', () => {
     expect(ribbonRule.style.height).to.equal('var(--promo-bar-height)');
   });
 
-  it('draws the hairline below the row rather than inside it', () => {
-    // live's ribbon measures 36 and its bar starts at 37, so the white divider
-    // adds a pixel instead of taking one from the yellow
-    expect(ribbonRule.style.boxSizing).to.equal('content-box');
+  it('spends the last pixel of the band on the hairline', () => {
+    // live's yellow row measures 36 and its bar starts at 37, so the 37px band
+    // is the row plus the white divider
+    expect(ribbonRule.style.boxSizing).to.equal('border-box');
     expect(ribbonRule.cssText).to.contain('border-bottom: 1px solid');
   });
 });
@@ -402,7 +402,7 @@ describe('Header mega-menu panel width', () => {
     panelRule = [...sheet.cssRules]
       .filter((rule) => rule instanceof CSSMediaRule)
       .flatMap((rule) => [...rule.cssRules])
-      .find((rule) => rule.selectorText === selector && rule.style.position === 'fixed');
+      .find((rule) => rule.selectorText === selector && rule.style.position === 'absolute');
     expect(panelRule, 'the open panel is styled').to.exist;
   });
 

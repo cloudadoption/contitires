@@ -132,10 +132,14 @@ async function loadPromoBar() {
 }
 
 /**
- * Collapses the promo ribbon.
+ * Collapses the promo ribbon through its own toggle. The open drawer pins the
+ * wrapper to the viewport, and a ribbon left open would leave the flow with it
+ * and take the height it had pushed main down by.
  * @param {Element} root the nav wrapper
  */
-export function collapseRibbon(root) { // eslint-disable-line no-unused-vars
+export function collapseRibbon(root) {
+  const toggle = root?.querySelector('.promo-bar-toggle[aria-expanded="true"]');
+  if (toggle) toggle.click();
 }
 
 /**
@@ -350,6 +354,7 @@ export default async function decorate(block) {
   // hamburger for mobile
   addHamburger(nav, () => {
     if (search) closeSearch(search.button, search.panel);
+    if (promoBar) collapseRibbon(promoBar);
     toggleMenu(nav, navSections);
   });
   nav.setAttribute('aria-expanded', 'false');

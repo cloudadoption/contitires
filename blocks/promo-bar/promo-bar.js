@@ -22,16 +22,18 @@ export default function decorate(block) {
   label.className = 'promo-bar-toggle-label';
   label.append(...toggleContent.childNodes);
 
-  const chevron = document.createElement('span');
-  chevron.className = 'promo-bar-chevron';
-  chevron.setAttribute('aria-hidden', 'true');
+  // live prefixes the label with a plus that becomes a minus once the panel
+  // is open
+  const plus = document.createElement('span');
+  plus.className = 'promo-bar-plus';
+  plus.setAttribute('aria-hidden', 'true');
 
   const toggle = document.createElement('button');
   toggle.type = 'button';
   toggle.className = 'promo-bar-toggle';
   toggle.setAttribute('aria-expanded', 'false');
   toggle.setAttribute('aria-controls', panelId);
-  toggle.append(label, chevron);
+  toggle.append(plus, label);
 
   toggleRow.className = 'promo-bar-bar';
   toggleCell.className = 'promo-bar-bar-inner';
