@@ -3,8 +3,8 @@
 
 import { expect } from '@esm-bundle/chai';
 import {
-  addHamburger, buildSearch, buildUtilityNav, hasOwnPromoBar, isMegaMenu,
-  wireNavDisclosures, DESKTOP_MEDIA_QUERY,
+  addHamburger, buildSearch, buildUtilityNav, collapseRibbon, hasOwnPromoBar,
+  isMegaMenu, wireNavDisclosures, DESKTOP_MEDIA_QUERY,
 } from '../../../blocks/header/header.js';
 
 /** Index of the first child carrying `className` in an element's children. */
@@ -246,12 +246,12 @@ describe('Header promo ribbon', () => {
 });
 
 describe('Header promo ribbon layout', () => {
-  // The ribbon rides inside the sticky wrapper above the nav, so the header
-  // has to reserve its height from the first paint. The mega-menu panel drops
-  // from the bottom of that wrapper, so it reserves the same height again.
+  // The ribbon rides above the nav inside the header, so the header reserves
+  // its row before the block loads. Live draws a 36px yellow row with a 1px
+  // white hairline below it, and the reservation covers both.
   let headerRule;
   let ownPromoRule;
-  let panelRule;
+  let rootRule;
   let previewRule;
   let ribbonRule;
 
@@ -259,6 +259,7 @@ describe('Header promo ribbon layout', () => {
     const global = new CSSStyleSheet();
     await global.replace(await (await fetch('/styles/styles.css')).text());
     headerRule = [...global.cssRules].find((rule) => rule.selectorText === 'header');
+    rootRule = [...global.cssRules].find((rule) => rule.selectorText === ':root');
     ownPromoRule = [...global.cssRules]
       .find((rule) => rule.selectorText?.includes(':has(main .promo-bar)'));
     previewRule = [...global.cssRules]
@@ -266,19 +267,18 @@ describe('Header promo ribbon layout', () => {
 
     const header = new CSSStyleSheet();
     await header.replace(await (await fetch('/blocks/header/header.css')).text());
-    const selector = 'header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul';
-    panelRule = [...header.cssRules]
-      .filter((rule) => rule instanceof CSSMediaRule)
-      .flatMap((rule) => [...rule.cssRules])
-      .find((rule) => rule.selectorText === selector && rule.style.position === 'fixed');
     ribbonRule = [...header.cssRules]
       .find((rule) => rule.selectorText?.includes('.nav-wrapper .promo-bar-bar'));
   });
 
-  it('reserves the ribbon height on top of the nav height', () => {
+  it('reserves live\'s 36px ribbon row', () => {
+    expect(rootRule.style.getPropertyValue('--promo-bar-height').trim()).to.equal('36px');
+  });
+
+  it('reserves the ribbon row on top of the nav height', () => {
     expect(headerRule, 'the header reserves its own height').to.exist;
-    expect(headerRule.style.height).to.contain('--nav-height');
-    expect(headerRule.style.height).to.contain('--promo-bar-height');
+    expect(headerRule.style.minHeight).to.contain('--nav-height');
+    expect(headerRule.style.minHeight).to.contain('--promo-bar-height');
   });
 
   it('reserves nothing on pages that author their own promo bar', () => {
@@ -296,9 +296,95 @@ describe('Header promo ribbon layout', () => {
     expect(ribbonRule.style.height).to.equal('var(--promo-bar-height)');
   });
 
-  it('drops the mega-menu panel to the bottom of the header', () => {
+  it('draws the hairline below the row rather than inside it', () => {
+    // live's ribbon measures 36 and its bar starts at 37, so the white divider
+    // adds a pixel instead of taking one from the yellow
+    expect(ribbonRule.style.boxSizing).to.equal('content-box');
+    expect(ribbonRule.cssText).to.contain('border-bottom: 1px solid');
+  });
+});
+
+describe('Header layout model', () => {
+  // Live keeps its header in the document flow, so expanding the ribbon moves
+  // main down. Ours reserved a fixed height and pinned the wrapper over it, so
+  // the open panel covered the top of the page.
+  const DRAWER = (rule) => rule.selectorText?.startsWith('header:has(')
+    && rule.selectorText.includes('aria-expanded')
+    && rule.selectorText.includes('.nav-wrapper');
+  const MEGA = 'header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul';
+  let headerRule;
+  let wrapperRule;
+  let drawerRule;
+  let desktopDrawerRule;
+  let panelRule;
+
+  before(async () => {
+    const global = new CSSStyleSheet();
+    await global.replace(await (await fetch('/styles/styles.css')).text());
+    headerRule = [...global.cssRules].find((rule) => rule.selectorText === 'header');
+
+    const header = new CSSStyleSheet();
+    await header.replace(await (await fetch('/blocks/header/header.css')).text());
+    const top = [...header.cssRules];
+    const width = DESKTOP_MEDIA_QUERY.match(/(\d+)px/)[1];
+    const desktop = top.filter((rule) => rule instanceof CSSMediaRule
+      && rule.conditionText.includes(width)).flatMap((rule) => [...rule.cssRules]);
+    wrapperRule = top.find((rule) => rule.selectorText === 'header .nav-wrapper');
+    drawerRule = top.find(DRAWER);
+    desktopDrawerRule = desktop.find(DRAWER);
+    panelRule = desktop.find((rule) => rule.selectorText === MEGA && rule.style.position);
+  });
+
+  it('leaves the header in flow, so a growing ribbon pushes main down', () => {
+    expect(headerRule.style.height, 'a fixed height cannot grow').to.equal('');
+    expect(headerRule.style.minHeight).to.contain('--promo-bar-height');
+    expect(wrapperRule.style.position).to.not.equal('fixed');
+  });
+
+  it('pins the wrapper while the mobile drawer is open, so the drawer overlays', () => {
+    expect(drawerRule, 'the open drawer restyles the wrapper').to.exist;
+    expect(drawerRule.style.position).to.equal('fixed');
+  });
+
+  it('returns the wrapper to flow above the breakpoint, where the nav is the bar', () => {
+    // decorate() leaves the desktop nav at aria-expanded=true as its resting
+    // state, so the drawer rule has to be undone there
+    expect(desktopDrawerRule, 'the desktop nav is not a drawer').to.exist;
+    expect(desktopDrawerRule.style.position).to.equal('relative');
+  });
+
+  it('anchors the mega panel under the header instead of a fixed offset', () => {
     expect(panelRule, 'the open panel is styled').to.exist;
-    expect(panelRule.style.top).to.equal(headerRule.style.height);
+    expect(panelRule.style.position).to.equal('absolute');
+    expect(panelRule.style.top).to.equal('100%');
+  });
+});
+
+describe('Header drawer and ribbon', () => {
+  /** A nav wrapper holding a promo ribbon in the given state. */
+  function wrapper(expanded) {
+    const el = document.createElement('div');
+    el.className = 'nav-wrapper';
+    el.innerHTML = `<button class="promo-bar-toggle" aria-expanded="${expanded}"></button>`;
+    const toggle = el.querySelector('.promo-bar-toggle');
+    el.clicks = 0;
+    toggle.addEventListener('click', () => {
+      el.clicks += 1;
+      toggle.setAttribute('aria-expanded', String(toggle.getAttribute('aria-expanded') !== 'true'));
+    });
+    return el;
+  }
+
+  it('collapses an open ribbon, so the header keeps its reserved height', () => {
+    const el = wrapper(true);
+    collapseRibbon(el);
+    expect(el.querySelector('.promo-bar-toggle').getAttribute('aria-expanded')).to.equal('false');
+  });
+
+  it('leaves a collapsed ribbon alone', () => {
+    const el = wrapper(false);
+    collapseRibbon(el);
+    expect(el.clicks).to.equal(0);
   });
 });
 

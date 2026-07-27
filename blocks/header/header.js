@@ -132,6 +132,13 @@ async function loadPromoBar() {
 }
 
 /**
+ * Collapses the promo ribbon.
+ * @param {Element} root the nav wrapper
+ */
+export function collapseRibbon(root) { // eslint-disable-line no-unused-vars
+}
+
+/**
  * Toggles all nav sections
  * @param {Element} sections The container element
  * @param {Boolean} expanded Whether the element should be expanded or collapsed
