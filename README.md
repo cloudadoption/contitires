@@ -203,6 +203,8 @@ The migration copied the pages and left their images on continentaltire.com, so 
 
 The pipeline pulls a DA image into the media bus when it previews the page, so pages deliver `./media_<hash>.<ext>` from this host as before. The hashes are unchanged, so the delivered bytes are the same.
 
+The products workbook holds a tire image on every row, and a sheet cell is fetched by the browser rather than by the pipeline. Those rows name the file's own path on this site, and the file is published like any other resource so the path resolves. Filenames carry no underscore, because the publish API turns one into a dash when it looks a file up in the content source.
+
 Page metadata no longer names a social image. The pipeline derives `og:image` from the page's first image instead. That keeps it on this host, so the query index records a path that resolves here. Search thumbnails hotlinked live for that reason (#161).
 
 - Author: [media in DA](https://da.live/#/cloudadoption/contitires/media)
