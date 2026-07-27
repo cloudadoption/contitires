@@ -25,6 +25,7 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [Experience section](#experience-section)
   - [Simple content pages](#simple-content-pages)
   - [URL aliases](#url-aliases)
+  - [Images](#images)
   - [Author tooling](#author-tooling)
 - [What did not carry over, and how it would](#what-did-not-carry-over-and-how-it-would)
   - [Store finder](#store-finder)
@@ -153,7 +154,7 @@ Measured against live at 375, 900 and 1440: the card width, tire image, badge ro
 - Code: [blocks/tire-specs](blocks/tire-specs/tire-specs.js), [blocks/size-list](blocks/size-list/size-list.js)
 - Author: [products sheet](https://da.live/sheet#/cloudadoption/contitires/products), [a PDP in DA](https://da.live/edit#/cloudadoption/contitires/tires/extremecontact-sport-02)
 
-Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. purecontact-ls also renders only its hero, with the page body missing (#93). No reviews, media gallery, or fitment checker (see the gaps), no Product JSON-LD, and the social-preview images still point at live's asset URLs.
+Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. purecontact-ls also renders only its hero, with the page body missing (#93). No reviews, media gallery, or fitment checker (see the gaps), and no Product JSON-LD.
 
 ### Learn hub and articles
 
@@ -196,6 +197,21 @@ Drupal answers a set of old paths with a 301. The migration copied the links tha
 
 Differs from live: where a page was not migrated, the redirect lands on the nearest page that exists. `/tire-search` is a fitment results page on live and the tire listing here; the four Conti Crew shows land on the Conti Crew hub.
 
+### Images
+
+The migration copied the pages and left their images on continentaltire.com, so the site depended on the Drupal host staying up and licensable. The corpus is in DA now: 422 files under [/media](https://da.live/#/cloudadoption/contitires/media), each downloaded as live serves it and uploaded unchanged. Nothing was resized or re-encoded. The folders name the Drupal image style each reference used: `og_image`, `marquee`, `original` and the rest.
+
+The pipeline pulls a DA image into the media bus when it previews the page, so pages deliver `./media_<hash>.<ext>` from this host as before. The hashes are unchanged, so the delivered bytes are the same.
+
+The products workbook holds a tire image on every row, and a sheet cell is fetched by the browser rather than by the pipeline. Those rows name the file's own path on this site, and the file is published like any other resource so the path resolves. Filenames carry no underscore, because the publish API turns one into a dash when it looks a file up in the content source.
+
+Page metadata no longer names a social image. The pipeline derives `og:image` from the page's first image instead. That keeps it on this host, so the query index records a path that resolves here. Search thumbnails hotlinked live for that reason (#161).
+
+- Author: [media in DA](https://da.live/#/cloudadoption/contitires/media)
+- Code: [blocks/search/search.js](blocks/search/search.js) reads the index image
+
+Differs from live: three references stayed on continentaltire.com because live answers each with 404. Two are article thumbnails. Live shows the same broken image on both pages.
+
 ### Author tooling
 
 Authors get a block library: 9 sample documents under [/tools/sidekick/blocks/](https://main--contitires--cloudadoption.aem.live/tools/sidekick/blocks/perfect-fit), wired into the DA editor through a `library` sheet in the DA site config, so blocks are inserted from a picker instead of being typed from memory. DA's Experience Workspace is switched on for the site. The [library app](tools/sidekick/library.html) and its [config](tools/sidekick/library.json) live in the repo; the sample content is authored in DA like everything else.
@@ -236,7 +252,7 @@ The racer tire program page is a Drupal webform on live and a design shell here,
 
 - Fonts are hotlinked from the live site. A production build licenses and self-hosts them.
 - Links into unbuilt territory land on the nearest page that exists, through the [redirects sheet](#url-aliases). Two dead links remain, both on `/customer-support/technical-documents`, and live answers both targets with "Access denied".
-- Images are hotlinked from continentaltire.com across the content, not only social previews; media has not been migrated into DA (#119).
+- Images live in DA and are served from this host. Three references stayed on continentaltire.com because live answers each with 404 (see [Images](#images)).
 - Both `.aem.page` and `.aem.live` send `x-robots-tag: noindex` until a production domain exists. Right for a demo, and it caps Lighthouse SEO crawlability scores on these hosts.
 - The remaining parity, code, and authoring findings from the 2026-07-26 audit are tracked as issues #75 to #127.
 - Article ordering rests on scraped editorial order, not real publish dates; live does not expose any. The same holds for the tire listing, where the order is scraped per category.

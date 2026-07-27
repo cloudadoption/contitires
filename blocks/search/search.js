@@ -5,9 +5,6 @@ import {
 
 const DEFAULT_SOURCE = '/query-index.json';
 
-/** where an image the index holds as a Drupal path is served from */
-const LIVE_ORIGIN = 'https://continentaltire.com';
-
 /** words kept either side of a match, and how many snippets an excerpt holds */
 const SNIPPET_WORDS = 8;
 const MAX_SNIPPETS = 3;
@@ -153,21 +150,12 @@ function bodyText(row) {
 }
 
 /**
- * The thumbnail for a row, or null when it has none worth showing. An image the
- * index holds as a Drupal path is served by the live host, as it is everywhere
- * else in this POC; anything else is one of ours and gets optimized.
+ * The thumbnail for a row, or null when it has none worth showing. The index
+ * gives an image path only when it resolves here, so a Drupal path means it
+ * could not, and the row shows nothing rather than a broken image.
  */
 function thumbnail(src) {
-  if (!src || src.includes('/default-meta-image')) return null;
-  if (src.startsWith('/sites/')) {
-    const img = document.createElement('img');
-    img.src = `${LIVE_ORIGIN}${src}`;
-    img.alt = '';
-    img.loading = 'lazy';
-    img.width = 152;
-    img.height = 114;
-    return img;
-  }
+  if (!src || src.startsWith('/sites/') || src.includes('/default-meta-image')) return null;
   return createOptimizedPicture(src, '', false, [{ width: '750' }]);
 }
 
