@@ -81,8 +81,11 @@ main .video.video-no-poster .video-frame {
 }
 
 @media (width >= 900px) {
+  /* the wider vertical rhythm live gives the player from 900 up. The auto
+     side margins stay: a column wider than the 747px cap centres the player
+     the way live does, rather than parking it at the column's left edge */
   main .video {
-    margin: 2rem 0;
+    margin: 2rem auto;
   }
 
   main .video .video-play::after {
