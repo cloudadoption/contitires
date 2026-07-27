@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it beforeEach */
+/* global describe it before beforeEach */
 
 import { expect } from '@esm-bundle/chai';
 import decorate from '../../../blocks/carousel/carousel.js';
@@ -70,5 +70,31 @@ describe('Carousel block', () => {
   it('wraps around when going back from the first slide', () => {
     block.querySelector('.carousel-prev').click();
     expect(block.querySelector('.carousel-counter').textContent).to.equal('3 of 3');
+  });
+});
+
+// From 900 the pagination is pinned to the bottom of the content column, so
+// the column has to reserve its height. Without that the "1 of 7" pager
+// overlapped the TAKE A CLOSER LOOK pill by 11px at 900.
+describe('Carousel, the pagination and the pill', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/carousel/carousel.css')).text());
+  });
+
+  function value(selector, prop, media) {
+    const rules = media
+      ? [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
+        && r.conditionText.includes(media)).flatMap((r) => [...r.cssRules])
+      : [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+    const matches = (r) => r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
+    return rule ? rule.style.getPropertyValue(prop).trim() : null;
+  }
+
+  it('reserves the pinned pagination room in the content column', () => {
+    expect(value('.carousel-content', 'padding', '900px')).to.equal('0 0 72px');
   });
 });

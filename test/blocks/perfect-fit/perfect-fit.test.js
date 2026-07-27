@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it beforeEach afterEach */
+/* global describe it before beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
@@ -539,5 +539,40 @@ describe('perfect-fit card, the product hero variant', () => {
     await decorate(block);
     expect(fetchStub.called).to.be.false;
     expect(block.querySelector('.perfect-fit-overlay')).to.not.exist;
+  });
+});
+
+// Live's finder bar puts the icon left of the label in one row from 769 up,
+// alongside its heading, and stacks icon over label below that with all three
+// items still on one row. Measured on continentaltire.com at 768 and 769.
+describe('Perfect fit bar, live\'s two rows', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/perfect-fit/perfect-fit.css')).text());
+  });
+
+  function value(selector, prop, media) {
+    const rules = media
+      ? [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
+        && r.conditionText.includes(media)).flatMap((r) => [...r.cssRules])
+      : [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+    const matches = (r) => r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
+    return rule ? rule.style.getPropertyValue(prop).trim() : null;
+  }
+
+  it('stacks the icon over its label on a narrow screen', () => {
+    expect(value('.perfect-fit-item', 'flex-direction')).to.equal('column');
+  });
+
+  it('keeps all three items on one row at 375', () => {
+    expect(value('.perfect-fit-items', 'flex-wrap')).to.equal('nowrap');
+  });
+
+  it('sets the icon beside its label from 769 up', () => {
+    expect(value('.perfect-fit-item', 'flex-direction', '769px')).to.equal('row');
+    expect(value('.perfect-fit-item', 'align-items', '769px')).to.equal('center');
   });
 });
