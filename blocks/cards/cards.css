@@ -123,16 +123,24 @@ main .section.cards-container {
   aspect-ratio: 16 / 9;
 }
 
-/* live puts the name and its link on one row, so the tile footer is a single
-   54px strip under the image */
+/* one row wraps both halves at 375, so the footer stacks there. From 769 live
+   puts the name and its link on one row, a single 54px strip under the image. */
 .cards.highlights .cards-card-body {
   margin: 0;
   padding: 16px 20px;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+@media (width >= 769px) {
+  .cards.highlights .cards-card-body {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
 }
 
 .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
@@ -155,6 +163,13 @@ main .section.cards-container {
   text-transform: uppercase;
   text-decoration: underline;
   text-decoration-color: var(--conti-dark-yellow);
+}
+
+/* the uppercase above is for the Tire details link. Live sets the product name
+   in the case the author wrote. */
+.cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) a {
+  text-transform: none;
+  text-decoration: none;
 }
 
 .cards.highlights .cards-card-body a::after {

@@ -158,7 +158,7 @@ describe('Learn hub band treatments', () => {
     // the uppercase rule was written for the Tire details link and caught the
     // product name with it. Live sets the name in mixed case.
     it('leaves the tile name in the case the author wrote', () => {
-      expect(cards('.cards.highlights .cards-card-body p a', 'text-transform')).to.equal('uppercase');
+      expect(cards('.cards.highlights .cards-card-body a', 'text-transform')).to.equal('uppercase');
       expect(cards('.cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) a', 'text-transform')).to.equal('none');
     });
 
