@@ -1,4 +1,4 @@
-import { createOptimizedPicture, decorateIcons } from '../../scripts/aem.js';
+import { createOptimizedPicture, decorateIcons, loadCSS } from '../../scripts/aem.js';
 
 /**
  * "Find your perfect fit:" bar plus its tire-finder modal. The three items
@@ -447,6 +447,60 @@ function buildModal(products) {
   return { overlay, open };
 }
 
+/** Reads the tire catalogue. Returns an empty list when the sheet is missing. */
+async function loadProducts() {
+  try {
+    const resp = await fetch(PRODUCTS_URL);
+    if (!resp.ok) return [];
+    const json = await resp.json();
+    // support all three shapes: a single-sheet response (data), the whole
+    // multi-sheet workbook (products.data), and the legacy single-object
+    // file ({ products: [...] }).
+    const rows = json.data
+      || (json.products && json.products.data)
+      || json.products
+      || [];
+    return rows.map((product) => ({
+      ...product,
+      sizes: typeof product.sizes === 'string'
+        ? product.sizes.split(',').map((s) => s.trim()).filter(Boolean)
+        : (product.sizes || []),
+      vehicleTypes: typeof product.vehicleTypes === 'string'
+        ? product.vehicleTypes.split(',').map((s) => s.trim()).filter(Boolean)
+        : (product.vehicleTypes || []),
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
+// The finder also opens from the header, the footer and the product pages, so
+// one modal per page is shared between the bar and those triggers.
+let finder = null;
+
+/**
+ * Opens the tire finder from a control outside the bar. On a page that carries
+ * no bar the modal gets a section of its own, because the block styles reach
+ * it through `main .section`.
+ * @param {string} tabId the tab to open
+ * @param {Element} [trigger] the control that opened it, refocused on close
+ */
+export async function openTireFinder(tabId, trigger) {
+  if (!finder || !finder.overlay.isConnected) {
+    await loadCSS(`${window.hlx.codeBasePath}/blocks/perfect-fit/perfect-fit.css`);
+    finder = buildModal(await loadProducts());
+    const host = document.createElement('div');
+    host.className = 'section perfect-fit-host';
+    // a section caps and pads its first level at the content width, so the
+    // overlay sits a level below it, where a block's markup would sit
+    const wrapper = document.createElement('div');
+    wrapper.append(finder.overlay);
+    host.append(wrapper);
+    document.querySelector('main').append(host);
+  }
+  finder.open(tabId, trigger);
+}
+
 /**
  * "Find your perfect fit:" bar: a label plus a row of shortcut buttons. Each
  * opens the tire-finder modal on the matching tab. The catalogue is loaded
@@ -458,33 +512,10 @@ export default async function decorate(block) {
   const label = labelRow ? labelRow.querySelector('p') : null;
   if (label) label.className = 'perfect-fit-label';
 
-  let products = [];
-  try {
-    const resp = await fetch(PRODUCTS_URL);
-    if (resp.ok) {
-      const json = await resp.json();
-      // support all three shapes: a single-sheet response (data), the whole
-      // multi-sheet workbook (products.data), and the legacy single-object
-      // file ({ products: [...] }).
-      const rows = json.data
-        || (json.products && json.products.data)
-        || json.products
-        || [];
-      products = rows.map((product) => ({
-        ...product,
-        sizes: typeof product.sizes === 'string'
-          ? product.sizes.split(',').map((s) => s.trim()).filter(Boolean)
-          : (product.sizes || []),
-        vehicleTypes: typeof product.vehicleTypes === 'string'
-          ? product.vehicleTypes.split(',').map((s) => s.trim()).filter(Boolean)
-          : (product.vehicleTypes || []),
-      }));
-    }
-  } catch (e) {
-    products = [];
-  }
-
+  const products = await loadProducts();
   const modal = buildModal(products);
+  // the bar's modal serves the header and footer triggers too
+  finder = modal;
 
   const list = document.createElement('ul');
   list.className = 'perfect-fit-items';

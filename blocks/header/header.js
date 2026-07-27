@@ -1,5 +1,6 @@
 import { getMetadata, decorateIcons } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
+import { markFinderTriggers } from '../../scripts/tire-finder.js';
 
 // media query match that indicates desktop width. header.css switches the
 // nav layout at the same width, so the two must move together.
@@ -317,6 +318,8 @@ export default async function decorate(block) {
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
+    // the "Search For Tire" submenu opens the finder, the way live opens it
+    markFinderTriggers(navSections);
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
       if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
       if (isMegaMenu(navSection)) navSection.classList.add('nav-mega');
