@@ -3,6 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import { buildFooterContent, setFooterDisclosures } from '../../../blocks/footer/footer.js';
+import { loadFragment } from '../../../blocks/fragment/fragment.js';
 
 /** Builds a footer fragment: a social group, a nav column, and legal copy. */
 function buildFragment() {
@@ -96,6 +97,45 @@ describe('Footer tire search column', () => {
     expect(cta, 'the call to action survives grouping').to.exist;
     expect(cta.getAttribute('href'), 'call to action points at the listing').to.equal('/tires');
     expect(cta.dataset.tireFinder, 'it navigates, it does not open the finder').to.be.undefined;
+  });
+});
+
+// The defect this covers only appeared through loadFragment: it runs
+// decorateMain over the fetched footer before footer.js marks anything, so the
+// repoint saw three unmarked links sharing one href and moved two of them.
+// Fetching a real fragment is what exercises that order.
+describe('Footer loaded the way the page loads it', () => {
+  let content;
+
+  before(async () => {
+    const fragment = await loadFragment('/test/blocks/footer/mock-footer');
+    expect(fragment, 'the fixture fragment loaded').to.exist;
+    content = buildFooterContent(fragment);
+  });
+
+  const linkNamed = (text) => [...content.querySelectorAll('a')]
+    .find((a) => a.textContent.trim() === text);
+
+  it('moves the Find Tires call to action to the listing page', () => {
+    expect(linkNamed('Find Tires').getAttribute('href')).to.equal('/tires');
+  });
+
+  it('leaves the three finder triggers on their own hrefs', () => {
+    expect(
+      ['By Vehicle', 'By Tire', 'By License Plate'].map((t) => linkNamed(t).getAttribute('href')),
+    ).to.eql(['/tire-search/by-vehicle', '/tire-search', '/tire-search']);
+  });
+
+  it('still marks the three finder triggers', () => {
+    expect(
+      ['By Vehicle', 'By Tire', 'By License Plate'].map((t) => linkNamed(t).dataset.tireFinder),
+    ).to.eql(['vehicle', 'tire-size', 'plate']);
+  });
+
+  it('leaves every other footer link where the author put it', () => {
+    expect(linkNamed('Search Site').getAttribute('href')).to.equal('/search');
+    expect(linkNamed('Find Stores').getAttribute('href')).to.equal('/store-finder');
+    expect(linkNamed('Passenger').getAttribute('href')).to.equal('/tires/passenger');
   });
 });
 

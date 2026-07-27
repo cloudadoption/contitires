@@ -163,6 +163,20 @@ describe('tire search results link', () => {
     expect(repointSearchLinks(root)).to.have.length(1);
   });
 
+  // The order cannot be left to the caller. Whoever decorates a root next
+  // should not have to know that marking comes first.
+  it('protects the finder triggers even when the caller marked nothing', () => {
+    const group = footerGroup();
+    repointSearchLinks(group);
+
+    const searches = [...group.querySelectorAll('li a')]
+      .filter((a) => a.textContent.trim() !== 'Search Site');
+    expect(searches.map((a) => a.getAttribute('href')), 'the three searches stay put')
+      .to.eql(['/tire-search/by-vehicle', '/tire-search', '/tire-search']);
+    expect(searches.map((a) => a.dataset.tireFinder), 'and they are marked')
+      .to.eql(['vehicle', 'tire-size', 'plate']);
+  });
+
   // loadFragment runs decorateMain over the footer fragment before footer.js
   // ever sees it, so decorateMain has to claim the triggers itself. Otherwise
   // the repoint runs first and moves two hrefs it was told to leave alone.
