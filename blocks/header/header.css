@@ -2,16 +2,29 @@
    continentaltire.com "header--dark" theme (yellow is the header's own
    background there, not just an accent). */
 
+/* the wrapper rides in the flow of the header, the way live's does, so the
+   header grows when the ribbon panel opens and main moves down with it. It is
+   positioned because the search and mega panels drop from its bottom edge. */
 header .nav-wrapper {
   background-color: var(--conti-yellow);
   width: 100%;
   z-index: 100;
-  position: fixed;
+  position: relative;
 }
 
-/* the rebate ribbon above the nav. Its row is the height the page reserved
-   for it, so the reservation and the render cannot drift apart. Live divides
-   the two yellow bands with a white hairline. */
+/* the open drawer is a viewport overlay instead: in the flow it would push
+   main down a screen, and it would scroll away with the header. The header
+   keeps its reserved height while the wrapper is out of the flow, so main
+   stays where it was. */
+header:has(nav[aria-expanded='true']) .nav-wrapper {
+  position: fixed;
+  top: 0;
+}
+
+/* the rebate ribbon above the nav. Its band is the height the page reserved
+   for it, so the reservation and the render cannot drift apart. The white
+   hairline that divides the two yellow bands is the last pixel of that band,
+   which leaves live's 36px row. */
 header .nav-wrapper .promo-bar-bar {
   box-sizing: border-box;
   height: var(--promo-bar-height);
@@ -50,9 +63,10 @@ header nav[aria-expanded='true'] {
 }
 
 @media (width >= 1025px) {
-  header .nav-wrapper {
-    position: sticky;
-    top: 0;
+  /* decorate() leaves the desktop nav at aria-expanded=true as its resting
+     state, so the drawer overlay has to be undone here */
+  header:has(nav[aria-expanded='true']) .nav-wrapper {
+    position: relative;
   }
 
   header nav {
@@ -523,11 +537,20 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
    is a false positive. */
 /* stylelint-disable no-descending-specificity */
 @media (width >= 1025px) {
+  /* the small flyouts hang off their own item, but the mega panel spans the
+     viewport, so its item stays out of the way and the panel measures itself
+     against the wrapper */
+  header nav .nav-sections .nav-mega {
+    position: static;
+  }
+
+  /* the panel hangs off the bottom of the wrapper rather than a fixed offset,
+     so it follows the header when the ribbon panel makes it taller */
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul {
     box-sizing: border-box;
-    position: fixed;
+    position: absolute;
     inset-inline: 0;
-    top: calc(var(--nav-height) + var(--promo-bar-height));
+    top: 100%;
     width: 100%;
     min-width: 0;
     max-width: none;

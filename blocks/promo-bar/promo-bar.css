@@ -27,18 +27,21 @@ main .section.promo-bar-container {
   text-align: center;
 }
 
+/* the row measures 36px the way live's does: a 22px line box between 7px of
+   padding, whatever the font does */
 .promo-bar-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 11px;
   margin: 0;
   border: 0;
   background: none;
-  padding: 10px 0;
+  padding: 7px 0;
   color: inherit;
   font-family: var(--body-font-family);
   font-size: 12px;
   font-weight: 700;
+  line-height: 22px;
   cursor: pointer;
 }
 
@@ -52,18 +55,33 @@ main .section.promo-bar-container {
   outline-offset: 2px;
 }
 
-.promo-bar-chevron {
+/* two hairlines crossing in an 11px box: a plus while the panel is closed,
+   a minus once the upright one is gone */
+.promo-bar-plus {
+  position: relative;
   flex: none;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid currentcolor;
-  border-bottom: 2px solid currentcolor;
-  transform: rotate(45deg);
+  width: 11px;
+  height: 11px;
+}
+
+.promo-bar-plus::before,
+.promo-bar-plus::after {
+  content: "";
+  position: absolute;
+  background-color: currentcolor;
+}
+
+.promo-bar-plus::before {
+  inset: 5px 0;
+}
+
+.promo-bar-plus::after {
+  inset: 0 5px;
   transition: transform 0.2s ease;
 }
 
-.promo-bar-toggle[aria-expanded="true"] .promo-bar-chevron {
-  transform: rotate(-135deg);
+.promo-bar-toggle[aria-expanded="true"] .promo-bar-plus::after {
+  transform: scaleY(0);
 }
 
 /* row 2: collapsible panel, animated via a 0fr/1fr grid track so the
