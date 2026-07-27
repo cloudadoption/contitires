@@ -467,12 +467,30 @@ describe('Header dropdown disclosures', () => {
     items(sections).forEach((item) => expect(item.hasAttribute('tabindex')).to.be.false);
   });
 
+  // the events the browser raises when it moves focus, raised here directly:
+  // a test page that does not hold the window's focus never gets the real ones
+  const focusIn = (el) => el.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+  const focusOut = (el, to) => el.dispatchEvent(
+    new FocusEvent('focusout', { bubbles: true, relatedTarget: to }),
+  );
+
   it('reports the panel open while focus is inside the item', () => {
     const sections = buildSections();
     wireNavDisclosures(sections, () => true);
     const [tires] = items(sections);
 
-    control(tires).focus();
+    focusIn(control(tires));
+    expect(control(tires).getAttribute('aria-expanded')).to.equal('true');
+  });
+
+  it('holds it open while focus moves into the panel', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => true);
+    const [tires] = items(sections);
+    const inPanel = tires.querySelector(':scope > ul a');
+
+    focusIn(control(tires));
+    focusOut(control(tires), inPanel);
     expect(control(tires).getAttribute('aria-expanded')).to.equal('true');
   });
 
@@ -481,8 +499,9 @@ describe('Header dropdown disclosures', () => {
     wireNavDisclosures(sections, () => true);
     const [tires, stores] = items(sections);
 
-    control(tires).focus();
-    control(stores).focus();
+    focusIn(control(tires));
+    focusOut(control(tires), control(stores));
+    focusIn(control(stores));
     expect(control(tires).getAttribute('aria-expanded')).to.equal('false');
     expect(control(stores).getAttribute('aria-expanded')).to.equal('true');
   });

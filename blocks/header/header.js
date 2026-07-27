@@ -3,8 +3,10 @@ import { loadFragment } from '../fragment/fragment.js';
 import { markFinderTriggers } from '../../scripts/tire-finder.js';
 
 // media query match that indicates desktop width. header.css switches the
-// nav layout at the same width, so the two must move together.
-export const DESKTOP_MEDIA_QUERY = '(min-width: 1200px)';
+// nav layout at the same width, so the two must move together. Live engages
+// its desktop nav here and compresses the bar to fit, which header.css does
+// between this width and 1200.
+export const DESKTOP_MEDIA_QUERY = '(min-width: 1025px)';
 const isDesktop = window.matchMedia(DESKTOP_MEDIA_QUERY);
 
 // the rebate ribbon above the nav, authored once and shown site-wide. Live
@@ -63,19 +65,38 @@ function closeOnFocusLost(e) {
   }
 }
 
-function openOnKeydown(e) {
-  const focused = document.activeElement;
-  const isNavDrop = focused.className === 'nav-drop';
-  if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
-    const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
-    // eslint-disable-next-line no-use-before-define
-    toggleAllNavSections(focused.closest('.nav-sections'));
-    focused.setAttribute('aria-expanded', dropExpanded ? 'false' : 'true');
-  }
-}
+/**
+ * Wires every dropdown as a disclosure whose control is the link the item
+ * already carries, the way live carries it. The browser gives that link its
+ * focus and activation, so no list item takes a tabindex and no keydown
+ * handler stands in for one.
+ * @param {Element} navSections The nav sections region
+ * @param {Function} [applies] Whether the flyout behavior is in force
+ * @returns {Element[]} the disclosure controls
+ */
+export function wireNavDisclosures(navSections, applies = () => isDesktop.matches) {
+  return [...navSections.querySelectorAll('.nav-drop')].map((item, i) => {
+    const panel = item.querySelector(':scope > ul');
+    const control = item.querySelector(':scope > p > a, :scope > p > button');
+    if (!panel || !control) return null;
 
-function focusNavSection() {
-  document.activeElement.addEventListener('keydown', openOnKeydown);
+    if (!panel.id) panel.id = `nav-drop-panel-${i}`;
+    control.setAttribute('aria-haspopup', 'true');
+    control.setAttribute('aria-controls', panel.id);
+    control.setAttribute('aria-expanded', 'false');
+
+    const report = (open) => {
+      if (!applies()) return;
+      control.setAttribute('aria-expanded', String(open));
+    };
+    item.addEventListener('pointerenter', () => report(true));
+    item.addEventListener('pointerleave', () => report(false));
+    item.addEventListener('focusin', () => report(true));
+    item.addEventListener('focusout', (e) => {
+      if (!item.contains(e.relatedTarget)) report(false);
+    });
+    return control;
+  }).filter(Boolean);
 }
 
 /**
@@ -117,8 +138,8 @@ async function loadPromoBar() {
  */
 function toggleAllNavSections(sections, expanded = false) {
   if (!sections) return;
-  sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
-    section.setAttribute('aria-expanded', expanded);
+  sections.querySelectorAll('.nav-drop > p > [aria-expanded]').forEach((control) => {
+    control.setAttribute('aria-expanded', expanded);
   });
 }
 
@@ -135,23 +156,6 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
   toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
   button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
-  // enable nav dropdown keyboard accessibility
-  if (navSections) {
-    const navDrops = navSections.querySelectorAll('.nav-drop');
-    if (isDesktop.matches) {
-      navDrops.forEach((drop) => {
-        if (!drop.hasAttribute('tabindex')) {
-          drop.setAttribute('tabindex', 0);
-          drop.addEventListener('focus', focusNavSection);
-        }
-      });
-    } else {
-      navDrops.forEach((drop) => {
-        drop.removeAttribute('tabindex');
-        drop.removeEventListener('focus', focusNavSection);
-      });
-    }
-  }
 
   // enable menu collapse on escape keypress
   if (!expanded || isDesktop.matches) {
@@ -323,14 +327,8 @@ export default async function decorate(block) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
       if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
       if (isMegaMenu(navSection)) navSection.classList.add('nav-mega');
-      navSection.addEventListener('click', () => {
-        if (isDesktop.matches) {
-          const expanded = navSection.getAttribute('aria-expanded') === 'true';
-          toggleAllNavSections(navSections);
-          navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-        }
-      });
     });
+    wireNavDisclosures(navSections);
   }
 
   // utility row (Chat now / Customer support) + search trigger, built from

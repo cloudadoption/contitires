@@ -49,7 +49,7 @@ header nav[aria-expanded='true'] {
   color: var(--conti-white);
 }
 
-@media (width >= 1200px) {
+@media (width >= 1025px) {
   header .nav-wrapper {
     position: sticky;
     top: 0;
@@ -156,7 +156,7 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
   transform: rotate(-45deg);
 }
 
-@media (width >= 1200px) {
+@media (width >= 1025px) {
   header nav .nav-hamburger {
     display: none;
     visibility: hidden;
@@ -172,7 +172,7 @@ header nav .nav-brand {
 }
 
 header nav .nav-brand img {
-  width: 130px;
+  width: 134px;
   height: auto;
 }
 
@@ -182,7 +182,7 @@ header nav[aria-expanded='true'] .nav-brand img {
   filter: invert(1);
 }
 
-@media (width >= 1200px) {
+@media (width >= 1025px) {
   header nav .nav-brand img {
     width: 150px;
   }
@@ -285,7 +285,7 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
  * their desktop layout regardless of that attribute. Labels stay
  * icon-only on desktop except for the Chat now pill.
  */
-@media (width >= 1200px) {
+@media (width >= 1025px) {
   header nav[aria-expanded='true'] .nav-tools {
     flex-direction: row;
     align-items: center;
@@ -308,34 +308,19 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
     display: none;
   }
 
-  header nav[aria-expanded='true'] .nav-tools-utility-item-pill .nav-tools-utility-label {
-    display: inline;
-  }
 
   /* on the yellow desktop bar the utility items sit in white pills with a
-     thin yellow border, like the live header: icon-only items (customer
-     support, search) are 30px circles, Chat now is a rounded pill carrying
-     its label with the icon after it. */
+     thin yellow border, like the live header. Every one of them is a 30px
+     circle while the bar is compressed; the Chat now pill takes its label
+     and its rounded shape back at 1170, where live gives them back. */
   header nav .nav-tools-utility-item,
-  header nav .nav-search-toggle {
-    background: var(--conti-white);
-    border: 1px solid var(--conti-yellow);
-    color: var(--conti-black);
-  }
-
-  header nav .nav-tools-utility-item:not(.nav-tools-utility-item-pill),
   header nav .nav-search-toggle {
     width: 30px;
     height: 30px;
     justify-content: center;
+    border: 1px solid var(--conti-yellow);
     border-radius: 50%;
-  }
-
-  header nav a.nav-tools-utility-item-pill {
-    height: 30px;
-    gap: 6px;
-    padding: 0 16px;
-    border-radius: 20px;
+    background: var(--conti-white);
     color: var(--conti-black);
   }
 
@@ -355,6 +340,21 @@ header nav[aria-expanded='true'] .nav-tools-utility-label {
     background: var(--conti-black);
     border-color: var(--conti-black);
     color: var(--conti-white);
+  }
+}
+
+/* live holds both utility items to 30px icons while the bar is compressed and
+   gives the Chat now pill its label back at 1170. */
+@media (width >= 1170px) {
+  header nav a.nav-tools-utility-item-pill {
+    width: auto;
+    gap: 6px;
+    padding: 0 16px;
+    border-radius: 20px;
+  }
+
+  header nav[aria-expanded='true'] .nav-tools-utility-item-pill .nav-tools-utility-label {
+    display: inline;
   }
 }
 
@@ -418,12 +418,26 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   letter-spacing: normal;
 }
 
-@media (width >= 1200px) {
+@media (width >= 1025px) {
   header nav .nav-sections {
     display: block;
     visibility: visible;
     white-space: nowrap;
     align-self: stretch;
+  }
+
+  /* live reaches its breakpoint by compressing the bar rather than
+     overflowing: the utility items above drop to icons, the padding narrows,
+     and the sections row wraps a label that no longer fits. Live runs an 88px
+     bar where that happens and a 72px one once it stops. */
+  @media (width < 1200px) {
+    header nav {
+      padding: 0 20px;
+    }
+
+    header nav .nav-sections {
+      white-space: normal;
+    }
   }
 
   header nav[aria-expanded='true'] .nav-sections {
@@ -484,7 +498,6 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
     cursor: pointer;
   }
 
-  header nav .nav-sections .nav-drop[aria-expanded='true'] > p,
   header nav .nav-sections .default-content-wrapper > ul > li:hover > p,
   header nav .nav-sections .default-content-wrapper > ul > li:hover > a,
   header nav .nav-sections .default-content-wrapper > ul > li:focus-within > p,
@@ -492,9 +505,11 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
     border-bottom-color: var(--conti-black);
   }
 
+  /* the item's own link reports whether its panel is open, so read the panel
+     from that rather than from :focus-within. Escape can then close a panel
+     the keyboard opened without moving focus out of the header. */
   header nav .nav-sections .nav-drop:hover > ul,
-  header nav .nav-sections .nav-drop:focus-within > ul,
-  header nav .nav-sections .nav-drop[aria-expanded='true'] > ul {
+  header nav .nav-sections .nav-drop:has(> p > [aria-expanded='true']) > ul {
     display: block;
   }
 }
@@ -507,7 +522,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
    not the deeper structural selectors, so the descending-specificity warning
    is a false positive. */
 /* stylelint-disable no-descending-specificity */
-@media (width >= 1200px) {
+@media (width >= 1025px) {
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul {
     box-sizing: border-box;
     position: fixed;
@@ -526,8 +541,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega:hover > ul,
-  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega:focus-within > ul,
-  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega[aria-expanded='true'] > ul {
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega:has(> p > [aria-expanded='true']) > ul {
     display: flex;
   }
 
@@ -687,7 +701,7 @@ header .nav-search-form button[type='submit']:hover {
   border-color: var(--conti-dark-yellow);
 }
 
-@media (width >= 1200px) {
+@media (width >= 1025px) {
   header .nav-search-panel {
     padding: 32px;
   }

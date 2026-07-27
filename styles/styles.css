@@ -54,8 +54,9 @@
   --heading-font-size-s: 20px;
   --heading-font-size-xs: 18px;
 
-  /* nav height */
-  --nav-height: 72px;
+  /* nav height. Live runs a 45px bar below its desktop breakpoint and a 72px
+     one above it, and the header reserves whichever applies. */
+  --nav-height: 45px;
 
   /* rebate ribbon above the nav, reserved before the header loads */
   --promo-bar-height: 40px;
@@ -75,6 +76,14 @@
     --heading-font-size-m: 26px;
     --heading-font-size-s: 22px;
     --heading-font-size-xs: 18px;
+  }
+}
+
+/* the desktop bar is the taller one, and header.js engages it at the same
+   width (DESKTOP_MEDIA_QUERY) */
+@media (width >= 1025px) {
+  :root {
+    --nav-height: 72px;
   }
 }
 
