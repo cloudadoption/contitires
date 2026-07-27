@@ -22,6 +22,7 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [Tire listing and category pages](#tire-listing-and-category-pages)
   - [Product pages and the products workbook](#product-pages-and-the-products-workbook)
   - [Learn hub and articles](#learn-hub-and-articles)
+  - [Video articles](#video-articles)
   - [Experience section](#experience-section)
   - [Simple content pages](#simple-content-pages)
   - [URL aliases](#url-aliases)
@@ -34,7 +35,6 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [PDP media gallery and fitment checker](#pdp-media-gallery-and-fitment-checker)
   - [Martech and third-party embeds](#martech-and-third-party-embeds)
   - [Forms with a backend](#forms-with-a-backend)
-  - [Video articles](#video-articles)
 - [Global caveats](#global-caveats)
 - [Working on this repo](#working-on-this-repo)
 - [Documentation](#documentation)
@@ -165,7 +165,22 @@ The largest content type, migrated completely: 214 articles as plain documents w
 - Code: [blocks/article-cards](blocks/article-cards/article-cards.js), [blocks/category-tabs](blocks/category-tabs/category-tabs.js), [blocks/banner](blocks/banner/banner.js), [styles/article.css](styles/article.css)
 - Author: [learn hub in DA](https://da.live/edit#/cloudadoption/contitires/learn), [an article in DA](https://da.live/edit#/cloudadoption/contitires/learn/seven-tips-storing-tires)
 
-Differs from live: about 43 articles are video pages that live renders client-side; they shipped as title, thumbnail, and blurb without a player (see [video articles](#video-articles)). Live paginates 10 per page server-side, the POC batches 12 behind a load-more button. The article share sidebar was left out; articles use a centered reading column instead. 3 articles have no category and appear only in unfiltered lists.
+Differs from live: live paginates 10 per page server-side, the POC batches 12 behind a load-more button. The article share sidebar was left out; articles use a centered reading column instead. 3 articles have no category and appear only in unfiltered lists.
+
+### Video articles
+
+63 learn articles carry a video, 75 videos in all. Live builds the player in the browser, so the migration took the page without it and they read as a title, a picture and a blurb. The id live builds from is in its server HTML, on the element that opens the player. Every one was read from there rather than guessed from a thumbnail filename. Thumbnail names carry the id on 39 of the 75.
+
+The id is authored into the page as a link, so it is content: with JavaScript off the block is a picture and a link to the video. The [video](blocks/video/video.js) block turns that into a poster with a play control and builds the iframe when it is clicked. Nothing is requested from YouTube until then, which is what live does. The player comes from the no-cookie host.
+
+60 posters were images DA already held. 15 were taken from live, the derivative each page names. Two of those replaced references the image migration had to leave on continentaltire.com, because live answers the social-image derivative with 404 but serves the poster.
+
+- Live: [an article](https://continentaltire.com/learn/art-racing-rain), [one that opens with the video](https://continentaltire.com/learn/tony-stewart-talks-tire-size)
+- POC: [the same article](https://main--contitires--cloudadoption.aem.live/learn/art-racing-rain), [the same one](https://main--contitires--cloudadoption.aem.live/learn/tony-stewart-talks-tire-size)
+- Code: [blocks/video](blocks/video/video.js), [styles/article.css](styles/article.css)
+- Author: [an article in DA](https://da.live/edit#/cloudadoption/contitires/learn/art-racing-rain)
+
+Differs from live: live opens the video in a modal over the page, ours plays in place. Live renders the player and the article stills at 747 wide against a 559 reading column; both sit at the reading measure here. One page, [/learn/continental-science-guy](https://main--contitires--cloudadoption.aem.live/learn/continental-science-guy), shows its five videos in a media gallery on live and is still a stub here (see [PDP media gallery](#pdp-media-gallery-and-fitment-checker)).
 
 ### Experience section
 
@@ -199,7 +214,7 @@ Differs from live: where a page was not migrated, the redirect lands on the near
 
 ### Images
 
-The migration copied the pages and left their images on continentaltire.com, so the site depended on the Drupal host staying up and licensable. The corpus is in DA now: 422 files under [/media](https://da.live/#/cloudadoption/contitires/media), each downloaded as live serves it and uploaded unchanged. Nothing was resized or re-encoded. The folders name the Drupal image style each reference used: `og_image`, `marquee`, `original` and the rest.
+The migration copied the pages and left their images on continentaltire.com, so the site depended on the Drupal host staying up and licensable. The corpus is in DA now: 480 files under [/media](https://da.live/#/cloudadoption/contitires/media), each downloaded as live serves it and uploaded unchanged. Nothing was resized or re-encoded. The folders name the Drupal image style each reference used: `og_image`, `marquee`, `original` and the rest.
 
 The pipeline pulls a DA image into the media bus when it previews the page, so pages deliver `./media_<hash>.<ext>` from this host as before. The hashes are unchanged, so the delivered bytes are the same.
 
@@ -210,7 +225,7 @@ Page metadata no longer names a social image. The pipeline derives `og:image` fr
 - Author: [media in DA](https://da.live/#/cloudadoption/contitires/media)
 - Code: [blocks/search/search.js](blocks/search/search.js) reads the index image
 
-Differs from live: three references stayed on continentaltire.com because live answers each with 404. Two are article thumbnails. Live shows the same broken image on both pages.
+Differs from live: one reference stayed on continentaltire.com, on an unpublished block sample, because live answers it with 404. Two others were on article pages and went when those pages got their players.
 
 ### Author tooling
 
@@ -234,7 +249,7 @@ Live PDPs embed Bazaarvoice reviews and Q&A. Deliberately excluded here. The EDS
 
 ### PDP media gallery and fitment checker
 
-Live PDPs have an image and video gallery with a modal viewer and a "does it fit my car" checker. The gallery is buildable as a plain block over authored images; the assets beyond the primary product shot were not statically reachable. The fitment checker has the same data problem as the finder's vehicle mode.
+Live PDPs have an image and video gallery with a modal viewer and a "does it fit my car" checker. One learn article, [/learn/continental-science-guy](https://main--contitires--cloudadoption.aem.live/learn/continental-science-guy), uses the same gallery for five videos and waits on the same block. The gallery is buildable as a plain block over authored images; the assets beyond the primary product shot were not statically reachable. The fitment checker has the same data problem as the finder's vehicle mode.
 
 ### Martech and third-party embeds
 
@@ -244,15 +259,11 @@ Live loads Google Tag Manager on every page, pushes ecommerce events on PDPs, sh
 
 The racer tire program page is a Drupal webform on live and a design shell here, because there is no backend to receive submissions. Options in EDS: a forms block posting to a sheet or endpoint, or an external form service embedded like the [HubSpot newsletter widget](widgets/hubspot/newsletter.html). Every other live form is an outbound redirect (Zendesk, Synchrony, the rebate portal) and is reproduced as an outbound link.
 
-### Video articles
-
-48 learn articles are video pages whose player live injects client-side; the server HTML has no video URL. They shipped as stubs (title, thumbnail, blurb). The thumbnail filenames look like YouTube IDs, so a browser-driven pass could recover the videos and a small embed block would complete the pages.
-
 ## Global caveats
 
 - Fonts are hotlinked from the live site. A production build licenses and self-hosts them.
 - Links into unbuilt territory land on the nearest page that exists, through the [redirects sheet](#url-aliases). Two dead links remain, both on `/customer-support/technical-documents`, and live answers both targets with "Access denied".
-- Images live in DA and are served from this host. Three references stayed on continentaltire.com because live answers each with 404 (see [Images](#images)).
+- Images live in DA and are served from this host. One reference stayed on continentaltire.com because live answers it with 404 (see [Images](#images)).
 - Both `.aem.page` and `.aem.live` send `x-robots-tag: noindex` until a production domain exists. Right for a demo, and it caps Lighthouse SEO crawlability scores on these hosts.
 - The remaining parity, code, and authoring findings from the 2026-07-26 audit are tracked as issues #75 to #127.
 - Article ordering rests on scraped editorial order, not real publish dates; live does not expose any. The same holds for the tire listing, where the order is scraped per category.

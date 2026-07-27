@@ -82,6 +82,39 @@ body.article main .section picture img {
   object-fit: cover;
 }
 
+/* The player's box before its block decorates. This sheet is in effect before
+   the page is revealed, and the block loads after it, so without this the
+   article shifts when the link paragraph gives way to the frame. The link is
+   over the poster until then, which is what a reader without JavaScript gets.
+
+   A still above takes the 2:1 crop set higher up. A poster is the frame of a
+   video, so it keeps the video's ratio, and it holds that ratio from the first
+   paint rather than changing to it when the block arrives. */
+body.article main .video picture {
+  margin: 0;
+  border-radius: 0;
+}
+
+body.article main .video picture img {
+  aspect-ratio: 16 / 9;
+}
+
+body.article main .video > div > div:has(picture) {
+  position: relative;
+}
+
+body.article main .video > div > div:has(picture) > p:last-child {
+  position: absolute;
+  inset: auto 0 0;
+  margin: 0;
+  padding: 8px 12px;
+  background-color: rgb(0 0 0 / 55%);
+}
+
+body.article main .video > div > div:has(picture) > p:last-child a {
+  color: var(--clr-white, #fff);
+}
+
 /* ---- the sidebar: sharebar, then the related articles an editor picked ---- */
 
 /* the body section is the one the share block was built into */
@@ -137,18 +170,28 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
 }
 
 @media (width >= 769px) {
-  /* the body spans every row, so the rows are explicit: left implicit, the
-     first one stretches to the body height and drops the related list past
-     the end of it */
+  /* A block in the middle of an article splits the body into more than one
+     wrapper, so the reading column takes every wrapper the sidebar does not,
+     in the order they were authored. The sidebar keeps its two rows. */
   body.article main .section:has(.share-wrapper) {
     max-width: 1100px;
-    grid-template: auto auto 1fr / 755px 300px;
+    grid-template-columns: 755px 300px;
+    grid-auto-rows: auto;
     gap: 45px;
   }
 
-  body.article main .section:has(.share-wrapper) .default-content-wrapper {
+  body.article main .section:has(.share-wrapper) > * {
     grid-column: 1;
-    grid-row: 1 / -1;
+  }
+
+  body.article main .section:has(.share-wrapper) .default-content-wrapper {
+    max-width: 559px;
+    margin-inline: auto;
+  }
+
+  /* the player takes the reading measure, so it lines up with the stills and
+     the text around it rather than standing wider than both */
+  body.article main .section:has(.share-wrapper) .video {
     max-width: 559px;
     margin-inline: auto;
   }

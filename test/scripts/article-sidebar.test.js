@@ -109,13 +109,15 @@ describe('Article layout', () => {
 
   it('holds the reading column to live\'s measure inside its own column', () => {
     expect(value(`${BODY} .default-content-wrapper`, 'max-width', '769px')).to.equal('559px');
-    expect(value(`${BODY} .default-content-wrapper`, 'grid-column', '769px')).to.equal('1');
+    expect(value(`${BODY} > *`, 'grid-column', '769px')).to.equal('1');
   });
 
-  // the body spans every row, so without explicit rows the first one stretches
-  // to the body's full height and the related list lands past the end of it
-  it('holds the sidebar to the top of the body column', () => {
-    expect(value(BODY, 'grid-template-rows', '769px')).to.equal('auto auto 1fr');
+  // a block authored inside the article splits the body into several wrappers,
+  // so the reading column takes each of them in turn rather than the first one
+  it('gives the reading column every wrapper the sidebar does not', () => {
+    expect(value(`${BODY} > *`, 'grid-column', '769px')).to.equal('1');
+    expect(value(BODY, 'grid-auto-rows', '769px')).to.equal('auto');
+    expect(value(BODY, 'grid-template-rows', '769px')).to.equal(null);
   });
 
   it('stacks the sharebar over the related list in the sidebar', () => {
