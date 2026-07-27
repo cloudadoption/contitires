@@ -335,9 +335,11 @@ main .section.dark.cards-container {
   text-align: center;
 }
 
+/* the badge arrives as an icon span, filled in after the page paints, so its
+   box is reserved at both sizes rather than left to the image */
 main .section.dark.cards-container .default-content-wrapper .icon {
   width: 60px;
-  height: auto;
+  height: 70px;
 }
 
 main .section.dark.cards-container .default-content-wrapper h2 {
