@@ -15,6 +15,7 @@ This is a technical demo, not Continental's site. All content, images, product d
 - [What carried over](#what-carried-over)
   - [Design system](#design-system)
   - [Header and mega-menu](#header-and-mega-menu)
+  - [Site search](#site-search)
   - [Footer](#footer)
   - [Homepage](#homepage)
   - [Tire finder](#tire-finder)
@@ -26,7 +27,6 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [Author tooling](#author-tooling)
 - [What did not carry over, and how it would](#what-did-not-carry-over-and-how-it-would)
   - [Store finder](#store-finder)
-  - [Site search](#site-search)
   - [Vehicle and plate lookup in the tire finder](#vehicle-and-plate-lookup-in-the-tire-finder)
   - [Bazaarvoice reviews](#bazaarvoice-reviews)
   - [PDP media gallery and fitment checker](#pdp-media-gallery-and-fitment-checker)
@@ -43,7 +43,7 @@ The live site's sitemap lists 319 URLs. The POC publishes 329 pages: 214 learn a
 
 The build started with three deliberately simple pages (newsletter signup, online retailers, customer support), then grew into a full 1:1 migration. Day 1: extract the live theme CSS and rebuild the design system, build header, footer, hero, cards, and the article template, rebuild the homepage, then bulk-migrate all 214 learn articles with a scripted extractor (curl + BeautifulSoup against the server-rendered Drupal pages, pushed through the DA admin API, zero failures). Day 2: unit-test harness and CI, a query index for the learn section, the learn hub and category pages, a 13-product catalog with generated product pages, an author-facing block library, and two rounds of visual-fidelity fixes driven by screenshot and computed-style comparison against live (34 issues, 40 merged PRs total). Day 3: the tire listing behind `/tires`, its 11 category pages, and the 33 product pages they link to.
 
-Lighthouse on the homepage: performance 99-100, accessibility 94-96, best practices 100. The repo has 18 blocks (11 built for this site) and 11 unit-test files.
+Lighthouse on the homepage: performance 99-100, accessibility 94-96, best practices 100. The repo has 19 blocks (12 built for this site) and 14 unit-test files.
 
 ## How the site is put together
 
@@ -80,7 +80,18 @@ Differs from live: a full audit on 2026-07-26 (27 pages, three widths, screensho
 - Code: [blocks/header/header.js](blocks/header/header.js), [blocks/header/header.css](blocks/header/header.css)
 - Author: [nav in DA](https://da.live/edit#/cloudadoption/contitires/nav)
 
-Differs from live: the search field submits to `/search`, which has no results page (see [site search](#site-search), #107). The three finder entries in the Tires panel are dead links; on live they trigger JS. A few menu targets point at pages the POC does not have, mostly `/Store-finder`; others rely on live's redirect aliases (#103). The desktop nav overflows the viewport between 900px and about 1120px (#75), the open mega panel is wider than the viewport (#76), and dropdown keyboard state is broken (#106).
+Differs from live: the three finder entries in the Tires panel are dead links; on live they trigger JS. A few menu targets point at pages the POC does not have, mostly `/Store-finder`; others rely on live's redirect aliases (#103). The desktop nav overflows the viewport between 900px and about 1120px (#75), the open mega panel is wider than the viewport (#76), and dropdown keyboard state is broken (#106).
+
+### Site search
+
+Live runs Drupal Search API over Solr. The POC searches in the browser, over a site-wide query index. The index holds each page's title, description and body text, capped at 500 words a page: 172.5 KB gzip for 320 pages. [blocks/search](blocks/search/search.js) reads `?keywords=` and `&page=`, scores the rows with [scripts/search.js](scripts/search.js), and renders ten results a page with live's markup, paging and copy. Scoring weights a title hit above a description hit above a body hit, folds plurals, and requires every query term. The block builds each excerpt from the body around the matches, and fetches the index on the load event, after the page has painted.
+
+- Live: [/search?keywords=warranty](https://continentaltire.com/search?keywords=warranty)
+- POC: [/search?keywords=warranty](https://main--contitires--cloudadoption.aem.live/search?keywords=warranty)
+- Code: [blocks/search/search.js](blocks/search/search.js), [scripts/search.js](scripts/search.js)
+- Author: [search in DA](https://da.live/edit#/cloudadoption/contitires/search)
+
+Differs from live: the ranking is ours. Solr's relevance scores and index exclusions cannot be read from outside, so the scorer was tuned against live's own page-1 results for six queries. 30 of live's 50 page-1 results sit in our top ten, and totals differ (live returns 35 for "winter tires", we return 44). Live keeps `/warranty` and `/legal` out of its results and we rank them first for "warranty". Live returns nothing for a two-letter query and we return results. There is no sort-by-date control, because the index has no date. Results need JavaScript; live renders them on the server.
 
 ### Footer
 
@@ -187,10 +198,6 @@ The pattern in every entry: the UI part is an ordinary block, the hard part is d
 
 Live: [/Store-finder](https://continentaltire.com/Store-finder), store search with map and list. The POC's [store-locator block](blocks/store-locator/store-locator.js) is a static mock by design: disabled input, one hardcoded example store. There is no public store database to scrape. A real version needs the dealer list (a DA sheet works for a static set), a geocoding service, and a lazily loaded map library; the block then queries the data client-side. Live's own map provider is not visible in its static HTML.
 
-### Site search
-
-Live: keyword search in the header posting to `/search`. The POC has the search UI but no results page, so the form 404s. The EDS answer is a site-wide query index (today only `/learn` is indexed) plus a `/search` page whose block filters the index by the query parameter, client-side. See the [indexing docs](https://www.aem.live/developer/indexing).
-
 ### Vehicle and plate lookup in the tire finder
 
 Live resolves vehicles and license plates against a fitment database. Its finder API sends no CORS header, so a browser cannot call it, and there is no public alternative. The modal UI is done; wiring By Vehicle to a licensed fitment API (or a small same-origin proxy in front of one) and By Plate to a registration lookup replaces the curated demo data without touching the block's structure.
@@ -218,7 +225,7 @@ The racer tire program page is a Drupal webform on live and a design shell here,
 ## Global caveats
 
 - Fonts are hotlinked from the live site. A production build licenses and self-hosts them.
-- Links into unbuilt territory 404: `/Store-finder`, `/tire-search`, `/search`, and a few nav paths with mismatched slugs.
+- Links into unbuilt territory 404: `/Store-finder`, `/tire-search`, and a few nav paths with mismatched slugs.
 - Images are hotlinked from continentaltire.com across the content, not only social previews; media has not been migrated into DA (#119).
 - Both `.aem.page` and `.aem.live` send `x-robots-tag: noindex` until a production domain exists. Right for a demo, and it caps Lighthouse SEO crawlability scores on these hosts.
 - The remaining parity, code, and authoring findings from the 2026-07-26 audit are tracked as issues #75 to #127.
