@@ -242,4 +242,8 @@ main .section.hero-container {
     padding: 96px 32px;
     text-align: left;
   }
+
+  .hero.stacked .hero-content h1 {
+    font-size: 42px;
+  }
 }
