@@ -458,6 +458,17 @@ describe('perfect-fit modal, opened without a block', () => {
     expect(overlay.closest('main .section')).to.exist;
   });
 
+  // `main > .section > div` caps a section's first level at the content width
+  // and pads it, which boxed the overlay at 1264 of 1440 and let the page show
+  // down both sides
+  it('keeps the overlay clear of the section content width', async () => {
+    await openTireFinder('vehicle');
+    const overlay = document.querySelector('.perfect-fit-overlay');
+    expect(overlay.parentElement.classList.contains('section')).to.be.false;
+    expect(overlay.closest('.section').firstElementChild)
+      .to.not.equal(overlay);
+  });
+
   it('builds one modal however often it is opened', async () => {
     await openTireFinder('vehicle');
     await openTireFinder('tire-size');
