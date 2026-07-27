@@ -2,22 +2,34 @@
   border-top: 1px solid var(--conti-grey);
   border-bottom: 1px solid var(--conti-grey);
   padding: 8px;
+
+  /* the block is empty until its own JS runs. Without a reserved row the page
+     below it jumps. 24px is the settled height of the control row. */
+  min-height: 24px;
 }
 
 .share ul {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 20px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* live groups the two social icons at the left of the row and the two controls
+   that act on this page at the right */
+.share li:nth-child(2) {
+  margin-inline-end: auto;
+}
+
+/* 24px is the smallest touch target Lighthouse accepts; the icon is 20px */
 .share a {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 24px;
+  min-height: 24px;
   color: var(--conti-black);
 }
 
@@ -51,7 +63,7 @@
 }
 
 @media (width >= 600px) {
-  .share .share-label {
+  .share .share-label:not(.share-label-hidden) {
     position: static;
     overflow: visible;
     clip-path: none;
@@ -61,4 +73,37 @@
     font-size: 13px;
     white-space: nowrap;
   }
+}
+
+/* the print control acts on this page, so it is a button; it reads as the
+   share links beside it */
+.share button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 24px;
+  min-height: 24px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--conti-black);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.share button:hover,
+.share button:focus-visible {
+  color: var(--link-hover-color);
+}
+
+.share button .icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.share button .icon img {
+  width: 100%;
+  height: 100%;
 }

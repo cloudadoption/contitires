@@ -134,3 +134,112 @@ describe('selectRows', () => {
     expect(out[5].lastModified).to.equal('50');
   });
 });
+
+// The learn hub bands are editorially distinct on live. Tire Tips and
+// Technology put a square category image beside a text-only teaser list under
+// a gold rule; News runs three text-only teasers in columns. The block renders
+// the same card grid for all three today.
+describe('Article cards, learn hub band variants', () => {
+  let fetchStub;
+  afterEach(() => fetchStub?.restore());
+
+  /** The band as an author writes it: image, heading, subtitle, block, link. */
+  function buildBand(variant, limit = 2) {
+    document.body.innerHTML = `
+      <div class="section article-cards-container">
+        <div class="default-content-wrapper">
+          <picture><img src="/learn/tips.png" alt=""></picture>
+          <h2 id="tire-tips">Tire Tips</h2>
+          <p>Get the most performance out of your Continental tires.</p>
+        </div>
+        <div class="article-cards-wrapper">
+          <div class="article-cards ${variant} block"><div><div>${limit}</div></div></div>
+        </div>
+        <div class="default-content-wrapper">
+          <p class="button-container"><a href="/learn/tips" class="button">All Tire Tips</a></p>
+        </div>
+      </div>`;
+    return document.querySelector('.article-cards.block');
+  }
+
+  it('feature: renders teasers with no thumbnail', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(5))));
+    const block = buildBand('feature');
+    await decorate(block);
+
+    const teasers = block.querySelectorAll('.article-teaser');
+    expect(teasers).to.have.length(2);
+    expect(block.querySelector('.article-card-image')).to.not.exist;
+    expect(block.querySelector('picture img').getAttribute('src')).to.equal('/learn/tips.png');
+    expect(teasers[0].querySelector('h3').textContent).to.equal('Article 4');
+    expect(teasers[0].querySelector('p').textContent).to.equal('Description 4.');
+    expect(teasers[0].getAttribute('href')).to.equal('/learn/article-4');
+  });
+
+  it('feature: moves the category image into its own media column', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(5))));
+    const block = buildBand('feature');
+    await decorate(block);
+
+    const media = block.querySelector('.article-cards-media');
+    expect(media).to.exist;
+    expect(media.querySelector('picture')).to.exist;
+    // the media column leads the band, so the image is the first grid item
+    expect(block.firstElementChild).to.equal(media);
+  });
+
+  it('feature: pairs the heading and subtitle so they can overlay the image', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(5))));
+    const block = buildBand('feature');
+    await decorate(block);
+
+    const intro = block.querySelector('.article-cards-intro');
+    expect(intro).to.exist;
+    expect(intro.querySelector('h2').textContent).to.equal('Tire Tips');
+    expect(intro.querySelector('p').textContent).to.contain('Get the most performance');
+  });
+
+  it('feature: closes the band with the all-articles link', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(5))));
+    const block = buildBand('feature');
+    await decorate(block);
+
+    const link = block.lastElementChild;
+    expect(link.querySelector('a').getAttribute('href')).to.equal('/learn/tips');
+    // nothing is left stranded in the section's own wrappers
+    expect(document.querySelectorAll('.section > .default-content-wrapper')).to.have.length(0);
+  });
+
+  it('feature: survives a band authored without a category image', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(5))));
+    const block = buildBand('feature');
+    block.closest('.section').querySelector('picture').remove();
+    await decorate(block);
+
+    expect(block.querySelectorAll('.article-teaser')).to.have.length(2);
+    expect(block.querySelector('.article-cards-intro h2').textContent).to.equal('Tire Tips');
+  });
+
+  it('columns: renders text-only teasers and leaves the band chrome alone', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(5))));
+    const block = buildBand('columns', 3);
+    await decorate(block);
+
+    expect(block.querySelectorAll('.article-teaser')).to.have.length(3);
+    expect(block.querySelector('.article-card-image')).to.not.exist;
+    // News has no category image on live, so the columns band keeps the plain
+    // section layout rather than building a media column
+    expect(block.querySelector('.article-cards-media')).to.not.exist;
+    expect(block.querySelector('.article-cards-intro')).to.not.exist;
+  });
+
+  it('leaves the plain card grid on the category listing pages', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(3))));
+    const block = buildBlock();
+    await decorate(block);
+
+    expect(block.querySelectorAll('.article-card')).to.have.length(3);
+    expect(block.querySelector('.article-card-image picture img')).to.exist;
+    expect(block.querySelector('.article-teaser')).to.not.exist;
+  });
+});

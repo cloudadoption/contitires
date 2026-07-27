@@ -7,9 +7,9 @@
  * decorateTemplateAndTheme() (scripts/aem.js) turns into an "article" class
  * on <body>; scripts.js then loads this stylesheet.
  *
- * The live layout puts a share sidebar to the right of the body. That
- * feature is not built here, so the reading column is centered rather than
- * leaving an empty sidebar gap.
+ * From 769 the body sits in a 755px column beside a 300px sidebar holding the
+ * sharebar and, where an editor picked some, a related-articles list. Below
+ * that the sidebar follows the body.
  */
 
 body.article main .section {
@@ -80,4 +80,86 @@ body.article main .section picture img {
   width: 100%;
   aspect-ratio: 2 / 1;
   object-fit: cover;
+}
+
+/* ---- the sidebar: sharebar, then the related articles an editor picked ---- */
+
+/* the body section is the one the share block was built into */
+body.article main .section:has(.share-wrapper) {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 32px;
+}
+
+body.article main .section:has(.share-wrapper) .share {
+  border-bottom: 0;
+  padding: 8px 0 0;
+}
+
+body.article main .section:has(.share-wrapper) .related-articles-title {
+  margin: 0 0 12px;
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  color: var(--conti-black);
+}
+
+body.article main .section:has(.share-wrapper) .related-articles-list {
+  margin: 0;
+  padding-inline-start: 16px;
+}
+
+body.article main .section:has(.share-wrapper) .related-articles-list li {
+  list-style-type: disc;
+}
+
+body.article main .section:has(.share-wrapper) .related-articles-list li::marker {
+  color: var(--conti-yellow);
+}
+
+body.article main .section:has(.share-wrapper) .related-articles-list li + li {
+  margin-top: 12px;
+}
+
+body.article main .section:has(.share-wrapper) .related-articles-list a {
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--conti-black);
+  text-decoration: none;
+}
+
+body.article main .section:has(.share-wrapper) .related-articles-list a:hover,
+body.article main .section:has(.share-wrapper) .related-articles-list a:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--conti-yellow);
+}
+
+@media (width >= 769px) {
+  /* the body spans every row, so the rows are explicit: left implicit, the
+     first one stretches to the body height and drops the related list past
+     the end of it */
+  body.article main .section:has(.share-wrapper) {
+    max-width: 1100px;
+    grid-template: auto auto 1fr / 755px 300px;
+    gap: 45px;
+  }
+
+  body.article main .section:has(.share-wrapper) .default-content-wrapper {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    max-width: 559px;
+    margin-inline: auto;
+  }
+
+  body.article main .section:has(.share-wrapper) .share-wrapper {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  body.article main .section:has(.share-wrapper) .related-articles-wrapper {
+    grid-column: 2;
+    grid-row: 2;
+  }
 }

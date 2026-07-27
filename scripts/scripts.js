@@ -110,6 +110,29 @@ function decorateNestedBlocks(main) {
 }
 
 /**
+ * Puts a share block in an article's body section. Live carries the sharebar
+ * on every article, and it needs no author input, so it is built rather than
+ * authored on each of the 200-odd pages. Any authored related-articles block
+ * already sits in that section, and the two make up the sidebar.
+ * @param {Element} main The container element
+ */
+function buildArticleSidebar(main) {
+  if (!document.body.classList.contains('article')) return;
+  // fragment.js decorates each fragment it loads with this same function, and
+  // the header loads the nav that way. Only the page's own main gets a sidebar.
+  if (main !== document.querySelector('main')) return;
+  if (main.querySelector('.share')) return;
+
+  // the first section is the title; the body is the one that follows it
+  const body = [...main.children].find((section, i) => i > 0 && !section.querySelector('.metadata'));
+  if (!body) return;
+
+  const share = document.createElement('div');
+  share.className = 'share';
+  body.append(share);
+}
+
+/**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
@@ -134,6 +157,7 @@ function buildAutoBlocks(main) {
     }
     buildWidgetAutoBlocks(main);
     buildFinderCardAutoBlocks(main);
+    buildArticleSidebar(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -194,21 +218,40 @@ export function decorateMain(main) {
 }
 
 /**
+ * Loads the stylesheet this page's template needs. Returns a promise that
+ * settles once the stylesheet is in effect, so the reveal can wait on it.
+ * @returns {Promise} resolves when the template's styles are loaded
+ */
+export function loadTemplateStyles() {
+  if (!document.body.classList.contains('article')) return Promise.resolve();
+  return loadCSS(`${window.hlx.codeBasePath}/styles/article.css`);
+}
+
+/**
+ * Reveals the page, once the template's stylesheet is in effect. The stylesheet
+ * sets an article's whole layout, so revealing first paints it at the default
+ * page width and then reflows it.
+ * @param {Promise} templateStyles the template's stylesheet
+ */
+export async function revealPage(templateStyles) {
+  await templateStyles;
+  document.body.classList.add('appear');
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
-  // load template-specific styles (e.g. the article/news layout)
-  if (document.body.classList.contains('article')) {
-    loadCSS(`${window.hlx.codeBasePath}/styles/article.css`);
-  }
+  // start the template's stylesheet now, so it downloads alongside decoration
+  const templateStyles = loadTemplateStyles();
   if (isBlockPreview) document.body.classList.add('block-preview');
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
-    document.body.classList.add('appear');
+    await revealPage(templateStyles);
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
 
