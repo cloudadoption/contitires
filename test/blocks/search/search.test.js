@@ -161,11 +161,11 @@ describe('Search block: results', () => {
 
     const first = block.querySelector('.search-results > li > article.search-result');
     expect(first, 'article.search-result inside a list item').to.exist;
-    const link = first.querySelector('h2.search-result__title a');
+    const link = first.querySelector('h2.search-result-title a');
     expect(link.getAttribute('href')).to.equal('/learn/article-0');
     expect(link.textContent).to.equal('Article 0 about tires');
-    expect(first.querySelector('.search-result__image picture img')).to.exist;
-    expect(first.querySelector('.search-result__excerpt strong').textContent).to.equal('tires');
+    expect(first.querySelector('.search-result-image picture img')).to.exist;
+    expect(first.querySelector('.search-result-excerpt strong').textContent).to.equal('tires');
   });
 
   it('shows ten results a page and pages the rest, as live does', async () => {
@@ -195,6 +195,26 @@ describe('Search block: results', () => {
     expect(block.querySelector('.search-pager-nav a[rel="prev"]').getAttribute('href'))
       .to.equal('?keywords=tires&page=1');
     expect(block.querySelector('.search-pager-nav a[rel="next"]'), 'no next on the last page').to.not.exist;
+  });
+
+  it('shows nine numbered pages at a time, centred on the current one', async () => {
+    // live pages 215 results as 22 pages and never renders more than nine numbers:
+    // page 1 shows 1-9, page 13 shows 9-17, and the last page shows 14-22
+    const { block } = await decorateWith('?keywords=tires&page=12', indexResponse(215));
+    await waitFor(() => block.querySelector('.search-result'), 'results');
+    const numbers = [...block.querySelectorAll('.search-pager-page')]
+      .map((p) => p.textContent.replace('Current page', '').trim());
+    expect(numbers).to.deep.equal(['9', '10', '11', '12', '13', '14', '15', '16', '17']);
+    expect(block.querySelector('.search-pager-nav a[rel="prev"]').textContent).to.equal('Prev');
+    expect(block.querySelector('.search-pager-nav a[rel="next"]').textContent).to.equal('Next');
+  });
+
+  it('clamps the numbered pages at the first and the last', async () => {
+    const { block } = await decorateWith('?keywords=tires&page=21', indexResponse(215));
+    await waitFor(() => block.querySelector('.search-result'), 'results');
+    const numbers = [...block.querySelectorAll('.search-pager-page')]
+      .map((p) => p.textContent.replace('Current page', '').trim());
+    expect(numbers).to.deep.equal(['14', '15', '16', '17', '18', '19', '20', '21', '22']);
   });
 
   it('drops the pager when everything fits on one page', async () => {
@@ -229,7 +249,7 @@ describe('Search block: results', () => {
     const hidden = row(99, { path: '/search', title: 'Main search | Continental Tire', robots: 'noindex, nofollow' });
     const { block } = await decorateWith('?keywords=tires', indexResponse(2, [hidden]));
     await waitFor(() => block.querySelector('.search-result'), 'results');
-    const paths = [...block.querySelectorAll('.search-result__title a')].map((a) => a.getAttribute('href'));
+    const paths = [...block.querySelectorAll('.search-result-title a')].map((a) => a.getAttribute('href'));
     expect(paths).to.not.contain('/search');
     expect(paths).to.have.length(2);
   });
@@ -239,7 +259,7 @@ describe('Search block: results', () => {
     const { block } = await decorateWith('?keywords=tires', indexResponse(0, [nasty]));
     await waitFor(() => block.querySelector('.search-result'), 'results');
     expect(block.querySelector('script'), 'no script element').to.not.exist;
-    expect(block.querySelector('.search-result__excerpt').textContent).to.contain('<script>');
+    expect(block.querySelector('.search-result-excerpt').textContent).to.contain('<script>');
   });
 
   it('falls back to the description when the body holds no term', async () => {
@@ -250,17 +270,17 @@ describe('Search block: results', () => {
     });
     const { block } = await decorateWith('?keywords=dealer', indexResponse(0, [titleOnly]));
     await waitFor(() => block.querySelector('.search-result'), 'results');
-    const text = block.querySelector('.search-result__excerpt').textContent;
+    const text = block.querySelector('.search-result-excerpt').textContent;
     expect(text).to.contain('dealer');
-    expect(block.querySelector('.search-result__excerpt strong').textContent).to.equal('dealer');
+    expect(block.querySelector('.search-result-excerpt strong').textContent).to.equal('dealer');
   });
 
   it('leaves out the image when a row has none', async () => {
     const noImage = row(9, { image: '' });
     const { block } = await decorateWith('?keywords=tires', indexResponse(0, [noImage]));
     await waitFor(() => block.querySelector('.search-result'), 'results');
-    expect(block.querySelector('.search-result__image')).to.not.exist;
-    expect(block.querySelector('.search-result__title a')).to.exist;
+    expect(block.querySelector('.search-result-image')).to.not.exist;
+    expect(block.querySelector('.search-result-title a')).to.exist;
   });
 });
 
