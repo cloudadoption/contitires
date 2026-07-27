@@ -28,6 +28,9 @@ describe('Confidence band, live\'s responsive layout', () => {
   }
 
   const BAND = 'main .section.dark.cards-container .default-content-wrapper';
+  // the news band is a dark cards section too, so the heading sizes name the
+  // coverage cards to keep it out
+  const HEADING = 'main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2';
 
   it('stacks the coverage items one per row on a narrow screen', () => {
     expect(value('.cards.coverage > ul', 'grid-template-columns')).to.equal('1fr');
@@ -50,8 +53,8 @@ describe('Confidence band, live\'s responsive layout', () => {
   });
 
   it('holds the heading to live\'s 30px below the 1025 breakpoint', () => {
-    expect(value(`${BAND} h2`, 'font-size')).to.equal('30px');
-    expect(value(`${BAND} h2`, 'font-size', '1025px')).to.equal('42px');
+    expect(value(HEADING, 'font-size')).to.equal('30px');
+    expect(value(HEADING, 'font-size', '1025px')).to.equal('42px');
   });
 
   it('holds the copy to live\'s 18px on a narrow screen', () => {
