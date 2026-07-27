@@ -19,6 +19,7 @@ describe('Learn hub band treatments', () => {
     };
     sheets.cards = await load('/blocks/article-cards/article-cards.css');
     sheets.highlights = await load('/blocks/cards/cards.css');
+    sheets.global = await load('/styles/styles.css');
   });
 
   /**
@@ -139,6 +140,27 @@ describe('Learn hub band treatments', () => {
       expect(cards(`${BAND} h2`, 'text-transform')).to.equal('uppercase');
       expect(cards(`${BAND} h2`, 'letter-spacing')).to.equal('6px');
       expect(cards(`${BAND} h2`, 'font-weight')).to.equal('300');
+    });
+
+    // the tile is a white card sitting on a black band. The band paints its
+    // headings and links white, so the tile read white on white.
+    it('keeps the tile text dark on its white card', () => {
+      const sel = 'main .section.cards-container .cards.highlights .cards-card-body';
+      expect(cards(`${sel} :is(h1, h2, h3, h4, h5, h6)`, 'color')).to.equal('var(--conti-black)');
+      expect(cards(`${sel} a:any-link`, 'color')).to.equal('var(--conti-black)');
+    });
+  });
+
+  describe('buttons on a dark band', () => {
+    const global = (sel, prop, media) => value(sheets.global, sel, prop, media);
+
+    // an "All Tire Tips" link authored in italics becomes a secondary button:
+    // transparent, with dark text and a dark border. On a black band that is
+    // invisible. The dark-section rules skip .button, so nothing inverted it.
+    it('inverts a secondary button so it reads on the band', () => {
+      expect(global('main .section.dark .button.secondary', 'color')).to.equal('var(--conti-white)');
+      expect(global('main .section.black .button.secondary', 'color')).to.equal('var(--conti-white)');
+      expect(global('main .section.dark .button.secondary', 'border-color')).to.equal('var(--conti-white)');
     });
   });
 });
