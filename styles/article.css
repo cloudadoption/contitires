@@ -163,7 +163,7 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
   body.article main .section:has(.share-wrapper) {
     max-width: 1100px;
     grid-template-columns: 755px 300px;
-    grid-auto-rows: min-content;
+    grid-auto-rows: auto;
     gap: 45px;
   }
 

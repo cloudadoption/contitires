@@ -116,7 +116,7 @@ describe('Article layout', () => {
   // so the reading column takes each of them in turn rather than the first one
   it('gives the reading column every wrapper the sidebar does not', () => {
     expect(value(`${BODY} > *`, 'grid-column', '769px')).to.equal('1');
-    expect(value(BODY, 'grid-auto-rows', '769px')).to.equal('min-content');
+    expect(value(BODY, 'grid-auto-rows', '769px')).to.equal('auto');
     expect(value(BODY, 'grid-template-rows', '769px')).to.equal(null);
   });
 
