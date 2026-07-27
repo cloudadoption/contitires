@@ -76,10 +76,12 @@ body.article main .section picture {
   overflow: hidden;
 }
 
+/* the image keeps the ratio it was uploaded at. A forced ratio moves the page,
+   because this stylesheet loads after first paint and the browser has already
+   sized the image from its width and height attributes. */
 body.article main .section picture img {
   width: 100%;
-  aspect-ratio: 2 / 1;
-  object-fit: cover;
+  height: auto;
 }
 
 /* ---- the sidebar: sharebar, then the related articles an editor picked ---- */
