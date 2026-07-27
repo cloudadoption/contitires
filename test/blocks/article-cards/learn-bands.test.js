@@ -144,13 +144,22 @@ describe('Learn hub band treatments', () => {
       expect(cards(BAND, 'padding', '769px')).to.equal('80px 0px 38px');
     });
 
-    // live's tile footer is one 54px row: the product name on the left, the
-    // Tire details link on the right. Ours stacks them, which makes each tile
-    // taller and the band 76px taller than live's.
-    it('puts the tile name and its link on one row', () => {
-      expect(cards('.cards.highlights .cards-card-body', 'flex-direction')).to.equal('row');
-      expect(cards('.cards.highlights .cards-card-body', 'justify-content')).to.equal('space-between');
-      expect(cards('.cards.highlights .cards-card-body', 'align-items')).to.equal('center');
+    // live's tile footer is one 54px row from 769 up: the product name on the
+    // left, the Tire details link on the right. Ours stacked them, which made
+    // each tile taller and the band 76px taller than live's. On a narrow
+    // screen live stacks them, because one row wraps both halves.
+    it('puts the tile name and its link on one row from 769 up', () => {
+      expect(cards('.cards.highlights .cards-card-body', 'flex-direction')).to.equal('column');
+      expect(cards('.cards.highlights .cards-card-body', 'flex-direction', '769px')).to.equal('row');
+      expect(cards('.cards.highlights .cards-card-body', 'justify-content', '769px')).to.equal('space-between');
+      expect(cards('.cards.highlights .cards-card-body', 'align-items', '769px')).to.equal('center');
+    });
+
+    // the uppercase rule was written for the Tire details link and caught the
+    // product name with it. Live sets the name in mixed case.
+    it('leaves the tile name in the case the author wrote', () => {
+      expect(cards('.cards.highlights .cards-card-body p a', 'text-transform')).to.equal('uppercase');
+      expect(cards('.cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) a', 'text-transform')).to.equal('none');
     });
 
     it('uppercases the band heading, as live does', () => {
