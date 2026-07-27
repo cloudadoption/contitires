@@ -143,6 +143,20 @@ describe('Share row layout', () => {
     await sheet.replace(await (await fetch('/blocks/share/share.css')).text());
   });
 
+  /** The value a property takes in the rule for `selector`. */
+  function value(selector, prop) {
+    const rule = [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule))
+      .reverse().find((r) => r.selectorText === selector && r.style.getPropertyValue(prop));
+    return rule ? rule.style.getPropertyValue(prop).trim() : null;
+  }
+
+  // the block is empty until its own JS runs, so the row grows from nothing to
+  // 30px and everything below it moves. PSI read a mobile CLS of 0.123 on an
+  // article. 21px is the settled height of the icon row inside the padding.
+  it('reserves the row so the page does not jump when the block loads', () => {
+    expect(value('.share', 'min-height')).to.equal('21px');
+  });
+
   // live groups the two social icons at the left of the row and the two
   // controls that act on this page at the right, on articles and experience
   // pages alike
