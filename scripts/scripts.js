@@ -110,6 +110,26 @@ function decorateNestedBlocks(main) {
 }
 
 /**
+ * Puts a share block in an article's body section. Live carries the sharebar
+ * on every article, and it needs no author input, so it is built rather than
+ * authored on each of the 200-odd pages. Any authored related-articles block
+ * already sits in that section, and the two make up the sidebar.
+ * @param {Element} main The container element
+ */
+function buildArticleSidebar(main) {
+  if (!document.body.classList.contains('article')) return;
+  if (main.querySelector('.share')) return;
+
+  // the first section is the title; the body is the one that follows it
+  const body = [...main.children].find((section, i) => i > 0 && !section.querySelector('.metadata'));
+  if (!body) return;
+
+  const share = document.createElement('div');
+  share.className = 'share';
+  body.append(share);
+}
+
+/**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
@@ -134,6 +154,7 @@ function buildAutoBlocks(main) {
     }
     buildWidgetAutoBlocks(main);
     buildFinderCardAutoBlocks(main);
+    buildArticleSidebar(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);

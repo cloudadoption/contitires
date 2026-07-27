@@ -22,6 +22,20 @@ describe('Share block', () => {
     expect(labels).to.deep.equal(['Facebook', 'X', 'Email', 'Print']);
   });
 
+  // live labels only the two controls that act on this page. The social icons
+  // carry their name for a screen reader alone, which keeps the row 45 tall.
+  it('marks the social labels as icon-only', () => {
+    decorate(block);
+    const labelled = [...block.querySelectorAll('.share-label')]
+      .map((s) => [s.textContent, s.classList.contains('share-label-hidden')]);
+    expect(labelled).to.deep.equal([
+      ['Facebook', true],
+      ['X', true],
+      ['Email', false],
+      ['Print', false],
+    ]);
+  });
+
   it('points the social links at the sharer for this page', () => {
     decorate(block);
     const [facebook, x] = block.querySelectorAll('a');

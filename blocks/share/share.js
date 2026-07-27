@@ -14,12 +14,6 @@ const NETWORKS = [
     external: true,
   },
   {
-    name: 'linkedin',
-    label: 'LinkedIn',
-    href: (url) => `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
-    external: true,
-  },
-  {
     name: 'mail',
     label: 'Email',
     href: (url, title) => `mailto:?subject=${title}&body=${url}`,
@@ -57,6 +51,21 @@ export default function decorate(block) {
     li.append(a);
     ul.append(li);
   });
+
+  // print closes live's sharebar. It acts on this page rather than navigating,
+  // so it is a button.
+  const print = document.createElement('button');
+  print.type = 'button';
+  const printIcon = document.createElement('span');
+  printIcon.className = 'icon icon-print';
+  const printLabel = document.createElement('span');
+  printLabel.className = 'share-label';
+  printLabel.textContent = 'Print';
+  print.append(printIcon, printLabel);
+  print.addEventListener('click', () => window.print());
+  const printItem = document.createElement('li');
+  printItem.append(print);
+  ul.append(printItem);
 
   block.replaceChildren(ul);
   decorateIcons(block);
