@@ -7,11 +7,16 @@
 .share ul {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 20px;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* live groups the two social icons at the left of the row and the two controls
+   that act on this page at the right */
+.share li:nth-child(2) {
+  margin-inline-end: auto;
 }
 
 .share a {

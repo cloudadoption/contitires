@@ -130,8 +130,8 @@ describe('Article layout', () => {
   });
 
   it('marks the related links with live\'s gold bullet', () => {
-    expect(value('.related-articles-list li', 'list-style-type')).to.equal('disc');
-    expect(value('.related-articles-list li::marker', 'color')).to.equal('var(--conti-yellow)');
+    expect(value(`${BODY} .related-articles-list li`, 'list-style-type')).to.equal('disc');
+    expect(value(`${BODY} .related-articles-list li::marker`, 'color')).to.equal('var(--conti-yellow)');
   });
 });
 
