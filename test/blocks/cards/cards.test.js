@@ -52,6 +52,14 @@ describe('Confidence band, live\'s responsive layout', () => {
     expect(value(`${BAND} .icon`, 'width', '769px')).to.equal('126px');
   });
 
+  // the badge is an icon span, filled in after the page paints. An auto height
+  // leaves it at zero until then, and the band below it jumps: PSI read a CLS
+  // of 1.802 on mobile.
+  it('reserves the badge\'s height so the band does not jump', () => {
+    expect(value(`${BAND} .icon`, 'height')).to.equal('70px');
+    expect(value(`${BAND} .icon`, 'height', '769px')).to.equal('148px');
+  });
+
   it('holds the heading to live\'s 30px below the 1025 breakpoint', () => {
     expect(value(HEADING, 'font-size')).to.equal('30px');
     expect(value(HEADING, 'font-size', '1025px')).to.equal('42px');
