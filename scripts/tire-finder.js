@@ -69,12 +69,15 @@ export function markProductFinderLinks(main) {
 }
 
 /**
- * Sends the two plain "find tires" navigations at the tire listing. Runs after
- * the triggers are marked, so the finder controls that share the href stay put.
+ * Sends the plain "find tires" navigations at the tire listing. Claims the
+ * finder triggers first rather than trusting the caller to have done it: two
+ * of them carry this same href, and loadFragment decorates a fragment before
+ * its own block runs.
  * @param {Element} root the container holding the links
  * @returns {Element[]} the links moved
  */
 export function repointSearchLinks(root) {
+  markFinderTriggers(root);
   return [...root.querySelectorAll(RESULTS_LINK)].map((link) => {
     link.href = TIRE_LISTING;
     return link;
