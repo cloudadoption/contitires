@@ -84,14 +84,27 @@ describe('Media gallery block', () => {
     expect(modal.querySelector('iframe'), 'no player for a still').to.be.null;
   });
 
+  // count rather than the element itself: a failing assertion on a live
+  // cross-origin iframe hangs the runner while chai renders the diff
   it('closes on the close control and takes the player with it', () => {
     decorate(science());
     block.querySelectorAll('.media-gallery-tile')[0].click();
     const modal = block.querySelector('dialog');
-    expect(modal.querySelector('iframe')).to.exist;
+    expect(modal.querySelectorAll('iframe').length, 'playing').to.equal(1);
     modal.querySelector('.media-gallery-close').click();
     expect(modal.open, 'closed').to.be.false;
-    expect(modal.querySelector('iframe'), 'player torn out so the sound stops').to.be.null;
+    expect(modal.querySelectorAll('iframe').length, 'player torn out so the sound stops').to.equal(0);
+  });
+
+  // Escape never reaches our close control, so the dialog's own close event is
+  // what has to empty the stage. It fires a task after the key
+  it('takes the player out when Escape closes the modal', async () => {
+    decorate(science());
+    block.querySelectorAll('.media-gallery-tile')[0].click();
+    const modal = block.querySelector('dialog');
+    modal.close();
+    await new Promise((r) => { setTimeout(r, 0); });
+    expect(modal.querySelectorAll('iframe').length, 'player torn out').to.equal(0);
   });
 
   it('skips a row that carries neither a still nor a video', () => {
