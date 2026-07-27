@@ -18,6 +18,13 @@ const FINDER_TABS = {
 // the product pages send this at a page the site does not have
 const PRODUCT_LINK = 'a[href="/perfect-fit"]';
 
+// live's search results page, which the site does not have, and what we send
+// those two navigations at instead. Exact, because a deeper path under it is
+// always a finder trigger.
+const RESULTS_LINK = 'a[href="/tire-search"]:not([data-tire-finder])';
+
+const TIRE_LISTING = '/tires';
+
 const SEARCH_HEADING = /^search for tire$/i;
 
 /**
@@ -59,6 +66,19 @@ export function markFinderTriggers(root) {
  */
 export function markProductFinderLinks(main) {
   return [...main.querySelectorAll(PRODUCT_LINK)].map((link) => toTrigger(link, 'vehicle'));
+}
+
+/**
+ * Sends the two plain "find tires" navigations at the tire listing. Runs after
+ * the triggers are marked, so the finder controls that share the href stay put.
+ * @param {Element} root the container holding the links
+ * @returns {Element[]} the links moved
+ */
+export function repointSearchLinks(root) {
+  return [...root.querySelectorAll(RESULTS_LINK)].map((link) => {
+    link.href = TIRE_LISTING;
+    return link;
+  });
 }
 
 /**

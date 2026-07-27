@@ -79,10 +79,12 @@ describe('Footer tire search column', () => {
   // The "Find Tires" call to action navigates rather than opening the finder,
   // and it sat on /tire-search, which the POC does not have.
   it('repoints the Find Tires call to action at the listing page', () => {
+    // decorateButtons has already run on the fragment by this point, so the
+    // authored single-link paragraphs arrive as buttons
     const fragment = document.createElement('div');
     fragment.innerHTML = `
-      <p><strong><a href="/store-finder">Find Stores</a></strong></p>
-      <p><strong><a href="/tire-search">Find Tires</a></strong></p>
+      <p><a href="/store-finder" class="button">Find Stores</a></p>
+      <p><a href="/tire-search" class="button">Find Tires</a></p>
       <h3>Search for Tire</h3>
       <ul>
         <li><a href="/tire-search/by-vehicle">By Vehicle</a></li>
