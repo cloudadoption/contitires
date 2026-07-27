@@ -127,9 +127,9 @@ main .media-gallery .media-gallery-stage {
   padding: 40px;
 }
 
-/* the article template caps a .video at the 559px reading column, which the
-   modal is not in. Carrying .block as well outranks it, so the player fills
-   the dialog the way live's 1360px one does */
+/* the video block caps a player at live's 747px, which is the article column
+   it normally sits in rather than this dialog. Carrying .block as well
+   outranks it, so the player fills the dialog the way live's 1360px one does */
 main .media-gallery .media-gallery-modal .media-gallery-stage .video.block {
   width: 100%;
   max-width: calc((100vh - 80px) * 16 / 9);
