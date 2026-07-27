@@ -228,12 +228,14 @@ export function loadTemplateStyles() {
 }
 
 /**
- * Reveals the page.
+ * Reveals the page, once the template's stylesheet is in effect. The stylesheet
+ * sets an article's whole layout, so revealing first paints it at the default
+ * page width and then reflows it.
  * @param {Promise} templateStyles the template's stylesheet
  */
 export async function revealPage(templateStyles) {
+  await templateStyles;
   document.body.classList.add('appear');
-  return templateStyles;
 }
 
 /**
