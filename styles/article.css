@@ -160,6 +160,7 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
      the text around it rather than standing wider than both */
   body.article main .section:has(.share-wrapper) .video {
     max-width: 559px;
+    margin-inline: auto;
   }
 
   body.article main .section:has(.share-wrapper) .share-wrapper {
