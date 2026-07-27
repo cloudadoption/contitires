@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before */
+/* global describe it before afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import {
-  addHamburger, buildSearch, buildUtilityNav, hasOwnPromoBar, isMegaMenu, DESKTOP_MEDIA_QUERY,
+  addHamburger, buildSearch, buildUtilityNav, hasOwnPromoBar, isMegaMenu,
+  wireNavDisclosures, DESKTOP_MEDIA_QUERY,
 } from '../../../blocks/header/header.js';
 
 /** Index of the first child carrying `className` in an element's children. */
@@ -47,12 +48,12 @@ describe('Header utility nav', () => {
 });
 
 describe('Header desktop breakpoint', () => {
-  // The desktop nav needs 1180px of horizontal room (measured on production:
-  // 32px padding + 150px brand + 24px gap + 707px sections + 24px gap + 211px
-  // tools + 32px padding). Engaging it below that scrolls every page
-  // sideways, so it starts at the project's 1200px desktop breakpoint.
-  it('switches to the desktop nav at 1200px', () => {
-    expect(DESKTOP_MEDIA_QUERY).to.equal('(min-width: 1200px)');
+  // Live engages its desktop nav at 1025px and compresses the bar to fit:
+  // the utility items drop to 30px icons, and the sections row reflows when
+  // a label no longer fits. Measured on live at 1025, the bar is 88px tall
+  // with the Smart Choice label on two lines, and 72px from 1080 up.
+  it('switches to the desktop nav at 1025px, where live does', () => {
+    expect(DESKTOP_MEDIA_QUERY).to.equal('(min-width: 1025px)');
   });
 
   it('hides the hamburger at the same width the script calls desktop', async () => {
@@ -106,6 +107,78 @@ describe('Header mobile toggle', () => {
     const hamburger = addHamburger(nav, () => { clicks += 1; });
     hamburger.querySelector('button').click();
     expect(clicks, 'the click reached the callback').to.equal(1);
+  });
+});
+
+describe('Header mobile bar', () => {
+  // Live renders a 45px bar below its desktop breakpoint and a 72px bar above
+  // it, with the logo at 134px and 186px. Ours ran 72px at every width, which
+  // put 27px of extra chrome above the fold on every mobile page.
+  let globalSheet;
+  let headerSheet;
+
+  before(async () => {
+    globalSheet = new CSSStyleSheet();
+    await globalSheet.replace(await (await fetch('/styles/styles.css')).text());
+    headerSheet = new CSSStyleSheet();
+    await headerSheet.replace(await (await fetch('/blocks/header/header.css')).text());
+  });
+
+  /** The value a property takes in the rule matching `selector`. */
+  function value(sheet, selector, prop, media) {
+    const rules = media
+      ? [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
+        && r.conditionText.includes(media)).flatMap((r) => [...r.cssRules])
+      : [...sheet.cssRules];
+    const rule = [...rules].reverse().find((r) => r.selectorText === selector
+      && r.style.getPropertyValue(prop));
+    return rule ? rule.style.getPropertyValue(prop).trim() : null;
+  }
+
+  const desktopWidth = () => DESKTOP_MEDIA_QUERY.match(/(\d+)px/)[1];
+
+  it('reserves live\'s 45px bar below the desktop breakpoint', () => {
+    expect(value(globalSheet, ':root', '--nav-height')).to.equal('45px');
+  });
+
+  it('gives the bar its 72px back at the desktop breakpoint', () => {
+    expect(value(globalSheet, ':root', '--nav-height', desktopWidth())).to.equal('72px');
+  });
+
+  it('renders the logo at live\'s 134px on mobile', () => {
+    expect(value(headerSheet, 'header nav .nav-brand img', 'width')).to.equal('134px');
+  });
+});
+
+describe('Header compressed band', () => {
+  // Between the desktop breakpoint and 1170px live shows both utility items as
+  // 30px icons, and gives the Chat now pill its label back at 1170.
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/header/header.css')).text());
+  });
+
+  /** Media rules whose condition names `width`. */
+  function at(width) {
+    return [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
+      && r.conditionText.includes(`${width}px`));
+  }
+
+  it('holds the pill to an icon while the bar is compressed', () => {
+    const shown = at(DESKTOP_MEDIA_QUERY.match(/(\d+)px/)[1])
+      .flatMap((r) => [...r.cssRules])
+      .filter((r) => r.selectorText?.includes('.nav-tools-utility-item-pill')
+        && r.selectorText?.includes('.nav-tools-utility-label'))
+      .find((r) => r.style.display && r.style.display !== 'none');
+    expect(shown, 'no rule shows the pill label at the breakpoint').to.not.exist;
+  });
+
+  it('gives the pill its label back at 1170, as live does', () => {
+    const rules = at(1170).flatMap((r) => [...r.cssRules])
+      .filter((r) => r.selectorText?.includes('.nav-tools-utility-item-pill'));
+    expect(rules.length, 'the pill label returns at 1170').to.be.greaterThan(0);
   });
 });
 
@@ -328,5 +401,128 @@ describe('Header search form', () => {
   it('returns nothing when authors leave the search icon out', () => {
     const empty = document.createElement('div');
     expect(buildSearch(empty, () => {})).to.equal(null);
+  });
+});
+
+describe('Header dropdown disclosures', () => {
+  // openOnKeydown tested className for equality against 'nav-drop', so it
+  // stopped firing the moment decorate added nav-mega, and aria-expanded never
+  // left false. The state now lives on the link that already holds the item,
+  // the way live holds it, so the browser does the focus work.
+  function buildSections() {
+    const sections = document.createElement('div');
+    sections.className = 'nav-sections';
+    sections.innerHTML = `
+      <div class="default-content-wrapper">
+        <ul>
+          <li class="nav-drop nav-mega">
+            <p><a href="/tires">Tires</a></p>
+            <ul><li><a href="/tires/winter">Winter</a></li></ul>
+          </li>
+          <li class="nav-drop nav-mega">
+            <p><a href="/stores">Stores</a></p>
+            <ul><li><a href="/stores/near">Near me</a></li></ul>
+          </li>
+          <li><a href="/offers">Offers</a></li>
+        </ul>
+      </div>`;
+    document.body.append(sections);
+    return sections;
+  }
+
+  const items = (sections) => [...sections.querySelectorAll('.nav-drop')];
+  const control = (item) => item.querySelector(':scope > p > a');
+
+  afterEach(() => {
+    document.querySelectorAll('body > .nav-sections').forEach((el) => el.remove());
+  });
+
+  it('makes each dropdown link the control for its own panel', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => true);
+
+    items(sections).forEach((item) => {
+      const link = control(item);
+      const panel = item.querySelector(':scope > ul');
+      expect(link.getAttribute('aria-haspopup')).to.equal('true');
+      expect(panel.id, 'the panel is addressable').to.not.be.empty;
+      expect(link.getAttribute('aria-controls')).to.equal(panel.id);
+      expect(link.getAttribute('aria-expanded')).to.equal('false');
+    });
+  });
+
+  it('leaves an item without a panel alone', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => true);
+
+    const plain = sections.querySelector('a[href="/offers"]');
+    expect(plain.hasAttribute('aria-expanded')).to.be.false;
+    expect(plain.hasAttribute('aria-haspopup')).to.be.false;
+  });
+
+  it('gives no list item a tabindex, so the browser keeps the focus order', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => true);
+
+    items(sections).forEach((item) => expect(item.hasAttribute('tabindex')).to.be.false);
+  });
+
+  // the events the browser raises when it moves focus, raised here directly:
+  // a test page that does not hold the window's focus never gets the real ones
+  const focusIn = (el) => el.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+  const focusOut = (el, to) => el.dispatchEvent(
+    new FocusEvent('focusout', { bubbles: true, relatedTarget: to }),
+  );
+
+  it('reports the panel open while focus is inside the item', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => true);
+    const [tires] = items(sections);
+
+    focusIn(control(tires));
+    expect(control(tires).getAttribute('aria-expanded')).to.equal('true');
+  });
+
+  it('holds it open while focus moves into the panel', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => true);
+    const [tires] = items(sections);
+    const inPanel = tires.querySelector(':scope > ul a');
+
+    focusIn(control(tires));
+    focusOut(control(tires), inPanel);
+    expect(control(tires).getAttribute('aria-expanded')).to.equal('true');
+  });
+
+  it('reports it closed again when focus leaves the item', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => true);
+    const [tires, stores] = items(sections);
+
+    focusIn(control(tires));
+    focusOut(control(tires), control(stores));
+    focusIn(control(stores));
+    expect(control(tires).getAttribute('aria-expanded')).to.equal('false');
+    expect(control(stores).getAttribute('aria-expanded')).to.equal('true');
+  });
+
+  it('follows the pointer the same way', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => true);
+    const [tires] = items(sections);
+
+    tires.dispatchEvent(new Event('pointerenter'));
+    expect(control(tires).getAttribute('aria-expanded')).to.equal('true');
+    tires.dispatchEvent(new Event('pointerleave'));
+    expect(control(tires).getAttribute('aria-expanded')).to.equal('false');
+  });
+
+  it('stays closed where the flyout does not apply', () => {
+    const sections = buildSections();
+    wireNavDisclosures(sections, () => false);
+    const [tires] = items(sections);
+
+    tires.dispatchEvent(new Event('pointerenter'));
+    expect(control(tires).getAttribute('aria-expanded')).to.equal('false');
   });
 });
