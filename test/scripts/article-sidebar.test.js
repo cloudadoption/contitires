@@ -151,10 +151,18 @@ describe('Share row layout', () => {
   }
 
   // the block is empty until its own JS runs, so the row grows from nothing to
-  // 30px and everything below it moves. PSI read a mobile CLS of 0.123 on an
-  // article. 21px is the settled height of the icon row inside the padding.
+  // its settled height and everything below it moves
   it('reserves the row so the page does not jump when the block loads', () => {
-    expect(value('.share', 'min-height')).to.equal('21px');
+    expect(value('.share', 'min-height')).to.equal('24px');
+  });
+
+  // Lighthouse fails target-size on each control: 20px by 20px against the
+  // 24px minimum. The row now sits on 214 article pages, not 2 experience ones.
+  it('gives each control a 24px touch target', () => {
+    expect(value('.share a', 'min-width')).to.equal('24px');
+    expect(value('.share a', 'min-height')).to.equal('24px');
+    expect(value('.share button', 'min-width')).to.equal('24px');
+    expect(value('.share button', 'min-height')).to.equal('24px');
   });
 
   // live groups the two social icons at the left of the row and the two
