@@ -154,10 +154,12 @@ a.carousel-cta:focus-visible {
     aspect-ratio: 16 / 9;
   }
 
+  /* the pagination below is pinned to this column's bottom, so the column
+     reserves its height. Without that the pager overlapped the CTA pill. */
   .carousel-content {
     flex: 0 0 340px;
     width: 340px;
-    padding: 0;
+    padding: 0 0 72px;
   }
 
   /* pin the pagination to the bottom of the content column, left of the

@@ -44,10 +44,6 @@ main .section.hero-container {
   object-fit: cover;
 }
 
-.hero.has-mobile-image .hero-image-desktop {
-  display: none;
-}
-
 .hero-content {
   position: relative;
   z-index: 1;
@@ -165,16 +161,6 @@ main .section.hero-container {
   background: none;
 }
 
-@media (width >= 600px) {
-  .hero.has-mobile-image .hero-image-mobile {
-    display: none;
-  }
-
-  .hero.has-mobile-image .hero-image-desktop {
-    display: block;
-  }
-}
-
 @media (width >= 900px) {
   .hero {
     min-height: 440px;
@@ -203,5 +189,61 @@ main .section.hero-container {
 
   .hero.left .hero-content p:has(> a:only-child) {
     font-size: var(--body-font-size-xs);
+  }
+}
+
+/* ---- stacked: live divides the homepage marquee below 1025 into a 200px
+   photo strip over centred copy on black. Only that one marquee is divided,
+   so it is a variant rather than the base. ---- */
+.hero.stacked {
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 0;
+  background-color: #000;
+}
+
+.hero.stacked .hero-image {
+  position: static;
+  height: 200px;
+}
+
+.hero.stacked .hero-image::after {
+  content: none;
+}
+
+.hero.stacked .hero-content {
+  padding: 28px 20px;
+  text-align: center;
+}
+
+.hero.stacked .hero-content h1 {
+  font-size: 30px;
+}
+
+@media (width >= 1025px) {
+  .hero.stacked {
+    flex-direction: row;
+    align-items: center;
+    min-height: 560px;
+    background-color: var(--conti-dark-black);
+  }
+
+  .hero.stacked .hero-image {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+
+  .hero.stacked .hero-image::after {
+    content: '';
+  }
+
+  .hero.stacked .hero-content {
+    padding: 96px 32px;
+    text-align: left;
+  }
+
+  .hero.stacked .hero-content h1 {
+    font-size: 42px;
   }
 }

@@ -44,7 +44,9 @@ main > .section.perfect-fit-host > div {
 
 .perfect-fit-items {
   display: flex;
-  flex-wrap: wrap;
+
+  /* live keeps the three items on one row all the way down to 375 */
+  flex-wrap: nowrap;
   justify-content: center;
   gap: 8px 32px;
   list-style: none;
@@ -52,14 +54,28 @@ main > .section.perfect-fit-host > div {
   padding: 0;
 }
 
+/* live stacks the icon over its label below 769 and sets it beside the label
+   above, alongside the bar's heading. Measured at 768 and 769. */
 .perfect-fit-item {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   border: 0;
   background: none;
   padding: 0;
   color: inherit;
   font: inherit;
   cursor: pointer;
+}
+
+@media (width >= 769px) {
+  .perfect-fit-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
 }
 
 .perfect-fit-item:focus-visible {
