@@ -65,10 +65,14 @@ async function measure(vw) {
   const video = section.querySelector('.video');
   const reading = section.querySelector('.default-content-wrapper');
   const box = (el) => (el ? Math.round(el.getBoundingClientRect().width) : -1);
+  const wrapper = video.parentElement.getBoundingClientRect();
+  const player = video.getBoundingClientRect();
   return {
     vw: window.innerWidth,
     video: box(video),
     reading: box(reading),
+    insetStart: Math.round(player.left - wrapper.left),
+    insetEnd: Math.round(wrapper.right - player.right),
   };
 }
 
@@ -98,6 +102,13 @@ describe('Article video width', () => {
       const m = await measure(vw);
       expect(m.video, `player against copy at ${vw}`).to.be.greaterThan(m.reading);
     });
+  });
+
+  // at 1124 and up the column is wider than the player's 747px cap, and live
+  // centres the leftover: its player starts at 155 against a column at 152
+  it('centres the player in the column where the column is wider', async () => {
+    const m = await measure(1440);
+    expect(m.insetStart, 'inset at the start').to.equal(m.insetEnd);
   });
 
   // below 769 there is one column and the player takes it, the same as live
