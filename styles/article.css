@@ -65,7 +65,10 @@ body.article main .section .default-content-wrapper :is(h2, h3, h4) {
   font-weight: 300;
 }
 
-body.article main .section .default-content-wrapper h2 { font-size: 26px; }
+/* 20px is what live sets on the subhead under an article title, whichever
+   level it authored there: h3 on the news articles, h4 on the campaign ones.
+   Ours are all h2 now, so h2 carries that size. */
+body.article main .section .default-content-wrapper h2 { font-size: 20px; }
 body.article main .section .default-content-wrapper h3 { font-size: 20px; }
 body.article main .section .default-content-wrapper h4 { font-size: 17px; }
 
