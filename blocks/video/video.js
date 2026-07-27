@@ -54,7 +54,6 @@ export default function decorate(block) {
 
   if (picture) frame.append(picture);
   else block.classList.add('video-no-poster');
-  if (image) image.removeAttribute('loading');
   frame.append(button);
 
   button.addEventListener('click', () => {

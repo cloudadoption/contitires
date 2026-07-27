@@ -97,6 +97,21 @@ describe('Video block', () => {
     expect(block.textContent).to.contain('No link here');
   });
 
+  // the platform promotes the page's own LCP image, so a poster far down the
+  // article stays lazy rather than being loaded because it is a poster
+  it('leaves the loading attribute to the platform', () => {
+    document.body.innerHTML = `
+      <div class="video block">
+        <div><div>
+          <picture><img src="/media/poster.jpg" alt="a" loading="lazy"></picture>
+          <p><a href="https://www.youtube.com/watch?v=d6w6bGy1eM8">a</a></p>
+        </div></div>
+      </div>`;
+    block = document.querySelector('.video.block');
+    decorate(block);
+    expect(block.querySelector('img').getAttribute('loading')).to.equal('lazy');
+  });
+
   it('reserves the frame so arriving at the player shifts nothing', () => {
     decorate(authored());
     expect(block.querySelector('.video-frame')?.getAttribute('style') ?? '')
