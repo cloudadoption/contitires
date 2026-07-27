@@ -60,6 +60,20 @@ function stubFetch(map) {
   });
 }
 
+/**
+ * A fetch stub that pages the way the sheet API does: it never returns more
+ * than pageSize rows, and it honours the offset in the request.
+ */
+function stubPagedFetch(rows, pageSize) {
+  return sinon.stub(window, 'fetch').callsFake((url) => {
+    const offset = Number(new URL(String(url), 'https://x').searchParams.get('offset') || 0);
+    const page = rows.slice(offset, offset + pageSize);
+    return Promise.resolve(new Response(JSON.stringify({
+      total: rows.length, offset, limit: page.length, data: page,
+    })));
+  });
+}
+
 /** A tire-specs block with the product slug authored in its first cell. */
 function build(slug) {
   document.body.innerHTML = `<div class="tire-specs block"><div><div>${slug}</div></div></div>`;
@@ -167,7 +181,8 @@ describe('Tire specs block, single-sheet request', () => {
   it('asks for the specs sheet, not the whole workbook', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK.specs });
     await decorate(build('my-tire'));
-    expect(fetchStub.firstCall.args[0]).to.equal('/products.json?sheet=specs');
+    expect(fetchStub.firstCall.args[0]).to.contain('/products.json?sheet=specs');
+    expect(fetchStub.firstCall.args[0]).to.not.contain('sheet=products');
   });
 
   it('reads the rows a single-sheet response puts at data', async () => {
@@ -178,5 +193,50 @@ describe('Tire specs block, single-sheet request', () => {
     const opts = block.querySelectorAll('.tire-specs-select option');
     expect(opts).to.have.length(2);
     expect(opts[0].textContent).to.equal('155/70 R 19');
+  });
+});
+
+// The sheet API serves 1000 rows unless asked for more, and the specs sheet is
+// longer than that. Every product past the cut rendered no sizes at all.
+describe('Tire specs block, sheets longer than one page', () => {
+  let fetchStub;
+  afterEach(() => fetchStub?.restore());
+
+  /** A sheet of `n` rows where only the last three belong to the slug. */
+  function longSheet(n, slug) {
+    return Array.from({ length: n }, (_, i) => (n - i <= 3
+      ? specRow(slug, `20${n - i}/55 R 17`, String(80 + i))
+      : specRow('filler', `1${i}5/55 R 16`, String(i))));
+  }
+
+  it('asks for more rows than the sheet API serves by default', async () => {
+    fetchStub = stubPagedFetch(longSheet(30, 'my-tire'), 10);
+    await decorate(build('my-tire'));
+
+    const url = new URL(String(fetchStub.firstCall.args[0]), 'https://x');
+    expect(Number(url.searchParams.get('limit')), 'a request with no limit stops at 1000').to.be.above(1000);
+  });
+
+  it('keeps reading until it holds the whole sheet', async () => {
+    fetchStub = stubPagedFetch(longSheet(30, 'my-tire'), 10);
+    const block = build('my-tire');
+    await decorate(block);
+
+    expect(block.querySelectorAll('.tire-specs-select option')).to.have.length(3);
+  });
+
+  it('stops once it has every row', async () => {
+    fetchStub = stubPagedFetch(longSheet(30, 'my-tire'), 10);
+    await decorate(build('my-tire'));
+
+    expect(fetchStub.callCount).to.equal(3);
+  });
+
+  it('renders a product whose rows all sit past the first page', async () => {
+    fetchStub = stubPagedFetch(longSheet(2400, 'contiprocontact'), 1000);
+    const block = build('contiprocontact');
+    await decorate(block);
+
+    expect(block.querySelectorAll('.tire-specs-select option')).to.have.length(3);
   });
 });

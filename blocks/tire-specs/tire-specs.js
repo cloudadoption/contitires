@@ -2,6 +2,32 @@
 // catalog sheets, which a product page never reads
 const SPECS_URL = '/products.json?sheet=specs';
 const LEGACY_SPECS_URL = '/product-specs.json';
+// the sheet API serves 1000 rows to a request that names no limit, and the
+// specs sheet is longer than that. Ask for the whole sheet in one request.
+const PAGE_SIZE = 10000;
+
+/**
+ * Reads every row of a sheet. The response reports the row count, so a page
+ * shorter than the sheet is followed by another read from where it ended.
+ * @param {string} url the sheet URL, already carrying its query
+ * @returns {Promise<Array<Object>|null>} the rows, or null for a sheet with none
+ */
+async function loadRows(url) {
+  const rows = [];
+  let total = 0;
+  do {
+    // eslint-disable-next-line no-await-in-loop
+    const resp = await fetch(`${url}&limit=${PAGE_SIZE}&offset=${rows.length}`);
+    if (!resp.ok) break;
+    // eslint-disable-next-line no-await-in-loop
+    const data = await resp.json();
+    const page = data.data || (data.specs && data.specs.data);
+    if (!page || !page.length) break;
+    rows.push(...page);
+    total = Number(data.total) || rows.length;
+  } while (rows.length < total);
+  return rows.length ? rows : null;
+}
 
 /**
  * Loads one product's per-size specs. Reads the DA sheet first: its rows are a
@@ -13,10 +39,7 @@ const LEGACY_SPECS_URL = '/product-specs.json';
  * @returns {Promise<Array<{size: string, specs: Object}>>}
  */
 async function loadSizes(slug) {
-  const resp = await fetch(SPECS_URL);
-  if (!resp.ok) return [];
-  const data = await resp.json();
-  const rows = data.data || (data.specs && data.specs.data);
+  const rows = await loadRows(SPECS_URL);
   if (rows) {
     return rows
       .filter((row) => row.slug === slug)
