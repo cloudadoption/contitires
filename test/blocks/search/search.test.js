@@ -294,17 +294,26 @@ describe('Search block: results', () => {
     expect(text).to.contain('Why should I rotate my tires');
   });
 
-  it('loads a Drupal-path thumbnail from the live host, which serves it', async () => {
-    // 58 of 320 index rows hold the image as /sites/default/files/..., a path this
-    // origin does not serve, while the page's own og:image is the absolute live URL
+  // The index used to emit a Drupal path when a page's og:image was on the live
+  // host, and the block filled the host back in. The index now leaves the image
+  // empty instead, so the block has nothing to compensate for.
+  // a failing assertion on a DOM node makes chai serialize the subtree, which
+  // hangs the runner, so these read the markup as strings
+  it('shows no thumbnail for a Drupal path, and never points one at the live host', async () => {
     const drupal = row(6, { image: '/sites/default/files/media/image/2024-08/ct_crosscontact.png' });
     const { block } = await decorateWith('?keywords=tires', indexResponse(0, [drupal]));
     await waitFor(() => block.querySelector('.search-result'), 'results');
-    const img = block.querySelector('.search-result-image img');
-    expect(img.getAttribute('src')).to.equal(
-      'https://continentaltire.com/sites/default/files/media/image/2024-08/ct_crosscontact.png',
-    );
-    expect(img.getAttribute('loading')).to.equal('lazy');
+    expect(block.querySelectorAll('.search-result-image').length, 'thumbnails').to.equal(0);
+    expect(block.innerHTML.includes('continentaltire.com'), 'live host in markup').to.be.false;
+  });
+
+  it('optimizes a thumbnail this host serves', async () => {
+    const ours = row(7, { image: '/learn/media_1abc.png?width=1200&format=pjpg&optimize=medium' });
+    const { block } = await decorateWith('?keywords=tires', indexResponse(0, [ours]));
+    await waitFor(() => block.querySelector('.search-result'), 'results');
+    const img = block.querySelector('.search-result-image picture img');
+    expect(img?.getAttribute('src') ?? null).to.contain('/learn/media_1abc.png');
+    expect(img?.getAttribute('loading') ?? null).to.equal('lazy');
   });
 
   it('leaves out the image when a row has none', async () => {
