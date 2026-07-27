@@ -24,6 +24,7 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [Learn hub and articles](#learn-hub-and-articles)
   - [Experience section](#experience-section)
   - [Simple content pages](#simple-content-pages)
+  - [URL aliases](#url-aliases)
   - [Author tooling](#author-tooling)
 - [What did not carry over, and how it would](#what-did-not-carry-over-and-how-it-would)
   - [Store finder](#store-finder)
@@ -80,7 +81,7 @@ Differs from live: a full audit on 2026-07-26 (27 pages, three widths, screensho
 - Code: [blocks/header/header.js](blocks/header/header.js), [blocks/header/header.css](blocks/header/header.css)
 - Author: [nav in DA](https://da.live/edit#/cloudadoption/contitires/nav)
 
-Differs from live: the three finder entries in the Tires panel are dead links; on live they trigger JS. A few menu targets point at pages the POC does not have, mostly `/Store-finder`; others rely on live's redirect aliases (#103). The desktop nav overflows the viewport between 900px and about 1120px (#75), the open mega panel is wider than the viewport (#76), and dropdown keyboard state is broken (#106).
+Differs from live: a few menu targets point at pages the POC does not have, `/Store-finder`, `/tires/fleet` and `/experience/bmw-cca` among them, and the [redirects sheet](#url-aliases) answers each one. The desktop nav overflows the viewport between 900px and about 1120px (#75), the open mega panel is wider than the viewport (#76), and dropdown keyboard state is broken (#106).
 
 ### Site search
 
@@ -186,6 +187,15 @@ The long tail, all migrated as authored documents over existing blocks: the thre
 
 Differs from live: rebate submission, credit-card application, tire registration, and support chat are outbound links here, but they are outbound links on live too. The events page carries an 8-entry sample instead of the full calendar.
 
+### URL aliases
+
+Drupal answers a set of old paths with a 301. The migration copied the links that use them, but not the aliases behind them. A [redirects sheet](https://da.live/sheet#/cloudadoption/contitires/redirects) holds them now: 17 rows of `Source` and `Destination`, read by the pipeline before any page is served. It covers live's own aliases (`/partners`, `/conti-crew`, `/experience/bmw-cca`, `/store-finder`), the paths whose pages the POC does not have (`/tire-search`, `/perfect-fit`, `/tires/fleet`, four Conti Crew show pages), and two documents that stayed on live. The sheet is content, so an author adds a redirect without a deploy, and it applies to every branch preview at once.
+
+- Sheet: [redirects in DA](https://da.live/sheet#/cloudadoption/contitires/redirects), served at [/redirects.json](https://main--contitires--cloudadoption.aem.live/redirects.json)
+- Docs: [aem.live redirects](https://www.aem.live/docs/redirects)
+
+Differs from live: where a page was not migrated, the redirect lands on the nearest page that exists. `/tire-search` is a fitment results page on live and the tire listing here; the four Conti Crew shows land on the Conti Crew hub.
+
 ### Author tooling
 
 Authors get a block library: 9 sample documents under [/tools/sidekick/blocks/](https://main--contitires--cloudadoption.aem.live/tools/sidekick/blocks/perfect-fit), wired into the DA editor through a `library` sheet in the DA site config, so blocks are inserted from a picker instead of being typed from memory. DA's Experience Workspace is switched on for the site. The [library app](tools/sidekick/library.html) and its [config](tools/sidekick/library.json) live in the repo; the sample content is authored in DA like everything else.
@@ -225,7 +235,7 @@ The racer tire program page is a Drupal webform on live and a design shell here,
 ## Global caveats
 
 - Fonts are hotlinked from the live site. A production build licenses and self-hosts them.
-- Links into unbuilt territory 404: `/Store-finder`, `/tire-search`, and a few nav paths with mismatched slugs.
+- Links into unbuilt territory land on the nearest page that exists, through the [redirects sheet](#url-aliases). Two dead links remain, both on `/customer-support/technical-documents`, and live answers both targets with "Access denied".
 - Images are hotlinked from continentaltire.com across the content, not only social previews; media has not been migrated into DA (#119).
 - Both `.aem.page` and `.aem.live` send `x-robots-tag: noindex` until a production domain exists. Right for a demo, and it caps Lighthouse SEO crawlability scores on these hosts.
 - The remaining parity, code, and authoring findings from the 2026-07-26 audit are tracked as issues #75 to #127.
