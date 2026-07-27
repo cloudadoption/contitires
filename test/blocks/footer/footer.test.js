@@ -77,9 +77,10 @@ describe('Footer tire search column', () => {
     expect(siteSearch.dataset.tireFinder).to.be.undefined;
   });
 
-  // The "Find Tires" call to action navigates rather than opening the finder,
-  // and it sat on /tire-search, which the POC does not have.
-  it('repoints the Find Tires call to action at the listing page', () => {
+  // The "Find Tires" call to action navigates rather than opening the finder.
+  // Its authored path is answered by the redirects sheet, so the footer leaves
+  // it alone: a crawler and a visitor without JavaScript follow the same href.
+  it('leaves the Find Tires call to action on its authored path', () => {
     // decorateButtons has already run on the fragment by this point, so the
     // authored single-link paragraphs arrive as buttons
     const fragment = document.createElement('div');
@@ -95,15 +96,13 @@ describe('Footer tire search column', () => {
 
     const cta = [...content.querySelectorAll('a')].find((a) => a.textContent.trim() === 'Find Tires');
     expect(cta, 'the call to action survives grouping').to.exist;
-    expect(cta.getAttribute('href'), 'call to action points at the listing').to.equal('/tires');
+    expect(cta.getAttribute('href'), 'call to action keeps its authored path').to.equal('/tire-search');
     expect(cta.dataset.tireFinder, 'it navigates, it does not open the finder').to.be.undefined;
   });
 });
 
-// The defect this covers only appeared through loadFragment: it runs
-// decorateMain over the fetched footer before footer.js marks anything, so the
-// repoint saw three unmarked links sharing one href and moved two of them.
-// Fetching a real fragment is what exercises that order.
+// loadFragment runs decorateMain over the fetched footer before footer.js
+// marks anything. Fetching a real fragment is what exercises that order.
 describe('Footer loaded the way the page loads it', () => {
   let content;
 
@@ -116,8 +115,8 @@ describe('Footer loaded the way the page loads it', () => {
   const linkNamed = (text) => [...content.querySelectorAll('a')]
     .find((a) => a.textContent.trim() === text);
 
-  it('moves the Find Tires call to action to the listing page', () => {
-    expect(linkNamed('Find Tires').getAttribute('href')).to.equal('/tires');
+  it('leaves the Find Tires call to action on its authored path', () => {
+    expect(linkNamed('Find Tires').getAttribute('href')).to.equal('/tire-search');
   });
 
   it('leaves the three finder triggers on their own hrefs', () => {

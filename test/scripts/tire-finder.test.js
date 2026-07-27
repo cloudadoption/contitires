@@ -2,11 +2,7 @@
 /* global describe it */
 
 import { expect } from '@esm-bundle/chai';
-import {
-  markFinderTriggers,
-  markProductFinderLinks,
-  repointSearchLinks,
-} from '../../scripts/tire-finder.js';
+import { markFinderTriggers, markProductFinderLinks } from '../../scripts/tire-finder.js';
 import { decorateMain } from '../../scripts/scripts.js';
 
 /** The header submenu, as nav.html authors it: a label plus three dead links. */
@@ -110,77 +106,42 @@ describe('tire finder triggers', () => {
   });
 });
 
-describe('tire search results link', () => {
-  // Live's /tire-search is a results page the POC does not have, so these two
-  // navigations 404. They go to /tires, the listing page, which is the closest
-  // target we do have.
-  it('repoints the footer call to action, keeping its wording', () => {
-    const root = document.createElement('div');
-    root.innerHTML = '<p><strong><a href="/tire-search">Find Tires</a></strong></p>';
-    repointSearchLinks(root);
-
-    const link = root.querySelector('a');
-    expect(link.getAttribute('href'), 'href moved to the listing page').to.equal('/tires');
-    expect(link.textContent, 'wording untouched').to.equal('Find Tires');
-  });
-
-  it('repoints the hero call to action', () => {
+describe('authored hrefs survive decoration', () => {
+  // The repoint used to run here, so the authored href stayed /tire-search and
+  // a visitor without JavaScript still got a 404 on it. The redirects sheet
+  // answers those paths at the edge instead, so decoration moves no href.
+  it('leaves the footer call to action where the content puts it', () => {
     const main = document.createElement('main');
-    main.innerHTML = '<p><a href="/tire-search">Find Tires That Fit</a></p>';
-    repointSearchLinks(main);
+    main.innerHTML = '<p><strong><a href="/tire-search">Find Tires</a></strong></p>';
+    decorateMain(main);
 
     const link = main.querySelector('a');
-    expect(link.getAttribute('href')).to.equal('/tires');
-    expect(link.textContent).to.equal('Find Tires That Fit');
+    expect(link.getAttribute('href')).to.equal('/tire-search');
+    expect(link.textContent).to.equal('Find Tires');
   });
 
-  // Two of the footer's three finder triggers carry this same href. They open
-  // the modal instead of navigating, so their href is never followed.
-  it('leaves a marked finder trigger where it is', () => {
-    const group = footerGroup();
-    markFinderTriggers(group);
-    repointSearchLinks(group);
+  it('leaves the hero call to action where the content puts it', () => {
+    const main = document.createElement('main');
+    main.innerHTML = '<p><a href="/tire-search">Find Tires That Fit</a></p>';
+    decorateMain(main);
 
-    const triggers = [...group.querySelectorAll('[data-tire-finder]')];
-    expect(triggers.map((t) => t.getAttribute('href')))
-      .to.eql(['/tire-search/by-vehicle', '/tire-search', '/tire-search']);
+    expect(main.querySelector('a').getAttribute('href')).to.equal('/tire-search');
   });
 
-  // The only authored paths are exactly /tire-search; a deeper one is always a
-  // finder trigger, so matching loosely would move a link nothing asked for.
-  it('leaves a deeper tire-search path alone', () => {
-    const root = document.createElement('div');
-    root.innerHTML = '<a href="/tire-search/by-vehicle">By Vehicle</a>';
-    repointSearchLinks(root);
+  // The product page link opens the finder on a click. Its href is what a
+  // crawler and a visitor without JavaScript follow, so it stays as authored.
+  it('leaves the product page link where the content puts it, and marks it', () => {
+    const main = document.createElement('main');
+    main.innerHTML = '<p><a href="/perfect-fit">Find your size</a></p>';
+    decorateMain(main);
 
-    expect(root.querySelector('a').getAttribute('href')).to.equal('/tire-search/by-vehicle');
+    const link = main.querySelector('a');
+    expect(link.getAttribute('href')).to.equal('/perfect-fit');
+    expect(link.dataset.tireFinder).to.equal('vehicle');
   });
 
-  it('reports the links it moved', () => {
-    const root = document.createElement('div');
-    root.innerHTML = '<a href="/tire-search">Find Tires</a><a href="/tires">Our Tires</a>';
-
-    expect(repointSearchLinks(root)).to.have.length(1);
-  });
-
-  // The order cannot be left to the caller. Whoever decorates a root next
-  // should not have to know that marking comes first.
-  it('protects the finder triggers even when the caller marked nothing', () => {
-    const group = footerGroup();
-    repointSearchLinks(group);
-
-    const searches = [...group.querySelectorAll('li a')]
-      .filter((a) => a.textContent.trim() !== 'Search Site');
-    expect(searches.map((a) => a.getAttribute('href')), 'the three searches stay put')
-      .to.eql(['/tire-search/by-vehicle', '/tire-search', '/tire-search']);
-    expect(searches.map((a) => a.dataset.tireFinder), 'and they are marked')
-      .to.eql(['vehicle', 'tire-size', 'plate']);
-  });
-
-  // loadFragment runs decorateMain over the footer fragment before footer.js
-  // ever sees it, so decorateMain has to claim the triggers itself. Otherwise
-  // the repoint runs first and moves two hrefs it was told to leave alone.
-  it('claims the finder triggers before moving anything, on a fragment', () => {
+  // loadFragment runs decorateMain over the footer before footer.js sees it.
+  it('leaves the footer searches alone when decorateMain sees them first', () => {
     const main = document.createElement('main');
     main.innerHTML = `
       <div>
@@ -194,13 +155,7 @@ describe('tire search results link', () => {
       </div>`;
     decorateMain(main);
 
-    const byText = (t) => [...main.querySelectorAll('a')]
-      .find((a) => a.textContent.trim() === t);
-    expect(byText('By Tire').getAttribute('href'), 'By Tire opens the modal, so it stays')
-      .to.equal('/tire-search');
-    expect(byText('By License Plate').getAttribute('href'), 'By License Plate stays')
-      .to.equal('/tire-search');
-    expect(byText('Find Tires').getAttribute('href'), 'the navigation moves')
-      .to.equal('/tires');
+    expect([...main.querySelectorAll('a')].map((a) => a.getAttribute('href')))
+      .to.eql(['/tire-search', '/tire-search/by-vehicle', '/tire-search', '/tire-search']);
   });
 });
