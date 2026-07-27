@@ -1,0 +1,329 @@
+/* Site search results, matching live's /search: a black marquee holding the
+   form and the status line, then a grey band of white result cards. */
+
+/* the block is the whole page: it spans the viewport and meets the header */
+main .section.search-container {
+  margin: 0;
+}
+
+main .section.search-container > div {
+  max-width: none;
+  padding: 0;
+}
+
+main .search {
+  --search-width: 940px;
+
+  background-color: #000;
+  color: var(--conti-white);
+}
+
+main .search .search-form-wrapper {
+  max-width: var(--search-width);
+  margin: 0 auto;
+  padding: 32px 24px 0;
+}
+
+main .search .search-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--conti-white);
+  border-radius: 999px;
+  padding: 6px;
+}
+
+main .search .search-form:focus-within {
+  outline: 2px solid var(--conti-yellow);
+  outline-offset: 2px;
+}
+
+main .search .search-form label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+main .search .search-form input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  padding: 0 8px 0 20px;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  color: var(--conti-black);
+}
+
+main .search .search-form input:focus {
+  outline: none;
+}
+
+main .search .search-form button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background-color: var(--conti-yellow);
+  color: var(--conti-black);
+  cursor: pointer;
+}
+
+main .search .search-form button:hover,
+main .search .search-form button:focus {
+  background-color: var(--conti-dark-yellow);
+}
+
+main .search .search-form button .icon {
+  width: 20px;
+  height: 20px;
+}
+
+main .search .search-form button .search-form-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+main .search .search-status {
+  max-width: var(--search-width);
+  margin: 0 auto;
+  padding: 24px;
+  text-align: center;
+  font-size: var(--body-font-size-s);
+}
+
+main .search .search-status:empty {
+  padding-bottom: 40px;
+}
+
+/* the band exists as soon as there is a query, holding its height before the
+   results land, and stays out of the way when there is nothing to show */
+main .search .search-results-wrapper.search-band {
+  min-height: calc(100vh - 200px);
+  background-color: var(--conti-black);
+  padding: 24px 24px 48px;
+}
+
+main .search .search-results {
+  max-width: var(--search-width);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+main .search .search-results li {
+  margin: 0 0 16px;
+}
+
+main .search .search-result {
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+  border-radius: 4px;
+  padding: 20px;
+}
+
+main .search .search-result-title {
+  margin: 0 0 12px;
+  font-size: var(--heading-font-size-s);
+  line-height: 1.3;
+}
+
+main .search .search-result-title a,
+main .search .search-result-title a:any-link {
+  color: var(--conti-black);
+  text-decoration: none;
+}
+
+main .search .search-result-title a:hover {
+  text-decoration: underline;
+}
+
+main .search .search-result-content {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+main .search .search-result-image {
+  flex: none;
+  width: 76px;
+}
+
+main .search .search-result-image picture,
+main .search .search-result-image img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+main .search .search-result-excerpt {
+  font-size: var(--body-font-size-xs);
+  line-height: 1.6;
+  color: var(--conti-light-black);
+}
+
+main .search .search-result-excerpt strong {
+  color: var(--conti-black);
+}
+
+main .search .search-pager {
+  max-width: var(--search-width);
+  margin: 0 auto;
+  text-align: center;
+  font-size: var(--body-font-size-xs);
+}
+
+main .search .search-pager-summary {
+  padding: 8px 0 16px;
+}
+
+main .search .search-pager-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+main .search .search-pager-page,
+main .search .search-pager-step {
+  display: block;
+  min-width: 36px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  color: var(--conti-white);
+  text-decoration: none;
+}
+
+main .search .search-pager-nav a:hover {
+  background-color: var(--conti-light-black);
+}
+
+main .search .search-pager-page-active {
+  font-weight: 700;
+  border-bottom: 2px solid var(--conti-yellow);
+  border-radius: 0;
+}
+
+main .search .search-pager-step {
+  text-transform: uppercase;
+}
+
+main .search .search-pager-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+main .search .search-no-results {
+  max-width: var(--search-width);
+  margin: 0 auto;
+  padding: 48px 0;
+  text-align: center;
+}
+
+main .search .search-no-results h2 {
+  max-width: 11em;
+  margin: 0 auto 32px;
+  font-size: var(--heading-font-size-l);
+  line-height: 1.2;
+  color: var(--conti-white);
+}
+
+main .search .search-no-results .button:any-link {
+  background: none;
+  border: 2px solid var(--conti-white);
+  color: var(--conti-white);
+}
+
+main .search .search-no-results .button:hover {
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+}
+
+@media (width >= 600px) {
+  main .search .search-form-wrapper {
+    padding-top: 48px;
+  }
+
+  main .search .search-form input {
+    font-size: var(--body-font-size-m);
+    padding-left: 24px;
+  }
+
+  main .search .search-form button {
+    width: auto;
+    height: 48px;
+    padding: 0 32px;
+    font-family: var(--body-font-family);
+    font-size: var(--body-font-size-s);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  main .search .search-form button .icon {
+    display: none;
+  }
+
+  main .search .search-form button .search-form-label {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+  }
+
+  main .search .search-status {
+    padding: 32px 24px 40px;
+    text-align: left;
+  }
+
+  main .search .search-results-wrapper.search-band {
+    padding: 40px 24px 64px;
+  }
+
+  main .search .search-result {
+    padding: 24px 28px;
+  }
+
+  main .search .search-result-title {
+    font-size: 22px;
+  }
+
+  /* live puts the count at the left of the pager row and the pages at the right */
+  main .search .search-pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  main .search .search-pager-summary {
+    padding: 0;
+  }
+
+  main .search .search-no-results {
+    padding: 72px 0;
+  }
+
+  main .search .search-no-results h2 {
+    font-size: var(--heading-font-size-xxl);
+  }
+}
