@@ -39,6 +39,25 @@ describe('Footer content structure', () => {
       .to.be.null;
   });
 
+  // A page carries one h1 and the footer follows it, so an h3 here skips a
+  // level and Lighthouse fails heading-order on all 330 pages. The fragment
+  // cannot know what sits above it, so the block sets the rank.
+  it('gives each group an h2, so it follows the page h1 without a skip', () => {
+    const content = buildFooterContent(buildFragment());
+    const headings = [...content.querySelectorAll('.footer-links-group :is(h1,h2,h3,h4,h5,h6)')];
+    expect(headings, 'every group is headed').to.have.length(2);
+    headings.forEach((h) => expect(h.tagName).to.equal('H2'));
+  });
+
+  it('keeps the heading text and its id when it changes rank', () => {
+    const fragment = buildFragment();
+    fragment.querySelector('h3').id = 'follow-us';
+    const content = buildFooterContent(fragment);
+    const heading = content.querySelector('.footer-social :is(h1,h2,h3,h4,h5,h6)');
+    expect(heading.id).to.equal('follow-us');
+    expect(heading.textContent.trim()).to.equal('Follow Us');
+  });
+
   it('renders the social bar above the link columns', () => {
     const content = buildFooterContent(buildFragment());
     const kids = [...content.children];
