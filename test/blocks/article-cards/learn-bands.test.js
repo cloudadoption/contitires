@@ -48,6 +48,14 @@ describe('Learn hub band treatments', () => {
       expect(feature('.article-cards.feature', 'column-gap', '769px')).to.equal('100px');
     });
 
+    // `grid-row: 1 / -1` counts lines in the explicit grid. With the rows left
+    // implicit it resolves to row 1 alone, and the teasers stack below the
+    // image instead of beside it: the band read 908 tall against live's 580.
+    it('gives the image column rows to span', () => {
+      expect(feature('.article-cards.feature', 'grid-template-rows', '769px'))
+        .to.equal('auto auto 1fr');
+    });
+
     it('mirrors the columns for the image-right variant', () => {
       expect(feature('.article-cards.feature.image-right .article-cards-media', 'grid-column', '769px'))
         .to.equal('2');
@@ -109,6 +117,19 @@ describe('Learn hub band treatments', () => {
       expect(cards('.cards.highlights > ul', 'grid-template-columns', '769px'))
         .to.equal('repeat(2, 1fr)');
       expect(cards('.cards.highlights > ul', 'gap', '769px')).to.equal('20px');
+    });
+
+    const BAND = 'main .section.cards-container:has(.cards.highlights)';
+
+    it("gives the band live's own padding rather than the shared 56px", () => {
+      expect(cards(BAND, 'padding')).to.equal('38px 0');
+      expect(cards(BAND, 'padding', '769px')).to.equal('80px 0 38px');
+    });
+
+    it('uppercases the band heading, as live does', () => {
+      expect(cards(`${BAND} h2`, 'text-transform')).to.equal('uppercase');
+      expect(cards(`${BAND} h2`, 'letter-spacing')).to.equal('6px');
+      expect(cards(`${BAND} h2`, 'font-weight')).to.equal('300');
     });
   });
 });
