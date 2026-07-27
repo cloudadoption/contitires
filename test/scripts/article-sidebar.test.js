@@ -128,4 +128,28 @@ describe('Article layout', () => {
   it('runs one column on a narrow screen, sidebar under the body', () => {
     expect(value(BODY, 'grid-template-columns')).to.equal('1fr');
   });
+
+  it('marks the related links with live\'s gold bullet', () => {
+    expect(value('.related-articles-list li', 'list-style-type')).to.equal('disc');
+    expect(value('.related-articles-list li::marker', 'color')).to.equal('var(--conti-yellow)');
+  });
+});
+
+describe('Share row layout', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/share/share.css')).text());
+  });
+
+  // live groups the two social icons at the left of the row and the two
+  // controls that act on this page at the right, on articles and experience
+  // pages alike
+  it('pushes the page controls to the far end of the row', () => {
+    const rule = [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule))
+      .find((r) => r.selectorText === '.share li:nth-child(2)');
+    expect(rule).to.exist;
+    expect(rule.style.getPropertyValue('margin-inline-end').trim()).to.equal('auto');
+  });
 });
