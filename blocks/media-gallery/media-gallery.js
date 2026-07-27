@@ -59,6 +59,9 @@ export default function decorate(block) {
     modal.close();
   };
   close.addEventListener('click', dismiss);
+  // Escape raises cancel before the dialog closes, so the sound stops on the
+  // key rather than a task later. close is the backstop for any other path
+  modal.addEventListener('cancel', () => stage.replaceChildren());
   modal.addEventListener('close', () => stage.replaceChildren());
   modal.addEventListener('click', (e) => {
     if (e.target === modal) dismiss();

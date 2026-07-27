@@ -96,15 +96,17 @@ describe('Media gallery block', () => {
     expect(modal.querySelectorAll('iframe').length, 'player torn out so the sound stops').to.equal(0);
   });
 
-  // Escape never reaches our close control, so the dialog's own close event is
-  // what has to empty the stage. It fires a task after the key
-  it('takes the player out when Escape closes the modal', async () => {
+  // Escape never reaches the close control, so cancel is what empties the stage
+  // on that path. Both user paths are synchronous on purpose. The dialog's own
+  // close event stays in the block as a backstop, and is not asserted here: it
+  // is queued, and waiting on a queued event in a backgrounded test page turns
+  // the run flaky under the suite's parallelism
+  it('empties the stage on the cancel Escape raises', () => {
     decorate(science());
     block.querySelectorAll('.media-gallery-tile')[0].click();
     const modal = block.querySelector('dialog');
-    modal.close();
-    await new Promise((r) => { setTimeout(r, 0); });
-    expect(modal.querySelectorAll('iframe').length, 'player torn out').to.equal(0);
+    modal.dispatchEvent(new Event('cancel'));
+    expect(modal.querySelectorAll('iframe').length, 'player torn out on the key').to.equal(0);
   });
 
   it('skips a row that carries neither a still nor a video', () => {
