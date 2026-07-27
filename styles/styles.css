@@ -183,6 +183,21 @@ a:hover {
   text-decoration: underline;
 }
 
+/* a finder trigger opens the tire finder where it stands, so it is a button.
+   It sits in lists the header, the footer and the page style through their
+   link rules, so strip the UA button chrome and let those rules reach it. */
+button[data-tire-finder] {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
 /* buttons */
 p.button-wrapper {
   margin: 12px 0;

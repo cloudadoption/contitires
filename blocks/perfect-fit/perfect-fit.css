@@ -1,6 +1,9 @@
 /* slim black bar under the hero: "Find your perfect fit:" plus three
-   icon+label shortcuts, matching the live continentaltire.com homepage */
-main .section.perfect-fit-container {
+   icon+label shortcuts, matching the live continentaltire.com homepage.
+   Read the wrapper rather than the stamped container class: the card variant
+   nests inside the product hero, and that stamps perfect-fit-container on the
+   hero's section, which would take that section's padding away. */
+main .section:has(> .perfect-fit-wrapper) {
   padding: 0;
 }
 
@@ -26,7 +29,7 @@ main > .section.perfect-fit-host > div {
 
 /* listing pages author the bar as a single CTA with no label; live renders that
    strip half the height of the homepage's three-item bar */
-.perfect-fit:not(:has(.perfect-fit-label)) {
+.perfect-fit:not(.card, :has(.perfect-fit-label)) {
   padding: 13px 24px;
 }
 
@@ -64,7 +67,7 @@ main > .section.perfect-fit-host > div {
   outline-offset: 4px;
 }
 
-.perfect-fit:not(:has(.perfect-fit-label)) .perfect-fit-item {
+.perfect-fit:not(.card, :has(.perfect-fit-label)) .perfect-fit-item {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -99,6 +102,63 @@ main > .section.perfect-fit-host > div {
     gap: 24px;
     padding: 14px 32px;
   }
+}
+
+/* card variant: live's product hero offers the same three searches in a white
+   card in the right column, 352 wide, under the question */
+.perfect-fit.card {
+  box-sizing: border-box;
+  display: block;
+  text-align: left;
+  max-width: 352px;
+  border-radius: 6px;
+  background-color: var(--conti-white);
+  box-shadow: 0 5px 10px rgb(0 0 0 / 10%);
+  padding: 20px;
+  color: var(--conti-black);
+}
+
+.perfect-fit-card-heading {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: 0.25px;
+  text-align: center;
+}
+
+.perfect-fit-card-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.perfect-fit.card .perfect-fit-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.perfect-fit-card-list .icon {
+  height: 26px;
+  width: auto;
+}
+
+.perfect-fit-card-list .icon img {
+  height: 100%;
+  width: auto;
 }
 
 /* tire-finder modal, opened from the perfect-fit items above. Live renders it

@@ -3,6 +3,7 @@ import {
   loadFooter,
   decorateIcons,
   decorateSections,
+  decorateBlock,
   decorateBlocks,
   decorateTemplateAndTheme,
   waitForFirstImage,
@@ -11,7 +12,7 @@ import {
   loadCSS,
   buildBlock,
 } from './aem.js';
-import { initFinderTriggers, markProductFinderLinks } from './tire-finder.js';
+import { initFinderTriggers } from './tire-finder.js';
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
   const innerTT = window.trustedTypes.createPolicy('tt-inner', {
@@ -79,6 +80,35 @@ function buildWidgetAutoBlocks(main) {
   });
 }
 
+// live's question above the three searches in the product hero card
+const FINDER_CARD_QUESTION = 'Does this tire fit? Check now:';
+
+/**
+ * Product pages author one "Find your size" link into the hero. Live offers
+ * the three searches there instead, in a card. Build the card from the link.
+ * @param {Element} main The container element
+ */
+function buildFinderCardAutoBlocks(main) {
+  main.querySelectorAll('.columns.product-hero a[href="/perfect-fit"]').forEach((link) => {
+    const p = link.closest('p');
+    if (!p || p.textContent.trim() !== link.textContent.trim()) return;
+    const card = buildBlock('perfect-fit', FINDER_CARD_QUESTION);
+    card.classList.add('card');
+    p.replaceWith(card);
+  });
+}
+
+/**
+ * Decorates the blocks the platform does not reach. `decorateBlocks` reads a
+ * section's own children, so a block nested inside another block, such as the
+ * finder card in the product hero, is decorated here. `loadSection` then finds
+ * it like any other block.
+ * @param {Element} main The container element
+ */
+function decorateNestedBlocks(main) {
+  main.querySelectorAll('.perfect-fit.card:not(.block)').forEach(decorateBlock);
+}
+
 /**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
@@ -103,6 +133,7 @@ function buildAutoBlocks(main) {
       });
     }
     buildWidgetAutoBlocks(main);
+    buildFinderCardAutoBlocks(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -155,10 +186,10 @@ function decorateButtons(main) {
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
-  markProductFinderLinks(main);
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  decorateNestedBlocks(main);
   decorateButtons(main);
 }
 

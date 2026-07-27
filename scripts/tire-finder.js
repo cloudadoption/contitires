@@ -3,7 +3,8 @@
  * the header submenu, in the footer column and on every product page, and each
  * of those is a control that opens the modal rather than a link to a page.
  * This module holds the contract those places share: mark a control with
- * `data-tire-finder="<tab>"` and a click opens the finder on that tab.
+ * `data-tire-finder="<tab>"` and a click opens the finder on that tab. The
+ * product pages get theirs from the card the hero builds, in perfect-fit.js.
  */
 
 // live names the same three searches differently in the header and the footer
@@ -15,23 +16,24 @@ const FINDER_TABS = {
   'by license plate': 'plate',
 };
 
-// the product pages send this at a page the site does not have. The redirects
-// sheet answers the path, so the href is left as authored.
-const PRODUCT_LINK = 'a[href="/perfect-fit"]';
-
 const SEARCH_HEADING = /^search for tire$/i;
 
 /**
- * Marks a link as a finder trigger. The link is left in place: header.css and
- * footer.css style these lists through their `a` selectors, so a button in its
- * place paints as a raw UA button. Live marks its footer links the same way.
+ * Turns an authored link into a finder trigger. The control opens the finder
+ * where it stands and navigates nowhere, so it is a button, as live's own is.
+ * The authored href stays in the content, which is what a crawler and a
+ * visitor without JavaScript follow.
  * @param {Element} link the authored link
  * @param {string} tab the tab to open
- * @returns {Element} the link
+ * @returns {Element} the trigger
  */
 function toTrigger(link, tab) {
-  link.dataset.tireFinder = tab;
-  return link;
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.dataset.tireFinder = tab;
+  trigger.append(...link.childNodes);
+  link.replaceWith(trigger);
+  return trigger;
 }
 
 /**
@@ -51,15 +53,6 @@ export function markFinderTriggers(root) {
     });
   });
   return triggers;
-}
-
-/**
- * Turns the product pages' "Find your size" link into a finder trigger.
- * @param {Element} main the page main
- * @returns {Element[]} the triggers
- */
-export function markProductFinderLinks(main) {
-  return [...main.querySelectorAll(PRODUCT_LINK)].map((link) => toTrigger(link, 'vehicle'));
 }
 
 /**

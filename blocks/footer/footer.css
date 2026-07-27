@@ -60,7 +60,7 @@ footer .footer-links-group ul {
   gap: 12px;
 }
 
-footer .footer-links-group a {
+footer .footer-links-group :is(a, button[data-tire-finder]) {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -71,7 +71,7 @@ footer .footer-links-group a {
   letter-spacing: 0.5px;
 }
 
-footer .footer-links-group a .icon {
+footer .footer-links-group :is(a, button[data-tire-finder]) .icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
@@ -234,8 +234,8 @@ footer .footer-bottom a {
 }
 
 /* hover/focus, grouped last so specificity only ever increases */
-footer .footer-links-group a:hover,
-footer .footer-links-group a:focus-visible,
+footer .footer-links-group :is(a, button[data-tire-finder]):hover,
+footer .footer-links-group :is(a, button[data-tire-finder]):focus-visible,
 footer .footer-bottom a:hover,
 footer .footer-bottom a:focus-visible {
   text-decoration: underline;
