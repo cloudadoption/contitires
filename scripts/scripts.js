@@ -118,6 +118,9 @@ function decorateNestedBlocks(main) {
  */
 function buildArticleSidebar(main) {
   if (!document.body.classList.contains('article')) return;
+  // fragment.js decorates each fragment it loads with this same function, and
+  // the header loads the nav that way. Only the page's own main gets a sidebar.
+  if (main !== document.querySelector('main')) return;
   if (main.querySelector('.share')) return;
 
   // the first section is the title; the body is the one that follows it

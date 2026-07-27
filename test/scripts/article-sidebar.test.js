@@ -56,6 +56,21 @@ describe('Article sidebar', () => {
     expect(main.querySelectorAll('.share')).to.have.length(1);
   });
 
+  // fragment.js runs decorateMain over each fragment it loads, and the header
+  // loads the nav that way. Without this the nav grew a share row of its own
+  // on every article page.
+  it('leaves a fragment alone, even on an article page', () => {
+    const page = buildArticle();
+    const fragment = document.createElement('main');
+    fragment.innerHTML = `
+      <div><p>Brand</p></div>
+      <div><p>Menu</p></div>`;
+    decorateMain(fragment);
+
+    expect(fragment.querySelector('.share')).to.not.exist;
+    expect(page.querySelector('.share')).to.not.exist;
+  });
+
   it('keeps an authored related list in the same section as the share block', () => {
     const main = buildArticle({ related: true });
     decorateMain(main);
