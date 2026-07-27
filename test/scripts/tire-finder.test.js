@@ -2,7 +2,11 @@
 /* global describe it */
 
 import { expect } from '@esm-bundle/chai';
-import { markFinderTriggers, markProductFinderLinks } from '../../scripts/tire-finder.js';
+import {
+  markFinderTriggers,
+  markProductFinderLinks,
+  repointSearchLinks,
+} from '../../scripts/tire-finder.js';
 
 /** The header submenu, as nav.html authors it: a label plus three dead links. */
 function headerSubmenu() {
@@ -102,5 +106,59 @@ describe('tire finder triggers', () => {
     expect(trigger.dataset.tireFinder).to.equal('vehicle');
     expect(trigger.textContent.trim()).to.equal('Find your size');
     expect(trigger.tagName).to.equal('A');
+  });
+});
+
+describe('tire search results link', () => {
+  // Live's /tire-search is a results page the POC does not have, so these two
+  // navigations 404. They go to /tires, the listing page, which is the closest
+  // target we do have.
+  it('repoints the footer call to action, keeping its wording', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<p><strong><a href="/tire-search">Find Tires</a></strong></p>';
+    repointSearchLinks(root);
+
+    const link = root.querySelector('a');
+    expect(link.getAttribute('href'), 'href moved to the listing page').to.equal('/tires');
+    expect(link.textContent, 'wording untouched').to.equal('Find Tires');
+  });
+
+  it('repoints the hero call to action', () => {
+    const main = document.createElement('main');
+    main.innerHTML = '<p><a href="/tire-search">Find Tires That Fit</a></p>';
+    repointSearchLinks(main);
+
+    const link = main.querySelector('a');
+    expect(link.getAttribute('href')).to.equal('/tires');
+    expect(link.textContent).to.equal('Find Tires That Fit');
+  });
+
+  // Two of the footer's three finder triggers carry this same href. They open
+  // the modal instead of navigating, so their href is never followed.
+  it('leaves a marked finder trigger where it is', () => {
+    const group = footerGroup();
+    markFinderTriggers(group);
+    repointSearchLinks(group);
+
+    const triggers = [...group.querySelectorAll('[data-tire-finder]')];
+    expect(triggers.map((t) => t.getAttribute('href')))
+      .to.eql(['/tire-search/by-vehicle', '/tire-search', '/tire-search']);
+  });
+
+  // The only authored paths are exactly /tire-search; a deeper one is always a
+  // finder trigger, so matching loosely would move a link nothing asked for.
+  it('leaves a deeper tire-search path alone', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<a href="/tire-search/by-vehicle">By Vehicle</a>';
+    repointSearchLinks(root);
+
+    expect(root.querySelector('a').getAttribute('href')).to.equal('/tire-search/by-vehicle');
+  });
+
+  it('reports the links it moved', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<a href="/tire-search">Find Tires</a><a href="/tires">Our Tires</a>';
+
+    expect(repointSearchLinks(root)).to.have.length(1);
   });
 });

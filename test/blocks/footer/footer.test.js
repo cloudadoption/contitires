@@ -75,6 +75,26 @@ describe('Footer tire search column', () => {
     expect(siteSearch, 'site search is still a link').to.exist;
     expect(siteSearch.dataset.tireFinder).to.be.undefined;
   });
+
+  // The "Find Tires" call to action navigates rather than opening the finder,
+  // and it sat on /tire-search, which the POC does not have.
+  it('repoints the Find Tires call to action at the listing page', () => {
+    const fragment = document.createElement('div');
+    fragment.innerHTML = `
+      <p><strong><a href="/store-finder">Find Stores</a></strong></p>
+      <p><strong><a href="/tire-search">Find Tires</a></strong></p>
+      <h3>Search for Tire</h3>
+      <ul>
+        <li><a href="/tire-search/by-vehicle">By Vehicle</a></li>
+        <li><a href="/tire-search">By Tire</a></li>
+      </ul>`;
+    const content = buildFooterContent(fragment);
+
+    const cta = [...content.querySelectorAll('a')].find((a) => a.textContent.trim() === 'Find Tires');
+    expect(cta, 'the call to action survives grouping').to.exist;
+    expect(cta.getAttribute('href'), 'call to action points at the listing').to.equal('/tires');
+    expect(cta.dataset.tireFinder, 'it navigates, it does not open the finder').to.be.undefined;
+  });
 });
 
 describe('Footer social band', () => {
