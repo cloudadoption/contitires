@@ -414,6 +414,23 @@ main .section.black h3 {
   color: var(--conti-white);
 }
 
+/* a secondary button is transparent with dark text, which disappears on a dark
+   band. Live draws the same button in white there. */
+main .section.dark .button.secondary,
+main .section.black .button.secondary {
+  border-color: var(--conti-white);
+  color: var(--conti-white);
+}
+
+main .section.dark .button.secondary:hover,
+main .section.dark .button.secondary:focus-visible,
+main .section.black .button.secondary:hover,
+main .section.black .button.secondary:focus-visible {
+  border-color: var(--conti-white);
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+}
+
 /* full-bleed section: content spans edge to edge (hero, dark bands) */
 main .section.full-width > div {
   max-width: none;

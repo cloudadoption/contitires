@@ -452,3 +452,11 @@ main .section.black .cards.news .cards-card-body a {
     padding-inline-start: 20px;
   }
 }
+
+/* the tile is a white card on a black band, and the band paints its headings
+   and links white, so the tile keeps its own dark text */
+main .section.cards-container .cards.highlights .cards-card-body,
+main .section.cards-container .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6),
+main .section.cards-container .cards.highlights .cards-card-body a:any-link {
+  color: var(--conti-black);
+}

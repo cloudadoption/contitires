@@ -22,6 +22,23 @@ describe('Learn hub band treatments', () => {
     sheets.global = await load('/styles/styles.css');
   });
 
+  /** Splits a selector list on its top-level commas, so :is(a, b) stays whole. */
+  function selectors(text) {
+    const out = [];
+    let depth = 0;
+    let start = 0;
+    [...text].forEach((ch, i) => {
+      if (ch === '(') depth += 1;
+      else if (ch === ')') depth -= 1;
+      else if (ch === ',' && depth === 0) {
+        out.push(text.slice(start, i).trim());
+        start = i + 1;
+      }
+    });
+    out.push(text.slice(start).trim());
+    return out;
+  }
+
   /**
    * The value a property takes in the rule for `selector`, at `media`. A rule
    * that groups several selectors counts for each of them.
@@ -31,7 +48,7 @@ describe('Learn hub band treatments', () => {
       ? [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
         && r.conditionText.includes(media)).flatMap((r) => [...r.cssRules])
       : [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
-    const matches = (r) => r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    const matches = (r) => selectors(r.selectorText).includes(selector);
     const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
     return rule ? rule.style.getPropertyValue(prop).trim() : null;
   }
