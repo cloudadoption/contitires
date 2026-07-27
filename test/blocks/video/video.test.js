@@ -40,12 +40,14 @@ describe('Video block', () => {
     expect(button.getAttribute('aria-label')).to.equal('Play Mod My Toyota Supra');
   });
 
+  // the no-cookie host serves the same player and sets nothing until playback,
+  // which is what a page with a cookie banner should ask for
   it('builds the player on the embed url when the control is clicked', () => {
     decorate(authored());
     block.querySelector('button').click();
     const frame = block.querySelector('iframe');
     expect(frame, 'iframe').to.exist;
-    expect(frame.getAttribute('src')).to.contain('youtube.com/embed/d6w6bGy1eM8');
+    expect(frame.getAttribute('src')).to.contain('youtube-nocookie.com/embed/d6w6bGy1eM8');
     expect(frame.getAttribute('title')).to.equal('Mod My Toyota Supra');
     expect(frame.getAttribute('allowfullscreen')).to.exist;
   });
