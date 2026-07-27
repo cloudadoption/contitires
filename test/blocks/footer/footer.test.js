@@ -238,8 +238,8 @@ describe('Footer disclosures', () => {
     setFooterDisclosures(links, true);
     const [, tires, company] = links.querySelectorAll('.footer-links-group');
     [tires, company].forEach((group) => {
-      const label = group.querySelector('h3').textContent.trim();
-      const toggle = group.querySelector('h3 > button');
+      const label = group.querySelector('h2').textContent.trim();
+      const toggle = group.querySelector('h2 > button');
       expect(toggle, `${label} has a toggle`).to.exist;
       expect(toggle.tagName, `${label} toggles with a real button`).to.equal('BUTTON');
       expect(toggle.type, `${label} does not submit`).to.equal('button');
@@ -284,7 +284,7 @@ describe('Footer disclosures', () => {
 
     setFooterDisclosures(links, false);
     expect(group.querySelector('button'), 'no toggle left').to.be.null;
-    expect(group.querySelector('h3').textContent.trim(), 'heading text kept').to.equal('Our Tires');
+    expect(group.querySelector('h2').textContent.trim(), 'heading text kept').to.equal('Our Tires');
     expect(group.querySelector('ul').hidden, 'list shown').to.be.false;
   });
 });

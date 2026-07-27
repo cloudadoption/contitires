@@ -25,6 +25,23 @@ function getSocialIcon(link) {
   }
 }
 
+const HEADING = 'h1, h2, h3, h4, h5, h6';
+
+/**
+ * Re-ranks a group heading to h2. The fragment cannot know what sits above it,
+ * and every page puts its h1 before the footer, so h2 is the rank that follows
+ * a page without skipping a level.
+ * @param {Element} heading the authored heading
+ * @returns {Element} the heading at h2
+ */
+function asGroupHeading(heading) {
+  if (heading.tagName === 'H2') return heading;
+  const h2 = document.createElement('h2');
+  if (heading.id) h2.id = heading.id;
+  h2.append(...heading.childNodes);
+  return h2;
+}
+
 /**
  * Turns a footer links group into an icon row when every link in it is a known
  * social profile. Keeps the authored text as an accessible label.
@@ -39,7 +56,7 @@ function decorateSocialGroup(group) {
   if (icons.some((icon) => !icon)) return;
 
   group.classList.add('footer-social');
-  const heading = group.querySelector('h3');
+  const heading = group.querySelector(HEADING);
   if (heading) heading.className = 'footer-social-heading';
   items.forEach((link, i) => {
     const label = link.textContent.trim();
@@ -76,7 +93,7 @@ function isNavColumn(group) {
  * @param {number} i index, used for the id the button points at
  */
 function collapseGroup(group, i) {
-  const heading = group.querySelector('h3');
+  const heading = group.querySelector(HEADING);
   const list = group.querySelector('ul');
   if (!heading || !list || heading.querySelector('button')) return;
 
@@ -139,11 +156,11 @@ export function buildFooterContent(fragment) {
   const ctaButtons = [];
 
   let group = null;
-  fragment.querySelectorAll('h3, ul, p').forEach((el) => {
-    if (el.tagName === 'H3') {
+  fragment.querySelectorAll(`${HEADING}, ul, p`).forEach((el) => {
+    if (/^H[1-6]$/.test(el.tagName)) {
       group = document.createElement('div');
       group.className = 'footer-links-group';
-      group.append(el);
+      group.append(asGroupHeading(el));
       links.append(group);
     } else if (el.tagName === 'UL' && group) {
       group.append(el);

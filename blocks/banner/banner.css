@@ -15,7 +15,7 @@
   list-style: none;
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-xs);
-  color: var(--conti-darkest-grey);
+  color: var(--conti-text-grey);
 }
 
 .banner-breadcrumb li {

@@ -43,7 +43,7 @@ footer .footer-cta .button {
   letter-spacing: 0.5px;
 }
 
-footer .footer-links-group h3 {
+footer .footer-links-group h2 {
   margin: 0 0 13px;
   color: var(--conti-black);
   font-family: var(--body-font-family);
@@ -97,7 +97,7 @@ footer .footer-links-collapsible {
   border-top: 1px solid var(--conti-grey);
 }
 
-footer .footer-links-collapsible h3 {
+footer .footer-links-collapsible h2 {
   margin: 0;
 }
 
@@ -215,7 +215,7 @@ footer .footer-bottom {
 }
 
 footer .footer-bottom p {
-  color: var(--conti-darkest-grey);
+  color: var(--conti-text-grey);
 }
 
 footer .footer-bottom ul {
