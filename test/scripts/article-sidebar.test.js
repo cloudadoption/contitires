@@ -97,6 +97,12 @@ describe('Article layout', () => {
     expect(value(`${BODY} .default-content-wrapper`, 'grid-column', '769px')).to.equal('1');
   });
 
+  // the body spans every row, so without explicit rows the first one stretches
+  // to the body's full height and the related list lands past the end of it
+  it('holds the sidebar to the top of the body column', () => {
+    expect(value(BODY, 'grid-template-rows', '769px')).to.equal('auto auto 1fr');
+  });
+
   it('stacks the sharebar over the related list in the sidebar', () => {
     expect(value(`${BODY} .share-wrapper`, 'grid-column', '769px')).to.equal('2');
     expect(value(`${BODY} .share-wrapper`, 'grid-row', '769px')).to.equal('1');

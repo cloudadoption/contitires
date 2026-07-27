@@ -6,12 +6,14 @@ const NETWORKS = [
     label: 'Facebook',
     href: (url) => `https://www.facebook.com/sharer/sharer.php?u=${url}`,
     external: true,
+    iconOnly: true,
   },
   {
     name: 'x',
     label: 'X',
     href: (url, title) => `https://twitter.com/intent/tweet?text=${title}&url=${url}`,
     external: true,
+    iconOnly: true,
   },
   {
     name: 'mail',
@@ -33,7 +35,7 @@ export default function decorate(block) {
 
   const ul = document.createElement('ul');
   NETWORKS.forEach(({
-    name, label, href, external,
+    name, label, href, external, iconOnly,
   }) => {
     const li = document.createElement('li');
     const a = document.createElement('a');
@@ -45,7 +47,7 @@ export default function decorate(block) {
     const icon = document.createElement('span');
     icon.className = `icon icon-${name}`;
     const text = document.createElement('span');
-    text.className = 'share-label';
+    text.className = iconOnly ? 'share-label share-label-hidden' : 'share-label';
     text.textContent = label;
     a.append(icon, text);
     li.append(a);
