@@ -4,9 +4,8 @@
   padding: 8px;
 
   /* the block is empty until its own JS runs. Without a reserved row the page
-     below it jumps: PSI read a mobile CLS of 0.123 on an article. 21px is the
-     settled height of the icon row. */
-  min-height: 21px;
+     below it jumps. 24px is the settled height of the control row. */
+  min-height: 24px;
 }
 
 .share ul {
@@ -24,10 +23,13 @@
   margin-inline-end: auto;
 }
 
+/* 24px is the smallest touch target Lighthouse accepts; the icon is 20px */
 .share a {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 24px;
+  min-height: 24px;
   color: var(--conti-black);
 }
 
@@ -79,6 +81,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 24px;
+  min-height: 24px;
   margin: 0;
   border: 0;
   padding: 0;
