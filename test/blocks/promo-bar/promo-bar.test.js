@@ -10,7 +10,7 @@ function buildBlock() {
     <div class="promo-bar block">
       <div><div><p>See how to get a $110 Rebate</p></div></div>
       <div><div>
-        <h3>Get a $110 Rebate</h3>
+        <h2>Get a $110 Rebate</h2>
         <p>when you purchase a set of 4 qualifying Continental Tires!</p>
         <p><a href="/offers">See Full Details</a></p>
       </div></div>
@@ -42,7 +42,7 @@ describe('Promo bar block', () => {
     expect(inner).to.exist;
     expect(content).to.exist;
     expect(inner.contains(content)).to.be.true;
-    expect(content.querySelector('h3')).to.exist;
+    expect(content.querySelector(':is(h1, h2, h3, h4, h5, h6)')).to.exist;
   });
 
   it('starts the panel inert and wired to the toggle', () => {
