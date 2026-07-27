@@ -82,6 +82,26 @@ body.article main .section picture img {
   object-fit: cover;
 }
 
+/* The player's box before its block decorates. This sheet is in effect before
+   the page is revealed, and the block loads after it, so without this the
+   article shifts when the link paragraph gives way to the frame. The link is
+   over the poster until then, which is what a reader without JavaScript gets. */
+body.article main .video > div > div:has(picture) {
+  position: relative;
+}
+
+body.article main .video > div > div:has(picture) > p:last-child {
+  position: absolute;
+  inset: auto 0 0;
+  margin: 0;
+  padding: 8px 12px;
+  background-color: rgb(0 0 0 / 55%);
+}
+
+body.article main .video > div > div:has(picture) > p:last-child a {
+  color: var(--clr-white, #fff);
+}
+
 /* ---- the sidebar: sharebar, then the related articles an editor picked ---- */
 
 /* the body section is the one the share block was built into */
