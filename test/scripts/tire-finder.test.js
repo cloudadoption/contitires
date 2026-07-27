@@ -2,7 +2,7 @@
 /* global describe it */
 
 import { expect } from '@esm-bundle/chai';
-import { markFinderTriggers, markProductFinderLinks } from '../../scripts/tire-finder.js';
+import { markFinderTriggers } from '../../scripts/tire-finder.js';
 import { decorateMain } from '../../scripts/scripts.js';
 
 /** The header submenu, as nav.html authors it: a label plus three dead links. */
@@ -45,16 +45,30 @@ describe('tire finder triggers', () => {
       .to.eql(['By Vehicle', 'By Tire Size', 'By Plate']);
   });
 
-  // header.css and footer.css style these lists through their `a` selectors.
-  // Swapping the element for a button dropped every one of them: the controls
-  // painted as raw UA buttons, #efefef with a 2px outset border.
-  it('marks the authored link rather than replacing it', () => {
+  // live's own controls are buttons: they open the finder in place and go
+  // nowhere. header.css and footer.css carry the link-styled button rules that
+  // keep them looking like the list they sit in.
+  it('replaces the authored link with a button', () => {
     const submenu = headerSubmenu();
     markFinderTriggers(submenu);
 
     const triggers = [...submenu.querySelectorAll('[data-tire-finder]')];
     expect(triggers).to.have.length(3);
-    triggers.forEach((trigger) => expect(trigger.tagName).to.equal('A'));
+    triggers.forEach((trigger) => {
+      expect(trigger.tagName).to.equal('BUTTON');
+      expect(trigger.type).to.equal('button');
+    });
+    expect(submenu.querySelectorAll('a')).to.have.length(0);
+  });
+
+  it('keeps the button where the link stood, in the same list item', () => {
+    const group = footerGroup();
+    markFinderTriggers(group);
+
+    const items = [...group.querySelectorAll('li')];
+    expect(items.slice(0, 3).map((li) => li.firstElementChild.tagName))
+      .to.eql(['BUTTON', 'BUTTON', 'BUTTON']);
+    expect(items[3].firstElementChild.tagName).to.equal('A');
   });
 
   it('reads the footer wording, which names the same three searches differently', () => {
@@ -92,17 +106,75 @@ describe('tire finder triggers', () => {
 
     expect(group.querySelectorAll('[data-tire-finder]')).to.have.length(0);
   });
+});
 
-  it('turns the product page link into a trigger, on the vehicle tab', () => {
+/** A product page hero, as all 46 of them author it. */
+function productHero() {
+  const main = document.createElement('main');
+  main.innerHTML = `
+    <div>
+      <div class="columns product-hero">
+        <div>
+          <div><picture><img src="/t.png" alt="tire"></picture></div>
+          <div>
+            <h1 id="terraincontact-at">TerrainContact A/T</h1>
+            <p>A premium all-season all-terrain tire.</p>
+            <p><a href="/perfect-fit">Find your size</a></p>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  return main;
+}
+
+describe('product hero finder card', () => {
+  it('builds the finder card in the hero, in place of the authored link', () => {
+    const main = productHero();
+    decorateMain(main);
+
+    const card = main.querySelector('.perfect-fit.card');
+    expect(card).to.exist;
+    expect(card.closest('.columns.product-hero')).to.exist;
+    expect(main.querySelector('a[href="/perfect-fit"]')).to.not.exist;
+  });
+
+  it('decorates the card, which sits too deep for decorateBlocks to reach', () => {
+    const main = productHero();
+    decorateMain(main);
+
+    const card = main.querySelector('.perfect-fit.card');
+    expect(card.classList.contains('block')).to.be.true;
+    expect(card.dataset.blockStatus).to.equal('initialized');
+  });
+
+  // perfect-fit.css zeroes the padding of the section that hosts the bar. That
+  // rule reads the wrapper, so a card wrapped inside the hero cell leaves the
+  // hero section's own padding alone.
+  it('wraps the card in the hero cell, not in the section', () => {
+    const main = productHero();
+    decorateMain(main);
+
+    const wrapper = main.querySelector('.perfect-fit-wrapper');
+    expect(wrapper).to.exist;
+    expect(wrapper.closest('.columns.product-hero')).to.exist;
+    expect(main.querySelector('.section > .perfect-fit-wrapper')).to.not.exist;
+  });
+
+  it('carries the card question live asks into the block', () => {
+    const main = productHero();
+    decorateMain(main);
+
+    expect(main.querySelector('.perfect-fit.card').textContent)
+      .to.contain('Does this tire fit?');
+  });
+
+  it('leaves a link outside a product hero alone', () => {
     const main = document.createElement('main');
-    main.innerHTML = '<p><a href="/perfect-fit">Find your size</a></p>';
-    markProductFinderLinks(main);
+    main.innerHTML = '<div><p><a href="/perfect-fit">Find your size</a></p></div>';
+    decorateMain(main);
 
-    const trigger = main.querySelector('[data-tire-finder]');
-    expect(trigger).to.exist;
-    expect(trigger.dataset.tireFinder).to.equal('vehicle');
-    expect(trigger.textContent.trim()).to.equal('Find your size');
-    expect(trigger.tagName).to.equal('A');
+    expect(main.querySelector('.perfect-fit')).to.not.exist;
+    expect(main.querySelector('a').getAttribute('href')).to.equal('/perfect-fit');
   });
 });
 
@@ -126,18 +198,6 @@ describe('authored hrefs survive decoration', () => {
     decorateMain(main);
 
     expect(main.querySelector('a').getAttribute('href')).to.equal('/tire-search');
-  });
-
-  // The product page link opens the finder on a click. Its href is what a
-  // crawler and a visitor without JavaScript follow, so it stays as authored.
-  it('leaves the product page link where the content puts it, and marks it', () => {
-    const main = document.createElement('main');
-    main.innerHTML = '<p><a href="/perfect-fit">Find your size</a></p>';
-    decorateMain(main);
-
-    const link = main.querySelector('a');
-    expect(link.getAttribute('href')).to.equal('/perfect-fit');
-    expect(link.dataset.tireFinder).to.equal('vehicle');
   });
 
   // loadFragment runs decorateMain over the footer before footer.js sees it.

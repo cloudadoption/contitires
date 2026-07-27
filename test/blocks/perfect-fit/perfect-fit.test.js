@@ -489,3 +489,55 @@ describe('perfect-fit modal, opened without a block', () => {
     expect(document.querySelector('head > link[href$="/blocks/perfect-fit/perfect-fit.css"]')).to.exist;
   });
 });
+
+describe('perfect-fit card, the product hero variant', () => {
+  let fetchStub;
+  function build(heading = 'Does this tire fit? Check now:') {
+    document.body.innerHTML = `
+      <div class="perfect-fit card block">
+        <div><div><p>${heading}</p></div></div>
+      </div>`;
+    return document.querySelector('.perfect-fit.card');
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('heads the card with the authored question', async () => {
+    const block = build();
+    await decorate(block);
+    const heading = block.querySelector('.perfect-fit-card-heading');
+    expect(heading).to.exist;
+    expect(heading.textContent).to.equal('Does this tire fit? Check now:');
+  });
+
+  it('offers all three searches, as buttons', async () => {
+    const block = build();
+    await decorate(block);
+    const items = [...block.querySelectorAll('.perfect-fit-item')];
+    expect(items.map((i) => i.tagName)).to.eql(['BUTTON', 'BUTTON', 'BUTTON']);
+    expect(items.map((i) => i.dataset.tireFinder)).to.eql(['vehicle', 'tire-size', 'plate']);
+    expect(items.map((i) => i.textContent.trim())).to.eql(['By Vehicle', 'By Tire Size', 'By Plate']);
+  });
+
+  it('gives each search its icon', async () => {
+    const block = build();
+    await decorate(block);
+    const items = [...block.querySelectorAll('.perfect-fit-item')];
+    expect(items[0].querySelector('.icon-vehicle')).to.exist;
+    expect(items[1].querySelector('.icon-tire-size')).to.exist;
+    expect(items[2].querySelector('.icon-license-plate')).to.exist;
+  });
+
+  // the card renders in the hero, so it is in the eager phase of every product
+  // page. The modal and the catalogue behind it wait for a click.
+  it('reads no catalogue and builds no modal', async () => {
+    const block = build();
+    await decorate(block);
+    expect(fetchStub.called).to.be.false;
+    expect(block.querySelector('.perfect-fit-overlay')).to.not.exist;
+  });
+});
