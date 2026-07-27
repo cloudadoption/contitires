@@ -1,19 +1,56 @@
 {
-  "total": 10,
+  "total": 11,
   "offset": 0,
-  "limit": 10,
+  "limit": 11,
   "data": [
-    { "name": "Hero", "path": "/tools/sidekick/blocks/hero" },
-    { "name": "Cards", "path": "/tools/sidekick/blocks/cards" },
-    { "name": "Columns", "path": "/tools/sidekick/blocks/columns" },
-    { "name": "Carousel", "path": "/tools/sidekick/blocks/carousel" },
-    { "name": "Article Cards", "path": "/tools/sidekick/blocks/article-cards" },
-    { "name": "Category Tabs", "path": "/tools/sidekick/blocks/category-tabs" },
-    { "name": "Promo Bar", "path": "/tools/sidekick/blocks/promo-bar" },
-    { "name": "Perfect Fit", "path": "/tools/sidekick/blocks/perfect-fit" },
-    { "name": "Size List", "path": "/tools/sidekick/blocks/size-list" },
-    { "name": "Tire Listing", "path": "/tools/sidekick/blocks/tire-listing" }
+    {
+      "name": "Hero",
+      "path": "/tools/sidekick/blocks/hero"
+    },
+    {
+      "name": "Cards",
+      "path": "/tools/sidekick/blocks/cards"
+    },
+    {
+      "name": "Columns",
+      "path": "/tools/sidekick/blocks/columns"
+    },
+    {
+      "name": "Carousel",
+      "path": "/tools/sidekick/blocks/carousel"
+    },
+    {
+      "name": "Article Cards",
+      "path": "/tools/sidekick/blocks/article-cards"
+    },
+    {
+      "name": "Category Tabs",
+      "path": "/tools/sidekick/blocks/category-tabs"
+    },
+    {
+      "name": "Promo Bar",
+      "path": "/tools/sidekick/blocks/promo-bar"
+    },
+    {
+      "name": "Perfect Fit",
+      "path": "/tools/sidekick/blocks/perfect-fit"
+    },
+    {
+      "name": "Size List",
+      "path": "/tools/sidekick/blocks/size-list"
+    },
+    {
+      "name": "Tire Listing",
+      "path": "/tools/sidekick/blocks/tire-listing"
+    },
+    {
+      "name": "Video",
+      "path": "/tools/sidekick/blocks/video"
+    }
   ],
-  "columns": ["name", "path"],
+  "columns": [
+    "name",
+    "path"
+  ],
   ":type": "sheet"
 }
