@@ -1,5 +1,7 @@
+/* live sets the player wider than the reading column it sits in, at 747 */
 main .video {
-  margin: 1.5rem 0;
+  max-width: 747px;
+  margin: 1.5rem auto;
 }
 
 main .video .video-frame {

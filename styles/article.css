@@ -137,18 +137,21 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
 }
 
 @media (width >= 769px) {
-  /* the body spans every row, so the rows are explicit: left implicit, the
-     first one stretches to the body height and drops the related list past
-     the end of it */
+  /* A block in the middle of an article splits the body into more than one
+     wrapper, so the reading column takes every wrapper the sidebar does not,
+     in the order they were authored. The sidebar keeps its two rows. */
   body.article main .section:has(.share-wrapper) {
     max-width: 1100px;
-    grid-template: auto auto 1fr / 755px 300px;
+    grid-template-columns: 755px 300px;
+    grid-auto-rows: min-content;
     gap: 45px;
   }
 
-  body.article main .section:has(.share-wrapper) .default-content-wrapper {
+  body.article main .section:has(.share-wrapper) > * {
     grid-column: 1;
-    grid-row: 1 / -1;
+  }
+
+  body.article main .section:has(.share-wrapper) .default-content-wrapper {
     max-width: 559px;
     margin-inline: auto;
   }
