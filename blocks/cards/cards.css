@@ -123,13 +123,16 @@ main .section.cards-container {
   aspect-ratio: 16 / 9;
 }
 
+/* live puts the name and its link on one row, so the tile footer is a single
+   54px strip under the image */
 .cards.highlights .cards-card-body {
   margin: 0;
   padding: 16px 20px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
 }
 
 .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
