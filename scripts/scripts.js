@@ -11,7 +11,12 @@ import {
   loadCSS,
   buildBlock,
 } from './aem.js';
-import { initFinderTriggers, markProductFinderLinks, repointSearchLinks } from './tire-finder.js';
+import {
+  initFinderTriggers,
+  markFinderTriggers,
+  markProductFinderLinks,
+  repointSearchLinks,
+} from './tire-finder.js';
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
   const innerTT = window.trustedTypes.createPolicy('tt-inner', {
@@ -155,6 +160,10 @@ function decorateButtons(main) {
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
+  // the finder triggers are claimed before the repoint, because two of them
+  // carry the href the repoint moves. loadFragment sends the header and footer
+  // through here too, ahead of their own blocks.
+  markFinderTriggers(main);
   markProductFinderLinks(main);
   repointSearchLinks(main);
   buildAutoBlocks(main);
