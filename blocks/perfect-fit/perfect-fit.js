@@ -502,12 +502,52 @@ export async function openTireFinder(tabId, trigger) {
 }
 
 /**
+ * The card variant: live's product page offers the same three searches in a
+ * white card in the hero. It renders in the eager phase of every product page,
+ * so it builds no modal and reads no catalogue. The shared trigger contract
+ * carries the click, and the modal is built on the first one.
+ * @param {Element} block the perfect-fit block
+ */
+function decorateCard(block) {
+  const question = block.querySelector('p');
+  const heading = document.createElement('h2');
+  heading.className = 'perfect-fit-card-heading';
+  if (question) heading.append(...question.childNodes);
+
+  const list = document.createElement('ul');
+  list.className = 'perfect-fit-card-list';
+  TABS.forEach(({ id, label }, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'perfect-fit-item';
+    button.dataset.tireFinder = id;
+    const icon = document.createElement('span');
+    icon.className = `icon icon-${TAB_ICONS[index]}`;
+    const text = document.createElement('span');
+    text.className = 'perfect-fit-card-label';
+    text.textContent = label;
+    button.append(icon, text);
+    const li = document.createElement('li');
+    li.append(button);
+    list.append(li);
+  });
+  decorateIcons(list);
+
+  block.replaceChildren(heading, list);
+}
+
+/**
  * "Find your perfect fit:" bar: a label plus a row of shortcut buttons. Each
  * opens the tire-finder modal on the matching tab. The catalogue is loaded
  * from /products.json once, up front.
  * @param {Element} block the perfect-fit block
  */
 export default async function decorate(block) {
+  if (block.classList.contains('card')) {
+    decorateCard(block);
+    return;
+  }
+
   const [labelRow, itemsRow] = [...block.children];
   const label = labelRow ? labelRow.querySelector('p') : null;
   if (label) label.className = 'perfect-fit-label';

@@ -112,23 +112,36 @@ describe('Footer loaded the way the page loads it', () => {
     content = buildFooterContent(fragment);
   });
 
+  const SEARCHES = ['By Vehicle', 'By Tire', 'By License Plate'];
   const linkNamed = (text) => [...content.querySelectorAll('a')]
     .find((a) => a.textContent.trim() === text);
+  const triggerNamed = (text) => [...content.querySelectorAll('[data-tire-finder]')]
+    .find((t) => t.textContent.trim() === text);
 
   it('leaves the Find Tires call to action on its authored path', () => {
     expect(linkNamed('Find Tires').getAttribute('href')).to.equal('/tire-search');
   });
 
-  it('leaves the three finder triggers on their own hrefs', () => {
-    expect(
-      ['By Vehicle', 'By Tire', 'By License Plate'].map((t) => linkNamed(t).getAttribute('href')),
-    ).to.eql(['/tire-search/by-vehicle', '/tire-search', '/tire-search']);
+  // the three searches open the finder where they stand, so each renders as a
+  // button, as live's do
+  it('turns the three finder triggers into buttons', () => {
+    expect(SEARCHES.map((t) => triggerNamed(t).tagName))
+      .to.eql(['BUTTON', 'BUTTON', 'BUTTON']);
   });
 
   it('still marks the three finder triggers', () => {
-    expect(
-      ['By Vehicle', 'By Tire', 'By License Plate'].map((t) => linkNamed(t).dataset.tireFinder),
-    ).to.eql(['vehicle', 'tire-size', 'plate']);
+    expect(SEARCHES.map((t) => triggerNamed(t).dataset.tireFinder))
+      .to.eql(['vehicle', 'tire-size', 'plate']);
+  });
+
+  // the button is what a visitor with JavaScript gets. The authored href is
+  // what a crawler and a visitor without it follow, so the fragment keeps it.
+  it('leaves the authored hrefs in the fragment the page fetches', async () => {
+    const fragment = await loadFragment('/test/blocks/footer/mock-footer');
+    const authored = [...fragment.querySelectorAll('a')]
+      .filter((a) => SEARCHES.includes(a.textContent.trim()));
+    expect(authored.map((a) => a.getAttribute('href')))
+      .to.eql(['/tire-search/by-vehicle', '/tire-search', '/tire-search']);
   });
 
   it('leaves every other footer link where the author put it', () => {

@@ -410,7 +410,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
   font-weight: 400;
 }
 
-header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
+header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, button) {
   display: block;
   padding: 10px 0;
   font-size: var(--body-font-size-s);
@@ -474,7 +474,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
     white-space: nowrap;
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
+  header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, button) {
     padding: 8px 0;
     font-size: var(--body-font-size-s);
   }
@@ -590,7 +590,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
     font-weight: 400;
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > a {
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > :is(a, button) {
     padding: 7px 0;
     font-size: 14px;
     text-transform: none;
@@ -598,8 +598,14 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > a {
     color: var(--conti-white);
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > a:hover,
-  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > a:focus-visible {
+  /* the links beside it are inline, so their padding overlaps the row rather
+     than growing it. Keep the finder buttons inside the same row. */
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > button {
+    padding-block: 3px;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > :is(a, button):hover,
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > :is(a, button):focus-visible {
     color: var(--conti-yellow);
   }
 
