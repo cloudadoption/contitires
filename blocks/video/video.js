@@ -39,7 +39,6 @@ export default function decorate(block) {
 
   const title = link.textContent.trim();
   const picture = block.querySelector('picture');
-  const image = picture?.querySelector('img');
 
   // the frame holds the poster and later the player, at one ratio, so swapping
   // one for the other moves nothing below it
