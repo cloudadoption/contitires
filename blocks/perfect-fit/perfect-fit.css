@@ -125,6 +125,7 @@ main > .section.perfect-fit-host > div {
   font-weight: 700;
   line-height: 22px;
   letter-spacing: 0.25px;
+  text-align: center;
 }
 
 .perfect-fit-card-list {
