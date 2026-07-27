@@ -218,21 +218,38 @@ export function decorateMain(main) {
 }
 
 /**
+ * Loads the stylesheet this page's template needs. Returns a promise that
+ * settles once the stylesheet is in effect, so the reveal can wait on it.
+ * @returns {Promise} resolves when the template's styles are loaded
+ */
+export function loadTemplateStyles() {
+  if (!document.body.classList.contains('article')) return Promise.resolve();
+  return loadCSS(`${window.hlx.codeBasePath}/styles/article.css`);
+}
+
+/**
+ * Reveals the page.
+ * @param {Promise} templateStyles the template's stylesheet
+ */
+export async function revealPage(templateStyles) {
+  document.body.classList.add('appear');
+  return templateStyles;
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
-  // load template-specific styles (e.g. the article/news layout)
-  if (document.body.classList.contains('article')) {
-    loadCSS(`${window.hlx.codeBasePath}/styles/article.css`);
-  }
+  // start the template's stylesheet now, so it downloads alongside decoration
+  const templateStyles = loadTemplateStyles();
   if (isBlockPreview) document.body.classList.add('block-preview');
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
-    document.body.classList.add('appear');
+    await revealPage(templateStyles);
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
 
