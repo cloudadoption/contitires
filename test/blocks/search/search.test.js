@@ -288,6 +288,19 @@ describe('Search block: results', () => {
     expect(text).to.contain('Why should I rotate my tires');
   });
 
+  it('loads a Drupal-path thumbnail from the live host, which serves it', async () => {
+    // 58 of 320 index rows hold the image as /sites/default/files/..., a path this
+    // origin does not serve, while the page's own og:image is the absolute live URL
+    const drupal = row(6, { image: '/sites/default/files/media/image/2024-08/ct_crosscontact.png' });
+    const { block } = await decorateWith('?keywords=tires', indexResponse(0, [drupal]));
+    await waitFor(() => block.querySelector('.search-result'), 'results');
+    const img = block.querySelector('.search-result-image img');
+    expect(img.getAttribute('src')).to.equal(
+      'https://continentaltire.com/sites/default/files/media/image/2024-08/ct_crosscontact.png',
+    );
+    expect(img.getAttribute('loading')).to.equal('lazy');
+  });
+
   it('leaves out the image when a row has none', async () => {
     const noImage = row(9, { image: '' });
     const { block } = await decorateWith('?keywords=tires', indexResponse(0, [noImage]));
