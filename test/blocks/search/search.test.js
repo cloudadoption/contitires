@@ -131,6 +131,10 @@ describe('Search block: results', () => {
     await decorate(block);
     expect(stub.called, 'no fetch during decorate').to.be.false;
     expect(block.querySelector('.search-form'), 'the form paints first').to.exist;
+    // the results arrive after the load event, so their space is held from the start,
+    // otherwise the footer sits under the form and the results shove it down
+    const band = block.querySelector('.search-results-wrapper').classList;
+    expect(band.contains('search-band'), 'the results area is reserved').to.be.true;
     await waitFor(() => block.querySelector('.search-result'), 'results');
     expect(stub.calledOnce).to.be.true;
     expect(stub.firstCall.args[0]).to.equal('/query-index.json');
@@ -243,6 +247,8 @@ describe('Search block: results', () => {
     expect(block.querySelector('.search-results')).to.not.exist;
     expect(block.querySelector('.search-status').textContent.trim()).to.equal('');
     expect(fetchStub.called, 'no index fetch without a query').to.be.false;
+    const band = block.querySelector('.search-results-wrapper').classList;
+    expect(band.contains('search-band'), 'nothing reserved without a query').to.be.false;
   });
 
   it('keeps a noindex page out of its own results', async () => {
