@@ -260,9 +260,11 @@ main .section.cards-container:has(.cards.category) > div {
 
 /* ---- coverage: icon-over-label items on a dark band (warranty coverage row) ---- */
 .cards.coverage > ul {
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 24px;
-  text-align: center;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  max-width: 300px;
+  margin-inline: auto;
+  text-align: left;
 }
 
 .cards.coverage > ul > li {
@@ -273,9 +275,9 @@ main .section.cards-container:has(.cards.category) > div {
 
 .cards.coverage .cards-card-body {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   margin: 0;
   color: inherit;
   font-family: var(--heading-font-family);
@@ -290,8 +292,25 @@ main .section.cards-container:has(.cards.category) > div {
 }
 
 .cards.coverage .cards-card-body .icon {
+  flex: none;
   width: 56px;
   height: 56px;
+}
+
+/* live turns the rows into one row of six at 769, and never wraps: an
+   auto-fit grid left an orphan item on its own row at tablet widths */
+@media (width >= 769px) {
+  .cards.coverage > ul {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+    max-width: none;
+    text-align: center;
+  }
+
+  .cards.coverage .cards-card-body {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 .cards.category > ul > li:hover,
@@ -316,22 +335,55 @@ main .section.dark.cards-container {
   text-align: center;
 }
 
+/* the badge arrives as an icon span, filled in after the page paints, so its
+   box is reserved at both sizes rather than left to the image */
 main .section.dark.cards-container .default-content-wrapper .icon {
-  width: 126px;
-  height: 148px;
+  width: 60px;
+  height: 70px;
 }
 
 main .section.dark.cards-container .default-content-wrapper h2 {
   letter-spacing: 6px;
 }
 
+/* the news band is a dark cards section too, and keeps the global heading
+   scale; only the confidence band takes live's own two sizes */
+main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2 {
+  font-size: 30px;
+}
+
 main .section.dark.cards-container .default-content-wrapper p {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 300;
+}
+
+main .section.dark.cards-container .default-content-wrapper .button {
+  display: block;
 }
 
 main .section.dark.cards-container .cards-wrapper {
   margin-top: 32px;
+}
+
+@media (width >= 769px) {
+  main .section.dark.cards-container .default-content-wrapper .icon {
+    width: 126px;
+    height: 148px;
+  }
+
+  main .section.dark.cards-container .default-content-wrapper p {
+    font-size: 24px;
+  }
+
+  main .section.dark.cards-container .default-content-wrapper .button {
+    display: inline-flex;
+  }
+}
+
+@media (width >= 1025px) {
+  main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2 {
+    font-size: 42px;
+  }
 }
 
 /* ---- news inside a dark/black band: plain text teasers, no card chrome ---- */
