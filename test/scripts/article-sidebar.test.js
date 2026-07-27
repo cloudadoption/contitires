@@ -129,6 +129,15 @@ describe('Article layout', () => {
     expect(value(BODY, 'grid-template-columns')).to.equal('1fr');
   });
 
+  // article.css loads after first paint, so any ratio it forces on the hero
+  // moves the page. The images carry their own width and height, and
+  // inspiring-confidence is 1120x630 against the forced 2/1: its hero shrank
+  // 24px at 375 and everything below it rose. PSI read a CLS of 0.161 there.
+  it('leaves the hero image at the ratio the author uploaded', () => {
+    expect(value('body.article main .section picture img', 'aspect-ratio')).to.equal(null);
+    expect(value('body.article main .section picture img', 'height')).to.equal('auto');
+  });
+
   it('marks the related links with live\'s gold bullet', () => {
     expect(value(`${BODY} .related-articles-list li`, 'list-style-type')).to.equal('disc');
     expect(value(`${BODY} .related-articles-list li::marker`, 'color')).to.equal('var(--conti-yellow)');
