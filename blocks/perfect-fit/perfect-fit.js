@@ -491,7 +491,11 @@ export async function openTireFinder(tabId, trigger) {
     finder = buildModal(await loadProducts());
     const host = document.createElement('div');
     host.className = 'section perfect-fit-host';
-    host.append(finder.overlay);
+    // a section caps and pads its first level at the content width, so the
+    // overlay sits a level below it, where a block's markup would sit
+    const wrapper = document.createElement('div');
+    wrapper.append(finder.overlay);
+    host.append(wrapper);
     document.querySelector('main').append(host);
   }
   finder.open(tabId, trigger);
