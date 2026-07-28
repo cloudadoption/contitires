@@ -267,3 +267,73 @@ describe('Banner block, the band inside a section', () => {
     expect(getComputedStyle(document.querySelector('.banner-wrapper')).padding).to.equal('0px');
   });
 });
+
+/**
+ * The band built its h1 from a cell of plain text, so the served HTML carried
+ * no heading at all: a crawler, a reader mode or the index saw an unheaded
+ * page. The 13 pages that carry the band author the heading now, and the block
+ * styles what they wrote. Issue #114.
+ */
+describe('Banner block, the authored heading', () => {
+  const path = window.location.pathname;
+  afterEach(() => window.history.replaceState({}, '', path));
+
+  it('draws the heading the author wrote, rather than one of its own', () => {
+    window.history.replaceState({}, '', '/legal');
+    const block = bannerBlock('<h1 id="terms-of-use-agreement">Terms Of Use Agreement</h1>');
+    const authored = block.querySelector('h1');
+    decorate(block);
+
+    const h1 = block.querySelector('h1');
+    expect(h1 === authored, 'the authored heading is the one on the page').to.be.true;
+    expect(h1.classList.contains('banner-title'), 'the block styles it').to.be.true;
+    expect(h1.id, 'it keeps the id the pipeline gave it').to.equal('terms-of-use-agreement');
+    expect(block.querySelectorAll('h1')).to.have.length(1);
+  });
+
+  it('keeps the markup inside the heading', () => {
+    window.history.replaceState({}, '', '/offers');
+    const block = bannerBlock('<h1>Continental Tire <em>Offers</em></h1>');
+    decorate(block);
+
+    expect(block.querySelector('h1 em'), 'the emphasis survives').to.exist;
+    expect(block.querySelector('h1').textContent).to.equal('Continental Tire Offers');
+  });
+
+  // the band is the page title, so it is the page's h1 whatever rank the
+  // author reached for. footer.js re-ranks its group headings the same way.
+  it('reads a lower rank up to h1, so the page carries one', () => {
+    window.history.replaceState({}, '', '/dealers');
+    const block = bannerBlock('<h2 id="dealers">Dealers</h2>');
+    decorate(block);
+
+    const h1 = block.querySelector('h1');
+    expect(h1, 'the band heads the page at h1').to.exist;
+    expect(h1.textContent).to.equal('Dealers');
+    expect(h1.id).to.equal('dealers');
+    expect(block.querySelector('h2') === null, 'no lower rank is left behind').to.be.true;
+  });
+
+  // a cell of plain text is what the block library still offers, and what the
+  // 13 pages carried before this change
+  it('still builds a heading from a cell of plain text', () => {
+    window.history.replaceState({}, '', '/privacy');
+    const block = bannerBlock('Privacy Notice');
+    decorate(block);
+
+    const h1 = block.querySelector('h1.banner-title');
+    expect(h1, 'a title element is built').to.exist;
+    expect(h1.textContent).to.equal('Privacy Notice');
+  });
+
+  it('draws an authored line under an authored heading', () => {
+    window.history.replaceState({}, '', '/media');
+    const block = bannerBlock('<h1>Brand Assets</h1>', '<p>Download our brand assets for your materials.</p>');
+    decorate(block);
+
+    const text = block.querySelector('p.banner-text');
+    expect(text, 'the line under the title').to.exist;
+    expect(text.textContent).to.equal('Download our brand assets for your materials.');
+    expect(block.querySelector('h1').nextElementSibling === text, 'it follows the title').to.be.true;
+  });
+});
