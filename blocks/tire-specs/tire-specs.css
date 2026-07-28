@@ -1,10 +1,40 @@
 /* product specifications: a dark band with a size selector and the selected
-   size's spec sheet, matching the live product page */
+   size's spec sheet, matching the live product page.
+
+   The sheet lands after the sections under this one are on screen, so the band
+   holds the room the filled sheet takes. Every product carries the same 19
+   fields, so the height turns on the width rather than on the product: the grid
+   below pairs the fields two across from 700px up. These are the heights the
+   filled band settles at, read off six product pages at ten widths from 320 to
+   1440: 1472 at 320 and 375, 1289 from 480, 853 at 700 falling to 837 at 768,
+   808 from 900. A band holds the tallest of the widths in it, so the room is
+   never short of the sheet. Where it is over, the sheet sits in a taller band
+   rather than moving what is under it. Issue #111. */
 .tire-specs {
+  box-sizing: border-box;
+  min-height: 1472px;
   background-color: var(--conti-dark-black);
   color: var(--conti-white);
   padding: 48px 24px;
   text-align: center;
+}
+
+@media (width >= 480px) {
+  .tire-specs {
+    min-height: 1289px;
+  }
+}
+
+@media (width >= 700px) {
+  .tire-specs {
+    min-height: 853px;
+  }
+}
+
+@media (width >= 900px) {
+  .tire-specs {
+    min-height: 808px;
+  }
 }
 
 .tire-specs h2 {

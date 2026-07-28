@@ -538,11 +538,14 @@ function decorateCard(block) {
 
 /**
  * "Find your perfect fit:" bar: a label plus a row of shortcut buttons. Each
- * opens the tire-finder modal on the matching tab. The catalogue is loaded
- * from /products.json once, up front.
+ * opens the tire-finder modal on the matching tab.
+ *
+ * The bar is the third section of the homepage, and loadSections reaches the
+ * six under it only once this returns, so it reads no catalogue and builds no
+ * modal. Both wait for the first click, as they do for the card. Issue #111.
  * @param {Element} block the perfect-fit block
  */
-export default async function decorate(block) {
+export default function decorate(block) {
   if (block.classList.contains('card')) {
     decorateCard(block);
     return;
@@ -551,11 +554,6 @@ export default async function decorate(block) {
   const [labelRow, itemsRow] = [...block.children];
   const label = labelRow ? labelRow.querySelector('p') : null;
   if (label) label.className = 'perfect-fit-label';
-
-  const products = await loadProducts();
-  const modal = buildModal(products);
-  // the bar's modal serves the header and footer triggers too
-  finder = modal;
 
   const list = document.createElement('ul');
   list.className = 'perfect-fit-items';
@@ -576,12 +574,12 @@ export default async function decorate(block) {
     }
     while (cell.firstElementChild) button.append(cell.firstElementChild);
     decorateIcons(button);
-    button.addEventListener('click', () => modal.open(tabId, button));
+    button.addEventListener('click', () => openTireFinder(tabId, button));
     const li = document.createElement('li');
     li.append(button);
     list.append(li);
   });
 
   const children = label ? [label, list] : [list];
-  block.replaceChildren(...children, modal.overlay);
+  block.replaceChildren(...children);
 }

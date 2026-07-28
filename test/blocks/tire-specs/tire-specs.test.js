@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it afterEach */
+/* global describe it before after afterEach */
 
 import { expect } from '@esm-bundle/chai';
+import { setViewport } from '@web/test-runner-commands';
 import sinon from 'sinon';
 import decorate from '../../../blocks/tire-specs/tire-specs.js';
 
@@ -74,6 +75,39 @@ function stubPagedFetch(rows, pageSize) {
   });
 }
 
+/** A fetch stub for a sheet still on the way: it never answers. */
+function stubPendingFetch() {
+  return sinon.stub(window, 'fetch').callsFake(() => new Promise(() => {}));
+}
+
+/**
+ * Waits for what the block does after decoration returns. A mutation observer
+ * reports that without a timer, which the test runner throttles on the pages
+ * it backgrounds.
+ * @param {Function} check reads the page, returning what the caller waits for
+ */
+function when(check) {
+  return new Promise((resolve) => {
+    const hit = check();
+    if (hit) {
+      resolve(hit);
+      return;
+    }
+    const observer = new MutationObserver(() => {
+      const found = check();
+      if (!found) return;
+      observer.disconnect();
+      resolve(found);
+    });
+    observer.observe(document.documentElement, {
+      childList: true, subtree: true, attributes: true,
+    });
+  });
+}
+
+/** The block once the sheet has landed and the selector is in place. */
+const filled = (block) => when(() => block.querySelector('.tire-specs-select'));
+
 /** A tire-specs block with the product slug authored in its first cell. */
 function build(slug) {
   document.body.innerHTML = `<div class="tire-specs block"><div><div>${slug}</div></div></div>`;
@@ -88,6 +122,39 @@ function buildInSection(slug) {
   return document.querySelector('.tire-specs.block');
 }
 
+/*
+ * A product page carries three more sections under this one, and loadSections
+ * reaches them only once this block returns: loadSection awaits every block in
+ * turn and leaves the sections below at display none meanwhile. The specs sheet
+ * is 827KB over 1656 rows, so awaiting it here held the rest of the page back.
+ * The block renders first and fills in when the sheet lands. Issue #111.
+ */
+describe('Tire specs block, the sheet it does not wait for', () => {
+  let fetchStub;
+  afterEach(() => fetchStub?.restore());
+
+  it('heads the band before the sheet lands', () => {
+    fetchStub = stubPendingFetch();
+    const block = build('my-tire');
+    decorate(block);
+    expect(block.querySelector('h2')).to.exist;
+    expect(block.querySelector('h2').textContent).to.equal('Specifications');
+  });
+
+  it('leaves the block in place while the sheet is on the way', () => {
+    fetchStub = stubPendingFetch();
+    const block = buildInSection('my-tire');
+    decorate(block);
+    expect(document.querySelector('.tire-specs-wrapper')).to.exist;
+  });
+
+  it('asks for the sheet while decorating, rather than waiting for a reader', () => {
+    fetchStub = stubPendingFetch();
+    decorate(build('my-tire'));
+    expect(fetchStub.calledOnce).to.be.true;
+  });
+});
+
 describe('Tire specs block, legacy product-specs.json', () => {
   let fetchStub;
   afterEach(() => fetchStub?.restore());
@@ -95,7 +162,8 @@ describe('Tire specs block, legacy product-specs.json', () => {
   it('renders a size selector and the first size specs', async () => {
     fetchStub = stubFetch({ '/product-specs.json': SPECS });
     const block = build('my-tire');
-    await decorate(block);
+    decorate(block);
+    await filled(block);
 
     const opts = block.querySelectorAll('.tire-specs-select option');
     expect(opts).to.have.length(2);
@@ -108,7 +176,8 @@ describe('Tire specs block, legacy product-specs.json', () => {
   it('switches specs when a different size is selected', async () => {
     fetchStub = stubFetch({ '/product-specs.json': SPECS });
     const block = build('my-tire');
-    await decorate(block);
+    decorate(block);
+    await filled(block);
 
     const select = block.querySelector('.tire-specs-select');
     select.value = '1';
@@ -116,12 +185,13 @@ describe('Tire specs block, legacy product-specs.json', () => {
     expect(block.textContent).to.contain('88');
   });
 
-  it('renders nothing when the product has no specs', async () => {
+  it('takes the block out when the product has no specs', async () => {
     fetchStub = stubFetch({ '/product-specs.json': SPECS });
     const block = build('unknown-tire');
-    await decorate(block);
+    decorate(block);
+    await when(() => !block.isConnected);
 
-    expect(block.querySelector('.tire-specs-select')).to.not.exist;
+    expect(document.querySelector('.tire-specs-select')).to.not.exist;
   });
 });
 
@@ -132,7 +202,8 @@ describe('Tire specs block, multi-sheet workbook', () => {
   it('reads specs.data, filters by slug, and renders the 19 fields in column order', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
     const block = build('vikingcontact-7');
-    await decorate(block);
+    decorate(block);
+    await filled(block);
 
     const opts = block.querySelectorAll('.tire-specs-select option');
     expect(opts).to.have.length(2);
@@ -144,29 +215,22 @@ describe('Tire specs block, multi-sheet workbook', () => {
     expect(block.textContent).to.contain('88'); // Load Index of the first size
   });
 
-  it('renders nothing when the slug has no rows in the specs sheet', async () => {
-    fetchStub = stubFetch({ '/products.json': WORKBOOK });
-    const block = build('purecontact-ls');
-    await decorate(block);
-
-    expect(block.querySelector('.tire-specs-select')).to.not.exist;
-  });
-
   // an empty block still paints its dark band, leaving a black stripe under the
   // hero on the products live has no sizes for
   it('takes its wrapper out of the section when the slug has no rows', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
     const block = buildInSection('purecontact-ls');
-    await decorate(block);
+    decorate(block);
+    await when(() => !document.querySelector('.tire-specs-wrapper'));
 
-    expect(document.querySelectorAll('.tire-specs-wrapper').length).to.equal(0);
     expect(document.querySelector('.tire-specs-container').children.length).to.equal(0);
   });
 
   it('keeps its wrapper when the slug has rows', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
     const block = buildInSection('vikingcontact-7');
-    await decorate(block);
+    decorate(block);
+    await filled(block);
 
     expect(document.querySelectorAll('.tire-specs-wrapper').length).to.equal(1);
     expect(block.querySelectorAll('.tire-specs-select option').length).to.equal(2);
@@ -178,9 +242,9 @@ describe('Tire specs block, single-sheet request', () => {
   afterEach(() => fetchStub?.restore());
 
   // the workbook also carries the products and catalog sheets a PDP never reads
-  it('asks for the specs sheet, not the whole workbook', async () => {
+  it('asks for the specs sheet, not the whole workbook', () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK.specs });
-    await decorate(build('my-tire'));
+    decorate(build('my-tire'));
     expect(fetchStub.firstCall.args[0]).to.contain('/products.json?sheet=specs');
     expect(fetchStub.firstCall.args[0]).to.not.contain('sheet=products');
   });
@@ -188,7 +252,8 @@ describe('Tire specs block, single-sheet request', () => {
   it('reads the rows a single-sheet response puts at data', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK.specs });
     const block = build('vikingcontact-7');
-    await decorate(block);
+    decorate(block);
+    await filled(block);
 
     const opts = block.querySelectorAll('.tire-specs-select option');
     expect(opts).to.have.length(2);
@@ -209,9 +274,9 @@ describe('Tire specs block, sheets longer than one page', () => {
       : specRow('filler', `1${i}5/55 R 16`, String(i))));
   }
 
-  it('asks for more rows than the sheet API serves by default', async () => {
+  it('asks for more rows than the sheet API serves by default', () => {
     fetchStub = stubPagedFetch(longSheet(30, 'my-tire'), 10);
-    await decorate(build('my-tire'));
+    decorate(build('my-tire'));
 
     const url = new URL(String(fetchStub.firstCall.args[0]), 'https://x');
     expect(Number(url.searchParams.get('limit')), 'a request with no limit stops at 1000').to.be.above(1000);
@@ -220,14 +285,17 @@ describe('Tire specs block, sheets longer than one page', () => {
   it('keeps reading until it holds the whole sheet', async () => {
     fetchStub = stubPagedFetch(longSheet(30, 'my-tire'), 10);
     const block = build('my-tire');
-    await decorate(block);
+    decorate(block);
+    await filled(block);
 
     expect(block.querySelectorAll('.tire-specs-select option')).to.have.length(3);
   });
 
   it('stops once it has every row', async () => {
     fetchStub = stubPagedFetch(longSheet(30, 'my-tire'), 10);
-    await decorate(build('my-tire'));
+    const block = build('my-tire');
+    decorate(block);
+    await filled(block);
 
     expect(fetchStub.callCount).to.equal(3);
   });
@@ -235,8 +303,58 @@ describe('Tire specs block, sheets longer than one page', () => {
   it('renders a product whose rows all sit past the first page', async () => {
     fetchStub = stubPagedFetch(longSheet(2400, 'contiprocontact'), 1000);
     const block = build('contiprocontact');
-    await decorate(block);
+    decorate(block);
+    await filled(block);
 
     expect(block.querySelectorAll('.tire-specs-select option')).to.have.length(3);
+  });
+});
+
+/*
+ * The sheet lands after the sections under this one are on screen, so the block
+ * holds the room its spec sheet takes. Every product carries the same 19
+ * fields, so the height turns on the width rather than on the product: the grid
+ * pairs the fields two across from 700px up. These are the heights the filled
+ * band settles at, read off six product pages from 320 to 1440: 1472 at 320 and
+ * 375, 1289 from 480, 853 from 700, 808 from 900. A band holds the tallest of
+ * the widths in it, so the room is never short of the sheet. Where it is over,
+ * the sheet sits in a taller band rather than moving what is under it.
+ */
+describe('The room the spec sheet takes', () => {
+  let block;
+
+  before(async () => {
+    const sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/tire-specs/tire-specs.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    document.body.innerHTML = '<main><div class="section"><div><div class="tire-specs"></div></div></div></main>';
+    block = document.querySelector('.tire-specs');
+  });
+
+  after(() => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.slice(0, -1);
+    document.querySelector('main').remove();
+  });
+
+  const height = () => Math.round(block.getBoundingClientRect().height);
+
+  it('holds the stacked sheet open on a phone', async () => {
+    await setViewport({ width: 375, height: 800 });
+    expect(height()).to.equal(1472);
+  });
+
+  it('holds the shorter stack open from 480', async () => {
+    await setViewport({ width: 600, height: 800 });
+    expect(height()).to.equal(1289);
+  });
+
+  it('holds the paired sheet open from 700', async () => {
+    await setViewport({ width: 768, height: 800 });
+    expect(height()).to.equal(853);
+  });
+
+  it('holds the desk sheet open from 900', async () => {
+    await setViewport({ width: 1200, height: 800 });
+    expect(height()).to.equal(808);
   });
 });

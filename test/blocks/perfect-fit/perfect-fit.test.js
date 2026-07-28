@@ -21,6 +21,65 @@ const PRODUCTS = {
   ],
 };
 
+/**
+ * Waits for what a click brings about. The modal is built on the first one, so
+ * it arrives after the handler has read the catalogue, and a mutation observer
+ * reports that without a timer, which the test runner throttles on the pages it
+ * backgrounds.
+ * @param {Function} check reads the page, returning what the caller waits for
+ */
+function when(check, what = 'the page to come round') {
+  return new Promise((resolve, reject) => {
+    const hit = check();
+    if (hit) {
+      resolve(hit);
+      return;
+    }
+    let stop = () => {};
+    const observer = new MutationObserver(() => {
+      const found = check();
+      if (!found) return;
+      stop();
+      resolve(found);
+    });
+    const timer = setTimeout(() => {
+      stop();
+      reject(new Error(`waited in vain for ${what}`));
+    }, 2000);
+    stop = () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+    observer.observe(document.documentElement, {
+      childList: true, subtree: true, attributes: true,
+    });
+  });
+}
+
+/**
+ * The bar in the section and wrapper the page decoration puts it in. The modal
+ * is hosted in a section of its own, so the fixture needs the main around it.
+ */
+function buildBar(items = ['By Vehicle', 'By Tire Size', 'By Plate'], label = 'Find your perfect fit:') {
+  document.body.innerHTML = `
+    <main><div class="section perfect-fit-container"><div class="perfect-fit-wrapper">
+      <div class="perfect-fit block">
+        <div><div>${label ? `<p>${label}</p>` : ''}</div></div>
+        <div>${items.map((item) => `<div><span>${item}</span></div>`).join('')}</div>
+      </div>
+    </div></div></main>`;
+  return document.querySelector('.perfect-fit.block');
+}
+
+/** Opens the finder from a bar item, and waits for the modal the click builds. */
+async function openFrom(block, index = 0) {
+  block.querySelectorAll('.perfect-fit-item')[index].click();
+  return when(() => document.querySelector('.perfect-fit-overlay:not([hidden])'), 'the modal to open');
+}
+
+/** The panel of one tab, wherever the modal is hosted. */
+const panelOf = (id) => document.querySelector(`#perfect-fit-panel-${id}`);
+
 describe('perfect-fit data helpers', () => {
   it('parses a well-formed tire size', () => {
     expect(parseSize('225/45ZR17')).to.deep.equal({ width: '225', aspect: '45', rim: '17' });
@@ -48,20 +107,51 @@ describe('perfect-fit data helpers', () => {
   });
 });
 
+/*
+ * The bar is the third section of the homepage, and loadSections reaches the
+ * six under it only once this block returns: loadSection awaits every block in
+ * turn and leaves the sections below at display none meanwhile. The catalogue
+ * is only read to fill the modal, and the modal only opens on a click, so both
+ * wait for one. Issue #111.
+ */
+describe('perfect-fit bar, the catalogue it does not read', () => {
+  let fetchStub;
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('reads no catalogue while decorating', async () => {
+    await decorate(buildBar());
+    expect(fetchStub.called).to.be.false;
+  });
+
+  it('builds no modal while decorating', async () => {
+    await decorate(buildBar());
+    expect(document.querySelector('.perfect-fit-overlay')).to.not.exist;
+  });
+
+  it('reads the catalogue on the first click', async () => {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+    expect(fetchStub.calledOnce).to.be.true;
+  });
+
+  it('reads it once, however often the bar is clicked', async () => {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 0);
+    await openFrom(block, 1);
+    expect(fetchStub.calledOnce).to.be.true;
+    expect(document.querySelectorAll('.perfect-fit-overlay')).to.have.length(1);
+  });
+});
+
 describe('perfect-fit block', () => {
   let fetchStub;
-  function build() {
-    document.body.innerHTML = `
-      <div class="perfect-fit block">
-        <div><div><p>Find your perfect fit:</p></div></div>
-        <div>
-          <div><span>By Vehicle</span></div>
-          <div><span>By Tire Size</span></div>
-          <div><span>By Plate</span></div>
-        </div>
-      </div>`;
-    return document.querySelector('.perfect-fit.block');
-  }
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
@@ -70,7 +160,7 @@ describe('perfect-fit block', () => {
   afterEach(() => fetchStub.restore());
 
   it('injects the search icon into each item when the content has none', async () => {
-    const block = build();
+    const block = buildBar();
     await decorate(block);
     const items = block.querySelectorAll('.perfect-fit-item');
     expect(items[0].querySelector('.icon.icon-vehicle')).to.exist;
@@ -79,37 +169,37 @@ describe('perfect-fit block', () => {
   });
 
   it('does not add a second icon when the content already has one', async () => {
-    document.body.innerHTML = `
-      <div class="perfect-fit block">
-        <div><div><p>Find your perfect fit:</p></div></div>
-        <div>
-          <div><p><span class="icon icon-vehicle"></span>By Vehicle</p></div>
-          <div><p><span class="icon icon-tire-size"></span>By Tire Size</p></div>
-          <div><p><span class="icon icon-license-plate"></span>By Plate</p></div>
-        </div>
-      </div>`;
-    const block = document.querySelector('.perfect-fit.block');
+    const block = buildBar([
+      '<p><span class="icon icon-vehicle"></span>By Vehicle</p>',
+      '<p><span class="icon icon-tire-size"></span>By Tire Size</p>',
+      '<p><span class="icon icon-license-plate"></span>By Plate</p>',
+    ]);
     await decorate(block);
     block.querySelectorAll('.perfect-fit-item').forEach((item) => {
       expect(item.querySelectorAll('.icon')).to.have.length(1);
     });
   });
 
-  it('builds three item buttons and a hidden modal', async () => {
-    const block = build();
+  it('builds three item buttons', async () => {
+    const block = buildBar();
     await decorate(block);
     expect(block.querySelectorAll('.perfect-fit-item')).to.have.length(3);
-    const overlay = block.querySelector('.perfect-fit-overlay');
-    expect(overlay).to.exist;
-    expect(overlay.hidden).to.be.true;
+  });
+
+  it('opens the modal on the tab the item names', async () => {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 2);
+    expect(panelOf('plate').hidden).to.be.false;
+    expect(panelOf('vehicle').hidden).to.be.true;
   });
 
   it('returns matching products when a tire size is searched', async () => {
-    const block = build();
+    const block = buildBar();
     await decorate(block);
-    block.querySelectorAll('.perfect-fit-item')[1].click(); // By Tire Size
+    await openFrom(block, 1); // By Tire Size
 
-    const panel = block.querySelector('#perfect-fit-panel-tire-size');
+    const panel = panelOf('tire-size');
     const setSelect = (name, value) => {
       const el = panel.querySelector(`[name="${name}"]`);
       el.value = value;
@@ -127,12 +217,12 @@ describe('perfect-fit block', () => {
   });
 
   it('closes on Escape and restores focus to the trigger', async () => {
-    const block = build();
+    const block = buildBar();
     await decorate(block);
     const trigger = block.querySelectorAll('.perfect-fit-item')[0];
-    trigger.click();
-    block.querySelector('.perfect-fit-dialog').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    expect(block.querySelector('.perfect-fit-overlay').hidden).to.be.true;
+    const overlay = await openFrom(block, 0);
+    document.querySelector('.perfect-fit-dialog').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(overlay.hidden).to.be.true;
     expect(document.activeElement).to.equal(trigger);
   });
 });
@@ -145,20 +235,19 @@ const TERMS = 'By selecting "See Tires That Fit" I confirm that I have read the 
 
 describe('perfect-fit modal, rebuilt against live', () => {
   let fetchStub;
-  function build(items = ['By Vehicle', 'By Tire Size', 'By Plate'], label = 'Find your perfect fit:') {
-    document.body.innerHTML = `
-      <div class="perfect-fit block">
-        <div><div>${label ? `<p>${label}</p>` : ''}</div></div>
-        <div>${items.map((item) => `<div><span>${item}</span></div>`).join('')}</div>
-      </div>`;
-    return document.querySelector('.perfect-fit.block');
-  }
   const setField = (panel, name, value) => {
     const el = panel.querySelector(`[name="${name}"]`);
     el.value = value;
     el.dispatchEvent(new Event('change', { bubbles: true }));
     el.dispatchEvent(new Event('input', { bubbles: true }));
   };
+  /** A decorated bar with its modal open, since the click is what builds it. */
+  async function open(index = 0) {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, index);
+    return block;
+  }
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
@@ -167,27 +256,23 @@ describe('perfect-fit modal, rebuilt against live', () => {
   afterEach(() => fetchStub.restore());
 
   it('leads the vehicle form with make, then model, then year', async () => {
-    const block = build();
-    await decorate(block);
-    const names = [...block.querySelectorAll('#perfect-fit-panel-vehicle [name]')]
-      .map((el) => el.name);
+    await open();
+    const names = [...panelOf('vehicle').querySelectorAll('[name]')].map((el) => el.name);
     expect(names).to.deep.equal(['make', 'model', 'year']);
   });
 
   it('heads each panel with live\'s question', async () => {
-    const block = build();
-    await decorate(block);
-    const heading = (id) => block.querySelector(`#perfect-fit-panel-${id} h2`).textContent;
+    await open();
+    const heading = (id) => panelOf(id).querySelector('h2').textContent;
     expect(heading('vehicle')).to.equal('What are you driving?');
     expect(heading('tire-size')).to.equal('What\'s your tire size?');
     expect(heading('plate')).to.equal('Enter your license plate.');
   });
 
   it('shows the terms sentence, with Terms of Use linking to the legal page', async () => {
-    const block = build();
-    await decorate(block);
+    await open();
     ['vehicle', 'tire-size', 'plate'].forEach((id) => {
-      const terms = block.querySelector(`#perfect-fit-panel-${id} .perfect-fit-terms`);
+      const terms = panelOf(id).querySelector('.perfect-fit-terms');
       expect(terms, `${id} panel has terms`).to.exist;
       expect(terms.textContent.replace(/\s+/g, ' ').trim()).to.equal(TERMS);
       expect(terms.querySelector('a').getAttribute('href')).to.equal('/legal');
@@ -196,17 +281,15 @@ describe('perfect-fit modal, rebuilt against live', () => {
   });
 
   it('labels the call to action the way live does', async () => {
-    const block = build();
-    await decorate(block);
-    block.querySelectorAll('.perfect-fit-search').forEach((button) => {
+    await open();
+    document.querySelectorAll('.perfect-fit-search').forEach((button) => {
       expect(button.textContent).to.equal('See tires that fit');
     });
   });
 
   it('keeps the vehicle call to action disabled until every field has a value', async () => {
-    const block = build();
-    await decorate(block);
-    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    await open();
+    const panel = panelOf('vehicle');
     const button = panel.querySelector('.perfect-fit-search');
     expect(button.disabled, 'disabled before any choice').to.be.true;
     setField(panel, 'make', 'Toyota');
@@ -218,9 +301,8 @@ describe('perfect-fit modal, rebuilt against live', () => {
   });
 
   it('keeps the tire size call to action disabled until the size is complete', async () => {
-    const block = build();
-    await decorate(block);
-    const panel = block.querySelector('#perfect-fit-panel-tire-size');
+    await open(1);
+    const panel = panelOf('tire-size');
     const button = panel.querySelector('.perfect-fit-search');
     expect(button.disabled).to.be.true;
     setField(panel, 'width', '245');
@@ -231,9 +313,8 @@ describe('perfect-fit modal, rebuilt against live', () => {
   });
 
   it('keeps the plate call to action disabled until plate and state are given', async () => {
-    const block = build();
-    await decorate(block);
-    const panel = block.querySelector('#perfect-fit-panel-plate');
+    await open(2);
+    const panel = panelOf('plate');
     const button = panel.querySelector('.perfect-fit-search');
     expect(button.disabled).to.be.true;
     setField(panel, 'plate', 'ABC1234');
@@ -243,9 +324,8 @@ describe('perfect-fit modal, rebuilt against live', () => {
   });
 
   it('floats the field name above the control once it holds a value', async () => {
-    const block = build();
-    await decorate(block);
-    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    await open();
+    const panel = panelOf('vehicle');
     const wrapper = panel.querySelector('[name="make"]').closest('.perfect-fit-field');
     expect(wrapper.classList.contains('perfect-fit-field-filled'), 'empty').to.be.false;
     setField(panel, 'make', 'Toyota');
@@ -253,9 +333,8 @@ describe('perfect-fit modal, rebuilt against live', () => {
   });
 
   it('takes the floated name away when the cascade clears the field below', async () => {
-    const block = build();
-    await decorate(block);
-    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    await open();
+    const panel = panelOf('vehicle');
     const model = panel.querySelector('[name="model"]').closest('.perfect-fit-field');
     setField(panel, 'make', 'Toyota');
     setField(panel, 'model', 'Camry');
@@ -265,32 +344,27 @@ describe('perfect-fit modal, rebuilt against live', () => {
   });
 
   it('names the dialog after the panel on show', async () => {
-    const block = build();
-    await decorate(block);
-    block.querySelectorAll('.perfect-fit-item')[1].click();
-    const dialog = block.querySelector('.perfect-fit-dialog');
+    await open(1);
+    const dialog = document.querySelector('.perfect-fit-dialog');
     const labelledBy = dialog.getAttribute('aria-labelledby');
-    expect(block.querySelector(`#${labelledBy}`).textContent).to.equal('What\'s your tire size?');
+    expect(document.querySelector(`#${labelledBy}`).textContent).to.equal('What\'s your tire size?');
   });
 
   it('puts focus on the dialog rather than into the first field', async () => {
-    const block = build();
-    await decorate(block);
-    block.querySelectorAll('.perfect-fit-item')[0].click();
-    const dialog = block.querySelector('.perfect-fit-dialog');
+    await open();
+    const dialog = document.querySelector('.perfect-fit-dialog');
     expect(dialog.getAttribute('tabindex')).to.equal('-1');
     expect(document.activeElement).to.equal(dialog);
   });
 
   it('opens on the vehicle tab when the bar is authored as a single item', async () => {
-    const block = build(['Find your perfect fit'], '');
+    const block = buildBar(['Find your perfect fit'], '');
     await decorate(block);
     const items = block.querySelectorAll('.perfect-fit-item');
     expect(items).to.have.length(1);
     expect(block.querySelector('.perfect-fit-label')).to.not.exist;
-    items[0].click();
-    expect(block.querySelector('.perfect-fit-overlay').hidden).to.be.false;
-    expect(block.querySelector('#perfect-fit-panel-vehicle').hidden).to.be.false;
+    await openFrom(block, 0);
+    expect(panelOf('vehicle').hidden).to.be.false;
   });
 });
 
@@ -317,18 +391,6 @@ const WORKBOOK = {
 
 describe('perfect-fit block, multi-sheet workbook', () => {
   let fetchStub;
-  function build() {
-    document.body.innerHTML = `
-      <div class="perfect-fit block">
-        <div><div><p>Find your perfect fit:</p></div></div>
-        <div>
-          <div><span>By Vehicle</span></div>
-          <div><span>By Tire Size</span></div>
-          <div><span>By Plate</span></div>
-        </div>
-      </div>`;
-    return document.querySelector('.perfect-fit.block');
-  }
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
@@ -337,11 +399,11 @@ describe('perfect-fit block, multi-sheet workbook', () => {
   afterEach(() => fetchStub.restore());
 
   it('reads products.data and splits comma-delimited sizes into an array', async () => {
-    const block = build();
+    const block = buildBar();
     await decorate(block);
-    block.querySelectorAll('.perfect-fit-item')[1].click(); // By Tire Size
+    await openFrom(block, 1); // By Tire Size
 
-    const panel = block.querySelector('#perfect-fit-panel-tire-size');
+    const panel = panelOf('tire-size');
     const setSelect = (name, value) => {
       const el = panel.querySelector(`[name="${name}"]`);
       el.value = value;
@@ -358,11 +420,11 @@ describe('perfect-fit block, multi-sheet workbook', () => {
   });
 
   it('splits comma-delimited vehicleTypes so the vehicle finder matches', async () => {
-    const block = build();
+    const block = buildBar();
     await decorate(block);
-    block.querySelectorAll('.perfect-fit-item')[0].click(); // By Vehicle
+    await openFrom(block, 0); // By Vehicle
 
-    const panel = block.querySelector('#perfect-fit-panel-vehicle');
+    const panel = panelOf('vehicle');
     const setSelect = (name, value) => {
       const el = panel.querySelector(`[name="${name}"]`);
       el.value = value;
@@ -380,39 +442,29 @@ describe('perfect-fit block, multi-sheet workbook', () => {
 
 describe('perfect-fit block, single-sheet request', () => {
   let fetchStub;
-  function build() {
-    document.body.innerHTML = `
-      <div class="perfect-fit block">
-        <div><div><p>Find your perfect fit:</p></div></div>
-        <div>
-          <div><span>By Vehicle</span></div>
-          <div><span>By Tire Size</span></div>
-          <div><span>By Plate</span></div>
-        </div>
-      </div>`;
-    return document.querySelector('.perfect-fit.block');
-  }
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
   });
   afterEach(() => fetchStub.restore());
 
-  // the workbook carries a 1315-row specs sheet the finder never reads, so ask
+  // the workbook carries a 1656-row specs sheet the finder never reads, so ask
   // the sheet API for the products sheet alone
   it('asks for the products sheet, not the whole workbook', async () => {
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
-    await decorate(build());
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 0);
     expect(fetchStub.firstCall.args[0]).to.equal('/products.json?sheet=products');
   });
 
   it('reads the rows a single-sheet response puts at data', async () => {
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK.products)));
-    const block = build();
+    const block = buildBar();
     await decorate(block);
-    block.querySelectorAll('.perfect-fit-item')[1].click(); // By Tire Size
+    await openFrom(block, 1); // By Tire Size
 
-    const panel = block.querySelector('#perfect-fit-panel-tire-size');
+    const panel = panelOf('tire-size');
     const setSelect = (name, value) => {
       const el = panel.querySelector(`[name="${name}"]`);
       el.value = value;
@@ -446,8 +498,8 @@ describe('perfect-fit modal, opened without a block', () => {
     const overlay = document.querySelector('.perfect-fit-overlay');
     expect(overlay).to.exist;
     expect(overlay.hidden).to.be.false;
-    expect(document.querySelector('#perfect-fit-panel-plate').hidden).to.be.false;
-    expect(document.querySelector('#perfect-fit-panel-vehicle').hidden).to.be.true;
+    expect(panelOf('plate').hidden).to.be.false;
+    expect(panelOf('vehicle').hidden).to.be.true;
   });
 
   // #149 anchored two of its fixes on `main .section`, so the modal has to stay
@@ -473,7 +525,7 @@ describe('perfect-fit modal, opened without a block', () => {
     await openTireFinder('vehicle');
     await openTireFinder('tire-size');
     expect(document.querySelectorAll('.perfect-fit-overlay')).to.have.length(1);
-    expect(document.querySelector('#perfect-fit-panel-tire-size').hidden).to.be.false;
+    expect(panelOf('tire-size').hidden).to.be.false;
   });
 
   it('returns focus to the control that opened it', async () => {
@@ -494,9 +546,11 @@ describe('perfect-fit card, the product hero variant', () => {
   let fetchStub;
   function build(heading = 'Does this tire fit? Check now:') {
     document.body.innerHTML = `
-      <div class="perfect-fit card block">
-        <div><div><p>${heading}</p></div></div>
-      </div>`;
+      <main><div class="section"><div class="perfect-fit-wrapper">
+        <div class="perfect-fit card block">
+          <div><div><p>${heading}</p></div></div>
+        </div>
+      </div></div></main>`;
     return document.querySelector('.perfect-fit.card');
   }
   beforeEach(() => {
