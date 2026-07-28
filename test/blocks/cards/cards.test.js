@@ -597,15 +597,21 @@ describe("Register your tires band, live's six benefits", () => {
     expect(styles.borderRadius).to.equal('0px');
   });
 
-  // live draws each mark at the size it declares: five 55 tall, the sixth 50
-  it('draws each mark at its own size, centred', async () => {
+  // live draws each mark at the size its own file asks for: five 55 tall, the
+  // sixth 50. The box holds them all and scale-down keeps each at its size.
+  it('draws each mark at the size its own file asks for, centred', async () => {
     await setViewport({ width: 1440, height: 900 });
     const marks = [...block.querySelectorAll('.icon img')];
     expect(marks).to.have.length(6);
-    expect(marks.slice(0, 5).map((m) => Math.round(m.getBoundingClientRect().height)))
-      .to.eql([55, 55, 55, 55, 55]);
+    expect(marks.map((m) => `${m.naturalWidth}x${m.naturalHeight}`))
+      .to.eql(['53x55', '50x55', '57x55', '55x55', '49x55', '50x50']);
+    marks.forEach((m) => {
+      const box = m.getBoundingClientRect();
+      expect(getComputedStyle(m).objectFit).to.equal('scale-down');
+      expect(box.width).to.be.at.least(m.naturalWidth);
+      expect(box.height).to.be.at.least(m.naturalHeight);
+    });
     expect(Math.round(marks[5].getBoundingClientRect().height)).to.equal(50);
-    expect(Math.round(marks[0].getBoundingClientRect().width)).to.equal(53);
     const mark = marks[0].getBoundingClientRect();
     const body = block.querySelector('.cards-card-body').getBoundingClientRect();
     expect(Math.round(mark.left - body.left)).to.equal(Math.round(body.right - mark.right));
