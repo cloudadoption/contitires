@@ -326,6 +326,24 @@ describe('Retailers block, live\'s measurements', () => {
       .to.be.closeTo(button.getBoundingClientRect().bottom + 10, 0.5);
   });
 
+  // live's card is 282.6 tall: 24 of padding, the copy, then 16 under it
+  it('sets the copy the way live sets it', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    block.querySelector('button.retailers-financing').click();
+    const panel = block.querySelector('.retailers-panel');
+    const parts = [...panel.children].filter((el) => !el.classList.contains('retailers-close'));
+    const card = panel.getBoundingClientRect();
+    expect(parts[0].getBoundingClientRect().top, 'the copy opens at the padding')
+      .to.be.closeTo(card.top + 24, 0.5);
+    const fine = parts[parts.length - 1];
+    const styles = getComputedStyle(fine);
+    expect(styles.fontSize, 'the terms read small').to.equal('12px');
+    expect(styles.lineHeight).to.equal('16px');
+    expect(styles.marginTop, 'and sit 12 under the line above').to.equal('12px');
+    expect(Math.round(fine.getBoundingClientRect().height), 'over two lines').to.equal(32);
+    expect(Math.round(card.height)).to.equal(283);
+  });
+
   it('closes the card with live\'s ringed cross', async () => {
     await setViewport({ width: 1440, height: 900 });
     block.querySelector('button.retailers-financing').click();
