@@ -4,6 +4,7 @@
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
 import decorate from '../../../blocks/cards/cards.js';
+import { decorateIcons } from '../../../scripts/aem.js';
 
 // The Confidence on the Road band now sits on every product page, not the
 // homepage alone. Live lays its six coverage items out as one row of six from
@@ -436,5 +437,202 @@ describe("You Might Also Like band, live's crew teasers", () => {
       - cards[0].getBoundingClientRect().bottom)).to.equal(20);
     expect(Math.round(cards[0].getBoundingClientRect().left))
       .to.equal(Math.round(cards[1].getBoundingClientRect().left));
+  });
+});
+
+/**
+ * The Register your tires band on /warranty. Live sets the six benefits on a
+ * #333 band, centred and white: a mark at its own size over an uppercase title
+ * and a line of copy, three across from 769 and one below. The intro above and
+ * the roadside line below stand on the same band, 38 from the items.
+ *
+ * Read off continentaltire.com/warranty at 1440, 900, 768 and 375. Issue #94.
+ */
+describe("Register your tires band, live's six benefits", () => {
+  let block;
+  let section;
+
+  const BENEFITS = [
+    ['limited-warranty', 'Limited Warranty +**', 'If your tires become unserviceable within the first 12 months, we\'ll replace them for free.'],
+    ['mileage-warranty', 'Mileage Warranty +', 'We\'ll cover replacements on select products up to 80,000 miles.'],
+    ['satisfaction-trial', 'Customer Satisfaction Trial +', 'If you\'re not happy with your purchase, we\'ll replace your tires with Continental brand tires in the first 60 days.'],
+    ['road-hazard', 'Road Hazard Coverage +**', 'We\'ll replace your damaged tires for free within the first 12 months of purchase.'],
+    ['roadside-assistance', 'Flat Tire Roadside Assistance +', 'Get a flat change and spare installed (or tow if needed for free up to 150 miles).'],
+    ['trip-interruption', 'Emergency Trip Interruption Coverage +', 'If you have a mechanical breakdown during a road trip, we\'ll help cover eligible expenses.'],
+  ];
+
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/cards/cards.css'].map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    const main = document.createElement('main');
+    const item = ([icon, title, copy]) => `
+      <div><div><p><span class="icon icon-${icon}"></span></p>
+      <h2 id="${icon}">${title}</h2><p>${copy}</p></div></div>`;
+    main.innerHTML = `
+      <div class="section cards-container dark">
+        <div class="default-content-wrapper">
+          <p>Register your tires online at <strong><a href="https://register.roadsideprotect.com/continental/">totalconfidence-plan.com</a></strong> to receive these benefits.</p>
+        </div>
+        <div class="cards-wrapper">
+          <div class="cards benefits block">${BENEFITS.map(item).join('')}</div>
+        </div>
+        <div class="default-content-wrapper">
+          <p>Need roadside assistance now? Call <strong><a href="tel:1-888-990-6125">1-888-990-6125</a></strong></p>
+          <p><em>Must be registered.</em></p>
+        </div>
+      </div>`;
+    document.body.replaceChildren(main);
+    document.body.classList.add('appear');
+    section = main.querySelector('.section');
+    block = main.querySelector('.cards.benefits');
+    decorateIcons(block);
+    decorate(block);
+    // the marks are real files, and their own width is what the row measures
+    await Promise.all([...block.querySelectorAll('img')].map((img) => (img.complete
+      ? Promise.resolve()
+      : new Promise((done) => { img.addEventListener('load', done); img.addEventListener('error', done); }))));
+  });
+
+  after(() => {
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+  });
+
+  it('paints the band #333 and centres it, white', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const styles = getComputedStyle(section);
+    expect(styles.backgroundColor).to.equal('rgb(51, 51, 51)');
+    expect(styles.color).to.equal('rgb(255, 255, 255)');
+    expect(styles.textAlign).to.equal('center');
+  });
+
+  // live pads the band 60 from 769 and 38 below
+  it("pads the band live's 38, and 60 from 769", async () => {
+    await setViewport({ width: 768, height: 900 });
+    expect(getComputedStyle(section).padding).to.equal('38px 0px');
+    await setViewport({ width: 769, height: 900 });
+    expect(getComputedStyle(section).padding).to.equal('60px 0px');
+  });
+
+  it('runs three benefits across 38 apart at 1440', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const list = block.querySelector('ul');
+    const items = [...block.querySelectorAll('li')];
+    expect(items).to.have.length(6);
+    expect(getComputedStyle(list).gap).to.equal('38px');
+    expect(Math.round(items[0].getBoundingClientRect().width * 100) / 100).to.equal(353.33);
+    expect(Math.round(items[1].getBoundingClientRect().left
+      - items[0].getBoundingClientRect().right)).to.equal(38);
+    expect(Math.round(items[3].getBoundingClientRect().top
+      - items[0].getBoundingClientRect().bottom)).to.equal(38);
+  });
+
+  it('stacks the benefits one per row below 769', async () => {
+    await setViewport({ width: 768, height: 900 });
+    const items = [...block.querySelectorAll('li')];
+    expect(Math.round(items[0].getBoundingClientRect().width)).to.equal(720);
+    expect(Math.round(items[1].getBoundingClientRect().top
+      - items[0].getBoundingClientRect().bottom)).to.equal(38);
+  });
+
+  // live holds a benefit to 228 in a 16 gutter, centred in its column
+  it('holds a benefit to 260 and centres it in its column', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const [item] = block.querySelectorAll('li');
+    const body = item.querySelector('.cards-card-body');
+    const styles = getComputedStyle(body);
+    expect(styles.maxWidth).to.equal('228px');
+    expect(styles.padding).to.equal('0px 16px');
+    expect(styles.boxSizing).to.equal('content-box');
+    const inner = body.getBoundingClientRect();
+    const column = item.getBoundingClientRect();
+    expect(Math.round(inner.width)).to.equal(260);
+    expect(Math.round(inner.left - column.left)).to.equal(Math.round(column.right - inner.right));
+  });
+
+  it('draws no card chrome on the band', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const [item] = block.querySelectorAll('li');
+    const styles = getComputedStyle(item);
+    expect(styles.backgroundColor).to.equal('rgba(0, 0, 0, 0)');
+    expect(styles.boxShadow).to.equal('none');
+    expect(styles.borderRadius).to.equal('0px');
+  });
+
+  // live draws each mark at the size it declares: five 55 tall, the sixth 50
+  it('draws each mark at its own size, centred', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const marks = [...block.querySelectorAll('.icon img')];
+    expect(marks).to.have.length(6);
+    expect(marks.slice(0, 5).map((m) => Math.round(m.getBoundingClientRect().height)))
+      .to.eql([55, 55, 55, 55, 55]);
+    expect(Math.round(marks[5].getBoundingClientRect().height)).to.equal(50);
+    expect(Math.round(marks[0].getBoundingClientRect().width)).to.equal(53);
+    const mark = marks[0].getBoundingClientRect();
+    const body = block.querySelector('.cards-card-body').getBoundingClientRect();
+    expect(Math.round(mark.left - body.left)).to.equal(Math.round(body.right - mark.right));
+  });
+
+  it('sets the title 14/20 bold uppercase, 12 under the mark', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const title = block.querySelector('h2');
+    const styles = getComputedStyle(title);
+    expect(styles.fontSize).to.equal('14px');
+    expect(styles.lineHeight).to.equal('20px');
+    expect(styles.fontWeight).to.equal('700');
+    expect(styles.letterSpacing).to.equal('0.5px');
+    expect(styles.textTransform).to.equal('uppercase');
+    const mark = block.querySelector('.icon img');
+    expect(Math.round(title.getBoundingClientRect().top - mark.getBoundingClientRect().bottom))
+      .to.equal(12);
+  });
+
+  it('opens the copy 4 under the title, at 15/22', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const title = block.querySelector('h2');
+    const copy = block.querySelector('h2 + p');
+    const styles = getComputedStyle(copy);
+    expect(styles.fontSize).to.equal('15px');
+    expect(styles.lineHeight).to.equal('22px');
+    expect(Math.round(copy.getBoundingClientRect().top - title.getBoundingClientRect().bottom))
+      .to.equal(4);
+  });
+
+  // live leaves 38 between the intro, the items and the roadside line
+  it('stands the items 38 from the intro and the roadside line', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const intro = section.querySelector('.default-content-wrapper p');
+    const list = block.querySelector('ul');
+    const roadside = section.querySelector('.cards-wrapper + .default-content-wrapper p');
+    expect(Math.round(list.getBoundingClientRect().top - intro.getBoundingClientRect().bottom))
+      .to.equal(38);
+    expect(Math.round(roadside.getBoundingClientRect().top - list.getBoundingClientRect().bottom))
+      .to.equal(38);
+  });
+
+  it("sets the intro and the roadside line at live's two sizes", async () => {
+    await setViewport({ width: 768, height: 900 });
+    const intro = section.querySelector('.default-content-wrapper p');
+    const roadside = section.querySelector('.cards-wrapper + .default-content-wrapper p');
+    expect(getComputedStyle(intro).fontSize).to.equal('15px');
+    expect(getComputedStyle(intro).lineHeight).to.equal('22px');
+    expect(getComputedStyle(roadside).fontSize).to.equal('15px');
+    await setViewport({ width: 769, height: 900 });
+    expect(getComputedStyle(intro).fontSize).to.equal('24px');
+    expect(getComputedStyle(intro).lineHeight).to.equal('32px');
+    expect(getComputedStyle(roadside).fontSize).to.equal('24px');
+  });
+
+  // live keeps the registration note small where the line above it is not
+  it('keeps the registration note at 15/22', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const note = section.querySelector('.cards-wrapper + .default-content-wrapper em');
+    expect(getComputedStyle(note).fontSize).to.equal('15px');
+    expect(getComputedStyle(note).lineHeight).to.equal('22px');
+    expect(getComputedStyle(note).fontStyle).to.equal('italic');
   });
 });
