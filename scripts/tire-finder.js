@@ -21,16 +21,17 @@ const SEARCH_HEADING = /^search for tire$/i;
 /**
  * Turns an authored link into a finder trigger. The control opens the finder
  * where it stands and navigates nowhere, so it is a button, as live's own is.
- * The authored href stays in the content, which is what a crawler and a
- * visitor without JavaScript follow.
+ * Whatever the page draws the link as comes with it, so a trigger standing
+ * among CTAs keeps its pill.
  * @param {Element} link the authored link
  * @param {string} tab the tab to open
  * @returns {Element} the trigger
  */
-function toTrigger(link, tab) {
+export function toFinderTrigger(link, tab) {
   const trigger = document.createElement('button');
   trigger.type = 'button';
   trigger.dataset.tireFinder = tab;
+  if (link.className) trigger.className = link.className;
   trigger.append(...link.childNodes);
   link.replaceWith(trigger);
   return trigger;
@@ -49,7 +50,7 @@ export function markFinderTriggers(root) {
     if (!heading || !SEARCH_HEADING.test(heading.textContent.trim())) return;
     [...list.querySelectorAll('a')].forEach((link) => {
       const tab = FINDER_TABS[link.textContent.trim().toLowerCase()];
-      if (tab) triggers.push(toTrigger(link, tab));
+      if (tab) triggers.push(toFinderTrigger(link, tab));
     });
   });
   return triggers;

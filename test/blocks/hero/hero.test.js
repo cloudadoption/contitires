@@ -177,7 +177,7 @@ describe('Hero, the promo variant opens the finder', () => {
   });
 
   // live's control says "find tire size" and opens By Vehicle, on both pages
-  it("opens the tab live opens, which is By Vehicle", () => {
+  it('opens the tab live opens, which is By Vehicle', () => {
     const block = buildPromoHero();
     decorate(block);
 
@@ -239,8 +239,11 @@ describe('Hero, the promo marquee', () => {
     await sheet.replace(await (await fetch('/blocks/hero/hero.css')).text());
   });
 
-  function value(selector, prop) {
-    const rules = [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+  function value(selector, prop, media) {
+    const rules = media
+      ? [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
+        && r.conditionText.includes(media)).flatMap((r) => [...r.cssRules])
+      : [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
     const matches = (r) => r.selectorText.split(',').map((s) => s.trim()).includes(selector);
     const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
     return rule ? rule.style.getPropertyValue(prop).trim() : null;
@@ -249,12 +252,13 @@ describe('Hero, the promo marquee', () => {
   // ours was a gradient clear from 60% of the height up, and the title sits at
   // 28% down, so on /ccpromotion's bright sky the h1 was close to invisible
   it("lays live's flat 50% black over the whole photo", () => {
-    expect(value('.hero.promo .hero-image::after', 'background')).to.equal('rgb(0 0 0 / 50%)');
+    expect(value('.hero.promo .hero-image::after', 'background')).to.equal('rgba(0, 0, 0, 0.5)');
   });
 
-  it('sets the title as live sets it, uppercase at 6px', () => {
+  it('sets the title as live sets it, uppercase and tracked out', () => {
     expect(value('.hero.promo .hero-content h1', 'text-transform')).to.equal('uppercase');
-    expect(value('.hero.promo .hero-content h1', 'letter-spacing')).to.equal('6px');
+    expect(value('.hero.promo .hero-content h1', 'letter-spacing')).to.equal('5px');
+    expect(value('.hero.promo .hero-content h1', 'letter-spacing', '1025px')).to.equal('6px');
   });
 
   // live's marquee CTAs are white by default, which the base hero draws
@@ -267,6 +271,43 @@ describe('Hero, the promo marquee', () => {
   it('draws the third CTA as live does, outlined and on its own row', () => {
     expect(value('.hero.promo .button.secondary', 'border-color')).to.equal('var(--conti-yellow)');
     expect(value('.hero.promo .button.secondary', 'background-color')).to.equal('transparent');
-    expect(value('.hero.promo .hero-ctas .button-wrapper:has(.secondary)', 'flex-basis')).to.equal('100%');
+    expect(value('.hero.promo .hero-ctas .button-wrapper:has(.secondary)', 'flex-basis', '769px')).to.equal('100%');
+  });
+
+  // uppercase at 6px is wider than the same words were, and the base hero
+  // holds its copy to 840, so /ccpromotion's title wrapped where live's fits
+  // one line. Live runs the title to its container and caps the copy under it.
+  it('gives the title live\'s measure, and holds the copy to live\'s', () => {
+    expect(value('.hero.promo .hero-content', 'max-width')).to.equal('1136px');
+    expect(value('.hero.promo .hero-content > p', 'max-width')).to.equal('900px');
+  });
+
+  // live drops the marquee title to 30px below 1025 and holds it there. Ours
+  // stayed at 42, so /ccpromotion's title took two lines at 900 where live
+  // fits one, and /promotion's took two at 375 where live fits one.
+  it("takes live's smaller title below 1025", () => {
+    expect(value('.hero.promo .hero-content h1', 'font-size')).to.equal('30px');
+    expect(value('.hero.promo .hero-content h1', 'line-height')).to.equal('36px');
+    expect(value('.hero.promo .hero-content h1', 'font-size', '1025px')).to.equal('42px');
+  });
+
+  // below 769 live runs each pill the width of the column
+  it('runs the pills full width below 769, as live does', () => {
+    expect(value('.hero.promo .hero-ctas .button', 'width')).to.equal('100%');
+    expect(value('.hero.promo .hero-ctas .button', 'width', '769px')).to.equal('auto');
+  });
+
+  // live sets the pair in equal columns, 150 apiece 24 apart
+  it('draws the pair at one width, as live does', () => {
+    expect(value('.hero.promo .button.accent', 'min-width')).to.equal('150px');
+    expect(value('.hero.promo .hero-ctas', 'gap')).to.equal('24px');
+  });
+
+  // live's fourth control is a plain link above the pills, set small and
+  // uppercase rather than at the size of the copy it follows
+  it('sets the details link the size live sets it', () => {
+    const selector = '.hero.promo p:has(> a:only-child)';
+    expect(value(selector, 'text-transform')).to.equal('uppercase');
+    expect(value(selector, 'font-size')).to.equal('var(--body-font-size-xs)');
   });
 });

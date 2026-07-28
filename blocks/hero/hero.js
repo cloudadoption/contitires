@@ -1,5 +1,12 @@
+import { toFinderTrigger } from '../../scripts/tire-finder.js';
+
 // the width at which the hero stops stacking, so the desktop art starts here
 const DESKTOP_MEDIA = '(min-width: 1025px)';
+
+// live's promo marquee offers the finder beside the store link, and opens it
+// on By Vehicle from both pages, whichever of the two labels it carries
+const FINDER_HREF = 'a.button[href="/perfect-fit"]';
+const FINDER_TAB = 'vehicle';
 
 /**
  * Folds an authored desktop and mobile picture into one, so a viewport
@@ -58,6 +65,12 @@ export default function decorate(block) {
     if (el.tagName === 'P' && (el.classList.contains('button-wrapper') || isImageOnly(el) || isEmpty(el))) return;
     content.append(el);
   });
+
+  // the finder page is a page, and a link to it stays a link in every hero but
+  // this one, where live offers the modal instead
+  if (block.classList.contains('promo')) {
+    block.querySelectorAll(FINDER_HREF).forEach((link) => toFinderTrigger(link, FINDER_TAB));
+  }
 
   const ctaWrappers = [...block.querySelectorAll('p.button-wrapper')];
   if (ctaWrappers.length) {
