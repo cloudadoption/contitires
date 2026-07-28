@@ -79,6 +79,35 @@ describe('Article sidebar', () => {
     expect(related).to.exist;
     expect(related.closest('.section')).to.equal(main.querySelector('.share').closest('.section'));
   });
+
+  // #193: two wrappers meant two grid rows, and row 1 held the whole body, so
+  // the list fell to the foot of the article. One wrapper is one grid item.
+  it('puts the sharebar and the related list in one sidebar element', () => {
+    const main = buildArticle({ related: true });
+    decorateMain(main);
+
+    const share = main.querySelector('.share');
+    const related = main.querySelector('.related-articles');
+    expect(related.parentElement, 'one wrapper holds both').to.equal(share.parentElement);
+    // live reads the sharebar first, then the list under it, at every width
+    expect(share.nextElementSibling, 'sharebar first').to.equal(related);
+    expect(main.querySelectorAll('.related-articles-wrapper'), 'no wrapper of its own')
+      .to.have.length(1);
+  });
+
+  // decorateBlocks reads `div.section > div > div`, so both blocks have to
+  // stay one level under the section for their JS and CSS to load at all
+  it('leaves both sidebar blocks where decorateBlocks reads them', () => {
+    const main = buildArticle({ related: true });
+    decorateMain(main);
+
+    ['.share', '.related-articles'].forEach((sel) => {
+      const block = main.querySelector(sel);
+      expect(block.classList.contains('block'), `${sel} decorated`).to.be.true;
+      expect(block.parentElement.parentElement, `${sel} depth`)
+        .to.equal(block.closest('.section'));
+    });
+  });
 });
 
 describe('Article layout', () => {
@@ -123,11 +152,13 @@ describe('Article layout', () => {
     expect(value(BODY, 'grid-template-rows', '769px')).to.equal(null);
   });
 
-  it('stacks the sharebar over the related list in the sidebar', () => {
+  // the sidebar is one grid item beside the top of the body, so the list it
+  // holds cannot land in a row of its own below the article (#193)
+  it('puts the whole sidebar in the row the body starts in', () => {
     expect(value(`${BODY} .share-wrapper`, 'grid-column', '769px')).to.equal('2');
     expect(value(`${BODY} .share-wrapper`, 'grid-row', '769px')).to.equal('1');
-    expect(value(`${BODY} .related-articles-wrapper`, 'grid-column', '769px')).to.equal('2');
-    expect(value(`${BODY} .related-articles-wrapper`, 'grid-row', '769px')).to.equal('2');
+    expect(value(`${BODY} .share-wrapper`, 'align-self', '769px')).to.equal('start');
+    expect(value(`${BODY} .related-articles-wrapper`, 'grid-row', '769px')).to.equal(null);
   });
 
   it('runs one column on a narrow screen, sidebar under the body', () => {
