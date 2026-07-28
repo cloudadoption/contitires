@@ -30,11 +30,15 @@ async function adopt(...paths) {
   document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
 }
 
-/** A partner page as authored: the gallery, then the logo, title, share, copy. */
+/**
+ * A partner page as the pipeline delivers it: the section's authored
+ * `Style: partner` arrives as a class on the section, and the section holds
+ * the gallery, then the logo, title, sharebar and copy.
+ */
 function buildPartner() {
   const main = document.createElement('main');
   main.innerHTML = `
-    <div>
+    <div class="partner">
       <div class="media-gallery">
         <div><div><picture><img src="/icons/search.svg" alt="one"></picture></div></div>
         <div><div><picture><img src="/icons/search.svg" alt="two"></picture></div></div>
@@ -44,7 +48,6 @@ function buildPartner() {
       <div class="share"></div>
       <p>The AMG Driving Academy allows you to channel your inner speed demon
          at some of the top tracks in the country.</p>
-      <div class="section-metadata"><div><div>Style</div><div>partner</div></div></div>
     </div>`;
   document.body.replaceChildren(main);
   decorateMain(main);
@@ -62,20 +65,36 @@ async function measure(vw) {
   const section = document.querySelector('main .section.partner');
   const tracks = getComputedStyle(section).gridTemplateColumns
     .split(' ').map((t) => Math.round(parseFloat(t)));
-  const gallery = section.querySelector('.media-gallery-wrapper');
-  const share = section.querySelector('.share-wrapper');
-  const title = section.querySelector('h1');
+  const box = (el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      top: Math.round(r.top), bottom: Math.round(r.bottom),
+      left: Math.round(r.left), width: Math.round(r.width),
+      height: Math.round(r.height),
+    };
+  };
+  const gallery = box(section.querySelector('.media-gallery-wrapper'));
+  const share = box(section.querySelector('.share'));
+  const title = box(section.querySelector('h1'));
+  const logo = box(section.querySelector('picture'));
+  const copy = box([...section.querySelectorAll('.default-content-wrapper')].pop());
   return {
     vw: window.innerWidth,
     scrollWidth: document.documentElement.scrollWidth,
     tracks,
-    galleryLeft: Math.round(gallery.getBoundingClientRect().left),
-    galleryWidth: Math.round(gallery.getBoundingClientRect().width),
-    shareLeft: Math.round(share.getBoundingClientRect().left),
-    shareWidth: Math.round(share.getBoundingClientRect().width),
-    titleWidth: Math.round(title.getBoundingClientRect().width),
-    titleTop: Math.round(title.getBoundingClientRect().top),
-    galleryTop: Math.round(gallery.getBoundingClientRect().top),
+    sectionWidth: Math.round(section.getBoundingClientRect().width),
+    gallery,
+    share,
+    title,
+    logo,
+    copy,
+    galleryLeft: gallery.left,
+    galleryWidth: gallery.width,
+    shareLeft: share.left,
+    shareWidth: share.width,
+    titleWidth: title.width,
+    titleTop: title.top,
+    galleryTop: gallery.top,
   };
 }
 
@@ -121,6 +140,39 @@ describe('The partner layout', () => {
     expect(m.galleryTop).to.be.at.most(m.titleTop);
   });
 
+  // live packs the sidebar at the top of its column: the logo starts level
+  // with the gallery, and the four items sit 60, 38 and 45 apart. Three grid
+  // items spanning the gallery's three rows share its height out between them
+  // instead, which put the sharebar a third of the way down the page.
+  it("packs the sidebar at the top, on live's gaps", async () => {
+    const m = await measure(1440);
+    expect(m.logo.top - m.gallery.top, 'logo level with the gallery').to.equal(0);
+    expect(m.title.top - m.logo.bottom, 'logo to title').to.equal(60);
+    expect(m.share.top - m.title.bottom, 'title to sharebar').to.equal(38);
+    expect(m.copy.top - m.share.bottom, 'sharebar to copy').to.equal(45);
+  });
+
+  // an inline image leaves a descender gap under it, which read 160 against
+  // live's 153 on a 305 wide 2:1 logo
+  it("gives the logo live's 2:1 box", async () => {
+    const m = await measure(1440);
+    expect(m.logo.height).to.equal(153);
+  });
+
+  // the article sidebar drops the sharebar's lower rule and its lower padding.
+  // Live keeps both here, which is a 45px bar rather than a 33px one.
+  it("draws live's sharebar, ruled above and below", async () => {
+    const m = await measure(1440);
+    expect(m.share.height).to.equal(45);
+  });
+
+  // live pads a partner page 20 each side below 769, where the article
+  // template gives 24
+  it("takes live's page padding below 769", async () => {
+    const m = await measure(768);
+    expect(m.sectionWidth).to.equal(728);
+  });
+
   // below 769 live stacks them, gallery first
   it('runs one column under 769, gallery first', async () => {
     const m = await measure(768);
@@ -154,6 +206,12 @@ describe('The partner title', () => {
   }
 
   const TITLE = 'body.article main .section.partner h1';
+
+  // live starts a partner page flush under the header, where the article
+  // template opens its title section with 40 of padding
+  it('starts the page flush under the header', () => {
+    expect(value('body.article main .section.partner', 'padding-top')).to.equal('0');
+  });
 
   it("sets the title on live's scale", () => {
     expect(value(TITLE, 'font-size')).to.equal('30px');

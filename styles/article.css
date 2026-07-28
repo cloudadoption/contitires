@@ -246,3 +246,59 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
     padding-bottom: 60px;
   }
 }
+
+/* ---- the partner layout: a gallery down the left, and the logo, title,
+   sharebar and copy stacked in a 305px column beside it. That is the article
+   grid with the columns the other way round, so it rides on the sidebar rules
+   above rather than repeating them. Read off
+   continentaltire.com/experience/amg-driving-academy at 1440, 1200, 1025,
+   1024, 900, 769, 768 and 375. ---- */
+
+/* live sets the title small and tracked out here, where an article page runs
+   it at 42 across a band of its own */
+body.article main .section.partner h1 {
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 38px;
+  letter-spacing: 3px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* the gallery leads the page below 769, where live stacks the two columns */
+body.article main .section.partner {
+  row-gap: 38px;
+}
+
+@media (width >= 769px) {
+  body.article main .section.partner {
+    grid-template-columns: minmax(0, 750px) 305px;
+  }
+
+  /* the sidebar is everything the gallery is not, in the order it was
+     authored, so the assignment is the reverse of an article's */
+  body.article main .section.partner > * {
+    grid-column: 2;
+  }
+
+  body.article main .section.partner > .media-gallery-wrapper {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+
+  body.article main .section.partner .share-wrapper {
+    grid-column: 2;
+    grid-row: auto;
+  }
+
+  /* the copy takes the whole 305, not the 74% an article's reading column
+     holds it to, and the photographs in it are not broken out of that measure */
+  body.article main .section.partner .default-content-wrapper {
+    max-width: none;
+  }
+
+  body.article main .section.partner .default-content-wrapper picture {
+    max-width: none;
+    margin-inline: 0;
+  }
+}
