@@ -1,1 +1,98 @@
-/* Conti Crew member page bands. */
+/* The bands under a Conti Crew member marquee: the description on white, the
+   pull quote on black, then the Go In-Depth scroller and the teasers. Live
+   measures them itself, 960 of copy in a page padded 20 below 769 and 16
+   above, where the site's container gives 1200 and 24 or 32. Read off
+   continentaltire.com/experience/conti-crew/speed-academy. Issue #104. */
+
+body.crew main .section.copy,
+body.crew main .section.quote {
+  margin: 0;
+  padding-inline: 20px;
+}
+
+body.crew main .section.copy > div,
+body.crew main .section.quote > div {
+  max-width: 960px;
+  margin-inline: auto;
+  padding: 40px 0;
+}
+
+body.crew main .section.quote {
+  background-color: #000;
+  color: var(--conti-white);
+}
+
+/* live opens the quote with its own mark, above the words on a narrow screen
+   and beside them from 1025 */
+body.crew main .section.quote blockquote {
+  margin: 0;
+  padding: 40px 0 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='43' viewBox='0 0 60 43' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M27.4242 11.0606C21.3636 11.8182 17.7273 13.9394 17.7273 16.8182C17.7273 19.5455 20.4545 19.8485 23.0303 21.6667C25.4545 23.6364 27.4242 26.0606 27.4242 30.7576C27.4242 37.4242 21.9697 42.1212 14.5455 42.1212C6.81818 42.1212 0 37.2727 0 26.2121C0 10.1515 8.78788 1.51515 27.4242 0V11.0606ZM59.8485 11.0606C53.9394 11.8182 50.303 13.9394 50.303 16.8182C50.303 19.5455 53.0303 19.8485 55.4545 21.6667C58.0303 23.6364 60 26.0606 60 30.7576C60 37.4242 54.5455 42.1212 46.9697 42.1212C39.3939 42.1212 32.5758 37.2727 32.5758 26.2121C32.5758 10.1515 41.3636 1.51515 59.8485 0V11.0606Z' fill='%23FFA500'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: top left;
+  background-size: 40px;
+}
+
+body.crew main .section.quote blockquote p:first-child {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 32px;
+}
+
+body.crew main .section.quote blockquote p:last-child {
+  margin: 16px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+/* live pads both closing bands 40 and 80 where the site pads them 56 */
+body.crew main .section.dark,
+body.crew main .section.black {
+  padding: 40px 0;
+}
+
+body.crew main .section.black {
+  text-align: center;
+}
+
+body.crew main .section.dark .default-content-wrapper h2,
+body.crew main .section.black .default-content-wrapper h2 {
+  margin: 0 0 24px;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 38px;
+  letter-spacing: normal;
+  text-transform: uppercase;
+}
+
+@media (width >= 769px) {
+  body.crew main .section.copy,
+  body.crew main .section.quote {
+    padding-inline: 16px;
+  }
+}
+
+@media (width >= 1025px) {
+  body.crew main .section.copy > div,
+  body.crew main .section.quote > div {
+    padding: 80px 0;
+  }
+
+  body.crew main .section.quote blockquote {
+    padding: 0 0 0 112px;
+    background-size: 60px 43px;
+  }
+
+  body.crew main .section.quote blockquote p:first-child {
+    font-size: 42px;
+    line-height: 48px;
+  }
+
+  body.crew main .section.dark,
+  body.crew main .section.black {
+    padding: 80px 0;
+  }
+}

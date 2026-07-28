@@ -46,12 +46,13 @@ describe("Crew template, live's copy column", () => {
 
   before(async () => {
     await adopt('/styles/styles.css', '/styles/crew.css');
-    document.body.classList.add('crew');
+    // the page stays hidden until the reveal, and a hidden box measures 0
+    document.body.classList.add('crew', 'appear');
     main = buildCrewPage();
   });
 
   after(() => {
-    document.body.classList.remove('crew');
+    document.body.classList.remove('crew', 'appear');
     document.body.replaceChildren();
   });
 
@@ -75,12 +76,13 @@ describe("Crew template, live's pull quote", () => {
 
   before(async () => {
     await adopt('/styles/styles.css', '/styles/crew.css');
-    document.body.classList.add('crew');
+    // the page stays hidden until the reveal, and a hidden box measures 0
+    document.body.classList.add('crew', 'appear');
     main = buildCrewPage();
   });
 
   after(() => {
-    document.body.classList.remove('crew');
+    document.body.classList.remove('crew', 'appear');
     document.body.replaceChildren();
   });
 

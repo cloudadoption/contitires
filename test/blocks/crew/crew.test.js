@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before beforeEach */
+/* global describe it before after beforeEach */
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
@@ -82,11 +82,17 @@ describe('Crew block, the marquee', () => {
     expect(img.getAttribute('fetchpriority')).to.equal('high');
   });
 
+  // the trail reads off the path, as the banner's does
   it('shows the trail live shows over the photo', () => {
+    const here = window.location.pathname;
+    window.history.replaceState({}, '', '/experience/conti-crew/speed-academy');
     decorate(block);
+    window.history.replaceState({}, '', here);
     const trail = block.querySelector('.crew-marquee nav');
     expect(trail, 'trail built').to.exist;
     expect(trail.getAttribute('aria-label')).to.equal('Breadcrumb');
+    expect(trail.querySelector('a').getAttribute('href')).to.equal('/experience');
+    expect(trail.querySelector('[aria-current="page"]').textContent).to.equal('Speed Academy');
   });
 });
 
@@ -210,6 +216,12 @@ describe('Crew block, live\'s measurements', () => {
 
   before(async () => {
     await adopt('/styles/styles.css', '/blocks/crew/crew.css');
+    // the page stays hidden until the reveal, and a hidden box measures 0
+    document.body.classList.add('appear');
+  });
+
+  after(() => {
+    document.body.classList.remove('appear');
   });
 
   beforeEach(() => {

@@ -275,11 +275,16 @@ describe("Go In-Depth band, live's fact scroller", () => {
         </div>
       </div>`;
     document.body.replaceChildren(main);
+    // the page stays hidden until the reveal, and a hidden box measures 0
+    document.body.classList.add('appear');
     block = main.querySelector('.cards.facts');
     decorate(block);
   });
 
-  after(() => { document.body.replaceChildren(); });
+  after(() => {
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+  });
 
   it('draws each fact as a black card, padded 20', async () => {
     await setViewport({ width: 1440, height: 900 });
@@ -344,7 +349,7 @@ describe("You Might Also Like band, live's crew teasers", () => {
       <div class="section cards-container dark">
         <div class="default-content-wrapper"><h2>You might also like...</h2></div>
         <div class="cards-wrapper">
-          <div class="cards crew block">
+          <div class="cards members block">
             ${card('Engineering Explained', 'engineering-explained')}
             ${card('Gears &amp; Gasoline', 'gears-gasoline')}
             ${card('Dinner With Racers', 'dinner-with-racers')}
@@ -352,11 +357,15 @@ describe("You Might Also Like band, live's crew teasers", () => {
         </div>
       </div>`;
     document.body.replaceChildren(main);
-    block = main.querySelector('.cards.crew');
+    document.body.classList.add('appear');
+    block = main.querySelector('.cards.members');
     decorate(block);
   });
 
-  after(() => { document.body.replaceChildren(); });
+  after(() => {
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+  });
 
   it('lays three teasers across at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });

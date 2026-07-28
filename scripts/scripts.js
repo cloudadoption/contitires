@@ -316,7 +316,7 @@ export function decorateMain(main) {
 // a template names a stylesheet of its own under /styles. The promo pages are
 // one template on live too, which is where their band treatments belong rather
 // than in the stylesheet every page pays for.
-const TEMPLATES = ['article', 'promo'];
+const TEMPLATES = ['article', 'promo', 'crew'];
 
 /**
  * Loads the stylesheet this page's template needs. Returns a promise that

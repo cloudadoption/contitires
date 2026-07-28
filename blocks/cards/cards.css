@@ -57,7 +57,8 @@ main .section.cards-container {
 .cards.category > ul > li,
 .cards.news > ul > li,
 .cards.highlights > ul > li,
-.cards.teaser > ul > li {
+.cards.teaser > ul > li,
+.cards.members > ul > li {
   position: relative;
 }
 
@@ -70,7 +71,8 @@ main .section.cards-container {
 .cards.category .cards-card-body a::before,
 .cards.news .cards-card-body a::before,
 .cards.highlights .cards-card-body a::before,
-.cards.teaser .cards-card-body a::before {
+.cards.teaser .cards-card-body a::before,
+.cards.members .cards-card-body a::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -202,6 +204,152 @@ main .section.cards-container:has(.cards.highlights) h2 {
   main .section.cards-container:has(.cards.highlights) {
     padding: 80px 0 38px;
   }
+}
+
+/* ---- facts: the Go In-Depth scroller on a Conti Crew page ---- */
+
+/* both Conti Crew bands take live's own measure, 1136 of content with 20 of
+   page padding below 769 and 16 above, rather than the site's container */
+main .section.cards-container:has(.cards.facts) > div,
+main .section.cards-container:has(.cards.members) > div {
+  max-width: 1136px;
+  padding: 0 20px;
+}
+
+/* live runs the cards past both edges of the page: the row starts at the
+   container's outer edge and keeps a peek of the next card on the right.
+   Two show at 1025 and up, one below. Issue #104 */
+.cards.facts > ul {
+  --facts-inset: max(16px, calc(50vw - 584px));
+  --facts-peek: 80px;
+
+  display: flex;
+  gap: 16px;
+  margin-inline: calc(50% - 50vw);
+  padding-inline: var(--facts-inset) var(--facts-peek);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.cards.facts > ul::-webkit-scrollbar {
+  display: none;
+}
+
+/* the card is padded, and a flex basis sizes the content box, so the box has
+   to be the border box or every card runs 40 wide of live's */
+.cards.facts > ul > li {
+  display: flex;
+  box-sizing: border-box;
+  flex: 0 0 100%;
+  gap: 20px;
+  padding: 20px;
+  border-radius: 0;
+  background-color: #000;
+  box-shadow: none;
+  color: var(--conti-white);
+  scroll-snap-align: start;
+}
+
+/* the mark is the same on every card, so it is drawn rather than authored */
+.cards.facts > ul > li::before {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background-color: var(--conti-yellow);
+  content: '';
+  mask: url('/icons/info-circle.svg') no-repeat center / contain;
+}
+
+.cards.facts .cards-card-body {
+  margin: 0;
+}
+
+@media (width >= 769px) {
+  main .section.cards-container:has(.cards.facts) > div,
+  main .section.cards-container:has(.cards.members) > div {
+    padding: 0 16px;
+  }
+}
+
+@media (width >= 1025px) {
+  .cards.facts > ul {
+    --facts-peek: 160px;
+  }
+
+  .cards.facts > ul > li {
+    flex-basis: calc((100% - 16px) / 2);
+  }
+}
+
+/* ---- members: the You Might Also Like teasers on a Conti Crew page ---- */
+
+.cards.members > ul {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.cards.members > ul > li {
+  overflow: hidden;
+  aspect-ratio: 365 / 274;
+  border-radius: 12px;
+  background-color: transparent;
+  box-shadow: 0 0 20px 0 rgb(0 0 0 / 30%);
+}
+
+.cards.members .cards-card-image {
+  position: absolute;
+  inset: 0;
+}
+
+.cards.members > ul > li img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* live shades the foot of the photo so the name reads over it */
+.cards.members > ul > li::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0%) 51.39%, rgb(0 0 0 / 60%) 100%);
+  content: '';
+  pointer-events: none;
+}
+
+.cards.members .cards-card-body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 20px;
+}
+
+.cards.members .cards-card-body picture {
+  display: block;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 70px;
+  height: 70px;
+  border: 4px solid rgb(255 255 255 / 40%);
+  border-radius: 50%;
+}
+
+.cards.members .cards-card-body p {
+  margin: 0;
+}
+
+.cards.members .cards-card-body a:any-link {
+  color: var(--conti-white);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 22px;
+  text-decoration: none;
 }
 
 /* ---- teaser: the tiles live gives a section hub. One 16:9 photo per row,
