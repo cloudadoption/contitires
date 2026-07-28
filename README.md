@@ -119,7 +119,7 @@ Differs from live: the carousel slides use substituted product images, because l
 
 ### Tire finder
 
-The live site's core tool, rebuilt as the [perfect-fit](blocks/perfect-fit/perfect-fit.js) block: the "Find your perfect fit" bar opens an accessible modal (ARIA tabs, focus trap) with the same three modes as live. By Tire Size is real: cascading width, aspect, and rim selects built from the product data, with exact matching. Results link to the POC's own product pages. Verified end to end on production: 155/70R19 resolves to the VikingContact 7.
+The live site's core tool, rebuilt as the [perfect-fit](blocks/perfect-fit/perfect-fit.js) block: the "Find your perfect fit" bar opens an accessible modal (ARIA tabs, focus trap) with the same three modes as live. By Tire Size is real: cascading width, aspect, and rim selects built from the product data, with exact matching. Results link to the POC's own product pages. Verified end to end on production: 155/70R19 resolves to the VikingContact 7. The catalogue and the modal it fills are read on the first click rather than while the bar decorates, so the sections under the bar do not wait for a sheet nobody has asked to see.
 
 - Live: [/tire-finder](https://continentaltire.com/tire-finder)
 - POC: [homepage](https://main--contitires--cloudadoption.aem.live/), "Find your perfect fit" bar
@@ -147,7 +147,7 @@ Measured against live at 375, 900 and 1440: the card width, tire image, badge ro
 
 ### Product pages and the products workbook
 
-46 tire product pages, generated from scraped live data and pushed to DA as normal editable documents: product hero (image, name, description, Highlights, Best for and Technology lists) plus a [tire-specs](blocks/tire-specs/tire-specs.js) block with a size selector and per-size spec grid (UTQG, load index, tread depth, 19 fields). The data behind the finder, the listing and the spec tables is a single multi-sheet DA workbook, `/products.json`: a `products` sheet (46 rows), a `specs` sheet (1315 size rows) and a `catalog` sheet (46 rows, what the listing renders). Authors edit it like a spreadsheet; no deploy involved. Live builds its spec table client-side from JSON too, so the mechanism matches. Each block asks for the one sheet it needs, so no page pays for the whole workbook.
+46 tire product pages, generated from scraped live data and pushed to DA as normal editable documents: product hero (image, name, description, Highlights, Best for and Technology lists) plus a [tire-specs](blocks/tire-specs/tire-specs.js) block with a size selector and per-size spec grid (UTQG, load index, tread depth, 19 fields). The data behind the finder, the listing and the spec tables is a single multi-sheet DA workbook, `/products.json`: a `products` sheet (46 rows), a `specs` sheet (1315 size rows) and a `catalog` sheet (46 rows, what the listing renders). Authors edit it like a spreadsheet; no deploy involved. Live builds its spec table client-side from JSON too, so the mechanism matches. Each block asks for the one sheet it needs, so no page pays for the whole workbook. The spec sheet is the long one, so the band is headed and its room held from the start and filled when the sheet lands, which leaves the three sections under it to load meanwhile.
 
 - Live: [/tires/extremecontact-sport-02](https://continentaltire.com/tires/extremecontact-sport-02)
 - POC: [/tires/extremecontact-sport-02](https://main--contitires--cloudadoption.aem.live/tires/extremecontact-sport-02), data at [/products.json](https://main--contitires--cloudadoption.aem.live/products.json)

@@ -76,31 +76,18 @@ function specGrid(entry) {
 }
 
 /**
- * Tire specifications: a size selector plus the selected size's spec sheet,
- * matching the live product page. The product is identified by a slug authored
- * in the block, falling back to the last path segment. Per-size specs come
- * from the /products.json workbook, or the legacy product-specs.json.
+ * Fills the band with the size selector and the selected size's spec sheet,
+ * once the sheet has landed.
  * @param {Element} block the tire-specs block
+ * @param {Element} heading the heading the block was decorated with
+ * @param {Array<{size: string, specs: Object}>} sizes the product's sizes
  */
-export default async function decorate(block) {
-  const authored = block.textContent.trim();
-  const slug = authored || window.location.pathname.replace(/\/$/, '').split('/').pop();
-  block.textContent = '';
-
-  let sizes = [];
-  try {
-    sizes = await loadSizes(slug);
-  } catch (e) {
-    sizes = [];
-  }
+function fill(block, heading, sizes) {
   // nothing to show: take the block out rather than leave its dark band empty
   if (!sizes.length) {
     (block.closest('.tire-specs-wrapper') || block).remove();
     return;
   }
-
-  const heading = document.createElement('h2');
-  heading.textContent = 'Specifications';
 
   const count = document.createElement('p');
   count.className = 'tire-specs-count';
@@ -122,5 +109,30 @@ export default async function decorate(block) {
   select.addEventListener('change', () => render(Number(select.value)));
   render(0);
 
-  block.append(heading, count, select, panel);
+  block.replaceChildren(heading, count, select, panel);
+}
+
+/**
+ * Tire specifications: a size selector plus the selected size's spec sheet,
+ * matching the live product page. The product is identified by a slug authored
+ * in the block, falling back to the last path segment. Per-size specs come
+ * from the /products.json workbook, or the legacy product-specs.json.
+ *
+ * The sheet is 827KB over 1656 rows, and a product page carries three more
+ * sections under this block, which loadSections reaches only once this returns.
+ * So the band is headed here and filled when the sheet lands, and the
+ * stylesheet holds the room the filled sheet takes. Issue #111.
+ * @param {Element} block the tire-specs block
+ */
+export default function decorate(block) {
+  const authored = block.textContent.trim();
+  const slug = authored || window.location.pathname.replace(/\/$/, '').split('/').pop();
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Specifications';
+  block.replaceChildren(heading);
+
+  loadSizes(slug)
+    .catch(() => [])
+    .then((sizes) => fill(block, heading, sizes));
 }
