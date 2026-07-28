@@ -324,13 +324,24 @@ main .section.hero-container {
   content: none;
 }
 
+/* live runs the divided copy the width of the page and centres it, where the
+   left variant caps it at 640 and pins it left for the desktop overlay */
 .hero.stacked .hero-content {
+  max-width: none;
+  margin-inline: auto;
   padding: 28px 20px;
   text-align: center;
 }
 
 .hero.stacked .hero-content h1 {
   font-size: 30px;
+  line-height: 36px;
+}
+
+/* live divides the marquee at 160 rather than 200 on a page whose marquee
+   carries a breadcrumb trail, which is every section hub under /experience */
+.hero.stacked.slim .hero-image {
+  height: 160px;
 }
 
 @media (width >= 1025px) {
@@ -358,5 +369,11 @@ main .section.hero-container {
 
   .hero.stacked .hero-content h1 {
     font-size: 42px;
+    line-height: 48px;
+  }
+
+  .hero.stacked.left .hero-content {
+    max-width: 640px;
+    margin: 0;
   }
 }

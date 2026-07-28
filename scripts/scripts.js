@@ -183,6 +183,30 @@ function buildArticleSidebar(main) {
 }
 
 /**
+ * Builds the partner sidebar. On a partner page everything that is not the
+ * gallery stands in one column beside it, which is how live draws it: the
+ * logo, the title, the sharebar, then the copy. One element is what holds
+ * that column to a single grid row; three grid items spanning the gallery's
+ * rows share its height out between them instead, which puts the sharebar a
+ * third of the way down the page.
+ *
+ * Runs after decorateBlocks, which reads blocks one level under the section,
+ * so the sharebar is already decorated when it moves. loadSection finds a
+ * block anywhere under the section, so the extra level costs it nothing.
+ * @param {Element} main The container element
+ */
+function buildPartnerSidebar(main) {
+  main.querySelectorAll('.section.partner').forEach((section) => {
+    const gallery = section.querySelector(':scope > div:has(.media-gallery)');
+    if (!gallery || section.querySelector('.partner-sidebar')) return;
+    const sidebar = document.createElement('div');
+    sidebar.className = 'partner-sidebar';
+    [...section.children].filter((el) => el !== gallery).forEach((el) => sidebar.append(el));
+    section.append(sidebar);
+  });
+}
+
+/**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
@@ -282,6 +306,7 @@ export function decorateMain(main) {
   decorateSections(main);
   buildArticleSidebar(main);
   decorateBlocks(main);
+  buildPartnerSidebar(main);
   buildProductViewer(main);
   decorateNestedBlocks(main);
   decorateButtons(main);

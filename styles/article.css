@@ -246,3 +246,102 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
     padding-bottom: 60px;
   }
 }
+
+/* ---- the partner layout: a gallery down the left, and the logo, title,
+   sharebar and copy stacked in a 305px column beside it. That is the article
+   grid with the columns the other way round, so it rides on the sidebar rules
+   above rather than repeating them. Read off
+   continentaltire.com/experience/amg-driving-academy at 1440, 1200, 1025,
+   1024, 900, 769, 768 and 375. ---- */
+
+/* live starts the page flush under the header, pads it 20 each side, and
+   closes it with 38 under the columns */
+body.article main .section.partner {
+  padding: 0 20px 38px;
+  row-gap: 38px;
+}
+
+/* live sets the title small and tracked out here, where an article page runs
+   it at 42 across a band of its own */
+body.article main .section.partner h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 38px;
+  letter-spacing: 3px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* live sets the sidebar copy on a flat 22, where the reading column runs at
+   1.48, which is 22.2 on a 15px body */
+body.article main .section.partner .partner-sidebar .default-content-wrapper {
+  line-height: 22px;
+}
+
+/* the logo is a plain 2:1 box: no radius, and no descender gap under an
+   inline image */
+body.article main .section.partner .partner-sidebar .default-content-wrapper picture {
+  margin: 0;
+  border-radius: 0;
+  line-height: 0;
+}
+
+body.article main .section.partner .partner-sidebar .default-content-wrapper p:has(> picture) {
+  margin: 0;
+}
+
+/* the sidebar starts level with the gallery, so nothing leads it with a margin */
+body.article main .section.partner .partner-sidebar > :first-child > :first-child {
+  margin-top: 0;
+}
+
+/* live rules the sharebar above and below and pads it all round, where an
+   article drops the lower rule and the lower padding */
+body.article main .section.partner .share {
+  border-bottom: 1px solid var(--conti-grey);
+  padding: 8px;
+  min-height: 27px;
+}
+
+body.article main .section.partner .share-wrapper {
+  margin-top: 38px;
+}
+
+body.article main .section.partner .share-wrapper + .default-content-wrapper {
+  margin-top: 45px;
+}
+
+@media (width >= 769px) {
+  body.article main .section.partner {
+    padding-inline: 16px;
+    grid-template-columns: minmax(0, 750px) 305px;
+  }
+
+  /* the sidebar is one element, so the grid holds it to the row the gallery
+     starts in rather than sharing the gallery's height out between its parts */
+  body.article main .section.partner > .partner-sidebar {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  body.article main .section.partner > :not(.partner-sidebar) {
+    grid-column: 1;
+  }
+
+  body.article main .section.partner h1 {
+    margin-top: 60px;
+  }
+
+  /* the copy takes the whole 305, not the 74% an article's reading column
+     holds it to, and a photograph in it is not broken out of that measure */
+  body.article main .section.partner .default-content-wrapper {
+    max-width: none;
+  }
+
+  body.article main .section.partner .default-content-wrapper picture {
+    max-width: none;
+    margin-inline: 0;
+  }
+}
