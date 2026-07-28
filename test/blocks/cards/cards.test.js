@@ -174,7 +174,7 @@ describe("Sports band, live's dark teaser band", () => {
   // live's pill: a yellow ring on a half-black fill, the name set small,
   // bold, tracked and in capitals. 26 of side padding above 769, 20 below.
   it("draws the name as live's pill", () => {
-    const pill = '.cards.teaser .cards-card-body a';
+    const pill = 'main .cards.teaser .cards-card-body a:any-link';
     expect(value(pill, 'border')).to.equal('2px solid var(--conti-yellow)');
     expect(value(pill, 'border-radius')).to.equal('26px');
     expect(value(pill, 'background-color')).to.equal('rgba(0, 0, 0, 0.5)');
@@ -191,9 +191,10 @@ describe("Sports band, live's dark teaser band", () => {
   // an inline box takes its height from the font rather than the line box, so
   // the pill measured 40 against live's 45
   it("gives the pill live's height", () => {
-    expect(value('.cards.teaser .cards-card-body a', 'display')).to.equal('inline-flex');
-    expect(value('.cards.teaser .cards-card-body a', 'line-height')).to.equal('16.8px');
-    expect(value('.cards.teaser .cards-card-body a', 'text-align')).to.equal('center');
+    const pill = 'main .cards.teaser .cards-card-body a:any-link';
+    expect(value(pill, 'display')).to.equal('inline-flex');
+    expect(value(pill, 'line-height')).to.equal('16.8px');
+    expect(value(pill, 'text-align')).to.equal('center');
   });
 
   // live makes the whole teaser the link, as the other card variants do
