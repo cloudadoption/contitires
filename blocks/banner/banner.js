@@ -1,6 +1,13 @@
-/** The current page's short name: its document title minus the site suffix. */
+import { getMetadata } from '../../scripts/aem.js';
+
+/**
+ * How the page stands in the trail: the name it gives itself, or its document
+ * title minus the site suffix. Live names a page there the way its navigation
+ * names it, which is not always the title.
+ */
 function currentLabel() {
-  return (document.title || '').replace(/\s*\|\s*Continental Tire\s*$/i, '').trim();
+  return getMetadata('breadcrumb')
+    || (document.title || '').replace(/\s*\|\s*Continental Tire\s*$/i, '').trim();
 }
 
 /** A path segment as live names it in the trail: words, first one capitalised. */
