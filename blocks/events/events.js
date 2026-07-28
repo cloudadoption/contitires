@@ -7,6 +7,22 @@ const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'frida
 const DATE_RANGE = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d/i;
 
 /**
+ * Reads a cell's lines. The pipeline delivers a cell holding one paragraph as
+ * bare text, so give that one an element to carry.
+ * @param {Element} cell The authored cell
+ * @returns {Element[]} The lines that hold something
+ */
+function lines(cell) {
+  if (!cell) return [];
+  if (!cell.firstElementChild && cell.textContent.trim()) {
+    const line = document.createElement('p');
+    line.append(...cell.childNodes);
+    cell.append(line);
+  }
+  return [...cell.children].filter((el) => el.textContent.trim());
+}
+
+/**
  * Builds the orange band: live's date pill over the venue. The pin is chrome,
  * so the block draws it rather than the author.
  * @param {Element} cell The authored date cell
@@ -15,12 +31,11 @@ const DATE_RANGE = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\
 function buildDate(cell) {
   const band = document.createElement('div');
   band.className = 'events-date';
-  const lines = cell ? [...cell.children].filter((el) => el.textContent.trim()) : [];
   let day;
   let year;
   let range;
   const venues = [];
-  lines.forEach((line) => {
+  lines(cell).forEach((line) => {
     const text = line.textContent.trim();
     if (!year && YEAR.test(text)) year = line;
     else if (!day && WEEKDAYS.includes(text.toLowerCase())) day = line;
@@ -71,7 +86,7 @@ function buildDate(cell) {
 function buildDetail(cell, categoryCell) {
   const detail = document.createElement('div');
   detail.className = 'events-detail';
-  const parts = cell ? [...cell.children] : [];
+  const parts = lines(cell);
   const name = parts.find((el) => /^H[1-6]$/.test(el.tagName));
   // a link that is all its paragraph holds is the call to action; one inside a
   // sentence stays part of the description
@@ -91,8 +106,7 @@ function buildDetail(cell, categoryCell) {
     detail.append(description);
   }
 
-  const category = categoryCell && categoryCell.textContent.trim()
-    ? categoryCell.firstElementChild : null;
+  const [category] = lines(categoryCell);
   if (category || cta) {
     const footer = document.createElement('div');
     footer.className = 'events-footer';
