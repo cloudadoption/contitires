@@ -44,15 +44,23 @@ async function buildPage(variant = '', limit = 4) {
 describe('Article cards, the styles it keeps to itself', () => {
   let fetchStub;
   let sheet;
+  let global;
 
   before(async () => {
     sheet = new CSSStyleSheet();
     await sheet.replace(await (await fetch('/blocks/article-cards/article-cards.css')).text());
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    // the block's rules are built from the global custom properties: a border
+    // built from an undefined var computes to none
+    global = new CSSStyleSheet();
+    await global.replace(await (await fetch('/styles/styles.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, global, sheet];
+    document.body.classList.add('appear');
   });
 
   after(async () => {
-    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    document.adoptedStyleSheets = document.adoptedStyleSheets
+      .filter((s) => s !== sheet && s !== global);
+    document.body.classList.remove('appear');
     document.body.replaceChildren();
     await setViewport({ width: 1440, height: 900 });
   });
@@ -110,15 +118,23 @@ describe('Article cards, the styles it keeps to itself', () => {
 describe('Article cards, where the layouts open', () => {
   let fetchStub;
   let sheet;
+  let global;
 
   before(async () => {
     sheet = new CSSStyleSheet();
     await sheet.replace(await (await fetch('/blocks/article-cards/article-cards.css')).text());
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    // the block's rules are built from the global custom properties: a border
+    // built from an undefined var computes to none
+    global = new CSSStyleSheet();
+    await global.replace(await (await fetch('/styles/styles.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, global, sheet];
+    document.body.classList.add('appear');
   });
 
   after(async () => {
-    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    document.adoptedStyleSheets = document.adoptedStyleSheets
+      .filter((s) => s !== sheet && s !== global);
+    document.body.classList.remove('appear');
     document.body.replaceChildren();
     await setViewport({ width: 1440, height: 900 });
   });

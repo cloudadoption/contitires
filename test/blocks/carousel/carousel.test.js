@@ -104,11 +104,15 @@ describe('Carousel, the pagination and the pill', () => {
 // any other link that happens to carry the class. Issue #112.
 describe('Carousel, the CTA it claims', () => {
   let sheet;
+  let global;
 
   before(async () => {
     sheet = new CSSStyleSheet();
     await sheet.replace(await (await fetch('/blocks/carousel/carousel.css')).text());
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    global = new CSSStyleSheet();
+    await global.replace(await (await fetch('/styles/styles.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, global, sheet];
+    document.body.classList.add('appear');
     document.body.innerHTML = `
       <main>
         <div class="section carousel-container">
@@ -127,7 +131,9 @@ describe('Carousel, the CTA it claims', () => {
   });
 
   after(() => {
-    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    document.adoptedStyleSheets = document.adoptedStyleSheets
+      .filter((s) => s !== sheet && s !== global);
+    document.body.classList.remove('appear');
     document.body.replaceChildren();
   });
 
