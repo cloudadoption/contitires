@@ -130,13 +130,6 @@ describe('Banner block, live\'s dark band', () => {
     return rule ? rule.style.getPropertyValue(prop).trim() : null;
   }
 
-  // live runs the band edge to edge, where a section holds its content to 1200
-  it('runs the band the full width of the page', () => {
-    expect(value('main .section.banner-container > div', 'max-width')).to.equal('none');
-    expect(value('main .section.banner-container > div', 'padding')).to.equal('0px');
-    expect(value('main .section.banner-container', 'margin')).to.equal('0px');
-  });
-
   it('draws the band dark, with the glow live has behind the title', () => {
     expect(value('.banner.block', 'background-color')).to.equal('rgb(11, 11, 11)');
     expect(value('.banner.block', 'background-image')).to.match(/^radial-gradient\(/);
@@ -202,14 +195,21 @@ describe('Banner block, live\'s dark band', () => {
 });
 
 /**
- * The band inside the article template. /experience/sports carries the band
- * and is authored as an article, and that template holds every section in a
- * 640px reading column with padding of its own. The band runs edge to edge on
- * live there like it does everywhere else, so it has to win that cascade
- * wherever the two sheets land in the document.
+ * The band runs edge to edge, where a section holds its content to 1200 and
+ * the article template holds it to a 640px reading column. /experience/sports
+ * carries the band and is authored as an article, and live runs the band edge
+ * to edge there like it does everywhere else, so the band has to win that
+ * cascade wherever the two sheets land in the document.
  */
-describe('Banner block, the band in the article template', () => {
+describe('Banner block, the band inside a section', () => {
   let adopted;
+
+  const mount = () => {
+    document.body.innerHTML = `
+      <main><div class="section banner-container"><div class="banner-wrapper">
+        <div class="banner block"><h1 class="banner-title">Celebrating the athletic spirit</h1></div>
+      </div></div></main>`;
+  };
 
   before(async () => {
     const sheets = await Promise.all(['/blocks/banner/banner.css', '/styles/styles.css',
@@ -229,12 +229,19 @@ describe('Banner block, the band in the article template', () => {
     document.body.innerHTML = '';
   });
 
-  it('runs edge to edge in the article template too', () => {
+  it('runs the band the full width of the page', () => {
+    mount();
+
+    const section = getComputedStyle(document.querySelector('.section'));
+    expect(section.maxWidth, 'the section does not hold the band').to.equal('none');
+    expect(section.padding).to.equal('0px');
+    expect(section.margin).to.equal('0px');
+    expect(getComputedStyle(document.querySelector('.banner-wrapper')).padding).to.equal('0px');
+  });
+
+  it('runs it edge to edge in the article template too', () => {
     document.body.className = 'article';
-    document.body.innerHTML = `
-      <main><div class="section banner-container"><div class="banner-wrapper">
-        <div class="banner block"><h1 class="banner-title">Celebrating the athletic spirit</h1></div>
-      </div></div></main>`;
+    mount();
 
     const section = getComputedStyle(document.querySelector('.section'));
     expect(section.maxWidth, 'the reading column does not hold the band').to.equal('none');

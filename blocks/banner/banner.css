@@ -4,13 +4,19 @@
    within 560px across and 400 down. Read off continentaltire.com at 1440,
    1025, 1024, 900, 769, 768 and 375, on all 13 pages that carry it. ---- */
 
-/* the band runs edge to edge, where a section holds its content to 1200 */
-main .section.banner-container {
+/* the band runs edge to edge, where a section holds its content to 1200. The
+   :has() carries no meaning a banner section does not already carry; it is
+   there for the weight, so the band also outranks the article template, which
+   holds every one of its sections in a 640px reading column. */
+main .section.banner-container:has(.banner.block) {
+  max-width: none;
   margin: 0;
+  padding: 0;
 }
 
-main .section.banner-container > div {
+main .section.banner-container > .banner-wrapper {
   max-width: none;
+  margin: 0;
   padding: 0;
 }
 
@@ -48,6 +54,13 @@ main .section.banner-container > div {
   font-size: 30px;
   font-weight: 300;
   line-height: 36px;
+}
+
+/* six of the 13 pages set their title in capitals, which live does with a
+   class rather than by typing it. It is tracked like the promo marquee. */
+.banner.block.uppercase .banner-title {
+  letter-spacing: 5px;
+  text-transform: uppercase;
 }
 
 .banner-text {
@@ -136,6 +149,10 @@ main .section.banner-container > div {
   .banner-title {
     font-size: 42px;
     line-height: 48px;
+  }
+
+  .banner.block.uppercase .banner-title {
+    letter-spacing: 6px;
   }
 
   .banner-text {
