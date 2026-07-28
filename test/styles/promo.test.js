@@ -53,6 +53,41 @@ describe('The promo template', () => {
     expect(value('main .section.checklist li', 'font-size', '769px')).to.equal('24px');
   });
 
+  // live numbers the three rebate steps with a 20px yellow disc, and the
+  // number is not in the content: it counts the columns
+  it('numbers the steps the way live numbers them', () => {
+    expect(value('main .section.steps .columns > div > div::before', 'content')).to.equal('counter(promo-step)');
+    expect(value('main .section.steps .columns > div > div::before', 'background-color')).to.equal('var(--conti-yellow)');
+    expect(value('main .section.steps .columns > div > div::before', 'width')).to.equal('20px');
+    expect(value('main .section.steps .columns > div > div::before', 'border-radius')).to.equal('50%');
+  });
+
+  it('sets a step the way live sets one', () => {
+    expect(value('main .section.steps h2', 'text-transform')).to.equal('uppercase');
+    expect(value('main .section.steps h2', 'font-size')).to.equal('14px');
+    expect(value('main .section.steps p', 'font-size')).to.equal('18px');
+    expect(value('main .section.steps', 'text-align')).to.equal('center');
+  });
+
+  // live's qualifying tires run in four columns on a dark band
+  it('runs the qualifying tires in live\'s four columns', () => {
+    expect(value('main .section.tires ul', 'columns', '769px')).to.equal('4');
+    expect(value('main .section.tires ul', 'list-style')).to.equal('none');
+    expect(value('main .section.tires h2', 'text-transform')).to.equal('uppercase');
+  });
+
+  // the card band pairs a 120px card with a line of copy and two pills
+  it('holds the banner card to the size live draws it', () => {
+    expect(value('main .section.banner .columns-img-col img', 'width')).to.equal('120px');
+    expect(value('main .section.banner .columns > div > div:last-child', 'display', '900px')).to.equal('flex');
+  });
+
+  // the meta row is a badge beside its copy, twice
+  it('lays the meta row out as live lays it', () => {
+    expect(value('main .section.meta .columns > div', 'grid-template-columns', '900px')).to.equal('auto 1fr auto 1fr');
+    expect(value('main .section.meta .columns-img-col img', 'width')).to.equal('100px');
+  });
+
   it('sets the terms as small print with a centred title', () => {
     expect(value('main .section.terms', 'font-size')).to.equal('14px');
     expect(value('main .section.terms h2', 'text-align')).to.equal('center');
