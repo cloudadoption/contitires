@@ -26,11 +26,14 @@ body.article main .section > div {
 
 /* title section spans wider than the reading column, centered like live.
    the top padding gives the title breathing room below the nav, matching
-   the space the live article carries above its headline */
+   the space the live article carries above its headline.
+
+   20px under the title is what live leaves while the sidebar follows the body.
+   From 769, where it moves beside the body, live opens that to 60. (#200) */
 body.article main .section:first-of-type {
   max-width: 940px;
   padding-top: 40px;
-  padding-bottom: 8px;
+  padding-bottom: 20px;
 }
 
 @media (width <= 600px) {
@@ -100,6 +103,15 @@ body.article main .video picture {
 
 body.article main .video picture img {
   aspect-ratio: 16 / 9;
+}
+
+/* The gap under the title is the title section's padding and nothing else:
+   live starts its body column flush, whatever leads it. The wrapper is a grid
+   item, so a lead margin stays inside it instead of collapsing out, and it
+   would read as part of that gap on every article. (#200) */
+body.article main .section:has(.share-wrapper) .default-content-wrapper:first-child > :first-child,
+body.article main .section:has(.share-wrapper) .default-content-wrapper:first-child > :first-child > picture {
+  margin-top: 0;
 }
 
 body.article main .video > div > div:has(picture) {
@@ -202,13 +214,25 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
     margin-inline: auto;
   }
 
+  /* the measure is right for copy and wrong for the media that sits in it, so
+     live breaks that media out of the copy by 17% each side, up to the 747 the
+     column caps at: 747 at 1440, 642 at 1024, 519 at 900, 389 at 769. (#192) */
+  body.article main .section:has(.share-wrapper) .default-content-wrapper picture {
+    max-width: 747px;
+    margin-inline: -17%;
+  }
+
+  /* the sidebar is one item, in the row the body starts in, so the list it
+     holds sits under the sharebar rather than below the article (#193) */
   body.article main .section:has(.share-wrapper) .share-wrapper {
     grid-column: 2;
     grid-row: 1;
+    align-self: start;
   }
 
-  body.article main .section:has(.share-wrapper) .related-articles-wrapper {
-    grid-column: 2;
-    grid-row: 2;
+  /* live opens the gap under the title from 20 to 60 here, where the sidebar
+     moves beside the body (#200) */
+  body.article main .section:first-of-type {
+    padding-bottom: 60px;
   }
 }

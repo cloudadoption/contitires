@@ -4,6 +4,7 @@
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
 import { decorateMain } from '../../scripts/scripts.js';
+import decorateRelated from '../../blocks/related-articles/related-articles.js';
 
 /**
  * The article template as live draws it, read off
@@ -16,14 +17,18 @@ import { decorateMain } from '../../scripts/scripts.js';
  * the 747 the column caps at. Below 769 the media takes the measure itself.
  */
 const LIVE = [
-  { vw: 1440, reading: 559, featured: 747, gap: 60 },
-  { vw: 1200, reading: 559, featured: 747, gap: 60 },
-  { vw: 1024, reading: 479, featured: 642, gap: 60 },
-  { vw: 900, reading: 387, featured: 519, gap: 60 },
-  { vw: 769, reading: 290, featured: 389, gap: 60 },
+  { vw: 1440, reading: 559, featured: 747 },
+  { vw: 1200, reading: 559, featured: 747 },
+  { vw: 1024, reading: 479, featured: 642 },
+  { vw: 900, reading: 387, featured: 519 },
+  { vw: 769, reading: 290, featured: 389 },
 ];
 
-const NARROW = [{ vw: 768, gap: 20 }, { vw: 375, gap: 20 }];
+/** the widths at which live's sidebar follows the body rather than sitting
+ *  beside it, one of them live's 769 breakpoint less a pixel */
+const NARROW = [768, 375];
+
+const GAP = { beside: 60, under: 20 };
 
 async function adopt(...paths) {
   const sheets = await Promise.all(paths.map(async (p) => {
@@ -54,6 +59,9 @@ function buildArticle() {
     </div>`;
   document.body.replaceChildren(main);
   decorateMain(main);
+  // loadSection runs each block's own decoration, and the list is a list of
+  // links until it has: its authored markup carries margins the block drops
+  decorateRelated(main.querySelector('.related-articles'));
   // decorateSections hides each section inline (aem.js:479) and loadSection
   // reveals it (aem.js:634), so an unloaded fixture measures nothing
   main.querySelectorAll('.section').forEach((s) => {
@@ -110,7 +118,7 @@ describe('Article template', () => {
   });
 
   // below 769 live's media takes the measure rather than breaking out of it
-  NARROW.forEach(({ vw }) => {
+  NARROW.forEach((vw) => {
     it(`holds the featured image to the measure at ${vw}`, async () => {
       const m = await measure(vw);
       expect(m.featured, `featured image at ${vw}`).to.be.closeTo(m.reading, 1);
@@ -119,10 +127,17 @@ describe('Article template', () => {
 
   // #200: the gap under the title was 20 at every width, against live's 60
   // while the sidebar sits beside the body
-  [...LIVE, ...NARROW].forEach(({ vw, gap }) => {
-    it(`leaves live's ${gap}px under the title at ${vw}`, async () => {
+  LIVE.forEach(({ vw }) => {
+    it(`leaves live's ${GAP.beside}px under the title at ${vw}`, async () => {
       const m = await measure(vw);
-      expect(m.gap, `title to body at ${vw}`).to.be.closeTo(gap, 1);
+      expect(m.gap, `title to body at ${vw}`).to.be.closeTo(GAP.beside, 1);
+    });
+  });
+
+  NARROW.forEach((vw) => {
+    it(`leaves live's ${GAP.under}px under the title at ${vw}`, async () => {
+      const m = await measure(vw);
+      expect(m.gap, `title to body at ${vw}`).to.be.closeTo(GAP.under, 1);
     });
   });
 
@@ -131,7 +146,7 @@ describe('Article template', () => {
   // 900, and rendered above the sharebar below 769. Live puts it flush under
   // the sharebar at every width, which reads as 45 there because live's
   // sharebar is 45 tall against our 33.
-  [...LIVE, ...NARROW].forEach(({ vw }) => {
+  [...LIVE.map((l) => l.vw), ...NARROW].forEach((vw) => {
     it(`sits the related list under the sharebar at ${vw}`, async () => {
       const m = await measure(vw);
       expect(m.underShare, `related list under the sharebar at ${vw}`).to.be.closeTo(0, 1);

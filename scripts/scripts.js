@@ -110,10 +110,17 @@ function decorateNestedBlocks(main) {
 }
 
 /**
- * Puts a share block in an article's body section. Live carries the sharebar
- * on every article, and it needs no author input, so it is built rather than
- * authored on each of the 200-odd pages. Any authored related-articles block
- * already sits in that section, and the two make up the sidebar.
+ * Builds the article sidebar: a share block, and under it any related-articles
+ * block an editor authored. Live carries the sharebar on every article, and it
+ * needs no author input, so it is built rather than authored on each of the
+ * 200-odd pages.
+ *
+ * Both blocks go in one wrapper, because the section is a grid and a wrapper
+ * is a grid item. Two wrappers put the list in a row of its own, and that row
+ * starts below the row holding the body, which is the whole article. (#193)
+ *
+ * Runs after decorateSections, which is what makes the wrappers, and before
+ * decorateBlocks, which reads blocks one level under the section.
  * @param {Element} main The container element
  */
 function buildArticleSidebar(main) {
@@ -127,9 +134,18 @@ function buildArticleSidebar(main) {
   const body = [...main.children].find((section, i) => i > 0 && !section.querySelector('.metadata'));
   if (!body) return;
 
+  const sidebar = document.createElement('div');
   const share = document.createElement('div');
   share.className = 'share';
-  body.append(share);
+  sidebar.append(share);
+
+  const related = body.querySelector('.related-articles');
+  if (related) {
+    const wrapper = related.parentElement;
+    sidebar.append(related);
+    if (!wrapper.children.length) wrapper.remove();
+  }
+  body.append(sidebar);
 }
 
 /**
@@ -157,7 +173,6 @@ function buildAutoBlocks(main) {
     }
     buildWidgetAutoBlocks(main);
     buildFinderCardAutoBlocks(main);
-    buildArticleSidebar(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -212,6 +227,7 @@ export function decorateMain(main) {
   decorateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
+  buildArticleSidebar(main);
   decorateBlocks(main);
   decorateNestedBlocks(main);
   decorateButtons(main);
