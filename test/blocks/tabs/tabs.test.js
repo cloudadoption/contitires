@@ -31,7 +31,7 @@ const SAMPLE = [
 function buildTabs(rows = SAMPLE) {
   document.body.innerHTML = `
     <main>
-      <div class="section">
+      <div class="section tabs-container">
         <div class="tabs-wrapper">
           <div class="tabs block" data-block-name="tabs">
             ${rows.map((cells) => `<div>${cells.map((c) => `<div>${c}</div>`).join('')}</div>`).join('')}
@@ -245,6 +245,22 @@ describe('Tabs block, live\'s measurements', () => {
     expect(Math.round(parseFloat(rest.width))).to.equal(0);
   });
 
+  // a panel is a grid, and a grid outranks the hidden attribute's own display
+  it('draws one panel at a time', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const panels = block.querySelectorAll('[role="tabpanel"]');
+    expect(getComputedStyle(panels[0]).display).to.equal('grid');
+    expect(getComputedStyle(panels[1]).display).to.equal('none');
+  });
+
+  // live opens the bar straight under the marquee above it
+  it('stands the bar flush against what comes before it', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const section = block.closest('.section');
+    expect(getComputedStyle(section).marginTop).to.equal('0px');
+    expect(getComputedStyle(section).marginBottom).to.equal('0px');
+  });
+
   it('runs a 310 sidebar beside the panel at 1440, 100 apart', async () => {
     await setViewport({ width: 1440, height: 900 });
     const panel = block.querySelector('[role="tabpanel"]');
@@ -259,12 +275,17 @@ describe('Tabs block, live\'s measurements', () => {
     expect(getComputedStyle(panel).paddingBottom).to.equal('80px');
   });
 
-  it('gives a panel with no sidebar the whole width at 1440', async () => {
+  // the cap is the sidebar's; a panel without one takes the page container,
+  // which this site measures 1200 wide
+  it('gives a panel with no sidebar the whole container at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
     const tabs = block.querySelectorAll('[role="tab"]');
     tabs[1].click();
     const panel = block.querySelectorAll('[role="tabpanel"]')[1];
-    expect(Math.round(panel.getBoundingClientRect().width)).to.equal(1136);
+    const wrapper = block.closest('.section').firstElementChild;
+    expect(Math.round(panel.getBoundingClientRect().width)).to.equal(1200);
+    expect(Math.round(panel.getBoundingClientRect().width))
+      .to.equal(Math.round(wrapper.getBoundingClientRect().width) - 64);
   });
 
   it('drops the sidebar under the panel at 375, 28 below it', async () => {
@@ -277,6 +298,16 @@ describe('Tabs block, live\'s measurements', () => {
     expect(Math.round(aside.getBoundingClientRect().top
       - main.getBoundingClientRect().bottom)).to.equal(28);
     expect(getComputedStyle(panel).paddingTop).to.equal('38px');
+  });
+
+  it('centres the sidebar titles and fills its button at 375', async () => {
+    await setViewport({ width: 375, height: 812 });
+    const title = block.querySelector('.tabs-aside h2');
+    const wrapper = block.querySelector('.tabs-aside .button-wrapper');
+    const button = wrapper.querySelector('a.button');
+    expect(getComputedStyle(title).textAlign).to.equal('center');
+    expect(Math.round(button.getBoundingClientRect().width))
+      .to.equal(Math.round(wrapper.getBoundingClientRect().width));
   });
 
   it('titles a sidebar panel at 12 over a hairline, 28 clear of it', async () => {
