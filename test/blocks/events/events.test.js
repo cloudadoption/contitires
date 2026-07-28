@@ -149,6 +149,18 @@ describe('Events block, what an author leaves out', () => {
     expect(block.querySelector('.events-location').textContent).to.contain('Cincinnati, OH');
   });
 
+  // the pipeline delivers a cell holding one paragraph as bare text, with no
+  // paragraph around it, which is how /events arrives
+  it('reads a cell the pipeline delivered as bare text', () => {
+    const block = buildEvents([[
+      '<p>Wednesday</p><p>2026</p><p>Jul 29–29</p><p>Cincinnati, OH</p>',
+      '<h2>MLS Activation</h2><p>On site.</p>',
+      'Major League Soccer',
+    ]]);
+    decorate(block);
+    expect(block.querySelector('.events-category').textContent).to.equal('Major League Soccer');
+  });
+
   it('builds a card with only a name', () => {
     const block = buildEvents([['', '<h2>MLS Activation</h2>', '']]);
     decorate(block);
