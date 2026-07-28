@@ -423,6 +423,62 @@ main .section.black a:any-link:not(.button) {
   color: var(--conti-white);
 }
 
+/* ---- cta: the band live closes a page with, a heading over its controls,
+   all centred. Live pads it 80 from 769 and 38 below, sets 16 between the
+   parts, and lets one band touch the next. Read off
+   continentaltire.com/warranty at 1440, 900, 768 and 375. Issue #94. ---- */
+main .section.cta {
+  margin: 0;
+  padding: 38px 0;
+  text-align: center;
+}
+
+main .section.cta :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+}
+
+/* live's controls are the band's own children, so a paragraph around one
+   would hang it under the line box the paragraph opens */
+main .section.cta p {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0 0;
+}
+
+/* live runs a control the width of the column below 769 */
+main .section.cta .button {
+  width: 100%;
+}
+
+/* a plain link in the band is live's download: a small uppercase control with
+   its mark after the words, rather than a pill */
+main .section.cta a:any-link:not(.button) {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+}
+
+main .section.cta a:any-link:not(.button) .icon {
+  width: 20px;
+  height: 20px;
+  margin-inline-start: 0.5em;
+}
+
+@media (width >= 769px) {
+  main .section.cta {
+    padding: 80px 0;
+  }
+
+  main .section.cta .button {
+    width: auto;
+  }
+}
+
 /* the hover half of the content link rule above, kept below the dark section
    so a link on a band holds that colour while it is hovered */
 main .default-content-wrapper a:any-link:not(.button):hover,

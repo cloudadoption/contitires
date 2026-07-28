@@ -4,6 +4,7 @@
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
 import decorate from '../../../blocks/cards/cards.js';
+import { decorateIcons } from '../../../scripts/aem.js';
 
 // The Confidence on the Road band now sits on every product page, not the
 // homepage alone. Live lays its six coverage items out as one row of six from
@@ -436,5 +437,275 @@ describe("You Might Also Like band, live's crew teasers", () => {
       - cards[0].getBoundingClientRect().bottom)).to.equal(20);
     expect(Math.round(cards[0].getBoundingClientRect().left))
       .to.equal(Math.round(cards[1].getBoundingClientRect().left));
+  });
+});
+
+/**
+ * The Register your tires band on /warranty. Live sets the six benefits on a
+ * #333 band, centred and white: a mark at its own size over an uppercase title
+ * and a line of copy, three across from 769 and one below. The intro above and
+ * the roadside line below stand on the same band, 38 from the items.
+ *
+ * Read off continentaltire.com/warranty at 1440, 900, 768 and 375. Issue #94.
+ */
+describe("Register your tires band, live's six benefits", () => {
+  let block;
+  let section;
+
+  /** How wide `n` zeroes measure at an element's own font, which is what ch is. */
+  function zeroes(n, el) {
+    const probe = document.createElement('span');
+    probe.textContent = '0'.repeat(n);
+    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
+    probe.style.font = getComputedStyle(el).font;
+    document.body.append(probe);
+    const { width } = probe.getBoundingClientRect();
+    probe.remove();
+    return width;
+  }
+
+  const BENEFITS = [
+    ['limited-warranty', 'Limited Warranty +**', 'If your tires become unserviceable within the first 12 months, we\'ll replace them for free.'],
+    ['mileage-warranty', 'Mileage Warranty +', 'We\'ll cover replacements on select products up to 80,000 miles.'],
+    ['satisfaction-trial', 'Customer Satisfaction Trial +', 'If you\'re not happy with your purchase, we\'ll replace your tires with Continental brand tires in the first 60 days.'],
+    ['road-hazard', 'Road Hazard Coverage +**', 'We\'ll replace your damaged tires for free within the first 12 months of purchase.'],
+    ['roadside-assistance', 'Flat Tire Roadside Assistance +', 'Get a flat change and spare installed (or tow if needed for free up to 150 miles).'],
+    ['trip-interruption', 'Emergency Trip Interruption Coverage +', 'If you have a mechanical breakdown during a road trip, we\'ll help cover eligible expenses.'],
+  ];
+
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/cards/cards.css'].map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    const main = document.createElement('main');
+    const item = ([icon, title, copy]) => `
+      <div><div><p><span class="icon icon-${icon}"></span></p>
+      <h2 id="${icon}">${title}</h2><p>${copy}</p></div></div>`;
+    main.innerHTML = `
+      <div class="section cards-container dark">
+        <div class="default-content-wrapper">
+          <p>Register your tires online at <strong><a href="https://register.roadsideprotect.com/continental/">totalconfidence-plan.com</a></strong> to receive these benefits.</p>
+        </div>
+        <div class="cards-wrapper">
+          <div class="cards benefits block">${BENEFITS.map(item).join('')}</div>
+        </div>
+        <div class="default-content-wrapper">
+          <p>Need roadside assistance now? Call <strong><a href="tel:1-888-990-6125">1-888-990-6125</a></strong></p>
+          <p><em>Must be registered.</em></p>
+        </div>
+      </div>`;
+    document.body.replaceChildren(main);
+    document.body.classList.add('appear');
+    section = main.querySelector('.section');
+    block = main.querySelector('.cards.benefits');
+    decorateIcons(block);
+    decorate(block);
+    // the marks are real files and their own size is what the row measures, so
+    // they have to arrive. A mark is decorated lazy, which a page in view
+    // honours and a test page off screen can defer for good.
+    await Promise.all([...block.querySelectorAll('img')].map((img) => {
+      img.loading = 'eager';
+      return img.complete ? Promise.resolve() : new Promise((done) => {
+        img.addEventListener('load', done);
+        img.addEventListener('error', done);
+      });
+    }));
+  });
+
+  after(() => {
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+  });
+
+  it('paints the band #333 and centres it, white', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const styles = getComputedStyle(section);
+    expect(styles.backgroundColor).to.equal('rgb(51, 51, 51)');
+    expect(styles.color).to.equal('rgb(255, 255, 255)');
+    expect(styles.textAlign).to.equal('center');
+  });
+
+  // live pads the band 60 from 769 and 38 below
+  it("pads the band live's 38, and 60 from 769", async () => {
+    await setViewport({ width: 768, height: 900 });
+    expect(getComputedStyle(section).padding).to.equal('38px 0px');
+    await setViewport({ width: 769, height: 900 });
+    expect(getComputedStyle(section).padding).to.equal('60px 0px');
+  });
+
+  // three equal columns rather than live's own 353.33: this site holds a
+  // section 1200 wide where live holds it at 1136
+  it('runs three benefits across 38 apart at 1440', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const list = block.querySelector('ul');
+    const items = [...block.querySelectorAll('li')];
+    expect(items).to.have.length(6);
+    expect(getComputedStyle(list).gap).to.equal('38px');
+    const widths = items.slice(0, 3).map((i) => Math.round(i.getBoundingClientRect().width));
+    expect(widths).to.eql([widths[0], widths[0], widths[0]]);
+    expect(Math.round(items[1].getBoundingClientRect().left
+      - items[0].getBoundingClientRect().right)).to.equal(38);
+    expect(Math.round(items[3].getBoundingClientRect().top
+      - items[0].getBoundingClientRect().bottom)).to.equal(38);
+    expect(Math.round(items[3].getBoundingClientRect().left))
+      .to.equal(Math.round(items[0].getBoundingClientRect().left));
+  });
+
+  it('stacks the benefits one per row below 769', async () => {
+    await setViewport({ width: 768, height: 900 });
+    const items = [...block.querySelectorAll('li')];
+    expect(Math.round(items[0].getBoundingClientRect().width)).to.equal(720);
+    expect(Math.round(items[1].getBoundingClientRect().top
+      - items[0].getBoundingClientRect().bottom)).to.equal(38);
+  });
+
+  // one per row leaves room, and live spends it: a benefit reads 27 characters
+  // wide there rather than the 228 it takes in a column
+  it('widens a benefit to 27 characters below 769', async () => {
+    await setViewport({ width: 768, height: 900 });
+    const body = block.querySelector('.cards-card-body');
+    expect(Math.round(parseFloat(getComputedStyle(body).maxWidth)))
+      .to.equal(Math.round(zeroes(27, body)));
+    await setViewport({ width: 769, height: 900 });
+    expect(getComputedStyle(body).maxWidth).to.equal('228px');
+  });
+
+  // live holds a benefit to 228 in a 16 gutter, centred in its column
+  it('holds a benefit to 260 and centres it in its column', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const [item] = block.querySelectorAll('li');
+    const body = item.querySelector('.cards-card-body');
+    const styles = getComputedStyle(body);
+    expect(styles.maxWidth).to.equal('228px');
+    expect(styles.padding).to.equal('0px 16px');
+    expect(styles.boxSizing).to.equal('content-box');
+    const inner = body.getBoundingClientRect();
+    const column = item.getBoundingClientRect();
+    expect(Math.round(inner.width)).to.equal(260);
+    expect(Math.round(inner.left - column.left)).to.equal(Math.round(column.right - inner.right));
+  });
+
+  it('draws no card chrome on the band', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const [item] = block.querySelectorAll('li');
+    const styles = getComputedStyle(item);
+    expect(styles.backgroundColor).to.equal('rgba(0, 0, 0, 0)');
+    expect(styles.boxShadow).to.equal('none');
+    expect(styles.borderRadius).to.equal('0px');
+  });
+
+  // live draws each mark at the size its own file asks for: five 55 tall, the
+  // sixth 50. The box holds them all and scale-down keeps each at its size.
+  it('draws each mark at the size its own file asks for, centred', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const marks = [...block.querySelectorAll('.icon img')];
+    expect(marks).to.have.length(6);
+    expect(marks.map((m) => `${m.naturalWidth}x${m.naturalHeight}`))
+      .to.eql(['53x55', '50x55', '57x55', '55x55', '49x55', '50x50']);
+    marks.forEach((m) => {
+      const box = m.getBoundingClientRect();
+      expect(getComputedStyle(m).objectFit).to.equal('scale-down');
+      expect(box.width).to.be.at.least(m.naturalWidth);
+      expect(box.height).to.be.at.least(m.naturalHeight);
+    });
+    expect(Math.round(marks[5].getBoundingClientRect().height)).to.equal(50);
+    const mark = marks[0].getBoundingClientRect();
+    const body = block.querySelector('.cards-card-body').getBoundingClientRect();
+    expect(Math.round(mark.left - body.left)).to.equal(Math.round(body.right - mark.right));
+  });
+
+  // a mark arrives after the page paints, so its box has to be there before
+  // it does. Left to the file, six marks grew from nothing at once and took
+  // the band down the page with them.
+  it('reserves the box a mark will take', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const fresh = document.createElement('div');
+    fresh.className = 'cards benefits block';
+    fresh.innerHTML = '<div><div><p><span class="icon icon-limited-warranty"></span></p>'
+      + '<h2>Limited Warranty</h2><p>A benefit.</p></div></div>';
+    // outside the band, so a failure here leaves the fixture alone
+    document.body.append(fresh);
+    decorateIcons(fresh);
+    decorate(fresh);
+    const mark = fresh.querySelector('.icon');
+    // measured before the file can have arrived
+    expect(Math.round(mark.getBoundingClientRect().width)).to.equal(57);
+    expect(Math.round(mark.getBoundingClientRect().height)).to.equal(55);
+    expect(getComputedStyle(mark.querySelector('img')).objectFit).to.equal('scale-down');
+    fresh.remove();
+  });
+
+  it('sets the title 14/20 bold uppercase, 12 under the mark', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const title = block.querySelector('h2');
+    const styles = getComputedStyle(title);
+    expect(styles.fontSize).to.equal('14px');
+    expect(styles.lineHeight).to.equal('20px');
+    expect(styles.fontWeight).to.equal('700');
+    expect(styles.letterSpacing).to.equal('0.5px');
+    expect(styles.textTransform).to.equal('uppercase');
+    const mark = block.querySelector('.icon img');
+    expect(Math.round(title.getBoundingClientRect().top - mark.getBoundingClientRect().bottom))
+      .to.equal(12);
+  });
+
+  // the copy widens below 769 and the title does not: live holds it to 200
+  // there, so a long one wraps rather than running the width of the benefit
+  it('holds the title to 200 below 769, centred', async () => {
+    await setViewport({ width: 768, height: 900 });
+    const title = block.querySelector('h2').getBoundingClientRect();
+    const body = block.querySelector('.cards-card-body').getBoundingClientRect();
+    expect(getComputedStyle(block.querySelector('h2')).maxWidth).to.equal('200px');
+    expect(Math.round(title.left - body.left)).to.equal(Math.round(body.right - title.right));
+    await setViewport({ width: 769, height: 900 });
+    expect(getComputedStyle(block.querySelector('h2')).maxWidth).to.equal('none');
+  });
+
+  it('opens the copy 4 under the title, at 15/22', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const title = block.querySelector('h2');
+    const copy = block.querySelector('h2 + p');
+    const styles = getComputedStyle(copy);
+    expect(styles.fontSize).to.equal('15px');
+    expect(styles.lineHeight).to.equal('22px');
+    expect(Math.round(copy.getBoundingClientRect().top - title.getBoundingClientRect().bottom))
+      .to.equal(4);
+  });
+
+  // live leaves 38 between the intro, the items and the roadside line
+  it('stands the items 38 from the intro and the roadside line', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const intro = section.querySelector('.default-content-wrapper p');
+    const list = block.querySelector('ul');
+    const roadside = section.querySelector('.cards-wrapper + .default-content-wrapper p');
+    expect(Math.round(list.getBoundingClientRect().top - intro.getBoundingClientRect().bottom))
+      .to.equal(38);
+    expect(Math.round(roadside.getBoundingClientRect().top - list.getBoundingClientRect().bottom))
+      .to.equal(38);
+  });
+
+  it("sets the intro and the roadside line at live's two sizes", async () => {
+    await setViewport({ width: 768, height: 900 });
+    const intro = section.querySelector('.default-content-wrapper p');
+    const roadside = section.querySelector('.cards-wrapper + .default-content-wrapper p');
+    expect(getComputedStyle(intro).fontSize).to.equal('15px');
+    expect(getComputedStyle(intro).lineHeight).to.equal('22px');
+    expect(getComputedStyle(roadside).fontSize).to.equal('15px');
+    await setViewport({ width: 769, height: 900 });
+    expect(getComputedStyle(intro).fontSize).to.equal('24px');
+    expect(getComputedStyle(intro).lineHeight).to.equal('32px');
+    expect(getComputedStyle(roadside).fontSize).to.equal('24px');
+  });
+
+  // live keeps the registration note small where the line above it is not
+  it('keeps the registration note at 15/22', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const note = section.querySelector('.cards-wrapper + .default-content-wrapper em');
+    expect(getComputedStyle(note).fontSize).to.equal('15px');
+    expect(getComputedStyle(note).lineHeight).to.equal('22px');
+    expect(getComputedStyle(note).fontStyle).to.equal('italic');
   });
 });

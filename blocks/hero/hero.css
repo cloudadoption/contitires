@@ -217,6 +217,165 @@ main .section.hero-container {
   }
 }
 
+/* ---- logo: the marquee live opens /warranty with. The Total Confidence Plan
+   shield stands above the headline rather than behind it, on #333 under a
+   glow, and the enrol pill takes the site's own yellow. Live's glow is a
+   1440x560 photo scaled to cover; its light falls off to the page black within
+   495px across and 587 down, and the band holds it at that size from 375 to
+   1440 because the photo is as tall as the band. Read off
+   continentaltire.com/warranty at 1440, 900, 768 and 375. Issue #94. ---- */
+.hero.logo {
+  min-height: 0;
+  padding: 0;
+  background-color: #333;
+  background-image: radial-gradient(
+    ellipse 495px 587px at 50% 0,
+    rgb(87 87 87) 0%,
+    rgb(69 69 69) 21%,
+    rgb(41 41 41) 45%,
+    rgb(21 21 21) 70%,
+    rgb(14 14 14) 88%,
+    rgb(11 11 11) 100%
+  );
+}
+
+/* live caps the words at 750 and pads the page 20, and centres the shield and
+   the pill in whatever room is left */
+.hero.logo .hero-content {
+  max-width: 790px;
+  padding: 34px 20px;
+}
+
+/* the shield is live's own asset, drawn at the size live draws it. A block
+   box rather than an inline one: an inline mark hangs in a line box of the
+   paragraph's own leading, which stood everything under it 9.8 too low. */
+.hero.logo .icon-tcp-badge {
+  display: block;
+  width: 118.6px;
+  height: 140px;
+  margin-inline: auto;
+}
+
+.hero.logo .icon img {
+  object-fit: contain;
+}
+
+/* live stacks the marquee's four parts 16 apart */
+.hero.logo .hero-content > p:first-child {
+  margin: 0;
+}
+
+/* The words wrap differently in the fallback face than in Stag Sans, and the
+   fonts arrive after the page paints. Below 420 the fallback takes a line more
+   for the headline, and below 419 one more for the lead, so the band under the
+   marquee moved 64 when the fonts landed. Each box holds the fallback's lines
+   instead, the way the header holds the ribbon's height. Read off the page by
+   forcing the fallback at 16 widths from 320 to 1440. */
+.hero.logo .hero-content h1 {
+  min-height: 5lh;
+  margin-top: 16px;
+  font-size: 30px;
+  line-height: 36px;
+}
+
+/* the uppercase half is a span on live and the emphasis our content model
+   gives, so it is the strong. Live breaks the line after it from 769. */
+.hero.logo .hero-content h1 strong {
+  font-weight: inherit;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+
+.hero.logo .hero-content > p:not(:first-child) {
+  min-height: 4lh;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+/* the headline drops to four of them at 385, and both faces wrap alike from
+   420, where the reservation ends */
+@media (width >= 385px) {
+  .hero.logo .hero-content h1 {
+    min-height: 4lh;
+  }
+}
+
+@media (width >= 420px) {
+  .hero.logo .hero-content h1,
+  .hero.logo .hero-content > p:not(:first-child) {
+    min-height: 0;
+  }
+}
+
+.hero.logo .hero-content .hero-ctas {
+  margin-top: 16px;
+}
+
+/* live runs the pill the width of the column below 769 */
+.hero.logo .hero-ctas .button-wrapper {
+  flex-basis: 100%;
+}
+
+.hero.logo .hero-ctas .button {
+  width: 100%;
+}
+
+/* the base hero draws a marquee CTA white, which is what live draws
+   elsewhere. This page's pill is the site's own yellow, as the pills further
+   down the same page already are. */
+.hero.logo .button.primary {
+  border-color: var(--conti-yellow);
+  background-color: var(--conti-yellow);
+  color: var(--conti-black);
+}
+
+.hero.logo .button.primary:hover,
+.hero.logo .button.primary:focus-visible {
+  border-color: var(--conti-dark-yellow);
+  background-color: var(--conti-dark-yellow);
+  color: var(--conti-white);
+}
+
+@media (width >= 769px) {
+  .hero.logo {
+    padding: 60px 0 38px;
+  }
+
+  .hero.logo .hero-content {
+    padding: 4px 20px 8px;
+  }
+
+  .hero.logo .icon-tcp-badge {
+    width: 172px;
+    height: 203px;
+  }
+
+  .hero.logo .hero-content h1 strong {
+    display: block;
+    letter-spacing: 8px;
+  }
+
+  .hero.logo .hero-content > p:not(:first-child) {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .hero.logo .hero-ctas .button-wrapper {
+    flex-basis: auto;
+  }
+
+  .hero.logo .hero-ctas .button {
+    width: auto;
+  }
+}
+
+@media (width >= 1025px) {
+  .hero.logo .hero-content h1 {
+    font-size: 42px;
+    line-height: 48px;
+  }
+}
+
 /* left-aligned variant: text left over a dark photo, with a left-side
    overlay (in addition to the base bottom gradient) so the copy stays
    readable regardless of what's under it */

@@ -1,8 +1,10 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before beforeEach */
+/* global describe it before after beforeEach */
 
 import { expect } from '@esm-bundle/chai';
+import { setViewport } from '@web/test-runner-commands';
 import decorate from '../../../blocks/hero/hero.js';
+import { decorateIcons } from '../../../scripts/aem.js';
 
 /**
  * A hero as EDS delivers it: two authored pictures, each with the same
@@ -268,5 +270,240 @@ describe('Hero, the slim divided band', () => {
   it("sets the title on live's line height at both widths", () => {
     expect(value('.hero.stacked .hero-content h1', 'line-height')).to.equal('36px');
     expect(value('.hero.stacked .hero-content h1', 'line-height', '1025px')).to.equal('48px');
+  });
+});
+
+/**
+ * Live opens /warranty with a marquee of its own: the Total Confidence Plan
+ * shield above the headline, on #333 under a glow, with the enrol pill in the
+ * site's yellow. The headline's uppercase half is tracked out and stands on a
+ * line of its own from 769.
+ *
+ * Read off continentaltire.com/warranty at 1440, 900, 768 and 375. Issue #94.
+ */
+describe("Hero, live's logo marquee", () => {
+  let block;
+  let badge;
+
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/hero/hero.css'].map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    document.body.innerHTML = `
+      <main>
+        <div class="section hero-container">
+          <div class="hero-wrapper">
+            <div class="hero logo block" data-block-name="hero">
+              <div><div>
+                <p><span class="icon icon-tcp-badge"></span></p>
+                <h1 id="total-confidence-plan-provides-industry-leading-coverage"><strong>Total Confidence Plan</strong> provides industry-leading coverage.</h1>
+                <p>The purchase of replacement Continental tires comes with an extra measure of confidence with the Total Confidence Plan.</p>
+                <p class="button-wrapper"><a class="button primary" href="https://register.roadsideprotect.com/continental/register">Enroll now</a></p>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </main>`;
+    document.body.classList.add('appear');
+    block = document.querySelector('.hero.logo');
+    decorateIcons(block);
+    decorate(block);
+    badge = block.querySelector('.icon img');
+    // the shield is decorated lazy, which a page in view honours and a test
+    // page off screen can defer for good
+    badge.loading = 'eager';
+    if (!badge.complete) {
+      await new Promise((done) => {
+        badge.addEventListener('load', done);
+        badge.addEventListener('error', done);
+      });
+    }
+  });
+
+  after(() => {
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+  });
+
+  it('keeps the badge above the heading', () => {
+    const parts = [...block.querySelectorAll('.hero-content > *')];
+    expect(parts[0].querySelector('.icon-tcp-badge'), 'the badge opens the marquee').to.exist;
+    expect(parts[1].tagName).to.equal('H1');
+  });
+
+  it("paints the band #333 under live's glow", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const styles = getComputedStyle(block);
+    expect(styles.backgroundColor).to.equal('rgb(51, 51, 51)');
+    expect(styles.backgroundImage).to.contain('radial-gradient');
+  });
+
+  it("stands the badge at live's 172 by 203, and 140 tall below 769", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    expect(Math.round(badge.getBoundingClientRect().width)).to.equal(172);
+    expect(Math.round(badge.getBoundingClientRect().height)).to.equal(203);
+    expect(getComputedStyle(badge).objectFit).to.equal('contain');
+    await setViewport({ width: 768, height: 900 });
+    expect(Math.round(badge.getBoundingClientRect().height)).to.equal(140);
+  });
+
+  // the base hero draws a marquee CTA white, which is what live draws
+  // elsewhere. This page's pill is the site's own yellow, as its pills further
+  // down the page already are.
+  it('keeps the enrol pill yellow', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const pill = block.querySelector('.button.primary');
+    expect(getComputedStyle(pill).backgroundColor).to.equal('rgb(255, 165, 0)');
+    expect(getComputedStyle(pill).color).to.equal('rgb(51, 51, 51)');
+  });
+
+  it('runs the pill the width of the column below 769', async () => {
+    await setViewport({ width: 768, height: 900 });
+    const pill = block.querySelector('.button.primary');
+    const content = block.querySelector('.hero-content');
+    expect(Math.round(pill.getBoundingClientRect().width))
+      .to.equal(Math.round(content.getBoundingClientRect().width) - 40);
+    await setViewport({ width: 769, height: 900 });
+    expect(Math.round(pill.getBoundingClientRect().width)).to.be.below(200);
+  });
+
+  it("tracks the heading's uppercase half, on a line of its own from 769", async () => {
+    await setViewport({ width: 768, height: 900 });
+    const caps = block.querySelector('h1 strong');
+    expect(getComputedStyle(caps).textTransform).to.equal('uppercase');
+    expect(getComputedStyle(caps).letterSpacing).to.equal('5px');
+    expect(getComputedStyle(caps).fontWeight).to.equal('300');
+    expect(getComputedStyle(caps).display).to.equal('inline');
+    await setViewport({ width: 769, height: 900 });
+    expect(getComputedStyle(caps).letterSpacing).to.equal('8px');
+    expect(getComputedStyle(caps).display).to.equal('block');
+  });
+
+  it("sets the heading and the lead on live's scale", async () => {
+    await setViewport({ width: 1024, height: 900 });
+    const title = block.querySelector('h1');
+    const lead = block.querySelector('.hero-content > p:not(:first-child)');
+    expect(getComputedStyle(title).fontSize).to.equal('30px');
+    expect(getComputedStyle(title).lineHeight).to.equal('36px');
+    expect(getComputedStyle(lead).fontSize).to.equal('24px');
+    expect(getComputedStyle(lead).lineHeight).to.equal('32px');
+    await setViewport({ width: 1025, height: 900 });
+    expect(getComputedStyle(title).fontSize).to.equal('42px');
+    expect(getComputedStyle(title).lineHeight).to.equal('48px');
+    await setViewport({ width: 768, height: 900 });
+    expect(getComputedStyle(lead).fontSize).to.equal('20px');
+    expect(getComputedStyle(lead).lineHeight).to.equal('28px');
+  });
+
+  // live stacks the marquee's four parts 16 apart, and holds the words to 750.
+  // The gap over the heading is measured from the shield rather than from the
+  // paragraph around it, which opens a line box of its own.
+  it('stacks the marquee 16 apart, holding the words to 750', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const [mark, title, lead] = [...block.querySelectorAll('.hero-content > *')];
+    const ctas = block.querySelector('.hero-ctas');
+    expect(Math.round(mark.getBoundingClientRect().height)).to.equal(203);
+    expect(Math.round(title.getBoundingClientRect().top - badge.getBoundingClientRect().bottom))
+      .to.equal(16);
+    expect(Math.round(lead.getBoundingClientRect().top - title.getBoundingClientRect().bottom))
+      .to.equal(16);
+    expect(Math.round(ctas.getBoundingClientRect().top - lead.getBoundingClientRect().bottom))
+      .to.equal(16);
+    expect(Math.round(title.getBoundingClientRect().width)).to.equal(750);
+  });
+
+  // live pads the band 60 over and 38 under from 769, and 34 both ways below
+  it("gives the band live's room at both widths", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const [mark] = [...block.querySelectorAll('.hero-content > *')];
+    expect(Math.round(mark.getBoundingClientRect().top - block.getBoundingClientRect().top))
+      .to.equal(64);
+    await setViewport({ width: 768, height: 900 });
+    expect(Math.round(mark.getBoundingClientRect().top - block.getBoundingClientRect().top))
+      .to.equal(34);
+  });
+});
+
+/**
+ * The marquee's words wrap differently in the fallback face than in Stag Sans,
+ * and the fonts arrive after the page paints. Below 420 the fallback takes a
+ * line more for the headline, and below 419 one more for the lead, so the band
+ * under the marquee moved 64 when the fonts landed. The boxes hold the
+ * fallback's lines now, the way the header holds the ribbon's height.
+ *
+ * Read off the branch preview by forcing the fallback at 320, 360, 375, 380,
+ * 385, 389, 390, 400, 412, 416, 419, 420, 440, 480, 768, 900 and 1440.
+ * Issue #94, the same reservation as #78.
+ */
+describe("Hero, the logo marquee's reserved lines", () => {
+  let block;
+
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/hero/hero.css'].map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    document.body.innerHTML = `
+      <main>
+        <div class="section hero-container">
+          <div class="hero-wrapper">
+            <div class="hero logo block" data-block-name="hero">
+              <div><div>
+                <p><span class="icon icon-tcp-badge"></span></p>
+                <h1><strong>Total Confidence Plan</strong> provides industry-leading coverage.</h1>
+                <p>The purchase of replacement Continental tires comes with an extra measure of confidence with the Total Confidence Plan.</p>
+                <p class="button-wrapper"><a class="button primary" href="/enroll">Enroll now</a></p>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </main>`;
+    document.body.classList.add('appear');
+    block = document.querySelector('.hero.logo');
+    decorate(block);
+  });
+
+  after(() => {
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+  });
+
+  const title = () => block.querySelector('h1');
+  const lead = () => block.querySelector('.hero-content > p:not(:first-child)');
+
+  it("reserves the headline's five fallback lines below 385", async () => {
+    await setViewport({ width: 375, height: 900 });
+    expect(getComputedStyle(title()).minHeight).to.equal('180px');
+    expect(getComputedStyle(lead()).minHeight).to.equal('112px');
+  });
+
+  it('reserves four from 385 to 419', async () => {
+    await setViewport({ width: 412, height: 900 });
+    expect(getComputedStyle(title()).minHeight).to.equal('144px');
+    expect(getComputedStyle(lead()).minHeight).to.equal('112px');
+  });
+
+  // from 420 the two faces wrap alike, so there is nothing to hold open
+  it('reserves nothing from 420', async () => {
+    await setViewport({ width: 420, height: 900 });
+    expect(getComputedStyle(title()).minHeight).to.equal('0px');
+    expect(getComputedStyle(lead()).minHeight).to.equal('0px');
+    await setViewport({ width: 1440, height: 900 });
+    expect(getComputedStyle(title()).minHeight).to.equal('0px');
+    expect(getComputedStyle(lead()).minHeight).to.equal('0px');
+  });
+
+  it('holds the marquee open when the words take fewer lines', async () => {
+    await setViewport({ width: 412, height: 900 });
+    const tall = Math.round(block.getBoundingClientRect().height);
+    const words = title().innerHTML;
+    title().textContent = 'Short';
+    expect(Math.round(block.getBoundingClientRect().height)).to.equal(tall);
+    title().innerHTML = words;
   });
 });
