@@ -596,9 +596,11 @@ main .section.cards-container:has(.cards.category) > div {
   margin: 0;
 }
 
-/* 12 under the mark and 4 over the copy, which is where live sets it */
+/* 12 under the mark and 4 over the copy, which is where live sets it. The
+   copy widens below 769 and the title does not, so a long one wraps there. */
 .cards.benefits .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
-  margin: 12px 0 4px;
+  max-width: 200px;
+  margin: 12px auto 4px;
   font-family: var(--heading-font-family);
   font-size: 14px;
   font-weight: 700;
@@ -614,6 +616,10 @@ main .section.cards-container:has(.cards.category) > div {
 
   .cards.benefits .cards-card-body {
     max-width: 228px;
+  }
+
+  .cards.benefits .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+    max-width: none;
   }
 }
 

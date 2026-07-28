@@ -627,12 +627,14 @@ describe("Register your tires band, live's six benefits", () => {
 
   // the copy widens below 769 and the title does not: live holds it to 200
   // there, so a long one wraps rather than running the width of the benefit
-  it('holds the title to 200 below 769', async () => {
+  it('holds the title to 200 below 769, centred', async () => {
     await setViewport({ width: 768, height: 900 });
-    const title = block.querySelector('h2');
-    expect(getComputedStyle(title).maxWidth).to.equal('200px');
+    const title = block.querySelector('h2').getBoundingClientRect();
+    const body = block.querySelector('.cards-card-body').getBoundingClientRect();
+    expect(getComputedStyle(block.querySelector('h2')).maxWidth).to.equal('200px');
+    expect(Math.round(title.left - body.left)).to.equal(Math.round(body.right - title.right));
     await setViewport({ width: 769, height: 900 });
-    expect(getComputedStyle(title).maxWidth).to.equal('none');
+    expect(getComputedStyle(block.querySelector('h2')).maxWidth).to.equal('none');
   });
 
   it('opens the copy 4 under the title, at 15/22', async () => {
