@@ -19,13 +19,19 @@ const FINANCING = '<p>Finance your tire purchase with the Continental Tire Synch
   + '<p>Apply in-store or <a href="https://etail.mysynchrony.com/x">online</a>.</p>'
   + '<p><em>*For new accounts: Purchase APR is 29.99%.</em></p>';
 
+/** A logo the browser sizes without a fetch, standing in for a real one. */
+function png(w, h) {
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${w}'`
+    + ` height='${h}'%3E%3Crect width='${w}' height='${h}' fill='%23333'/%3E%3C/svg%3E`;
+}
+
 const SAMPLE = [
   [
-    '<a href="https://www.tirerack.com/x"><picture><img src="/tirerack.png" alt="Tire Rack"></picture></a>',
+    `<a href="https://www.tirerack.com/x"><picture><img src="${png(250, 52)}" alt="Tire Rack" width="250" height="52"></picture></a>`,
     FINANCING,
   ],
   [
-    '<a href="https://www.tires-easy.com/x"><picture><img src="/tires-easy.png" alt="Tires Easy"></picture></a>',
+    `<a href="https://www.tires-easy.com/x"><picture><img src="${png(240, 100)}" alt="Tires Easy" width="240" height="100"></picture></a>`,
     FINANCING,
   ],
 ];
@@ -70,7 +76,7 @@ describe('Retailers block, what a row holds', () => {
   // an author can write the logo and the shop link as two things in the cell
   it('takes a logo the author did not link itself', () => {
     block = buildRetailers([[
-      '<picture><img src="/tirerack.png" alt="Tire Rack"></picture>'
+      `<picture><img src="${png(250, 52)}" alt="Tire Rack" width="250" height="52"></picture>`
         + '<p><a href="https://www.tirerack.com/x">Shop Tire Rack</a></p>',
       FINANCING,
     ]]);
@@ -224,7 +230,7 @@ describe('Retailers block, live\'s measurements', () => {
 
   beforeEach(() => {
     block = buildRetailers([...SAMPLE, [
-      '<a href="https://simpletire.com/x"><picture><img src="/simpletire.png" alt="SimpleTire"></picture></a>',
+      `<a href="https://simpletire.com/x"><picture><img src="${png(200, 100)}" alt="SimpleTire" width="200" height="100"></picture></a>`,
       FINANCING,
     ]]);
     decorate(block);
@@ -274,6 +280,24 @@ describe('Retailers block, live\'s measurements', () => {
     const icon = button.querySelector('.icon');
     expect(icon, 'live sets a credit card beside it').to.exist;
     expect(Math.round(icon.getBoundingClientRect().width)).to.equal(20);
+    // live leaves 7.5 between the mark and the words, and 3 below 769
+    expect(getComputedStyle(icon).marginInlineEnd).to.equal('7.5px');
+    await setViewport({ width: 768, height: 900 });
+    expect(getComputedStyle(icon).marginInlineEnd).to.equal('3px');
+  });
+
+  // a picture is inline, and its line box held the logo 5 above live's
+  it('centres the logo in its row', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const link = block.querySelector('a.retailers-logo');
+    const img = link.querySelector('img');
+    const row = link.getBoundingClientRect();
+    const logo = img.getBoundingClientRect();
+    expect(Math.round(row.height), 'the logo takes the whole row').to.equal(120);
+    expect(Math.round(logo.width), 'and holds it to the row\'s width').to.equal(214);
+    expect(logo.top + logo.height / 2).to.be.closeTo(row.top + row.height / 2, 0.5);
+    expect(Math.round(logo.top + logo.height / 2))
+      .to.equal(Math.round(row.top + row.height / 2));
   });
 
   it('draws the open panel as a 350 white card at 1440', async () => {
@@ -308,10 +332,13 @@ describe('Retailers block, live\'s measurements', () => {
     expect(getComputedStyle(block.querySelector(':scope > ul > li img')).maxHeight).to.equal('80px');
   });
 
-  it('shrinks the financing link at 375, as live does', async () => {
+  // live pulls the link out past the tile at 375 so the words keep one line
+  it('shrinks the financing link at 375 and keeps it on one line', async () => {
     await setViewport({ width: 375, height: 812 });
     const button = block.querySelector('button.retailers-financing');
     expect(getComputedStyle(button).fontSize).to.equal('8px');
+    expect(getComputedStyle(button).marginInlineStart).to.equal('-15px');
+    expect(Math.round(button.getBoundingClientRect().height)).to.equal(20);
   });
 
   it('holds the panel inside the page at 375', async () => {
