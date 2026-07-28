@@ -674,3 +674,132 @@ describe('Perfect fit, where the bar opens out', () => {
     expect(dir('.perfect-fit-item'), 'an item').to.equal('row');
   });
 });
+
+// #122: sizes were held twice, as a comma-joined products.sizes cell and as the
+// specs sheet. The finder read the cell, the product page read the sheet, and an
+// edit to one left the other saying something else. The sheet is the one source
+// now and the cell is derived from it.
+describe('The finder reads its sizes from the specs sheet', () => {
+  let fetchStub;
+  let warns;
+
+  // products.sizes disagrees with the sheet three ways at once: it is short of
+  // one size the sheet carries, it carries one the sheet does not, and one
+  // product has no rows in the sheet at all
+  const SHEETS = {
+    products: {
+      total: 2,
+      offset: 0,
+      limit: 2,
+      data: [
+        {
+          slug: 'viking-7', name: 'VikingContact 7', category: 'Passenger', season: 'Winter', image: '/p/v.png', vehicleTypes: 'Cars', sizes: '205/55R16, 275/45R22',
+        },
+        {
+          slug: 'pure-ls', name: 'PureContact LS', category: 'Passenger', season: 'All-Season', image: '/p/p.png', vehicleTypes: 'Cars', sizes: '225/45R17',
+        },
+      ],
+    },
+    specs: {
+      total: 2,
+      offset: 0,
+      limit: 2,
+      data: [
+        { slug: 'viking-7', size: '205/55 R 16', 'Load Index': '91' },
+        { slug: 'viking-7', size: '245/40 ZR 18', 'Load Index': '97' },
+      ],
+    },
+  };
+
+  /** Answers each sheet request with that sheet, the way the sheet API does. */
+  function stubSheets(sheets) {
+    return sinon.stub(window, 'fetch').callsFake((url) => {
+      const name = new URL(String(url), 'https://x').searchParams.get('sheet');
+      return Promise.resolve(new Response(JSON.stringify(sheets[name] || { data: [] })));
+    });
+  }
+
+  /** Runs one width/aspect/rim search and returns the hrefs it lists. */
+  async function search(width, aspect, rim) {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1); // By Tire Size
+    const panel = panelOf('tire-size');
+    const set = (name, value) => {
+      const el = panel.querySelector(`[name="${name}"]`);
+      el.value = value;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    set('width', width);
+    set('aspect', aspect);
+    set('rim', rim);
+    panel.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    return [...panel.querySelectorAll('.perfect-fit-result')].map((a) => a.getAttribute('href'));
+  }
+
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    warns = sinon.stub(console, 'warn');
+  });
+  afterEach(() => {
+    fetchStub.restore();
+    warns.restore();
+  });
+
+  it('asks for the whole specs sheet, past the row the API pages at', async () => {
+    fetchStub = stubSheets(SHEETS);
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 0);
+    const asked = fetchStub.getCalls().map((call) => String(call.args[0]));
+    expect(asked.some((url) => url.includes('sheet=specs') && url.includes('limit=10000'))).to.be.true;
+  });
+
+  it('finds a product by a size only the sheet carries', async () => {
+    fetchStub = stubSheets(SHEETS);
+    // 245/40ZR18 is in the specs sheet and not in products.sizes
+    expect(await search('245', '40', '18')).to.deep.equal(['/tires/viking-7']);
+  });
+
+  it('does not offer a size the sheet has no row for', async () => {
+    fetchStub = stubSheets(SHEETS);
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+    const widths = [...panelOf('tire-size').querySelectorAll('[name="width"] option')]
+      .map((o) => o.value).filter(Boolean);
+    // 275/45R22 is in products.sizes and not in the sheet
+    expect(widths).to.not.include('275');
+    expect(widths).to.deep.equal(['205', '245']);
+  });
+
+  it('offers nothing for a product the sheet has no rows for', async () => {
+    fetchStub = stubSheets(SHEETS);
+    expect(await search('225', '45', '17')).to.deep.equal([]);
+  });
+
+  it('says which products the sheet has no rows for', async () => {
+    fetchStub = stubSheets(SHEETS);
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 0);
+    expect(warns.called, 'console.warn').to.be.true;
+    expect(warns.getCall(0).args.join(' ')).to.contain('pure-ls');
+  });
+
+  it('falls back to products.sizes when the sheet does not carry its columns', async () => {
+    fetchStub = stubSheets({
+      ...SHEETS,
+      specs: { total: 1, offset: 0, limit: 1, data: [{ product: 'viking-7', tireSize: '205/55 R 16' }] },
+    });
+    const errors = sinon.stub(console, 'error');
+    try {
+      // 275/45R22 comes back, because the cell is all there is to read
+      expect(await search('275', '45', '22')).to.deep.equal(['/tires/viking-7']);
+      expect(errors.called, 'console.error').to.be.true;
+    } finally {
+      errors.restore();
+    }
+  });
+});
