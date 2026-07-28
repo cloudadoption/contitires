@@ -27,6 +27,12 @@ describe('The promo template', () => {
     return rule ? rule.style.getPropertyValue(prop).trim() : null;
   }
 
+  // live's bands touch: each one carries its own padding and no margin, so
+  // ours had a white gap between the steps and the black band
+  it('lets the bands touch, as live\'s do', () => {
+    expect(value('main > .section', 'margin')).to.equal('0px');
+  });
+
   // live pads a band 38 top below 769 and 80 above, where ours padded 56 at
   // every width
   it('pads a band the way live pads it, at both widths', () => {
