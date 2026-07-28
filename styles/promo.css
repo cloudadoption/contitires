@@ -1,0 +1,113 @@
+/*
+ * The promo template. Live builds /promotion and /ccpromotion from one template
+ * of its own, `page__promo-page`, and gives it band treatments no other page
+ * uses. They live here rather than in styles.css so only these pages pay for
+ * them. Loaded by loadTemplateStyles for a page whose metadata says
+ * `Template: promo`.
+ *
+ * Read off continentaltire.com/promotion and /ccpromotion at 1440, 1025, 1024,
+ * 900, 769, 768 and 375. Live moves this template at 769 and again at 1025.
+ */
+
+/* ours padded 56 at every width; live pads 38 below 769 and 80 above */
+main .section.dark,
+main .section.black {
+  padding: 38px 0 20px;
+}
+
+/* ---- promo: a band whose content is centred, with a heading live sets in two
+   voices. The uppercase half is a span on live and the emphasis our content
+   model gives, so it is the strong. ---- */
+main .section.promo {
+  text-align: center;
+}
+
+main .section.promo h2 {
+  font-weight: 300;
+  font-size: 30px;
+  line-height: 36px;
+}
+
+main .section.promo h2 strong {
+  display: block;
+  font-weight: inherit;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+/* the CTAs under it read as one row of pills rather than a paragraph. The
+   band's own content only: a bar on the same band brings its own CTA. */
+main .section.promo .default-content-wrapper .button-wrapper {
+  display: inline-block;
+  margin: 24px 12px 0;
+}
+
+/* ---- checklist: live marks these items with a checkmark rather than a bullet.
+   The mark is live's own, kept at its source hex, which is the accessible
+   yellow this site already carries as a token. ---- */
+main .section.checklist ul {
+  padding: 0;
+  list-style: none;
+}
+
+main .section.checklist li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  line-height: 27px;
+}
+
+main .section.checklist li::before {
+  content: '';
+  flex: 0 0 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg height='14' viewBox='0 0 16 14' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m0 6.49226357 5.03588867 5.50773643 8.96411133-12' fill='none' stroke='%23a36a00' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' transform='translate(1 1)'/%3E%3C/svg%3E");
+  background-position: 50% 50%;
+  background-size: 14.4px;
+  background-repeat: no-repeat;
+}
+
+/* ---- terms: the small print each promo page closes with. Live sets it at 14
+   with a centred bold title, on white. ---- */
+main .section.terms {
+  padding: 16px 0 38px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+main .section.terms h2 {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+main .section.terms p {
+  font-size: 14px;
+  line-height: 22px;
+}
+
+@media (width >= 769px) {
+  main .section.dark,
+  main .section.black {
+    padding: 80px 0 38px;
+  }
+
+  main .section.checklist li {
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  main .section.terms {
+    padding: 38px 0 60px;
+  }
+}
+
+@media (width >= 1025px) {
+  main .section.promo h2 {
+    font-size: 42px;
+    line-height: 48px;
+  }
+}

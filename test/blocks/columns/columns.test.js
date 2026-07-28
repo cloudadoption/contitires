@@ -36,6 +36,8 @@ describe('Columns, the action bar', () => {
   it('sets the copy at live\'s size', () => {
     expect(value('main .columns.bar p', 'font-size')).to.equal('18px');
     expect(value('main .columns.bar p', 'line-height')).to.equal('26px');
+    // paragraph margins made the bar 109 tall against live's 85
+    expect(value('main .columns.bar p', 'margin')).to.equal('0px');
   });
 
   // the columns block gives every column an equal share, and this bar wants

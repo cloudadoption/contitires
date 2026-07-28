@@ -268,14 +268,20 @@ export function decorateMain(main) {
   decorateButtons(main);
 }
 
+// a template names a stylesheet of its own under /styles. The promo pages are
+// one template on live too, which is where their band treatments belong rather
+// than in the stylesheet every page pays for.
+const TEMPLATES = ['article', 'promo'];
+
 /**
  * Loads the stylesheet this page's template needs. Returns a promise that
  * settles once the stylesheet is in effect, so the reveal can wait on it.
  * @returns {Promise} resolves when the template's styles are loaded
  */
 export function loadTemplateStyles() {
-  if (!document.body.classList.contains('article')) return Promise.resolve();
-  return loadCSS(`${window.hlx.codeBasePath}/styles/article.css`);
+  const template = TEMPLATES.find((name) => document.body.classList.contains(name));
+  if (!template) return Promise.resolve();
+  return loadCSS(`${window.hlx.codeBasePath}/styles/${template}.css`);
 }
 
 /**
