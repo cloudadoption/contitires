@@ -547,6 +547,70 @@ main .section.cards-container:has(.cards.category) > div {
   }
 }
 
+/* ---- benefits: live's Register your tires band on /warranty. Six marks on a
+   #333 band, three across from 769 and one per row below, each over an
+   uppercase title and a line of copy. The band itself is at the foot of this
+   sheet, with the other bands. Read off continentaltire.com/warranty at 1440,
+   900, 768 and 375. Issue #94. ---- */
+.cards.benefits > ul {
+  grid-template-columns: 1fr;
+  gap: 38px;
+}
+
+.cards.benefits > ul > li {
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* live holds a benefit to 228 in a 16 gutter and centres it in its column */
+.cards.benefits .cards-card-body {
+  box-sizing: content-box;
+  max-width: 228px;
+  margin: 0 auto;
+  padding: 0 16px;
+  color: inherit;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+/* live draws each mark at the size it declares, 55 tall on five of the six and
+   50 on the sixth, so the box comes from the file rather than from here */
+.cards.benefits .icon,
+.cards.benefits .icon img {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* the shared card image is a 4:3 crop, which squeezed every mark to three
+   quarters of its height */
+.cards.benefits .icon img {
+  margin-inline: auto;
+  aspect-ratio: auto;
+}
+
+.cards.benefits .cards-card-body p {
+  margin: 0;
+}
+
+/* 12 under the mark and 4 over the copy, which is where live sets it */
+.cards.benefits .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  margin: 12px 0 4px;
+  font-family: var(--heading-font-family);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+@media (width >= 769px) {
+  .cards.benefits > ul {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* ---- coverage: icon-over-label items on a dark band (warranty coverage row) ---- */
 .cards.coverage > ul {
   grid-template-columns: 1fr;
@@ -777,4 +841,41 @@ main .section.cards-container .cards.highlights .cards-card-body,
 main .section.cards-container .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6),
 main .section.cards-container .cards.highlights .cards-card-body a:any-link {
   color: var(--conti-black);
+}
+
+/* ---- the band the benefits sit on: #333, edge to edge, with the intro above
+   the marks and the roadside line below, each 38 from them. Issue #94 ---- */
+
+/* live's own room, not the 56 the dark sections share */
+main .section.cards-container:has(.cards.benefits) {
+  padding: 38px 0;
+}
+
+main .section.cards-container:has(.cards.benefits) .default-content-wrapper p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+/* live keeps the registration note small under a line that is not */
+main .section.cards-container:has(.cards.benefits) .default-content-wrapper em {
+  font-size: 15px;
+  line-height: 22px;
+}
+
+main .section.cards-container:has(.cards.benefits) .cards-wrapper,
+main .section.cards-container:has(.cards.benefits) .cards-wrapper + .default-content-wrapper {
+  margin-top: 38px;
+}
+
+@media (width >= 769px) {
+  main .section.cards-container:has(.cards.benefits) {
+    padding: 60px 0;
+  }
+
+  main .section.cards-container:has(.cards.benefits) .default-content-wrapper p {
+    font-size: 24px;
+    line-height: 32px;
+  }
 }
