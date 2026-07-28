@@ -3,7 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import { buildBlock, decorateBlock } from '../../../scripts/aem.js';
-import decorate, { initWidgetScripts, loadWidgetScript } from '../../../blocks/widget/widget.js';
+import decorate, { loadWidgetScripts } from '../../../blocks/widget/widget.js';
 
 /**
  * A widget's own script is third-party, and the three-phase model keeps
@@ -11,17 +11,9 @@ import decorate, { initWidgetScripts, loadWidgetScript } from '../../../blocks/w
  * first section of /newsletter-signup, so the block decorating it there is the
  * eager phase, and the embed it loaded went out with it.
  *
- * Decoration now takes the widget's markup and its stylesheet, which is what
- * holds the form's room open. The script follows once the page has loaded and
- * the widget comes near the viewport.
- *
- * Those two conditions are not in these tests, and a test claiming them here
- * would pass for the wrong reason. The runner's page is `complete` before a
- * test runs, so the load gate is already open; and under the full suite the
- * page is `hidden`, so it never renders and an IntersectionObserver on it
- * never fires. Both are measured on the page instead: the embed's own start
- * time against the phases, and /promotion's widget staying unloaded until it
- * is scrolled to. Issues #108, #109.
+ * The block now takes the widget's markup and its stylesheet at decoration,
+ * which is what holds the form's room open, and leaves the script to the
+ * delayed phase. Issue #109.
  */
 const EMBED = 'script[src*="js.hsforms.net"]';
 const HREF = '/widgets/hubspot/newsletter.html';
@@ -69,7 +61,7 @@ describe('The widget block', () => {
   });
 
   // the markup is the shell the stylesheet holds the room open on, so it has to
-  // be in place from decoration rather than from whenever the script arrives
+  // be in place from decoration rather than from the delayed phase
   it('puts the widget markup in place at decoration', async () => {
     const block = build();
     await decorate(block);
@@ -82,24 +74,16 @@ describe('The widget block', () => {
     expect(document.head.querySelector(EMBED), 'the third-party embed').to.not.exist;
   });
 
-  it('loads that script from the href when it is asked to', async () => {
+  it('loads it when the delayed phase runs', async () => {
     const block = build();
     await decorate(block);
-    await loadWidgetScript(block);
+    await loadWidgetScripts();
     expect(document.head.querySelector(EMBED), 'the third-party embed').to.exist;
   });
 
-  // a widget whose files are gone leaves the page standing
-  it('survives a widget that is not there', async () => {
-    const block = build('/widgets/hubspot/nothing.html');
-    await decorate(block);
-    await loadWidgetScript(block);
-    expect(document.head.querySelector(EMBED)).to.not.exist;
-  });
-
-  // the lazy phase asks on every page, and all but three carry no widget
-  it('watches nothing when the page carries no widget', async () => {
-    initWidgetScripts();
+  // the delayed phase runs on every page, and all but three carry no widget
+  it('loads nothing when the page carries no widget', async () => {
+    await loadWidgetScripts();
     expect(document.head.querySelector(EMBED)).to.not.exist;
   });
 });

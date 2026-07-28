@@ -62,53 +62,27 @@ function reportFailure(widgetPath, widgetName, error) {
 }
 
 /**
- * Runs one widget's own script. `data-source` is what names the module.
- * @param {Element} widget The widget block element
- */
-export async function loadWidgetScript(widget) {
-  const { widgetPath, widgetName } = parseWidgetHref(new URL(widget.dataset.source).pathname);
-  try {
-    const mod = await import(widgetUrl(widgetPath, widgetName, 'js'));
-    if (mod.default) await mod.default(widget);
-  } catch (error) {
-    reportFailure(widgetPath, widgetName, error);
-  }
-}
-
-// a viewport of lead, so a widget below the fold fills before a reader reaches it
-const NEAR = '100% 0px';
-
-/**
- * Waits for each widget on the page to come near the viewport, then loads its
- * own script. A widget's script is third-party, so it waits for the page to
- * finish loading first: an embed that goes out during the eager phase competes
- * with what LCP is made of. Decoration has already put the shell and the
- * stylesheet in place, so the widget fills a box rather than opening one.
+ * Runs the widget scripts decoration left for the delayed phase. A widget's
+ * script is third-party, so it waits there rather than loading in the phase
+ * that decorated the block. `data-source` is what names the module.
  * @param {Element} scope Where to look for widgets
  */
-export function initWidgetScripts(scope = document) {
-  const widgets = [...scope.querySelectorAll('.widget[data-source]')];
-  if (!widgets.length) return;
-
-  const watch = () => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
-        observer.unobserve(entry.target);
-        loadWidgetScript(entry.target);
-      });
-    }, { rootMargin: NEAR });
-    widgets.forEach((widget) => observer.observe(widget));
-  };
-
-  if (document.readyState === 'complete') watch();
-  else window.addEventListener('load', watch, { once: true });
+export async function loadWidgetScripts(scope = document) {
+  await Promise.all([...scope.querySelectorAll('.widget[data-source]')].map(async (widget) => {
+    const { widgetPath, widgetName } = parseWidgetHref(new URL(widget.dataset.source).pathname);
+    try {
+      const mod = await import(widgetUrl(widgetPath, widgetName, 'js'));
+      if (mod.default) await mod.default(widget);
+    } catch (error) {
+      reportFailure(widgetPath, widgetName, error);
+    }
+  }));
 }
 
 /**
  * Loads and decorates a widget block: its shell, its markup and its stylesheet.
  * Those are what hold the room a widget's content will take, so they load with
- * the block. The script that fills it follows once the page has loaded and the
- * widget is near the viewport, which is `initWidgetScripts`.
+ * the block. The script that fills it follows in the delayed phase.
  * @param {Element} widget The widget block element
  */
 export default async function decorate(widget) {
