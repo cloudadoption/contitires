@@ -18,6 +18,7 @@
 import {
   SPECS_COLUMNS, missingColumns, sizeKey, sizesBySlug, sheetRows,
 } from '../scripts/products.js';
+import { CATEGORIES, categoryNames, isKnownCategory } from '../scripts/categories.js';
 
 const LIVE = 'https://main--contitires--cloudadoption.aem.live';
 const hostArg = process.argv.indexOf('--host');
@@ -79,10 +80,68 @@ async function checkProducts() {
   console.log(`products: ${products.length} products, ${specs.length} spec rows, ${bySlug.size} products with sizes`);
 }
 
+/*
+ * The learn categories. An article's Category metadata and a listing's Category
+ * cell are free text at both ends, so a typo at either drops articles out of a
+ * page that still looks finished. Issue #124.
+ */
+async function checkCategories() {
+  const index = await read('/learn/query-index.json?limit=1000');
+  const rows = index.data || [];
+  const listings = CATEGORIES.map((category) => category.path);
+
+  const counts = new Map(categoryNames().map((name) => [name, 0]));
+  rows.forEach((row) => {
+    const value = String(row.category || '').trim();
+    // the three listing pages are indexed too, and carry no category of their own
+    if (!value) {
+      if (!listings.includes(row.path)) {
+        note('categories', `${row.path} carries no category, so only an unfiltered list shows it`);
+      }
+      return;
+    }
+    if (!isKnownCategory(value)) {
+      note('categories', `${row.path} carries "${value}", which is not one of ${categoryNames().join(', ')}`);
+      return;
+    }
+    const name = categoryNames().find((known) => known.toLowerCase() === value.toLowerCase());
+    if (name !== value) {
+      note('categories', `${row.path} carries "${value}", which the vocabulary writes as "${name}"`);
+    }
+    counts.set(name, counts.get(name) + 1);
+  });
+
+  counts.forEach((count, name) => {
+    if (!count) note('categories', `no article carries "${name}", so its page lists nothing`);
+  });
+
+  await Promise.all(CATEGORIES.map(async (category) => {
+    const resp = await fetch(`${HOST}${category.path}`);
+    if (!resp.ok) {
+      note('categories', `${category.name} lists on ${category.path}, which answers ${resp.status}`);
+      return;
+    }
+    const asked = [...(await resp.text()).matchAll(/<div class="article-cards[^"]*">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/g)]
+      .map((match) => match[1].replace(/<[^>]+>/g, ' ').trim());
+    if (!asked.some((text) => text.toLowerCase().includes(category.name.toLowerCase()))) {
+      note('categories', `${category.path} has no article-cards block asking for "${category.name}"`);
+    }
+  }));
+
+  const named = [...counts.entries()].map(([name, count]) => `${name} ${count}`).join(', ');
+  console.log(`categories: ${rows.length} indexed rows, ${named}`);
+}
+
 try {
   await checkProducts();
 } catch (error) {
   note('products', error.message);
+}
+
+try {
+  await checkCategories();
+} catch (error) {
+  note('categories', error.message);
 }
 
 if (problems.length) {

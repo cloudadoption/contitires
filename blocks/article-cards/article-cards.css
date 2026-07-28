@@ -1,3 +1,11 @@
+/* what a category nobody publishes under reads as, on the page rather than in
+   a console nobody has open. Issue #124. */
+main .article-cards .article-cards-error {
+  margin: 0;
+  color: var(--conti-grey);
+  font-size: var(--body-font-size-s);
+}
+
 main .article-cards .article-cards-list {
   list-style: none;
   margin: 0;
