@@ -132,6 +132,73 @@ function buildProductViewer(main) {
 }
 
 /**
+ * Gathers the sections a page tabbed into one tabs block. A section names its
+ * tab with `Tab` in its section metadata, which the pipeline delivers as an
+ * attribute, and adds `Column: Sidebar` to stand beside the rest of that tab
+ * rather than in it. Sections carrying no `Tab` are left where they are.
+ *
+ * The panels are sections rather than cells an author wrote, because EDS
+ * carries no block inside a block cell and every panel here holds one.
+ *
+ * Runs after decorateBlocks, so the blocks inside a panel are decorated before
+ * they move; loadSection finds a block anywhere under the section. The block
+ * is decorated before it is filled, because decorating one wraps any cell not
+ * starting with a paragraph or a picture in a paragraph.
+ * @param {Element} main The container element
+ */
+function buildTabs(main) {
+  const tabbed = [...main.querySelectorAll(':scope > .section[data-tab]')];
+  if (!tabbed.length) return;
+
+  const order = [];
+  const groups = new Map();
+  tabbed.forEach((section) => {
+    const name = section.dataset.tab.trim();
+    if (!groups.has(name)) {
+      groups.set(name, { body: [], aside: [] });
+      order.push(name);
+    }
+    const side = /sidebar/i.test(section.dataset.column || '');
+    // a section's children are the wrappers decorateSections grouped its
+    // content into; a cell holds the content itself, the way one an author
+    // wrote holds it
+    const content = [...section.children].flatMap((wrapper) => [...wrapper.children]);
+    groups.get(name)[side ? 'aside' : 'body'].push(...content);
+  });
+
+  const section = document.createElement('div');
+  section.className = 'section';
+  section.dataset.sectionStatus = 'initialized';
+  section.style.display = 'none';
+  const wrapper = document.createElement('div');
+  const block = document.createElement('div');
+  block.className = 'tabs';
+
+  const cells = order.map((name) => {
+    const row = document.createElement('div');
+    const heading = document.createElement('div');
+    heading.textContent = name;
+    row.append(heading);
+    const { body, aside } = groups.get(name);
+    const filled = [document.createElement('div')];
+    if (aside.length) filled.push(document.createElement('div'));
+    row.append(...filled);
+    block.append(row);
+    return { body, aside, filled };
+  });
+
+  wrapper.append(block);
+  section.append(wrapper);
+  tabbed[0].before(section);
+  tabbed.forEach((old) => old.remove());
+  decorateBlock(block);
+  cells.forEach(({ body, aside, filled }) => {
+    filled[0].append(...body);
+    if (filled[1]) filled[1].append(...aside);
+  });
+}
+
+/**
  * Decorates the blocks the platform does not reach. `decorateBlocks` reads a
  * section's own children, so a block nested inside another block is decorated
  * here: the finder card in the product hero, and the image viewer in the cell
@@ -308,6 +375,7 @@ export function decorateMain(main) {
   decorateBlocks(main);
   buildPartnerSidebar(main);
   buildProductViewer(main);
+  buildTabs(main);
   decorateNestedBlocks(main);
   decorateButtons(main);
   buildFinderTriggers(main);
