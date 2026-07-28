@@ -27,6 +27,17 @@ describe('Template styles', () => {
     expect(document.head.querySelector(LINK)).to.exist;
   });
 
+  // live builds /promotion and /ccpromotion from one template of its own, and
+  // the band treatments belong to it rather than to every page. Issues #83, #84
+  it('loads the promo stylesheet for a promo page', async () => {
+    const PROMO = 'link[href$="/styles/promo.css"]';
+    document.body.classList.add('promo');
+    await loadTemplateStyles();
+    expect(document.head.querySelector(PROMO)).to.exist;
+    document.body.classList.remove('promo');
+    document.head.querySelectorAll(PROMO).forEach((link) => link.remove());
+  });
+
   // the reveal awaits this promise, so it has to stay pending until the
   // stylesheet is in effect. A promise that resolves early gates nothing.
   it('stays pending until the stylesheet is in effect', async () => {
