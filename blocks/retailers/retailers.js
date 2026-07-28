@@ -90,6 +90,7 @@ export default function decorate(block) {
     const room = document.documentElement.clientWidth - width - 5;
     const left = Math.min(Math.max(centre - width / 2, 5), Math.max(room, 5));
     panel.style.left = `${left - anchor.left}px`;
+    panel.style.top = `${link.bottom - anchor.top + 10}px`;
     panel.style.setProperty('--retailers-arrow', `${centre - left}px`);
   };
 

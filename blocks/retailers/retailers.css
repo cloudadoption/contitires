@@ -92,7 +92,7 @@
 .retailers-panel {
   position: absolute;
   z-index: 2;
-  top: calc(100% + 10px);
+  top: 100%;
   box-sizing: border-box;
   width: 350px;
   max-width: calc(100vw - 10px);
@@ -160,26 +160,30 @@
   line-height: 16px;
 }
 
+/* live rings the cross, the way its own close control does */
 .retailers-close {
   position: absolute;
   top: 8px;
   right: 9px;
+  box-sizing: border-box;
   width: 16px;
   height: 16px;
   margin: 0;
-  border: 0;
+  border: 1px solid currentcolor;
+  border-radius: 50%;
   padding: 0;
   background: none;
+  color: var(--conti-black);
   cursor: pointer;
 }
 
 .retailers-close::before,
 .retailers-close::after {
   position: absolute;
-  top: 7px;
-  left: 1px;
-  width: 14px;
-  border-block-start: 2px solid currentcolor;
+  top: 6.5px;
+  left: 3px;
+  width: 8px;
+  border-block-start: 1px solid currentcolor;
   content: '';
 }
 
