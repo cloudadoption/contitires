@@ -507,3 +507,79 @@ describe("Hero, the logo marquee's reserved lines", () => {
     title().innerHTML = words;
   });
 });
+
+/**
+ * The block kept the pictures, headings and paragraphs it knew and left
+ * everything else behind, so an authored list, quote or table vanished from
+ * the page with nothing to tell the author why. Content the block has no
+ * treatment for goes through unstyled instead. Issue #118.
+ */
+describe('Hero, content the block has no treatment for', () => {
+  const picture = (name) => `
+    <picture>
+      <source type="image/webp" srcset="./${name}.jpg?width=750&amp;format=webply">
+      <img loading="lazy" alt="" src="./${name}.jpg?width=750&amp;format=jpg" width="1024" height="356">
+    </picture>`;
+
+  /** A hero as EDS delivers it, with `extra` authored after the heading. */
+  function heroWith(extra) {
+    document.body.innerHTML = `
+      <main>
+        <div class="section">
+          <div class="hero block">
+            <div><div>${picture('desktop')}</div></div>
+            <div><div>
+              <h1>THE SMART CHOICE IN TIRES</h1>
+              ${extra}
+            </div></div>
+          </div>
+        </div>
+      </main>`;
+    return document.querySelector('.hero.block');
+  }
+
+  it('keeps an authored list', () => {
+    const block = heroWith('<ul><li>All season</li><li>All terrain</li></ul>');
+    decorate(block);
+
+    const list = block.querySelector('.hero-content ul');
+    expect(list, 'the list is on the page').to.exist;
+    expect(list.querySelectorAll('li')).to.have.length(2);
+  });
+
+  it('keeps an authored quote and an authored table', () => {
+    const block = heroWith('<blockquote>Confidence</blockquote><table><tr><td>Size</td></tr></table>');
+    decorate(block);
+
+    expect(block.querySelector('.hero-content blockquote'), 'the quote').to.exist;
+    expect(block.querySelector('.hero-content table'), 'the table').to.exist;
+  });
+
+  // the art direction uses two pictures, and a third was dropped without a word
+  it('keeps a picture beyond the two the art direction uses', () => {
+    document.body.innerHTML = `
+      <main><div class="section"><div class="hero block">
+        <div><div>${picture('desktop')}</div></div>
+        <div><div>${picture('mobile')}</div></div>
+        <div><div>
+          <h1>THE SMART CHOICE IN TIRES</h1>
+          <p>${picture('third')}</p>
+        </div></div>
+      </div></div></main>`;
+    const block = document.querySelector('.hero.block');
+    decorate(block);
+
+    expect(block.querySelectorAll('picture')).to.have.length(2);
+    const spare = block.querySelector('.hero-content picture img');
+    expect(spare, 'the third picture is in the copy').to.exist;
+    expect(spare.getAttribute('src')).to.contain('third');
+  });
+
+  it('keeps what the author wrote in the order they wrote it', () => {
+    const block = heroWith('<p>Meet the range</p><ul><li>All season</li></ul><p>From 2026</p>');
+    decorate(block);
+
+    const tags = [...block.querySelector('.hero-content').children].map((el) => el.tagName);
+    expect(tags).to.eql(['H1', 'P', 'UL', 'P']);
+  });
+});
