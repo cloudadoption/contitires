@@ -463,6 +463,15 @@ async function loadLazy(doc) {
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
   initFinderTriggers(doc);
+
+  // a widget embeds a third party, which the eager phase is the wrong place
+  // for. The block holds its script back and this arms it: the page finishes
+  // loading, then the widget coming near the viewport loads it. Three pages
+  // carry a widget, so the module is only fetched where there is one.
+  if (doc.querySelector('.widget[data-source]')) {
+    const { initWidgetScripts } = await import('../blocks/widget/widget.js');
+    initWidgetScripts(doc);
+  }
 }
 
 /**

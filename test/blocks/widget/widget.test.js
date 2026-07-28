@@ -2,9 +2,8 @@
 /* global describe it afterEach */
 
 import { expect } from '@esm-bundle/chai';
-import { setViewport } from '@web/test-runner-commands';
 import { buildBlock, decorateBlock } from '../../../scripts/aem.js';
-import decorate, { initWidgetScripts } from '../../../blocks/widget/widget.js';
+import decorate, { initWidgetScripts, loadWidgetScript } from '../../../blocks/widget/widget.js';
 
 /**
  * A widget's own script is third-party, and the three-phase model keeps
@@ -13,10 +12,16 @@ import decorate, { initWidgetScripts } from '../../../blocks/widget/widget.js';
  * eager phase, and the embed it loaded went out with it.
  *
  * Decoration now takes the widget's markup and its stylesheet, which is what
- * holds the form's room open, and the script waits for the widget to come near
- * the viewport. The page has to have finished loading first, which these tests
- * cannot reach: the runner's page is `complete` before a test runs. That half
- * is measured on the page instead, as the embed's own start time. Issue #109.
+ * holds the form's room open. The script follows once the page has loaded and
+ * the widget comes near the viewport.
+ *
+ * Those two conditions are not in these tests, and a test claiming them here
+ * would pass for the wrong reason. The runner's page is `complete` before a
+ * test runs, so the load gate is already open; and under the full suite the
+ * page is `hidden`, so it never renders and an IntersectionObserver on it
+ * never fires. Both are measured on the page instead: the embed's own start
+ * time against the phases, and /promotion's widget staying unloaded until it
+ * is scrolled to. Issues #108, #109.
  */
 const EMBED = 'script[src*="js.hsforms.net"]';
 const HREF = '/widgets/hubspot/newsletter.html';
@@ -40,28 +45,10 @@ function build(href = HREF) {
   return block;
 }
 
-/**
- * Waits for a condition, or gives up. An observer fires on a frame and the
- * module it then loads arrives on a network round trip, so neither is ready on
- * the turn that triggers it.
- * @param {Function} done what to wait for
- * @param {number} ms how long to wait
- * @returns {Promise<boolean>} whether it came true
- */
-async function until(done, ms = 2000) {
-  for (let waited = 0; waited < ms; waited += 50) {
-    if (done()) return true;
-    // eslint-disable-next-line no-await-in-loop
-    await new Promise((go) => setTimeout(go, 50));
-  }
-  return done();
-}
-
 describe('The widget block', () => {
   afterEach(() => {
     document.body.querySelectorAll('main').forEach((el) => el.remove());
     document.head.querySelectorAll(EMBED).forEach((el) => el.remove());
-    window.scrollTo(0, 0);
   });
 
   it('names the block, its wrapper and its section after the widget', async () => {
@@ -94,54 +81,25 @@ describe('The widget block', () => {
     await decorate(block);
     expect(document.head.querySelector(EMBED), 'the third-party embed').to.not.exist;
   });
-});
 
-describe('When the widget script loads', () => {
-  afterEach(() => {
-    document.body.querySelectorAll('main').forEach((el) => el.remove());
-    document.head.querySelectorAll(EMBED).forEach((el) => el.remove());
-    window.scrollTo(0, 0);
-  });
-
-  it('loads it when the widget is in view', async () => {
-    await setViewport({ width: 900, height: 800 });
+  it('loads that script from the href when it is asked to', async () => {
     const block = build();
     await decorate(block);
-    initWidgetScripts();
-    expect(await until(() => document.head.querySelector(EMBED)), 'the embed').to.be.true;
+    await loadWidgetScript(block);
+    expect(document.head.querySelector(EMBED), 'the third-party embed').to.exist;
   });
 
-  // a widget far enough down a page costs a visitor who stops above it nothing
-  it('leaves it alone while the widget is out of reach', async () => {
-    await setViewport({ width: 900, height: 800 });
-    const block = build();
-    const spacer = document.createElement('div');
-    spacer.style.height = '4000px';
-    block.closest('main').prepend(spacer);
+  // a widget whose files are gone leaves the page standing
+  it('survives a widget that is not there', async () => {
+    const block = build('/widgets/hubspot/nothing.html');
     await decorate(block);
-    initWidgetScripts();
-    await new Promise((go) => setTimeout(go, 400));
-    expect(document.head.querySelector(EMBED), 'the embed').to.not.exist;
+    await loadWidgetScript(block);
+    expect(document.head.querySelector(EMBED)).to.not.exist;
   });
 
-  // and it arrives before the visitor does, rather than as they reach it
-  it('loads it once the widget comes near', async () => {
-    await setViewport({ width: 900, height: 800 });
-    const block = build();
-    const spacer = document.createElement('div');
-    spacer.style.height = '4000px';
-    block.closest('main').prepend(spacer);
-    await decorate(block);
-    initWidgetScripts();
-    await new Promise((go) => setTimeout(go, 200));
-    block.scrollIntoView();
-    expect(await until(() => document.head.querySelector(EMBED)), 'the embed').to.be.true;
-  });
-
-  // it runs on every page, and all but three carry no widget
+  // the lazy phase asks on every page, and all but three carry no widget
   it('watches nothing when the page carries no widget', async () => {
     initWidgetScripts();
-    await new Promise((go) => setTimeout(go, 200));
     expect(document.head.querySelector(EMBED)).to.not.exist;
   });
 });
