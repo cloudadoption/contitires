@@ -25,17 +25,17 @@
   box-sizing: border-box;
   width: 100%;
   border: 0;
-  border-bottom: 1px solid var(--conti-white);
+  border-bottom: 1px solid currentcolor;
   border-radius: 0;
   background-color: transparent;
   padding: 8px 24px 8px 0;
-  color: var(--conti-white);
+  color: inherit;
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-s);
 }
 
 .store-locator-field input::placeholder {
-  color: var(--conti-white);
+  color: inherit;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
