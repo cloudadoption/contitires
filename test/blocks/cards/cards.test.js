@@ -124,33 +124,33 @@ describe("Sports band, live's dark teaser band", () => {
   });
 
   it('centres the heading and the line under it', () => {
-    expect(value(`${BAND} .default-content-wrapper`, 'text-align')).to.equal('center');
+    expect(value(BAND, 'text-align')).to.equal('center');
   });
 
   // 30/36 below 1025 and 42/48 above, tracked out 6 and set in capitals
   it("sets the heading on live's scale", () => {
-    expect(value(`${BAND} .default-content-wrapper h2`, 'font-size')).to.equal('30px');
-    expect(value(`${BAND} .default-content-wrapper h2`, 'line-height')).to.equal('36px');
-    expect(value(`${BAND} .default-content-wrapper h2`, 'font-weight')).to.equal('300');
-    expect(value(`${BAND} .default-content-wrapper h2`, 'letter-spacing')).to.equal('6px');
-    expect(value(`${BAND} .default-content-wrapper h2`, 'text-transform')).to.equal('uppercase');
-    expect(value(`${BAND} .default-content-wrapper h2`, 'font-size', '1025px')).to.equal('42px');
-    expect(value(`${BAND} .default-content-wrapper h2`, 'line-height', '1025px')).to.equal('48px');
+    expect(value(`${BAND} h2`, 'font-size')).to.equal('30px');
+    expect(value(`${BAND} h2`, 'line-height')).to.equal('36px');
+    expect(value(`${BAND} h2`, 'font-weight')).to.equal('300');
+    expect(value(`${BAND} h2`, 'letter-spacing')).to.equal('6px');
+    expect(value(`${BAND} h2`, 'text-transform')).to.equal('uppercase');
+    expect(value(`${BAND} h2`, 'font-size', '1025px')).to.equal('42px');
+    expect(value(`${BAND} h2`, 'line-height', '1025px')).to.equal('48px');
   });
 
   // the line under the heading sits 8 below it and grows to 24/34 from 769
   it("sets the line under the heading on live's scale", () => {
-    expect(value(`${BAND} .default-content-wrapper p`, 'margin')).to.equal('8px 0px 0px');
-    expect(value(`${BAND} .default-content-wrapper p`, 'font-size')).to.equal('15px');
-    expect(value(`${BAND} .default-content-wrapper p`, 'line-height')).to.equal('22px');
-    expect(value(`${BAND} .default-content-wrapper p`, 'font-size', '769px')).to.equal('24px');
-    expect(value(`${BAND} .default-content-wrapper p`, 'line-height', '769px')).to.equal('34px');
+    expect(value(`${BAND} p`, 'margin')).to.equal('8px 0px 0px');
+    expect(value(`${BAND} p`, 'font-size')).to.equal('15px');
+    expect(value(`${BAND} p`, 'line-height')).to.equal('22px');
+    expect(value(`${BAND} p`, 'font-size', '769px')).to.equal('24px');
+    expect(value(`${BAND} p`, 'line-height', '769px')).to.equal('34px');
   });
 
   // live leaves 16 between the header and the first teaser below 769, 38 above
   it('leaves live\'s gap between the header and the teasers', () => {
-    expect(value(`${BAND} .cards-wrapper`, 'margin-top')).to.equal('16px');
-    expect(value(`${BAND} .cards-wrapper`, 'margin-top', '769px')).to.equal('38px');
+    expect(value('.cards.teaser > ul', 'margin-top')).to.equal('16px');
+    expect(value('.cards.teaser > ul', 'margin-top', '769px')).to.equal('38px');
   });
 
   // one teaser per row, the photo at 16:9 and none of the card chrome the

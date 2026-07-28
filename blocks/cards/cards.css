@@ -56,7 +56,8 @@ main .section.cards-container {
    card via the positioned <li>. no JS needed to move or duplicate markup. */
 .cards.category > ul > li,
 .cards.news > ul > li,
-.cards.highlights > ul > li {
+.cards.highlights > ul > li,
+.cards.teaser > ul > li {
   position: relative;
 }
 
@@ -68,10 +69,76 @@ main .section.cards-container {
 
 .cards.category .cards-card-body a::before,
 .cards.news .cards-card-body a::before,
-.cards.highlights .cards-card-body a::before {
+.cards.highlights .cards-card-body a::before,
+.cards.teaser .cards-card-body a::before {
   content: '';
   position: absolute;
   inset: 0;
+}
+
+/* ---- teaser: the tiles live gives a section hub. One 16:9 photo per row,
+   with the destination's name as a pill over the middle of it, on the black
+   band the section rules at the foot of this sheet draw. Read off
+   continentaltire.com/experience at 1440, 1200, 1025, 1024, 900, 769, 768
+   and 375. ---- */
+
+/* the gap live leaves between the band's heading and its first tile */
+.cards.teaser > ul {
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.cards.teaser > ul > li {
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.cards.teaser > ul > li img {
+  aspect-ratio: 16 / 9;
+}
+
+.cards.teaser .cards-card-body {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.cards.teaser .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+}
+
+/* a yellow ring on a half-black fill: a control rather than a line of copy, so
+   it takes the button's bare text rather than the site's link underline */
+.cards.teaser .cards-card-body a {
+  display: inline-flex;
+  padding: 12px 20px;
+  border: 2px solid var(--conti-yellow);
+  border-radius: 26px;
+  background-color: rgb(0 0 0 / 50%);
+  color: var(--conti-white);
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16.8px;
+  letter-spacing: 1.25px;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+@media (width >= 769px) {
+  .cards.teaser > ul {
+    margin-top: 38px;
+  }
+
+  .cards.teaser .cards-card-body a {
+    padding: 12px 26px;
+  }
 }
 
 /* ---- news: article/news teaser cards ---- */
@@ -372,6 +439,65 @@ main .section.cards-container:has(.cards.category) > div {
 .cards.category > ul > li:hover img,
 .cards.category > ul > li:focus-within img {
   transform: translateY(-6px);
+}
+
+/* ---- the band the teaser tiles sit on: black, edge to edge, with a centred
+   uppercase heading over a line of copy ---- */
+main .section.cards-container:has(.cards.teaser) {
+  padding: 38px 0;
+  text-align: center;
+  background-color: #000;
+  color: var(--conti-white);
+}
+
+/* live measures this band itself rather than taking the page's container: 1136
+   of content, with 20 of page padding below 769 and 16 above */
+main .section.cards-container:has(.cards.teaser) > div {
+  max-width: 1136px;
+  padding: 0 20px;
+}
+
+main .section.cards-container:has(.cards.teaser) h2 {
+  margin: 0;
+  color: var(--conti-white);
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 36px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+/* live reads 14.88 here, which is its own rem scale; ours is the site's 15 */
+main .section.cards-container:has(.cards.teaser) p {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+@media (width >= 769px) {
+  main .section.cards-container:has(.cards.teaser) {
+    padding: 80px 0;
+  }
+
+  main .section.cards-container:has(.cards.teaser) > div {
+    padding: 0 16px;
+  }
+
+  main .section.cards-container:has(.cards.teaser) p {
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  main .section.cards-container:has(.cards.teaser) .cards-wrapper {
+    margin-top: 38px;
+  }
+}
+
+@media (width >= 1025px) {
+  main .section.cards-container:has(.cards.teaser) h2 {
+    font-size: 42px;
+    line-height: 48px;
+  }
 }
 
 /* the confidence band wraps a badge image, heading, copy, the coverage
