@@ -47,9 +47,9 @@ describe('Banner block, the trail', () => {
   });
 
   // live shows no trail on a page at the root, and one above every page under
-  // a section, which is what splits the 13 pages 8 and 5
-  // an assertion that fails with a DOM node as its actual value hangs the
-  // reporter, so the ones that expect nothing compare identity first
+  // a section, which is what splits the 13 pages 8 and 5. An assertion that
+  // fails with a DOM node as its actual value hangs the reporter, so the ones
+  // that expect nothing compare identity first.
   it('shows no trail for a page at the root', () => {
     expect(buildBreadcrumb('/legal', 'Terms Of Use Agreement') === null, '/legal').to.be.true;
     expect(buildBreadcrumb('/', 'Home') === null, 'the home page').to.be.true;
@@ -137,15 +137,15 @@ describe('Banner block, live\'s dark band', () => {
   });
 
   it('draws the band dark, with the glow live has behind the title', () => {
-    expect(value('.banner', 'background-color')).to.equal('rgb(11, 11, 11)');
-    expect(value('.banner', 'background-image')).to.match(/^radial-gradient\(/);
-    expect(value('.banner', 'color')).to.equal('var(--conti-white)');
-    expect(value('.banner', 'text-align')).to.equal('center');
+    expect(value('.banner.block', 'background-color')).to.equal('rgb(11, 11, 11)');
+    expect(value('.banner.block', 'background-image')).to.match(/^radial-gradient\(/);
+    expect(value('.banner.block', 'color')).to.equal('var(--conti-white)');
+    expect(value('.banner.block', 'text-align')).to.equal('center');
   });
 
   it('pads the band as live pads it, and holds 210 at 1025', () => {
-    expect(value('.banner', 'padding')).to.equal('38px 20px');
-    expect(value('.banner', 'min-height', '1025px')).to.equal('210px');
+    expect(value('.banner.block', 'padding')).to.equal('38px 20px');
+    expect(value('.banner.block', 'min-height', '1025px')).to.equal('210px');
   });
 
   it('takes live\'s title scale, neither tracked nor uppercased', () => {
@@ -162,20 +162,20 @@ describe('Banner block, live\'s dark band', () => {
   it('takes live\'s scale for the line under the title', () => {
     expect(value('.banner-text', 'font-size')).to.equal('14px');
     expect(value('.banner-text', 'line-height')).to.equal('20px');
-    expect(value('.banner-text', 'margin')).to.equal('8px 0 0');
+    expect(value('.banner-text', 'margin')).to.equal('8px 0px 0px');
     expect(value('.banner-text', 'font-size', '1025px')).to.equal('24px');
     expect(value('.banner-text', 'line-height', '1025px')).to.equal('32px');
   });
 
   // live sets the trail small, white and uppercase, and leans the separator
   it('sets the trail the way live sets it', () => {
-    expect(value('.banner-breadcrumb', 'text-align')).to.equal('left');
+    expect(value('.banner-breadcrumb', 'display')).to.equal('flex');
     expect(value('.banner-breadcrumb a', 'font-size')).to.equal('12px');
     expect(value('.banner-breadcrumb a', 'font-weight')).to.equal('700');
     expect(value('.banner-breadcrumb a', 'letter-spacing')).to.equal('0.6px');
     expect(value('.banner-breadcrumb a', 'text-transform')).to.equal('uppercase');
     expect(value('.banner-breadcrumb a', 'text-decoration')).to.equal('underline');
-    expect(value('.banner-breadcrumb [aria-current=\'page\']', 'letter-spacing')).to.equal('1.25px');
+    expect(value('.banner-breadcrumb [aria-current="page"]', 'letter-spacing')).to.equal('1.25px');
     expect(value('.banner-breadcrumb li + li::before', 'border-inline-end')).to.equal('2px solid currentcolor');
     expect(value('.banner-breadcrumb li + li::before', 'transform')).to.equal('rotate(15deg)');
   });
@@ -186,7 +186,7 @@ describe('Banner block, live\'s dark band', () => {
   it('lifts the trail out of the way of the title at 1025', () => {
     expect(value('.banner-breadcrumb', 'position', '1025px')).to.equal('absolute');
     expect(value('.banner-breadcrumb', 'top', '1025px')).to.equal('23px');
-    expect(value('.banner:has(.banner-breadcrumb)', 'padding-top')).to.equal('15px');
-    expect(value('.banner:has(.banner-breadcrumb)', 'padding-top', '769px')).to.equal('23px');
+    expect(value('.banner.block:has(.banner-breadcrumb)', 'padding-top')).to.equal('15px');
+    expect(value('.banner.block:has(.banner-breadcrumb)', 'padding-top', '769px')).to.equal('23px');
   });
 });
