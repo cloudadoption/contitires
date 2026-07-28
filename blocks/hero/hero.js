@@ -20,20 +20,29 @@ function mergePictures(desktop, mobile) {
 }
 
 /**
+ * What the author wrote, at the level they wrote it. The pipeline nests
+ * authored content in row and cell divs, so the walk descends through divs and
+ * stops at the first element that is not one.
+ * @param {Element} root the block, or a row or cell within it
+ * @returns {Element[]} the authored elements, in document order
+ */
+function authoredContent(root) {
+  return [...root.children].flatMap((el) => (el.tagName === 'DIV' ? authoredContent(el) : [el]));
+}
+
+/**
  * Reuses whatever the author placed in the block: up to two pictures
  * (desktop + optional mobile art direction), a heading, subcopy paragraphs
  * and CTA links. Authoring order is preserved (an eyebrow line can precede
  * the heading), CTA paragraphs are pulled into their own row at the end.
+ * Anything else the author wrote goes through unstyled rather than being
+ * dropped, so a list or a table reaches the page.
  * @param {Element} block the hero block
  */
 export default function decorate(block) {
   const pictures = [...block.querySelectorAll('picture')];
 
-  const isImageOnly = (p) => {
-    const kids = [...p.children];
-    return kids.length > 0 && kids.every((kid) => kid.tagName === 'PICTURE') && !p.textContent.trim();
-  };
-  const isEmpty = (p) => !p.textContent.trim() && p.children.length === 0;
+  const isEmpty = (el) => !el.textContent.trim() && el.children.length === 0;
 
   const imageWrap = document.createElement('div');
   imageWrap.className = 'hero-image';
@@ -52,14 +61,17 @@ export default function decorate(block) {
     }
   }
 
+  // the art pictures are out of the block by now, so the cells that held them
+  // read empty and the walk skips them
   const content = document.createElement('div');
   content.className = 'hero-content';
-  [...block.querySelectorAll('h1, h2, h3, h4, h5, h6, p')].forEach((el) => {
-    if (el.tagName === 'P' && (el.classList.contains('button-wrapper') || isImageOnly(el) || isEmpty(el))) return;
-    content.append(el);
+  const ctaWrappers = [];
+  authoredContent(block).forEach((el) => {
+    if (isEmpty(el)) return;
+    if (el.tagName === 'P' && el.classList.contains('button-wrapper')) ctaWrappers.push(el);
+    else content.append(el);
   });
 
-  const ctaWrappers = [...block.querySelectorAll('p.button-wrapper')];
   if (ctaWrappers.length) {
     const ctas = document.createElement('div');
     ctas.className = 'hero-ctas';

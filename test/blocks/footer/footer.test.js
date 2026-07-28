@@ -334,3 +334,42 @@ describe('Footer column layout', () => {
       .to.equal('grid');
   });
 });
+
+/**
+ * The grouping walk looked at headings, lists and paragraphs and nothing else,
+ * so an ordered list, a table or a quote in the footer fragment never reached
+ * the page. Content the block has no treatment for goes through unstyled
+ * instead. Issue #118.
+ */
+describe('Footer content the block has no treatment for', () => {
+  function fragmentWith(extra) {
+    const fragment = document.createElement('div');
+    fragment.innerHTML = `
+      <h3>Company</h3>
+      <ul><li><a href="/about">About</a></li></ul>
+      ${extra}
+      <p>&copy; 2026 Continental Tire</p>`;
+    return fragment;
+  }
+
+  it('keeps an authored ordered list', () => {
+    const content = buildFooterContent(fragmentWith('<ol><li>Read the warranty</li><li>Register</li></ol>'));
+    const list = content.querySelector('ol');
+    expect(list, 'the list is on the page').to.exist;
+    expect(list.querySelectorAll('li')).to.have.length(2);
+  });
+
+  it('keeps an authored table and an authored quote', () => {
+    const content = buildFooterContent(fragmentWith('<table><tr><td>Hours</td></tr></table><blockquote>Since 1871</blockquote>'));
+    expect(content.querySelector('table'), 'the table').to.exist;
+    expect(content.querySelector('blockquote'), 'the quote').to.exist;
+  });
+
+  it('leaves the legal copy where it was', () => {
+    const content = buildFooterContent(fragmentWith('<ol><li>Read the warranty</li></ol>'));
+    const bottom = content.querySelector('.footer-bottom');
+    expect(bottom, 'the legal bar').to.exist;
+    expect(bottom.textContent).to.contain('Continental Tire');
+    expect(bottom.querySelector('ol') === null, 'the list is not in the legal bar').to.be.true;
+  });
+});

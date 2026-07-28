@@ -243,3 +243,120 @@ describe('Article cards, learn hub band variants', () => {
     expect(block.querySelector('.article-teaser')).to.not.exist;
   });
 });
+
+/**
+ * The block read an unlabeled cell by what it looked like: a leading slash
+ * made it the index, all digits made it the limit, anything else the category.
+ * An author could not see which cell meant what, and a category of digits
+ * became a limit. Labeled rows say it instead, and the older one-cell shape
+ * the authored bands carry still reads. Issue #121.
+ */
+describe('Article cards, the authored configuration', () => {
+  let fetchStub;
+  afterEach(() => fetchStub?.restore());
+
+  /** A block with the given rows, each row an array of cells. */
+  function configured(...rows) {
+    document.body.innerHTML = `<div class="article-cards block">${
+      rows.map((cells) => `<div>${cells.map((c) => `<div>${c}</div>`).join('')}</div>`).join('')
+    }</div>`;
+    return document.querySelector('.article-cards.block');
+  }
+
+  function indexOf(rows) {
+    return {
+      total: rows.length, offset: 0, limit: rows.length, data: rows,
+    };
+  }
+
+  it('reads the labeled rows', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexOf([
+      {
+        path: '/learn/a', title: 'A', image: '/a.png', category: 'Technology',
+      },
+      {
+        path: '/learn/b', title: 'B', image: '/b.png', category: 'Technology',
+      },
+      {
+        path: '/learn/c', title: 'C', image: '/c.png', category: 'Tire Tips',
+      },
+    ]))));
+    const block = configured(
+      ['Source', '/experience/query-index.json'],
+      ['Category', 'Technology'],
+      ['Limit', '1'],
+    );
+    await decorate(block);
+
+    expect(fetchStub.firstCall.args[0], 'the labeled source is fetched').to.equal('/experience/query-index.json');
+    expect(block.querySelectorAll('.article-card'), 'the labeled limit is kept').to.have.length(1);
+    expect(block.textContent, 'the labeled category filters').to.not.contain('C');
+  });
+
+  it('reads a label whatever case the author typed it in', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexOf([
+      {
+        path: '/tires/a', title: 'A', image: '/a.png', category: 'Passenger',
+      },
+    ]))));
+    const block = configured(['source', '/tires/query-index.json']);
+    await decorate(block);
+
+    expect(fetchStub.firstCall.args[0]).to.equal('/tires/query-index.json');
+    expect(block.querySelectorAll('.article-card'), 'the label is not read as a category')
+      .to.have.length(1);
+  });
+
+  // the shape that read a digit as a limit: a category named for a year
+  it('takes a category of digits as a category', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexOf([
+      {
+        path: '/learn/a', title: 'A', image: '/a.png', category: '2026',
+      },
+      {
+        path: '/learn/b', title: 'B', image: '/b.png', category: 'Tire Tips',
+      },
+    ]))));
+    const block = configured(['Category', '2026']);
+    await decorate(block);
+
+    const cards = block.querySelectorAll('.article-card');
+    expect(cards, 'the year filtered rather than capped').to.have.length(1);
+    expect(cards[0].getAttribute('href')).to.equal('/learn/a');
+  });
+
+  it('leaves the default index where no source is labeled', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexOf([]))));
+    await decorate(configured(['Category', 'Technology']));
+
+    expect(fetchStub.firstCall.args[0]).to.equal('/learn/query-index.json');
+  });
+
+  it('leaves the default index where the labeled source is empty', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexOf([]))));
+    await decorate(configured(['Source', '']));
+
+    expect(fetchStub.firstCall.args[0]).to.equal('/learn/query-index.json');
+  });
+
+  // /learn and the four category pages carry this shape, one value per row
+  it('still reads the one-cell rows the authored bands carry', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexOf([
+      {
+        path: '/learn/a', title: 'A', image: '/a.png', category: 'Tire Tips',
+      },
+      {
+        path: '/learn/b', title: 'B', image: '/b.png', category: 'Tire Tips',
+      },
+      {
+        path: '/learn/c', title: 'C', image: '/c.png', category: 'News',
+      },
+    ]))));
+    const block = configured(['Tire Tips'], ['2']);
+    await decorate(block);
+
+    expect(fetchStub.firstCall.args[0]).to.equal('/learn/query-index.json');
+    expect(block.querySelectorAll('.article-card')).to.have.length(2);
+    expect(block.textContent).to.not.contain('C');
+  });
+});

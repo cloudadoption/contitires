@@ -143,8 +143,21 @@ export function setFooterDisclosures(links, collapsed) {
 }
 
 /**
+ * What the author wrote, at the level they wrote it. The pipeline nests
+ * authored content in section and wrapper divs, so the walk descends through
+ * divs and stops at the first element that is not one.
+ * @param {Element} root the fragment, or a div within it
+ * @returns {Element[]} the authored elements, in document order
+ */
+function authoredContent(root) {
+  return [...root.children].flatMap((el) => (el.tagName === 'DIV' ? authoredContent(el) : [el]));
+}
+
+/**
  * Groups the footer's flat authored content (headings, lists, a CTA paragraph,
- * legal copy) into a link-groups region and a bottom bar region.
+ * legal copy) into a link-groups region and a bottom bar region. Anything else
+ * the author wrote goes through unstyled rather than being dropped, so a list
+ * or a table reaches the page.
  * @param {Element} fragment the loaded footer fragment
  * @returns {Element} the decorated footer content wrapper
  */
@@ -154,9 +167,10 @@ export function buildFooterContent(fragment) {
   const bottom = document.createElement('div');
   bottom.className = 'footer-bottom';
   const ctaButtons = [];
+  const rest = [];
 
   let group = null;
-  fragment.querySelectorAll(`${HEADING}, ul, p`).forEach((el) => {
+  authoredContent(fragment).forEach((el) => {
     if (/^H[1-6]$/.test(el.tagName)) {
       group = document.createElement('div');
       group.className = 'footer-links-group';
@@ -169,8 +183,10 @@ export function buildFooterContent(fragment) {
       // each authored CTA link is its own single-link paragraph (how button
       // formatting is detected); collect them into one row in document order
       ctaButtons.push(...el.querySelectorAll('a.button'));
-    } else {
+    } else if (el.tagName === 'P' || el.tagName === 'UL') {
       bottom.append(el);
+    } else {
+      rest.push(el);
     }
   });
 
@@ -193,6 +209,7 @@ export function buildFooterContent(fragment) {
   if (social) content.append(social);
   if (links.children.length) content.append(links);
   if (bottom.children.length) content.append(bottom);
+  content.append(...rest);
   return content;
 }
 

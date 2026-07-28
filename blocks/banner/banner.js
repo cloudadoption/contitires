@@ -52,6 +52,48 @@ export function buildBreadcrumb(path, label) {
   return nav;
 }
 
+const HEADING = 'h1, h2, h3, h4, h5, h6';
+
+/**
+ * The band's title. The heading the author wrote is the one the page keeps, so
+ * the served HTML carries it. The band is the page title, so a lower rank is
+ * read up to h1 the way the footer reads its group headings to h2. A cell of
+ * plain text still gets a heading built from it.
+ * @param {Element} row the first authored row
+ * @returns {Element} the title
+ */
+function buildTitle(row) {
+  const authored = row ? row.querySelector(HEADING) : null;
+  let heading = authored;
+  if (!heading || heading.tagName !== 'H1') {
+    heading = document.createElement('h1');
+    if (authored) {
+      if (authored.id) heading.id = authored.id;
+      heading.append(...authored.childNodes);
+    } else if (row) {
+      heading.textContent = row.textContent.trim();
+    }
+  }
+  heading.className = 'banner-title';
+  return heading;
+}
+
+/**
+ * A line under the title, from the authored paragraph or the cell's own text.
+ * @param {Element} row an authored row after the first
+ * @returns {Element|null} the line, or null where the row is empty
+ */
+function buildLine(row) {
+  if (!row.textContent.trim()) return null;
+  let line = row.querySelector('p');
+  if (!line) {
+    line = document.createElement('p');
+    line.textContent = row.textContent.trim();
+  }
+  line.className = 'banner-text';
+  return line;
+}
+
 /**
  * Standalone page banner: the dark title band live opens these pages with.
  * The first authored cell is the title, an optional second cell the line
@@ -59,20 +101,12 @@ export function buildBreadcrumb(path, label) {
  * @param {Element} block the banner block
  */
 export default function decorate(block) {
-  const [title, ...rest] = [...block.children].map((row) => row.textContent.trim());
+  const [first, ...rest] = [...block.children];
+  const heading = buildTitle(first);
+  const lines = rest.map(buildLine).filter(Boolean);
+
   block.textContent = '';
-
-  const heading = document.createElement('h1');
-  heading.className = 'banner-title';
-  heading.textContent = title;
-  block.append(heading);
-
-  rest.filter(Boolean).forEach((line) => {
-    const p = document.createElement('p');
-    p.className = 'banner-text';
-    p.textContent = line;
-    block.append(p);
-  });
+  block.append(heading, ...lines);
 
   const crumb = buildBreadcrumb(window.location.pathname, currentLabel());
   if (crumb) block.prepend(crumb);
