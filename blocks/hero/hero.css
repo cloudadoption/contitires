@@ -246,10 +246,14 @@ main .section.hero-container {
   padding: 34px 20px;
 }
 
-/* the shield is live's own asset, drawn at the size live draws it */
+/* the shield is live's own asset, drawn at the size live draws it. A block
+   box rather than an inline one: an inline mark hangs in a line box of the
+   paragraph's own leading, which stood everything under it 9.8 too low. */
 .hero.logo .icon-tcp-badge {
+  display: block;
   width: 118.6px;
   height: 140px;
+  margin-inline: auto;
 }
 
 .hero.logo .icon img {
