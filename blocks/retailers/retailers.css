@@ -57,7 +57,10 @@
   justify-self: center;
   margin: 0;
   border: 0;
-  padding: 0;
+
+  /* live's own link is 20 tall, under what a finger needs; the padding grows
+     the target without moving the mark or the words */
+  padding: 2px 0;
   background: none;
   color: inherit;
   font-family: var(--heading-font-family);
@@ -169,39 +172,18 @@
   font-style: normal;
 }
 
-/* live rings the cross, the way its own close control does */
+/* live's ringed cross, drawn at its own 16 inside a target a finger can hit */
 .retailers-close {
   position: absolute;
-  top: 8px;
-  right: 9px;
-  box-sizing: border-box;
-  width: 16px;
-  height: 16px;
+  top: 4px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
   margin: 0;
-  border: 1px solid currentcolor;
-  border-radius: 50%;
+  border: 0;
   padding: 0;
-  background: none;
-  color: var(--conti-black);
+  background: url('/icons/close-circle.svg') no-repeat center / 16px 16px;
   cursor: pointer;
-}
-
-.retailers-close::before,
-.retailers-close::after {
-  position: absolute;
-  top: 6.5px;
-  left: 3px;
-  width: 8px;
-  border-block-start: 1px solid currentcolor;
-  content: '';
-}
-
-.retailers-close::before {
-  transform: rotate(45deg);
-}
-
-.retailers-close::after {
-  transform: rotate(-45deg);
 }
 
 @media (width >= 380px) {

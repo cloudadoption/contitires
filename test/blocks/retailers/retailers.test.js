@@ -394,7 +394,8 @@ describe('Retailers block, live\'s measurements', () => {
     const button = block.querySelector('button.retailers-financing');
     expect(getComputedStyle(button).fontSize).to.equal('8px');
     expect(getComputedStyle(button).marginInlineStart).to.equal('-15px');
-    expect(Math.round(button.getBoundingClientRect().height)).to.equal(20);
+    // one line is the 20 mark over 4 of padding; two would read 26.4
+    expect(Math.round(button.getBoundingClientRect().height)).to.equal(24);
   });
 
   it('holds the panel inside the page at 375', async () => {
