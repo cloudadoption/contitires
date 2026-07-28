@@ -236,6 +236,12 @@ describe('The partner title', () => {
     expect(value('body.article main .section.partner', 'padding-bottom')).to.equal('38px');
   });
 
+  // live sets the sidebar copy on a flat 22, where the article template runs
+  // its reading column at 1.48, which is 22.2 on a 15px body
+  it("sets the sidebar copy on live's line height", () => {
+    expect(value('body.article main .section.partner .partner-sidebar .default-content-wrapper', 'line-height')).to.equal('22px');
+  });
+
   it("sets the title on live's scale", () => {
     expect(value(TITLE, 'font-size')).to.equal('30px');
     expect(value(TITLE, 'line-height')).to.equal('38px');
