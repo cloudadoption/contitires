@@ -4,10 +4,22 @@
    above, where the site's container gives 1200 and 24 or 32. Read off
    continentaltire.com/experience/conti-crew/speed-academy. Issue #104. */
 
+/* live runs the bands flush against each other, where the site leaves 40 */
+body.crew main > .section {
+  margin: 0;
+}
+
 body.crew main .section.copy,
 body.crew main .section.quote {
-  margin: 0;
   padding-inline: 20px;
+}
+
+/* live sets its copy at 14.88 over 22, where the site's body is 18, and runs
+   its paragraphs together with no gap between them */
+body.crew main .section.copy .default-content-wrapper p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
 }
 
 body.crew main .section.copy > div,
@@ -48,7 +60,9 @@ body.crew main .section.quote blockquote p:last-child {
   text-transform: uppercase;
 }
 
-/* live pads both closing bands 40 and 80 where the site pads them 56 */
+/* live pads both closing bands 40 and 80 where the site pads them 56. The
+   scroller opens out at 1025 and the teasers at 769, which is where each of
+   them changes shape */
 body.crew main .section.dark,
 body.crew main .section.black {
   padding: 40px 0;
@@ -56,6 +70,12 @@ body.crew main .section.black {
 
 body.crew main .section.black {
   text-align: center;
+}
+
+/* the dark cards band leaves 32 between its heading and its cards; live
+   leaves 24, which is the heading's own closing margin */
+body.crew main .section.dark.cards-container .cards-wrapper {
+  margin-top: 0;
 }
 
 body.crew main .section.dark .default-content-wrapper h2,
@@ -72,6 +92,10 @@ body.crew main .section.black .default-content-wrapper h2 {
   body.crew main .section.copy,
   body.crew main .section.quote {
     padding-inline: 16px;
+  }
+
+  body.crew main .section.black {
+    padding: 80px 0;
   }
 }
 
@@ -91,8 +115,7 @@ body.crew main .section.black .default-content-wrapper h2 {
     line-height: 48px;
   }
 
-  body.crew main .section.dark,
-  body.crew main .section.black {
+  body.crew main .section.dark {
     padding: 80px 0;
   }
 }

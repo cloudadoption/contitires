@@ -40,12 +40,16 @@
   background: linear-gradient(180deg, rgb(0 0 0 / 60%) 11%, rgb(0 0 0 / 0%) 26%);
 }
 
+/* the trail runs on live's own type rather than the site's 18px body, so its
+   line box is 22 and the strip 62 rather than 69 */
 .crew-breadcrumb {
   position: absolute;
   top: 0;
   left: 16px;
   z-index: 2;
   padding: 12px;
+  font-size: 15px;
+  line-height: 22px;
 }
 
 .crew-breadcrumb ol {
@@ -87,8 +91,8 @@
 }
 
 .crew-marquee h1 {
-  margin: 0;
-  padding: 50px 20px 12px;
+  margin: 50px 20px 0;
+  padding: 0 0 12px;
   color: var(--conti-white);
   font-size: 30px;
   font-weight: 300;
@@ -175,7 +179,9 @@
   align-items: center;
   gap: 8px;
   margin: 0;
+  font-size: 15px;
   font-weight: 600;
+  line-height: 22px;
   letter-spacing: 0.3px;
 }
 
@@ -186,6 +192,7 @@
   flex-shrink: 0;
   justify-content: center;
   width: 24px;
+  height: 12px;
 }
 
 .crew-preference .icon img {
@@ -209,17 +216,21 @@
   margin: 0;
 }
 
+/* live's row is 27 tall: the mark is 20 and sits on the baseline of a 22
+   line box, so the type below the mark is what makes the rest */
 .crew-socials {
   display: flex;
   align-items: baseline;
   gap: 20px;
   margin: 0;
   padding: 0;
+  font-size: 15px;
+  line-height: 22px;
   list-style: none;
 }
 
 .crew-socials a:any-link {
-  display: block;
+  display: inline-block;
   width: 20px;
   height: 20px;
   color: var(--conti-white);
@@ -244,7 +255,7 @@
   }
 
   .crew-marquee h1 {
-    padding-inline: 16px;
+    margin-inline: 16px;
   }
 
   .crew-logo {
@@ -281,6 +292,7 @@
     left: max(16px, calc(50% - 568px));
     z-index: 2;
     width: 600px;
+    margin: 0;
     padding: 0;
     font-size: 80px;
     line-height: 80px;

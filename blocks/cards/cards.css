@@ -208,9 +208,14 @@ main .section.cards-container:has(.cards.highlights) h2 {
 
 /* ---- facts: the Go In-Depth scroller on a Conti Crew page ---- */
 
-/* both Conti Crew bands take live's own measure, 1136 of content with 20 of
-   page padding below 769 and 16 above, rather than the site's container */
-main .section.cards-container:has(.cards.facts) > div,
+/* live runs the scroller and its heading the full width of the page, and
+   measures the teasers itself: 1136 of content with 20 of page padding below
+   769 and 16 above, rather than the site's container */
+main .section.cards-container:has(.cards.facts) > div {
+  max-width: none;
+  padding: 0;
+}
+
 main .section.cards-container:has(.cards.members) > div {
   max-width: 1136px;
   padding: 0 20px;
@@ -220,7 +225,7 @@ main .section.cards-container:has(.cards.members) > div {
    container's outer edge and keeps a peek of the next card on the right.
    Two show at 1025 and up, one below. Issue #104 */
 .cards.facts > ul {
-  --facts-inset: max(16px, calc(50vw - 584px));
+  --facts-inset: 16px;
   --facts-peek: 80px;
 
   display: flex;
@@ -228,6 +233,10 @@ main .section.cards-container:has(.cards.members) > div {
   margin-inline: calc(50% - 50vw);
   padding-inline: var(--facts-inset) var(--facts-peek);
   overflow-x: auto;
+
+  /* without this the first card snaps to the scrollport rather than the
+     padding, and the row opens scrolled past its own inset */
+  scroll-padding-inline-start: var(--facts-inset);
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
 }
@@ -263,16 +272,13 @@ main .section.cards-container:has(.cards.members) > div {
 
 .cards.facts .cards-card-body {
   margin: 0;
+  font-size: 15px;
+  line-height: 22px;
 }
 
-@media (width >= 769px) {
-  main .section.cards-container:has(.cards.facts) > div,
-  main .section.cards-container:has(.cards.members) > div {
-    padding: 0 16px;
-  }
-}
-
-@media (width >= 1025px) {
+/* live shows the second card from 641 up, and pulls the row in to the
+   container's outer edge from 769 */
+@media (width >= 641px) {
   .cards.facts > ul {
     --facts-peek: 160px;
   }
@@ -282,16 +288,27 @@ main .section.cards-container:has(.cards.members) > div {
   }
 }
 
+@media (width >= 769px) {
+  main .section.cards-container:has(.cards.members) > div {
+    padding: 0 16px;
+  }
+
+  .cards.facts > ul {
+    --facts-inset: max(0px, calc(50vw - 584px));
+  }
+}
+
 /* ---- members: the You Might Also Like teasers on a Conti Crew page ---- */
 
 .cards.members > ul {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 20px;
 }
 
+/* the card takes the shape of live's own teaser image, 386 by 290 */
 .cards.members > ul > li {
   overflow: hidden;
-  aspect-ratio: 365 / 274;
+  aspect-ratio: 386 / 290;
   border-radius: 12px;
   background-color: transparent;
   box-shadow: 0 0 20px 0 rgb(0 0 0 / 30%);
@@ -350,6 +367,13 @@ main .section.cards-container:has(.cards.members) > div {
   font-weight: 600;
   line-height: 22px;
   text-decoration: none;
+}
+
+/* live puts three teasers across from 769 and stacks them below */
+@media (width >= 769px) {
+  .cards.members > ul {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* ---- teaser: the tiles live gives a section hub. One 16:9 photo per row,

@@ -225,8 +225,11 @@ describe('Crew block, live\'s measurements', () => {
   });
 
   beforeEach(() => {
+    const here = window.location.pathname;
+    window.history.replaceState({}, '', '/experience/conti-crew/speed-academy');
     block = buildCrew();
     decorate(block);
+    window.history.replaceState({}, '', here);
   });
 
   it('runs the photo 600 tall over a black bar at 1440', async () => {
@@ -298,6 +301,20 @@ describe('Crew block, live\'s measurements', () => {
     expect(styles.lineHeight).to.equal('38px');
     const under = h1.getBoundingClientRect().top >= photo.getBoundingClientRect().bottom;
     expect(under, 'the title sits under the photo').to.be.true;
+  });
+
+  // the site's body is 18 over 28.8 and live's is 14.88 over 22, which is what
+  // made the trail's strip 69 against live's 62 and every preference row 29
+  // against live's 22
+  it("holds live's own type in the bar and the trail", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const type = (sel) => {
+      const styles = getComputedStyle(block.querySelector(sel));
+      return [styles.fontSize, styles.lineHeight];
+    };
+    expect(type('.crew-preference')).to.eql(['15px', '22px']);
+    expect(type('.crew-socials')).to.eql(['15px', '22px']);
+    expect(type('.crew-marquee nav')).to.eql(['15px', '22px']);
   });
 
   it('stacks the bar and shrinks the logo at 375', async () => {

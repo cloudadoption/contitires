@@ -313,6 +313,23 @@ describe("Go In-Depth band, live's fact scroller", () => {
     expect(getComputedStyle(block.querySelector('ul')).scrollSnapType).to.contain('x');
   });
 
+  // live keeps the second card down to 641 and the row's own inset from 769,
+  // read off the page at 769, 768, 660, 645 and 640
+  it('keeps the second card down to 641', async () => {
+    await setViewport({ width: 768, height: 800 });
+    expect(Math.round(block.querySelector('li').getBoundingClientRect().width)).to.equal(288);
+    await setViewport({ width: 640, height: 800 });
+    expect(Math.round(block.querySelector('li').getBoundingClientRect().width)).to.equal(544);
+  });
+
+  // the row snaps to its own inset rather than scrolling past it
+  it('opens on the first card, at the inset', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const list = block.querySelector('ul');
+    expect(list.scrollLeft).to.equal(0);
+    expect(Math.round(block.querySelector('li').getBoundingClientRect().left)).to.equal(136);
+  });
+
   // the mark is chrome on every card, so it is drawn rather than authored
   it("marks each card with live's yellow mark", async () => {
     await setViewport({ width: 1440, height: 900 });
@@ -394,6 +411,14 @@ describe("You Might Also Like band, live's crew teasers", () => {
     expect(getComputedStyle(name).fontSize).to.equal('18px');
     expect(getComputedStyle(name).color).to.equal('rgb(255, 255, 255)');
     expect(getComputedStyle(name).textDecorationLine).to.equal('none');
+  });
+
+  // live puts three across from 769 and stacks them below
+  it('stacks the teasers below 769', async () => {
+    await setViewport({ width: 768, height: 800 });
+    expect(Math.round(block.querySelector('li').getBoundingClientRect().width)).to.equal(728);
+    await setViewport({ width: 769, height: 800 });
+    expect(Math.round(block.querySelector('li').getBoundingClientRect().width)).to.equal(232);
   });
 
   it('stacks the teasers at 375', async () => {
