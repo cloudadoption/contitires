@@ -426,3 +426,84 @@ describe("Hero, live's logo marquee", () => {
       .to.equal(34);
   });
 });
+
+/**
+ * The marquee's words wrap differently in the fallback face than in Stag Sans,
+ * and the fonts arrive after the page paints. Below 420 the fallback takes a
+ * line more for the headline, and below 419 one more for the lead, so the band
+ * under the marquee moved 64 when the fonts landed. The boxes hold the
+ * fallback's lines now, the way the header holds the ribbon's height.
+ *
+ * Read off the branch preview by forcing the fallback at 320, 360, 375, 380,
+ * 385, 389, 390, 400, 412, 416, 419, 420, 440, 480, 768, 900 and 1440.
+ * Issue #94, the same reservation as #78.
+ */
+describe("Hero, the logo marquee's reserved lines", () => {
+  let block;
+
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/hero/hero.css'].map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    document.body.innerHTML = `
+      <main>
+        <div class="section hero-container">
+          <div class="hero-wrapper">
+            <div class="hero logo block" data-block-name="hero">
+              <div><div>
+                <p><span class="icon icon-tcp-badge"></span></p>
+                <h1><strong>Total Confidence Plan</strong> provides industry-leading coverage.</h1>
+                <p>The purchase of replacement Continental tires comes with an extra measure of confidence with the Total Confidence Plan.</p>
+                <p class="button-wrapper"><a class="button primary" href="/enroll">Enroll now</a></p>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </main>`;
+    document.body.classList.add('appear');
+    block = document.querySelector('.hero.logo');
+    decorate(block);
+  });
+
+  after(() => {
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+  });
+
+  const title = () => block.querySelector('h1');
+  const lead = () => block.querySelector('.hero-content > p:not(:first-child)');
+
+  it("reserves the headline's five fallback lines below 385", async () => {
+    await setViewport({ width: 375, height: 900 });
+    expect(getComputedStyle(title()).minHeight).to.equal('180px');
+    expect(getComputedStyle(lead()).minHeight).to.equal('112px');
+  });
+
+  it('reserves four from 385 to 419', async () => {
+    await setViewport({ width: 412, height: 900 });
+    expect(getComputedStyle(title()).minHeight).to.equal('144px');
+    expect(getComputedStyle(lead()).minHeight).to.equal('112px');
+  });
+
+  // from 420 the two faces wrap alike, so there is nothing to hold open
+  it('reserves nothing from 420', async () => {
+    await setViewport({ width: 420, height: 900 });
+    expect(getComputedStyle(title()).minHeight).to.equal('0px');
+    expect(getComputedStyle(lead()).minHeight).to.equal('0px');
+    await setViewport({ width: 1440, height: 900 });
+    expect(getComputedStyle(title()).minHeight).to.equal('0px');
+    expect(getComputedStyle(lead()).minHeight).to.equal('0px');
+  });
+
+  it('holds the marquee open when the words take fewer lines', async () => {
+    await setViewport({ width: 412, height: 900 });
+    const tall = Math.round(block.getBoundingClientRect().height);
+    const words = title().innerHTML;
+    title().textContent = 'Short';
+    expect(Math.round(block.getBoundingClientRect().height)).to.equal(tall);
+    title().innerHTML = words;
+  });
+});
