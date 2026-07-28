@@ -1,54 +1,162 @@
-/* learn category banner: a centered, image-less title band matching live's
-   marquee--blank, with the breadcrumb above the uppercase title */
-.banner {
-  padding: 48px 16px 24px;
+/* ---- the title band live opens a standalone page with: black, edge to edge,
+   with a soft glow behind a centred white title. Live paints the glow with a
+   1440x303 photo scaled to cover, whose light falls off to the page black
+   within 560px across and 400 down. Read off continentaltire.com at 1440,
+   1025, 1024, 900, 769, 768 and 375, on all 13 pages that carry it. ---- */
+
+/* the band runs edge to edge, where a section holds its content to 1200. The
+   :has() carries no meaning a banner section does not already carry; it is
+   there for the weight, so the band also outranks the article template, which
+   holds every one of its sections in a 640px reading column. */
+main .section.banner-container:has(.banner.block) {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+main .section.banner-container > .banner-wrapper {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* `.block` keeps these off a section a page styles `banner`, which the promo
+   template has */
+.banner.block {
+  position: relative;
+  box-sizing: border-box;
+  padding: 38px 20px;
+
+  /* the glow scales with the width, as live's cover-scaled photo does, so the
+     radii are given in vw: 560/1440 across and 400/1440 down */
+  background-color: rgb(11 11 11);
+  background-image: radial-gradient(
+    ellipse 38.9vw 27.8vw at 50% 0,
+    rgb(69 69 69) 0%,
+    rgb(50 50 50) 26%,
+    rgb(28 28 28) 51%,
+    rgb(14 14 14) 77%,
+    rgb(11 11 11) 100%
+  );
+  color: var(--conti-white);
   text-align: center;
+}
+
+/* the trail opens the band, and the title keeps its own distance from it */
+.banner.block:has(.banner-breadcrumb) {
+  padding-top: 15px;
+}
+
+.banner-title {
+  margin: 0;
+  color: var(--conti-white);
+  font-family: var(--heading-font-family);
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 36px;
+}
+
+/* six of the 13 pages set their title in capitals, which live does with a
+   class rather than by typing it. It is tracked like the promo marquee. */
+.banner.block.uppercase .banner-title {
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+
+.banner-text {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* a flex box rather than an inline one: an inline-level list sits in a line
+   box of the band's own line-height, which held the trail 7px lower than live
+   holds it and pushed the title down with it */
+.banner-breadcrumb {
+  display: flex;
+  margin: 0 -8px 31px;
 }
 
 .banner-breadcrumb ol {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  margin: 0 0 20px;
+  align-items: center;
+  margin: 0;
   padding: 0;
   list-style: none;
-  font-family: var(--body-font-family);
-  font-size: var(--body-font-size-xs);
-  color: var(--conti-text-grey);
 }
 
 .banner-breadcrumb li {
   display: flex;
   align-items: center;
-  gap: 6px;
 }
 
+/* live leans a 2px bar between the steps rather than setting a character */
 .banner-breadcrumb li + li::before {
-  content: '/';
-  color: var(--conti-grey);
+  content: '';
+  display: block;
+  width: 2px;
+  height: 0.8em;
+  margin: 0 8px;
+  border-inline-end: 2px solid currentcolor;
+  transform: rotate(15deg);
+}
+
+.banner-breadcrumb a,
+.banner-breadcrumb [aria-current='page'] {
+  color: var(--conti-white);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
 }
 
 .banner-breadcrumb a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.banner-breadcrumb a:hover,
-.banner-breadcrumb a:focus-visible {
+  font-weight: 700;
+  letter-spacing: 0.6px;
   text-decoration: underline;
 }
 
-.banner-breadcrumb [aria-current='page'] {
-  color: var(--conti-black);
+@media (width >= 769px) {
+  .banner.block:has(.banner-breadcrumb) {
+    padding-top: 23px;
+  }
+
+  .banner-breadcrumb {
+    margin: 0 0 39px;
+  }
 }
 
-.banner-title {
-  margin: 0;
-  font-family: var(--heading-font-family);
-  font-size: var(--heading-font-size-xl);
-  font-weight: 300;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--conti-black);
+@media (width >= 1025px) {
+  /* live holds the band at 210 and centres the title in it, whether or not a
+     trail sits above, so the trail comes out of the flow */
+  .banner.block {
+    display: grid;
+    align-content: center;
+    min-height: 210px;
+  }
+
+  .banner.block:has(.banner-breadcrumb) {
+    padding-top: 38px;
+  }
+
+  .banner-breadcrumb {
+    position: absolute;
+    top: 23px;
+    left: 20px;
+    margin: 0;
+  }
+
+  .banner-title {
+    font-size: 42px;
+    line-height: 48px;
+  }
+
+  .banner.block.uppercase .banner-title {
+    letter-spacing: 6px;
+  }
+
+  .banner-text {
+    font-size: 24px;
+    line-height: 32px;
+  }
 }
