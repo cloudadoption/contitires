@@ -352,10 +352,21 @@ describe('Retailers block, live\'s measurements', () => {
     block.querySelector('button.retailers-financing').click();
     const close = block.querySelector('button.retailers-close');
     const box = close.getBoundingClientRect();
-    expect(Math.round(box.width)).to.equal(16);
-    expect(Math.round(box.height)).to.equal(16);
-    expect(getComputedStyle(close).borderRadius, 'live rings it').to.equal('50%');
-    expect(getComputedStyle(close).borderTopWidth).to.equal('1px');
+    expect(getComputedStyle(close).backgroundImage, 'live rings it').to.contain('close-circle');
+    expect(getComputedStyle(close).backgroundSize, 'at live\'s own 16').to.equal('16px 16px');
+    expect(Math.round(box.width), 'over a target a finger can hit').to.be.at.least(24);
+    expect(Math.round(box.height)).to.be.at.least(24);
+  });
+
+  // both controls read 20 and 16 on live, under what a finger needs
+  it('gives the financing link a target a finger can hit', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const button = block.querySelector('button.retailers-financing');
+    expect(Math.round(button.getBoundingClientRect().height)).to.be.at.least(24);
+    const icon = button.querySelector('.icon').getBoundingClientRect();
+    const tile = button.closest('li').getBoundingClientRect();
+    expect(icon.top + icon.height / 2, 'and leaves the words where live sets them')
+      .to.be.closeTo(tile.bottom - 16 - 10, 0.5);
   });
 
   it('keeps a closed panel out of the page', async () => {
