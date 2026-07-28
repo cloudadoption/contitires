@@ -12,7 +12,7 @@ import {
   loadCSS,
   buildBlock,
 } from './aem.js';
-import { initFinderTriggers } from './tire-finder.js';
+import { initFinderTriggers, toFinderTrigger } from './tire-finder.js';
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
   const innerTT = window.trustedTypes.createPolicy('tt-inner', {
@@ -252,6 +252,25 @@ function decorateButtons(main) {
   });
 }
 
+// live's promo pages offer the finder where a link to the finder page is
+// authored: beside the store link in the marquee, and again above the terms.
+// Live's control is a button, and it opens By Vehicle from every one of them.
+const FINDER_CTA = 'a.button[href="/perfect-fit"]';
+const FINDER_TAB = 'vehicle';
+
+/**
+ * Turns the promo pages' authored finder CTAs into controls that open the
+ * finder where they stand. Elsewhere /perfect-fit is a page, and a link to it
+ * stays a link.
+ *
+ * Runs after decorateButtons, which is what makes these links buttons.
+ * @param {Element} main The container element
+ */
+function buildFinderTriggers(main) {
+  if (!document.body.classList.contains('promo')) return;
+  main.querySelectorAll(FINDER_CTA).forEach((link) => toFinderTrigger(link, FINDER_TAB));
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -266,7 +285,13 @@ export function decorateMain(main) {
   buildProductViewer(main);
   decorateNestedBlocks(main);
   decorateButtons(main);
+  buildFinderTriggers(main);
 }
+
+// a template names a stylesheet of its own under /styles. The promo pages are
+// one template on live too, which is where their band treatments belong rather
+// than in the stylesheet every page pays for.
+const TEMPLATES = ['article', 'promo'];
 
 /**
  * Loads the stylesheet this page's template needs. Returns a promise that
@@ -274,8 +299,9 @@ export function decorateMain(main) {
  * @returns {Promise} resolves when the template's styles are loaded
  */
 export function loadTemplateStyles() {
-  if (!document.body.classList.contains('article')) return Promise.resolve();
-  return loadCSS(`${window.hlx.codeBasePath}/styles/article.css`);
+  const template = TEMPLATES.find((name) => document.body.classList.contains(name));
+  if (!template) return Promise.resolve();
+  return loadCSS(`${window.hlx.codeBasePath}/styles/${template}.css`);
 }
 
 /**

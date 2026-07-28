@@ -104,6 +104,119 @@ main .section.hero-container {
   color: var(--conti-black);
 }
 
+/* ---- promo: the marquee both promo pages open with. Live tints this one
+   flat, at 50% over the whole photo, where its other marquees take a gradient
+   or nothing at all. The title is uppercase on a scale of its own: 30px
+   tracked 5 below 1025, 42px tracked 6 above. Read off /promotion and
+   /ccpromotion at 1440, 1025, 1024, 900, 769, 768 and 375. ---- */
+.hero.promo .hero-image::after {
+  background: rgb(0 0 0 / 50%);
+}
+
+/* live holds the marquee title at 30px below 1025 and takes it to 42 above,
+   which is a scale of its own rather than the page's heading sizes */
+.hero.promo .hero-content h1 {
+  font-size: 30px;
+  line-height: 36px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+
+/* uppercase and tracked out is wider than the same words were, so the base
+   hero's 840 wrapped /ccpromotion's title where live fits one line. Live runs
+   the title to its container and caps the copy under it. */
+.hero.promo .hero-content {
+  max-width: 1136px;
+}
+
+/* the copy only. A CTA wrapper is a flex item of the row below, and an auto
+   inline margin on a flex item eats the free space, which pushed the pills to
+   the ends of the hero instead of leaving them 24 apart in the middle. */
+.hero.promo .hero-content > p {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+/* live's fourth control is a plain link above the pills, set small and
+   uppercase rather than at the size of the copy it follows. A CTA paragraph
+   matches this too and takes nothing from it: the button sets all four. */
+.hero.promo p:has(> a:only-child) {
+  font-size: var(--body-font-size-xs);
+  font-weight: bold;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+}
+
+/* live sets the pair in equal columns, 150 apiece 24 apart */
+.hero.promo .hero-ctas {
+  gap: 24px;
+}
+
+/* live draws a marquee CTA white by default, which the base hero already does.
+   /promotion opts its pair into the offer's own yellow, which is the site's
+   own button colour, and hangs a third under them as an outline. */
+.hero.promo .button.accent {
+  min-width: 150px;
+  border-color: var(--conti-yellow);
+  background-color: var(--conti-yellow);
+  color: var(--conti-black);
+}
+
+.hero.promo .button.accent:hover,
+.hero.promo .button.accent:focus-visible {
+  border-color: var(--conti-dark-yellow);
+  background-color: var(--conti-dark-yellow);
+  color: var(--conti-white);
+}
+
+.hero.promo .button.secondary {
+  border-color: var(--conti-yellow);
+  padding: 6px 20px;
+  background-color: transparent;
+  color: var(--conti-white);
+}
+
+.hero.promo .button.secondary:hover,
+.hero.promo .button.secondary:focus-visible {
+  border-color: var(--conti-yellow);
+  background-color: var(--conti-yellow);
+  color: var(--conti-black);
+}
+
+/* below 769 live runs each pill the width of the column, one per row */
+.hero.promo .hero-ctas .button {
+  width: 100%;
+}
+
+.hero.promo .hero-ctas .button-wrapper {
+  flex-basis: 100%;
+}
+
+@media (width >= 769px) {
+  .hero.promo .hero-ctas .button {
+    width: auto;
+  }
+
+  .hero.promo .hero-ctas .button-wrapper {
+    flex-basis: auto;
+  }
+
+  /* live sets the outlined CTA on a row of its own, under the pills */
+  .hero.promo .hero-ctas .button-wrapper:has(.secondary) {
+    display: flex;
+    flex-basis: 100%;
+    justify-content: center;
+  }
+}
+
+@media (width >= 1025px) {
+  .hero.promo .hero-content h1 {
+    font-size: 42px;
+    line-height: 48px;
+    letter-spacing: 6px;
+  }
+}
+
 /* left-aligned variant: text left over a dark photo, with a left-side
    overlay (in addition to the base bottom gradient) so the copy stays
    readable regardless of what's under it */

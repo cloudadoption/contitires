@@ -50,3 +50,56 @@ main .section.columns-container {
 .columns.feature p {
   font-size: var(--body-font-size-s);
 }
+
+/* ---- bar: live's action bar, an icon, a line of copy and a CTA in a white
+   card. It appears twice on /ccpromotion, once on the page and once on the
+   dark apply band. Read off continentaltire.com at 1440, 900 and 375. ---- */
+main .columns.bar {
+  box-sizing: border-box;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+}
+
+main .columns.bar p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+/* `.columns img` runs an image to the full column, and `.icon` holds a 24px
+   square, neither of which is what these are: live draws them at the size they
+   were drawn, 46 by 36 and 33 by 40 */
+main .columns.bar .icon {
+  display: inline-flex;
+  width: auto;
+  height: 36px;
+}
+
+main .columns.bar .icon img {
+  width: auto;
+  height: 36px;
+}
+
+/* the card can sit inside a dark band, where a secondary button is painted
+   white and would vanish on it */
+main .columns.bar .button.secondary {
+  border-color: var(--conti-black);
+  color: var(--conti-black);
+}
+
+main .columns.bar .button.secondary:hover,
+main .columns.bar .button.secondary:focus-visible {
+  border-color: var(--conti-black);
+  background-color: var(--conti-black);
+  color: var(--conti-white);
+}
+
+@media (width >= 900px) {
+  /* the copy takes what the icon and the CTA leave */
+  main .columns.bar > div > div:first-child,
+  main .columns.bar > div > div:last-child {
+    flex: 0 0 auto;
+  }
+}

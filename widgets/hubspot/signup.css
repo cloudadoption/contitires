@@ -1,0 +1,85 @@
+/* Live's offer signup: the form in a 900 column on a grey band, which the
+   section's own `light` style carries. Read off continentaltire.com/promotion,
+   where the band is 557 tall and the form 900 by 437.
+
+   The class is the widget's name, which is what the widget block puts on it. */
+main .signup {
+  display: block;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+/* HubSpot's developer embed ships no CSS of its own, so the page dresses the
+   form. Live does the same, and these are its numbers: a row of two fields at
+   435 apiece 30 apart, inputs 43 tall with a 6px corner, labels at 11, and the
+   site's own yellow pill to submit. The hsfc- names are HubSpot's. */
+main .signup .hsfc-Row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+main .signup .hsfc-FieldLabel {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  line-height: 22px;
+}
+
+main .signup .hsfc-TextInput,
+main .signup .hsfc-EmailInput {
+  box-sizing: border-box;
+  width: 100%;
+  height: 43px;
+  border: 1px solid var(--conti-black);
+  border-radius: 6px;
+  padding: 13px 20px;
+  font-family: var(--body-font-family);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 14px;
+}
+
+main .signup .hsfc-Heading {
+  margin: 0;
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 38px;
+  text-align: center;
+}
+
+main .signup .hsfc-RichText {
+  text-align: center;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+main .signup .hsfc-Button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--conti-yellow);
+  border-radius: 26px;
+  padding: 12px 26px;
+  background-color: var(--conti-yellow);
+  color: var(--conti-black);
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+main .signup .hsfc-Button:hover,
+main .signup .hsfc-Button:focus-visible {
+  border-color: var(--conti-dark-yellow);
+  background-color: var(--conti-dark-yellow);
+  color: var(--conti-white);
+}
+
+/* live centres the submit under the fields */
+main .signup .hsfc-Step__Content > .hsfc-Row:last-child {
+  justify-items: center;
+}
