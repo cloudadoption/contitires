@@ -140,6 +140,14 @@ describe('The partner layout', () => {
     expect(m.galleryTop).to.be.at.most(m.titleTop);
   });
 
+  // one element, so the grid holds the column to a single row
+  it('stands the sidebar in one element beside the gallery', () => {
+    const section = document.querySelector('main .section.partner');
+    expect(section.children, 'the gallery and the sidebar').to.have.length(2);
+    expect(section.lastElementChild.classList.contains('partner-sidebar')).to.be.true;
+    expect(section.querySelectorAll('.partner-sidebar .share')).to.have.length(1);
+  });
+
   // live packs the sidebar at the top of its column: the logo starts level
   // with the gallery, and the four items sit 60, 38 and 45 apart. Three grid
   // items spanning the gallery's three rows share its height out between them
