@@ -11,11 +11,10 @@ let instances = 0;
 function logo(cell) {
   const picture = cell.querySelector('picture');
   if (!picture) return null;
-  const link = cell.querySelector('a[href]');
-  if (!link) return picture;
-  link.replaceChildren(picture);
-  link.className = 'retailers-logo';
-  return link;
+  const holder = cell.querySelector('a[href]') || document.createElement('div');
+  holder.replaceChildren(picture);
+  holder.className = 'retailers-logo';
+  return holder;
 }
 
 /**

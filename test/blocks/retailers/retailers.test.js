@@ -91,7 +91,10 @@ describe('Retailers block, what a row holds', () => {
     block = buildRetailers([['<picture><img src="/x.png" alt="X"></picture>', FINANCING]]);
     decorate(block);
     expect(tiles(block)).to.have.length(1);
-    expect(block.querySelector(':scope > ul > li picture'), 'the logo still shows').to.exist;
+    const logo = block.querySelector(':scope > ul > li > .retailers-logo');
+    expect(logo, 'the logo still stands in the tile\'s logo row').to.exist;
+    expect(logo.tagName, 'as itself, not as a link to nowhere').to.equal('DIV');
+    expect(logo.querySelector('picture')).to.exist;
   });
 
   it('ignores a row that holds nothing', () => {
