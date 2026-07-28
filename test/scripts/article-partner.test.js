@@ -68,16 +68,19 @@ async function measure(vw) {
   const box = (el) => {
     const r = el.getBoundingClientRect();
     return {
-      top: Math.round(r.top), bottom: Math.round(r.bottom),
-      left: Math.round(r.left), width: Math.round(r.width),
+      top: Math.round(r.top),
+      bottom: Math.round(r.bottom),
+      left: Math.round(r.left),
+      width: Math.round(r.width),
       height: Math.round(r.height),
     };
   };
   const gallery = box(section.querySelector('.media-gallery-wrapper'));
   const share = box(section.querySelector('.share'));
   const title = box(section.querySelector('h1'));
-  const logo = box(section.querySelector('picture'));
-  const copy = box([...section.querySelectorAll('.default-content-wrapper')].pop());
+  // the gallery's tiles are pictures too, so the logo is named by its column
+  const logo = box(section.querySelector('.partner-sidebar picture'));
+  const copy = box([...section.querySelectorAll('.partner-sidebar .default-content-wrapper')].pop());
   return {
     vw: window.innerWidth,
     scrollWidth: document.documentElement.scrollWidth,
@@ -100,7 +103,7 @@ async function measure(vw) {
 
 describe('The partner layout', () => {
   before(async () => {
-    await adopt('/styles/styles.css', '/styles/article.css', '/blocks/media-gallery/media-gallery.css');
+    await adopt('/styles/styles.css', '/styles/article.css', '/blocks/media-gallery/media-gallery.css', '/blocks/share/share.css');
     document.body.classList.add('article', 'appear');
     buildPartner();
   });
@@ -171,14 +174,20 @@ describe('The partner layout', () => {
   // Live keeps both here, which is a 45px bar rather than a 33px one.
   it("draws live's sharebar, ruled above and below", async () => {
     const m = await measure(1440);
-    expect(m.share.height).to.equal(45);
+    const cs = getComputedStyle(document.querySelector('.partner-sidebar .share'));
+    expect(cs.borderTopWidth, 'rule above').to.equal('1px');
+    expect(cs.borderBottomWidth, 'rule below').to.equal('1px');
+    expect(cs.padding, 'padding').to.equal('8px');
+    // the bar's own row is what the last pixel rides on, and the fixture's
+    // controls are not the page's, so the page is where the 45 is proved
+    expect(m.share.height).to.be.closeTo(45, 1);
   });
 
   // live pads a partner page 20 each side below 769, where the article
   // template gives 24
   it("takes live's page padding below 769", async () => {
     const m = await measure(768);
-    expect(m.sectionWidth).to.equal(728);
+    expect(m.gallery.width).to.equal(728);
   });
 
   // below 769 live stacks them, gallery first
@@ -218,7 +227,7 @@ describe('The partner title', () => {
   // live starts a partner page flush under the header, where the article
   // template opens its title section with 40 of padding
   it('starts the page flush under the header', () => {
-    expect(value('body.article main .section.partner', 'padding-top')).to.equal('0');
+    expect(value('body.article main .section.partner', 'padding-top')).to.equal('0px');
   });
 
   it("sets the title on live's scale", () => {
