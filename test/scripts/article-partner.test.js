@@ -230,6 +230,12 @@ describe('The partner title', () => {
     expect(value('body.article main .section.partner', 'padding-top')).to.equal('0px');
   });
 
+  // live closes the page with 38 under the columns; ours ran the last tile
+  // straight into the social band
+  it('closes the page the way live closes it', () => {
+    expect(value('body.article main .section.partner', 'padding-bottom')).to.equal('38px');
+  });
+
   it("sets the title on live's scale", () => {
     expect(value(TITLE, 'font-size')).to.equal('30px');
     expect(value(TITLE, 'line-height')).to.equal('38px');
