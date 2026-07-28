@@ -452,6 +452,18 @@ describe("Register your tires band, live's six benefits", () => {
   let block;
   let section;
 
+  /** How wide `n` zeroes measure at an element's own font, which is what ch is. */
+  function zeroes(n, el) {
+    const probe = document.createElement('span');
+    probe.textContent = '0'.repeat(n);
+    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
+    probe.style.font = getComputedStyle(el).font;
+    document.body.append(probe);
+    const { width } = probe.getBoundingClientRect();
+    probe.remove();
+    return width;
+  }
+
   const BENEFITS = [
     ['limited-warranty', 'Limited Warranty +**', 'If your tires become unserviceable within the first 12 months, we\'ll replace them for free.'],
     ['mileage-warranty', 'Mileage Warranty +', 'We\'ll cover replacements on select products up to 80,000 miles.'],
@@ -555,8 +567,10 @@ describe("Register your tires band, live's six benefits", () => {
   it('widens a benefit to 27 characters below 769', async () => {
     await setViewport({ width: 768, height: 900 });
     const body = block.querySelector('.cards-card-body');
-    expect(getComputedStyle(body).maxWidth).to.equal('27ch');
-    expect(Math.round(body.getBoundingClientRect().width)).to.be.within(285, 293);
+    expect(Math.round(parseFloat(getComputedStyle(body).maxWidth)))
+      .to.equal(Math.round(zeroes(27, body)));
+    await setViewport({ width: 769, height: 900 });
+    expect(getComputedStyle(body).maxWidth).to.equal('228px');
   });
 
   // live holds a benefit to 228 in a 16 gutter, centred in its column

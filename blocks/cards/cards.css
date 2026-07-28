@@ -563,10 +563,12 @@ main .section.cards-container:has(.cards.category) > div {
   box-shadow: none;
 }
 
-/* live holds a benefit to 228 in a 16 gutter and centres it in its column */
+/* one per row leaves room and live spends it, so a benefit reads 27
+   characters wide below 769 and 228 in a column above. Both in a 16 gutter,
+   centred in whatever column they stand in. */
 .cards.benefits .cards-card-body {
   box-sizing: content-box;
-  max-width: 228px;
+  max-width: 27ch;
   margin: 0 auto;
   padding: 0 16px;
   color: inherit;
@@ -608,6 +610,10 @@ main .section.cards-container:has(.cards.category) > div {
 @media (width >= 769px) {
   .cards.benefits > ul {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cards.benefits .cards-card-body {
+    max-width: 228px;
   }
 }
 
