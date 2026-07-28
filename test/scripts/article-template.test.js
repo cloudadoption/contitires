@@ -5,6 +5,7 @@ import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
 import { decorateMain } from '../../scripts/scripts.js';
 import decorateRelated from '../../blocks/related-articles/related-articles.js';
+import decorateVideo from '../../blocks/video/video.js';
 
 /**
  * The article template as live draws it, read off
@@ -60,7 +61,7 @@ function buildArticle() {
   document.body.replaceChildren(main);
   decorateMain(main);
   // loadSection runs each block's own decoration, and the list is a list of
-  // links until it has: its authored markup carries margins the block drops
+  // links until it has: its authored markup has margins the block drops
   decorateRelated(main.querySelector('.related-articles'));
   // decorateSections hides each section inline (aem.js:479) and loadSection
   // reveals it (aem.js:634), so an unloaded fixture measures nothing
@@ -152,5 +153,101 @@ describe('Article template', () => {
       expect(m.underShare, `related list under the sharebar at ${vw}`).to.be.closeTo(0, 1);
       expect(m.fromShareTop, `related list from the sharebar top at ${vw}`).to.be.below(100);
     });
+  });
+});
+
+/** An article whose body starts with a block rather than with copy. 51 of the
+ *  229 lead with a video. */
+function buildVideoArticle() {
+  const main = document.createElement('main');
+  main.innerHTML = `
+    <div><h1>An All-Terrain Tire on a Scion FR-S</h1></div>
+    <div>
+      <div class="video">
+        <div><div><p><a href="https://youtu.be/dQw4w9WgXcQ">Watch the build</a></p></div></div>
+      </div>
+      <p>The FR-S is not a truck, which is the point of the build.</p>
+    </div>`;
+  document.body.replaceChildren(main);
+  decorateMain(main);
+  // as loadSection would: the authored link has margins the block drops
+  decorateVideo(main.querySelector('.video'));
+  main.querySelectorAll('.section').forEach((s) => {
+    s.dataset.sectionStatus = 'loaded';
+    s.style.display = null;
+  });
+  return main;
+}
+
+// #200 again, on the pages the gap reads differently: live leaves the same 60
+// whatever leads the body, and its own embed sits flush at the top of the
+// column. Ours read 92 at 1440 and 44 at 375, the block's own margin on top of
+// the gap.
+describe('Article template, block first', () => {
+  before(async () => {
+    await adopt('/styles/styles.css', '/styles/article.css', '/blocks/video/video.css');
+    document.body.classList.add('article', 'appear');
+    buildVideoArticle();
+  });
+
+  after(async () => {
+    document.body.classList.remove('article', 'appear');
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  [[1440, GAP.beside], [900, GAP.beside], [375, GAP.under]].forEach(([vw, gap]) => {
+    it(`leaves live's ${gap}px under the title at ${vw}`, async () => {
+      await setViewport({ width: vw, height: 900 });
+      const title = document.querySelector('main .section:first-of-type h1');
+      const lead = document.querySelector('main .section:has(.share-wrapper) .video');
+      const under = lead.getBoundingClientRect().top - title.getBoundingClientRect().bottom;
+      expect(Math.round(under), `title to body at ${vw}`).to.be.closeTo(gap, 1);
+    });
+  });
+});
+
+/** The shape 6 of the 229 have: one section holding the heading, the copy and
+ *  a share block the author placed by hand, so no title section of its own. */
+function buildSharedSectionArticle() {
+  const main = document.createElement('main');
+  main.innerHTML = `
+    <div>
+      <h1>BMW Car Club of America</h1>
+      <p>Continental has been a BMW CCA partner since 2019.</p>
+      <div class="share"><div><div></div></div></div>
+      <p>The club has 69 chapters and more than 60,000 members.</p>
+    </div>`;
+  document.body.replaceChildren(main);
+  decorateMain(main);
+  main.querySelectorAll('.section').forEach((s) => {
+    s.dataset.sectionStatus = 'loaded';
+    s.style.display = null;
+  });
+  return main;
+}
+
+// the gap belongs to a title section. Where the heading shares the body's
+// section there is no gap to set, and the rule would pad the foot of the
+// article instead.
+describe('Article template, title inside the body', () => {
+  before(async () => {
+    await adopt('/styles/styles.css', '/styles/article.css');
+    document.body.classList.add('article', 'appear');
+    buildSharedSectionArticle();
+  });
+
+  after(async () => {
+    document.body.classList.remove('article', 'appear');
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  it('leaves the foot of that section as it was', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const section = document.querySelector('main .section:has(.share-wrapper)');
+    expect(section, 'the body section is the first one').to
+      .equal(document.querySelector('main .section:first-of-type'));
+    expect(getComputedStyle(section).paddingBottom, 'padding under the article').to.equal('8px');
   });
 });

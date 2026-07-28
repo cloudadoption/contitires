@@ -26,13 +26,22 @@ body.article main .section > div {
 
 /* title section spans wider than the reading column, centered like live.
    the top padding gives the title breathing room below the nav, matching
-   the space the live article carries above its headline.
-
-   20px under the title is what live leaves while the sidebar follows the body.
-   From 769, where it moves beside the body, live opens that to 60. (#200) */
+   the space the live article carries above its headline */
 body.article main .section:first-of-type {
   max-width: 940px;
   padding-top: 40px;
+  padding-bottom: 8px;
+}
+
+/* 20px under the title is what live leaves while the sidebar follows the body,
+   and 60 from 769, where the sidebar moves beside it. The gap belongs to a
+   title with a section of its own: 6 of the 229 pages author their share block
+   in the middle of the copy, so their body section is the first one too, and
+   this padding would land at the foot of the article.
+
+   The :where() holds the selector at the specificity it reads as, so this rule
+   wins on source order like the rest of the sheet. (#200) */
+body.article main .section:first-of-type:not(:where(:has(.share-wrapper))) {
   padding-bottom: 20px;
 }
 
@@ -106,11 +115,12 @@ body.article main .video picture img {
 }
 
 /* The gap under the title is the title section's padding and nothing else:
-   live starts its body column flush, whatever leads it. The wrapper is a grid
+   live starts its body column flush, whatever leads it. A wrapper is a grid
    item, so a lead margin stays inside it instead of collapsing out, and it
-   would read as part of that gap on every article. (#200) */
-body.article main .section:has(.share-wrapper) .default-content-wrapper:first-child > :first-child,
-body.article main .section:has(.share-wrapper) .default-content-wrapper:first-child > :first-child > picture {
+   would read as part of that gap. Copy leads most articles and a video leads
+   51 of them, and live gives both the same 60. (#200) */
+body.article main .section:has(.share-wrapper) > :first-child > :first-child,
+body.article main .section:has(.share-wrapper) > :first-child > :first-child > picture {
   margin-top: 0;
 }
 
@@ -202,7 +212,7 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
 
   /* A block in the middle of an article splits the body into more than one
      wrapper, so the reading column takes every wrapper the sidebar does not,
-     in the order they were authored. The sidebar keeps its two rows. */
+     in the order they were authored. */
   body.article main .section:has(.share-wrapper) > * {
     grid-column: 1;
   }
@@ -232,7 +242,7 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
 
   /* live opens the gap under the title from 20 to 60 here, where the sidebar
      moves beside the body (#200) */
-  body.article main .section:first-of-type {
+  body.article main .section:first-of-type:not(:where(:has(.share-wrapper))) {
     padding-bottom: 60px;
   }
 }
