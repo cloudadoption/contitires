@@ -99,14 +99,48 @@ function buildFinderCardAutoBlocks(main) {
 }
 
 /**
+ * Product pages author the tire's photographs into the hero's image cell, one
+ * per paragraph, with the YouTube link beside the still that stands for the
+ * video. Live shows them as a viewer rather than a stack, so where there is
+ * more than one, build it.
+ *
+ * It is built rather than authored because EDS carries no block inside a block
+ * cell: written as one, the pipeline hands it back as these paragraphs. The 30
+ * pages still shipping the single image they were migrated with keep the plain
+ * hero they have.
+ *
+ * Runs after decorateBlocks, which is what decorates the hero around it:
+ * decorating a block wraps any cell not starting with a paragraph or a picture
+ * in one, so a viewer built before that would sit inside a paragraph of its
+ * own. decorateNestedBlocks then decorates it.
+ * @param {Element} main The container element
+ */
+function buildProductViewer(main) {
+  main.querySelectorAll('.columns.product-hero > div > div').forEach((cell) => {
+    const media = [...cell.children].filter((el) => el.querySelector('picture, a[href]'));
+    // the copy cell holds links of its own, so a viewer needs the photographs
+    if (media.filter((el) => el.querySelector('picture')).length < 2) return;
+
+    const rows = media.map((el) => [
+      { elems: [el.querySelector('picture')] },
+      { elems: [el.querySelector('a[href]')] },
+    ]);
+    const viewer = buildBlock('media-gallery', rows);
+    viewer.classList.add('product');
+    cell.replaceChildren(viewer);
+  });
+}
+
+/**
  * Decorates the blocks the platform does not reach. `decorateBlocks` reads a
- * section's own children, so a block nested inside another block, such as the
- * finder card in the product hero, is decorated here. `loadSection` then finds
- * it like any other block.
+ * section's own children, so a block nested inside another block is decorated
+ * here: the finder card in the product hero, and the image viewer in the cell
+ * beside it. `loadSection` then finds them like any other block.
  * @param {Element} main The container element
  */
 function decorateNestedBlocks(main) {
-  main.querySelectorAll('.perfect-fit.card:not(.block)').forEach(decorateBlock);
+  main.querySelectorAll('.perfect-fit.card:not(.block), .media-gallery:not(.block)')
+    .forEach(decorateBlock);
 }
 
 /**
@@ -229,6 +263,7 @@ export function decorateMain(main) {
   decorateSections(main);
   buildArticleSidebar(main);
   decorateBlocks(main);
+  buildProductViewer(main);
   decorateNestedBlocks(main);
   decorateButtons(main);
 }
