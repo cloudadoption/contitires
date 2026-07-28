@@ -33,6 +33,18 @@ body.article main .section:first-of-type {
   padding-bottom: 8px;
 }
 
+/* 20px under the title is what live leaves while the sidebar follows the body,
+   and 60 from 769, where the sidebar moves beside it. The gap belongs to a
+   title with a section of its own: 6 of the 229 pages author their share block
+   in the middle of the copy, so their body section is the first one too, and
+   this padding would land at the foot of the article.
+
+   The :where() holds the selector at the specificity it reads as, so this rule
+   wins on source order like the rest of the sheet. (#200) */
+body.article main .section:first-of-type:not(:where(:has(.share-wrapper))) {
+  padding-bottom: 20px;
+}
+
 @media (width <= 600px) {
   body.article main .section:first-of-type {
     padding-top: 24px;
@@ -100,6 +112,16 @@ body.article main .video picture {
 
 body.article main .video picture img {
   aspect-ratio: 16 / 9;
+}
+
+/* The gap under the title is the title section's padding and nothing else:
+   live starts its body column flush, whatever leads it. A wrapper is a grid
+   item, so a lead margin stays inside it instead of collapsing out, and it
+   would read as part of that gap. Copy leads most articles and a video leads
+   51 of them, and live gives both the same 60. (#200) */
+body.article main .section:has(.share-wrapper) > :first-child > :first-child,
+body.article main .section:has(.share-wrapper) > :first-child > :first-child > picture {
+  margin-top: 0;
 }
 
 body.article main .video > div > div:has(picture) {
@@ -190,7 +212,7 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
 
   /* A block in the middle of an article splits the body into more than one
      wrapper, so the reading column takes every wrapper the sidebar does not,
-     in the order they were authored. The sidebar keeps its two rows. */
+     in the order they were authored. */
   body.article main .section:has(.share-wrapper) > * {
     grid-column: 1;
   }
@@ -202,13 +224,25 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
     margin-inline: auto;
   }
 
+  /* the measure is right for copy and wrong for the media that sits in it, so
+     live breaks that media out of the copy by 17% each side, up to the 747 the
+     column caps at: 747 at 1440, 642 at 1024, 519 at 900, 389 at 769. (#192) */
+  body.article main .section:has(.share-wrapper) .default-content-wrapper picture {
+    max-width: 747px;
+    margin-inline: -17%;
+  }
+
+  /* the sidebar is one item, in the row the body starts in, so the list it
+     holds sits under the sharebar rather than below the article (#193) */
   body.article main .section:has(.share-wrapper) .share-wrapper {
     grid-column: 2;
     grid-row: 1;
+    align-self: start;
   }
 
-  body.article main .section:has(.share-wrapper) .related-articles-wrapper {
-    grid-column: 2;
-    grid-row: 2;
+  /* live opens the gap under the title from 20 to 60 here, where the sidebar
+     moves beside the body (#200) */
+  body.article main .section:first-of-type:not(:where(:has(.share-wrapper))) {
+    padding-bottom: 60px;
   }
 }
