@@ -47,8 +47,7 @@ main .media-gallery .media-gallery-tile {
   cursor: pointer;
 }
 
-main .media-gallery .media-gallery-tile picture,
-main .media-gallery .media-gallery-tile img {
+main .media-gallery :is(.media-gallery-tile, .media-gallery-thumb) :is(picture, img) {
   display: block;
   width: 100%;
   height: 100%;
@@ -56,17 +55,19 @@ main .media-gallery .media-gallery-tile img {
 }
 
 /* live's own badge, read off the tile's ::after: a 72px ringed circle with a
-   yellow triangle. Kept at its source hex rather than the site token, which is
-   #ffa500 against the badge's #ffa503 */
-main .media-gallery .media-gallery-tile-video::after {
+   yellow triangle, and the same mark on a thumbnail at the size that leaves.
+   Kept at its source hex rather than the site token, which is #ffa500 against
+   the badge's #ffa503 */
+main .media-gallery :is(.media-gallery-tile-video, .media-gallery-thumb-video)::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 72px;
-  height: 72px;
+  width: var(--media-gallery-badge, 72px);
+  height: var(--media-gallery-badge, 72px);
   translate: -50% -50%;
   background-image: url("data:image/svg+xml,%3Csvg height='72' viewBox='0 0 76 76' width='72' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='38' cy='38' fill='%23000' fill-opacity='.6' r='37' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='m34 26 14 12.5-14 12.5z' fill='%23FFA503'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover;
 }
 
 main .media-gallery .media-gallery-tile:focus-visible {
@@ -102,51 +103,195 @@ main .media-gallery .media-gallery-tile:focus-visible {
   }
 }
 
-/* ---- the modal the selected tile opens in ---- */
+/* ---- the modal the selected tile opens on ---- */
 
+/* Live insets its stage 40px and hangs the arrows 15px off the viewport edge,
+   over the image. The thumbnail strip goes under both, and this is where we
+   part company: live's strip starts at 934 in a 900 tall window, so it is off
+   the screen at every width we support. Ours is a column that fits. */
 main .media-gallery .media-gallery-modal {
   width: 100%;
   max-width: none;
   height: 100%;
   max-height: none;
-  padding: 0;
+  padding: 40px 15px 24px;
   border: 0;
   background-color: transparent;
+}
+
+/* a dialog is drawn only while it is open, so the layout waits for the
+   attribute rather than overriding the display that keeps it shut */
+main .media-gallery .media-gallery-modal[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 main .media-gallery .media-gallery-modal::backdrop {
   background-color: rgb(0 0 0 / 90%);
 }
 
+main .media-gallery .media-gallery-frame {
+  display: flex;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding-inline: 25px;
+}
+
 main .media-gallery .media-gallery-stage {
+  display: flex;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+/* the stage fills what the strip leaves, and the medium fits the stage, so
+   neither needs to know the height of the other */
+main .media-gallery .media-gallery-stage > picture {
   display: flex;
   position: absolute;
   inset: 0;
   align-items: center;
   justify-content: center;
-  padding: 40px;
-}
-
-/* the video block caps a player at live's 747px, which is the article column
-   it normally sits in rather than this dialog. Carrying .block as well
-   outranks it, so the player fills the dialog the way live's 1360px one does */
-main .media-gallery .media-gallery-modal .media-gallery-stage .video.block {
-  width: 100%;
-  max-width: calc((100vh - 80px) * 16 / 9);
-  margin-inline: auto;
-}
-
-main .media-gallery .media-gallery-stage > picture {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
 }
 
 main .media-gallery .media-gallery-stage > picture img {
   display: block;
   max-width: 100%;
-  max-height: calc(100vh - 80px);
+  max-height: 100%;
   object-fit: contain;
+}
+
+/* the video block caps a player at live's 747px, which is the article column
+   it normally sits in rather than this dialog. Carrying .block as well
+   outranks it, so the player takes the stage at the ratio it holds */
+main .media-gallery .media-gallery-modal .media-gallery-stage .video.block {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  max-width: none;
+  margin: 0;
+}
+
+main .media-gallery .media-gallery-modal .media-gallery-stage .video.block .video-frame {
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+}
+
+main .media-gallery :is(.media-gallery-prev, .media-gallery-next) {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  translate: 0 -50%;
+  cursor: pointer;
+}
+
+main .media-gallery .media-gallery-prev {
+  left: 0;
+}
+
+main .media-gallery .media-gallery-next {
+  right: 0;
+}
+
+main .media-gallery :is(.media-gallery-prev, .media-gallery-next)::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  border-top: 3px solid var(--conti-white);
+  border-right: 3px solid var(--conti-white);
+}
+
+main .media-gallery .media-gallery-prev::before {
+  translate: -30% -50%;
+  rotate: -135deg;
+}
+
+main .media-gallery .media-gallery-next::before {
+  translate: -70% -50%;
+  rotate: 45deg;
+}
+
+/* live's strip: 76px squares 10px apart, centred, and the one you are on
+   dimmed to half. A page holds up to 11, so the run scrolls where it has to
+   and centres where it fits */
+main .media-gallery .media-gallery-thumbs {
+  display: flex;
+  flex: none;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+main .media-gallery .media-gallery-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+main .media-gallery .media-gallery-thumbs > li {
+  margin: 0;
+}
+
+main .media-gallery .media-gallery-thumb {
+  --media-gallery-badge: 28px;
+
+  display: block;
+  position: relative;
+  width: 76px;
+  height: 76px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  margin: 0;
+  overflow: hidden;
+  background-color: var(--conti-light-grey);
+  cursor: pointer;
+}
+
+main .media-gallery .media-gallery-thumb[aria-current] {
+  opacity: 0.5;
+}
+
+main .media-gallery :is(.media-gallery-thumb, .media-gallery-prev, .media-gallery-next):focus-visible {
+  outline: 2px solid var(--conti-yellow-contrast);
+  outline-offset: 2px;
+}
+
+@media (width < 769px) {
+  main .media-gallery .media-gallery-modal {
+    padding: 24px 8px 16px;
+  }
+
+  main .media-gallery .media-gallery-frame {
+    padding-inline: 12px;
+  }
+
+  /* live's own mobile thumbnail, at half the desktop square */
+  main .media-gallery .media-gallery-thumb {
+    --media-gallery-badge: 16px;
+
+    width: 38px;
+    height: 38px;
+  }
 }
 
 main .media-gallery .media-gallery-close {
@@ -182,4 +327,34 @@ main .media-gallery .media-gallery-close::before {
 main .media-gallery .media-gallery-close::after {
   translate: -50% -50%;
   rotate: -45deg;
+}
+
+/* ---- the product viewer: the same gallery in the hero's image column ---- */
+
+/*
+ * Live builds the tire page's image column from this gallery too: a two column
+ * grid of 363px squares 20px apart in a 746px column, each holding the tire
+ * inset 24 on a light grey field. Read off
+ * continentaltire.com/tires/extremecontact-dws06-plus at 1440, 900 and 375,
+ * where the inset holds at 24 and the square becomes 229 and then 367.
+ *
+ * The column is the hero's to give, and ours gives 588 at 1440 against live's
+ * 746: our product hero splits its two columns evenly where live hands the
+ * copy a fixed 352 and the images the rest. That is the hero's geometry rather
+ * than the viewer's, and it is filed on its own.
+ */
+main .media-gallery.product {
+  max-width: 746px;
+}
+
+main .media-gallery.product .media-gallery-tile {
+  box-sizing: border-box;
+  padding: 24px;
+  background-color: var(--conti-light-grey);
+}
+
+/* a tire shot is a photograph of one object, so it fits the tile rather than
+   filling it */
+main .media-gallery.product .media-gallery-tile img {
+  object-fit: contain;
 }

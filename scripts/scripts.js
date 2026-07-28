@@ -100,13 +100,14 @@ function buildFinderCardAutoBlocks(main) {
 
 /**
  * Decorates the blocks the platform does not reach. `decorateBlocks` reads a
- * section's own children, so a block nested inside another block, such as the
- * finder card in the product hero, is decorated here. `loadSection` then finds
- * it like any other block.
+ * section's own children, so a block nested inside another block is decorated
+ * here: the finder card in the product hero, and the image viewer in the cell
+ * beside it. `loadSection` then finds them like any other block.
  * @param {Element} main The container element
  */
 function decorateNestedBlocks(main) {
-  main.querySelectorAll('.perfect-fit.card:not(.block)').forEach(decorateBlock);
+  main.querySelectorAll('.perfect-fit.card:not(.block), .media-gallery:not(.block)')
+    .forEach(decorateBlock);
 }
 
 /**
