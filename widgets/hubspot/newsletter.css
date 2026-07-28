@@ -1,5 +1,31 @@
-.hubspot {
+/* Live's newsletter form, embedded the way live embeds it: HubSpot's iframe
+   embed, which renders the form into an iframe and so takes none of our CSS.
+   The offer signup beside it uses the developer embed and is dressed here.
+
+   The class is the widget's name, which is what the widget block puts on it.
+
+   The form arrives in the delayed phase and expands from nothing, so the room
+   it will take is held from the start. These are the heights it settles at,
+   read off the form at 16 widths from 320 to 1440: 2051 at 320, falling to
+   1807 by 476, where HubSpot switches its own layout, then 1340 at 480 falling
+   to 1176 from 768. A band holds the tallest of the widths in it, so the room
+   is never short of the form. Where it is over, the form sits in a taller box
+   rather than moving what is under it. The heights are a third party's, so a
+   change to the form is a change to these. Issues #108, #109. */
+main .newsletter {
   display: block;
   margin: 2rem 0;
-  min-height: 300px;
+  min-height: 2051px;
+}
+
+@media (width >= 480px) {
+  main .newsletter {
+    min-height: 1340px;
+  }
+}
+
+@media (width >= 768px) {
+  main .newsletter {
+    min-height: 1176px;
+  }
 }

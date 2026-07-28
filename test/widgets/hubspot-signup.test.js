@@ -56,8 +56,8 @@ describe('The offer signup band', () => {
   }
 
   // the block takes the widget's own name, so the stylesheet has to match it.
-  // The newsletter widget beside this one styles `.hubspot`, which is a class
-  // nothing carries, so its rule has never applied. That is issue #108.
+  // The newsletter widget beside this one styled `.hubspot`, a class nothing
+  // carries, so its rule had no effect. That was issue #108.
   it('styles the class the widget block actually carries', () => {
     expect(value('main .signup', 'max-width')).to.equal('900px');
     expect(value('main .signup', 'margin-inline')).to.equal('auto');

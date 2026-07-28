@@ -52,7 +52,37 @@ function applyWidgetShell(widget, source, widgetName, searchParams) {
 }
 
 /**
- * Loads and decorates a widget block.
+ * @param {string} widgetPath Folder path under `/widgets/`
+ * @param {string} widgetName Widget file name without extension
+ * @param {Error} error What went wrong
+ */
+function reportFailure(widgetPath, widgetName, error) {
+  // eslint-disable-next-line no-console
+  console.error(`failed to load widget ${widgetPath}/${widgetName}`, error);
+}
+
+/**
+ * Runs the widget scripts decoration left for the delayed phase. A widget's
+ * script is third-party, so it waits there rather than loading in the phase
+ * that decorated the block. `data-source` is what names the module.
+ * @param {Element} scope Where to look for widgets
+ */
+export async function loadWidgetScripts(scope = document) {
+  await Promise.all([...scope.querySelectorAll('.widget[data-source]')].map(async (widget) => {
+    const { widgetPath, widgetName } = parseWidgetHref(new URL(widget.dataset.source).pathname);
+    try {
+      const mod = await import(widgetUrl(widgetPath, widgetName, 'js'));
+      if (mod.default) await mod.default(widget);
+    } catch (error) {
+      reportFailure(widgetPath, widgetName, error);
+    }
+  }));
+}
+
+/**
+ * Loads and decorates a widget block: its shell, its markup and its stylesheet.
+ * Those are what hold the room a widget's content will take, so they load with
+ * the block. The script that fills it follows in the delayed phase.
  * @param {Element} widget The widget block element
  */
 export default async function decorate(widget) {
@@ -66,14 +96,8 @@ export default async function decorate(widget) {
     const resp = await fetch(widgetUrl(widgetPath, widgetName, 'html'));
     widget.innerHTML = await resp.text();
 
-    const cssLoaded = loadCSS(widgetUrl(widgetPath, widgetName, 'css'));
-    const decorationComplete = (async () => {
-      const mod = await import(widgetUrl(widgetPath, widgetName, 'js'));
-      if (mod.default) await mod.default(widget);
-    })();
-    await Promise.all([cssLoaded, decorationComplete]);
+    await loadCSS(widgetUrl(widgetPath, widgetName, 'css'));
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`failed to load widget ${widgetPath}/${widgetName}`, error);
+    reportFailure(widgetPath, widgetName, error);
   }
 }
