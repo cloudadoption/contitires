@@ -62,4 +62,28 @@ describe('The offer signup band', () => {
     expect(value('main .signup', 'max-width')).to.equal('900px');
     expect(value('main .signup', 'margin-inline')).to.equal('auto');
   });
+
+  // the developer embed ships no CSS of its own, so the page dresses the form.
+  // Live does the same: these are its numbers, read off /promotion at 1440.
+  it('lays a field row out as live lays it', () => {
+    expect(value('main .signup .hsfc-Row', 'display')).to.equal('grid');
+    expect(value('main .signup .hsfc-Row', 'gap')).to.equal('30px');
+  });
+
+  it('draws a field as live draws it', () => {
+    expect(value('main .signup .hsfc-TextInput', 'height')).to.equal('43px');
+    expect(value('main .signup .hsfc-TextInput', 'border-radius')).to.equal('6px');
+    expect(value('main .signup .hsfc-FieldLabel', 'font-size')).to.equal('11px');
+  });
+
+  it('draws the submit as the pill the rest of the site draws', () => {
+    expect(value('main .signup .hsfc-Button', 'background-color')).to.equal('var(--conti-yellow)');
+    expect(value('main .signup .hsfc-Button', 'border-radius')).to.equal('26px');
+    expect(value('main .signup .hsfc-Button', 'text-transform')).to.equal('uppercase');
+  });
+
+  it('sets the form heading at live\'s size', () => {
+    expect(value('main .signup .hsfc-Heading', 'font-size')).to.equal('30px');
+    expect(value('main .signup .hsfc-Heading', 'font-weight')).to.equal('400');
+  });
 });
