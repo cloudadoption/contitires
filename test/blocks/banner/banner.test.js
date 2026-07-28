@@ -83,6 +83,21 @@ describe('Banner block, the band', () => {
     expect(block.querySelector('.banner-breadcrumb a').getAttribute('href')).to.equal('/learn');
   });
 
+  // live names the page in the trail the way its navigation names it, which
+  // is not always the page title: /experience/sports is titled "Celebrating
+  // the athletic spirit" and stands in the trail as Sports
+  it('takes the trail name from the page where it gives one', () => {
+    document.title = 'Celebrating the athletic spirit | Continental Tire';
+    document.head.insertAdjacentHTML('beforeend', '<meta name="breadcrumb" content="Sports">');
+    window.history.replaceState({}, '', '/experience/sports');
+    const block = bannerBlock('Celebrating the athletic spirit');
+    decorate(block);
+
+    const current = block.querySelector('.banner-breadcrumb [aria-current="page"]');
+    expect(current.textContent).to.equal('Sports');
+    document.querySelector('meta[name="breadcrumb"]').remove();
+  });
+
   // /media is the one page of the 13 whose band carries a line under the title
   it('draws a second cell as the line under the title', () => {
     window.history.replaceState({}, '', '/media');
@@ -161,7 +176,9 @@ describe('Banner block, live\'s dark band', () => {
     expect(value('.banner-text', 'line-height', '1025px')).to.equal('32px');
   });
 
-  // live sets the trail small, white and uppercase, and leans the separator
+  // live sets the trail small, white and uppercase, and leans the separator.
+  // The underline is ours: live declares one and paints it transparent, and
+  // this site marks a link with an underline.
   it('sets the trail the way live sets it', () => {
     expect(value('.banner-breadcrumb', 'display')).to.equal('flex');
     expect(value('.banner-breadcrumb a', 'font-size')).to.equal('12px');
