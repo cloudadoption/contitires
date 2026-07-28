@@ -60,7 +60,12 @@ footer .footer-links-group ul {
   gap: 12px;
 }
 
-footer .footer-links-group :is(a, button[data-tire-finder]) {
+/* Written out rather than grouped in an :is(): that takes its specificity from
+   its most specific branch, so `:is(a, button[data-tire-finder])` scored an
+   attribute selector on the plain links too and outranked the social band's
+   own colour. Spelled out, each selector scores what it reads as. (#198) */
+footer .footer-links-group a,
+footer .footer-links-group button[data-tire-finder] {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -180,6 +185,8 @@ footer .footer-social li {
   justify-content: center;
 }
 
+/* same specificity as the group colour above, and later, so the band's own
+   white wins the way this sheet resolves everything else */
 footer .footer-social a {
   display: flex;
   align-items: center;
