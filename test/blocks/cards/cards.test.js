@@ -295,6 +295,14 @@ describe("Go In-Depth band, live's fact scroller", () => {
     expect(styles.color).to.equal('rgb(255, 255, 255)');
   });
 
+  // the card body carries the block's own #333, which is 1.3 to 1 on black.
+  // PSI read accessibility 95 on the branch preview and named this text.
+  it('sets the fact itself against the black', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const text = block.querySelector('.cards-card-body p');
+    expect(getComputedStyle(text).color).to.equal('rgb(255, 255, 255)');
+  });
+
   it('shows two cards at 1440 and scrolls the rest', async () => {
     await setViewport({ width: 1440, height: 900 });
     const list = block.querySelector('ul');
