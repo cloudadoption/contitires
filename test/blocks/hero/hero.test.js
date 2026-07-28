@@ -398,12 +398,15 @@ describe("Hero, live's logo marquee", () => {
     expect(getComputedStyle(lead).lineHeight).to.equal('28px');
   });
 
-  // live stacks the marquee's four parts 16 apart, and holds the words to 750
+  // live stacks the marquee's four parts 16 apart, and holds the words to 750.
+  // The gap over the heading is measured from the shield rather than from the
+  // paragraph around it, which opens a line box of its own.
   it('stacks the marquee 16 apart, holding the words to 750', async () => {
     await setViewport({ width: 1440, height: 900 });
     const [mark, title, lead] = [...block.querySelectorAll('.hero-content > *')];
     const ctas = block.querySelector('.hero-ctas');
-    expect(Math.round(title.getBoundingClientRect().top - mark.getBoundingClientRect().bottom))
+    expect(Math.round(mark.getBoundingClientRect().height)).to.equal(203);
+    expect(Math.round(title.getBoundingClientRect().top - badge.getBoundingClientRect().bottom))
       .to.equal(16);
     expect(Math.round(lead.getBoundingClientRect().top - title.getBoundingClientRect().bottom))
       .to.equal(16);
