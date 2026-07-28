@@ -139,3 +139,134 @@ describe('Hero, the stacked variant', () => {
     expect(value('.hero.stacked .hero-content h1', 'font-size', '1025px')).to.equal('42px');
   });
 });
+
+/**
+ * The marquee both promo pages open with. Live drops a flat 50% black over the
+ * whole photo here rather than the gradient its other marquees use, sets the
+ * title in uppercase at 6px of letter-spacing, and offers a control that opens
+ * the tire finder where it stands. Measured on /promotion and /ccpromotion at
+ * 1440, 900 and 375. Issues #83 and #84.
+ */
+function buildPromoHero({ variant = 'promo', cta = 'accent' } = {}) {
+  document.body.innerHTML = `
+    <main>
+      <div class="section">
+        <div class="hero ${variant} block">
+          <div><div><picture><img src="./promo.jpg" alt=""></picture></div></div>
+          <div><div>
+            <h1>Get a $110 Rebate</h1>
+            <p>Purchase a set of 4 qualifying Continental Tires.</p>
+            <p class="button-wrapper"><a class="button ${cta}" href="/Store-finder">Find stores</a></p>
+            <p class="button-wrapper"><a class="button ${cta}" href="/perfect-fit">Find tires</a></p>
+          </div></div>
+        </div>
+      </div>
+    </main>`;
+  return document.querySelector('.hero.block');
+}
+
+describe('Hero, the promo variant opens the finder', () => {
+  it('turns the finder CTA into a control that opens it where it stands', () => {
+    const block = buildPromoHero();
+    decorate(block);
+
+    const trigger = block.querySelector('[data-tire-finder]');
+    expect(trigger, 'the finder control').to.exist;
+    expect(trigger.tagName).to.equal('BUTTON');
+    expect(trigger.type).to.equal('button');
+  });
+
+  // live's control says "find tire size" and opens By Vehicle, on both pages
+  it("opens the tab live opens, which is By Vehicle", () => {
+    const block = buildPromoHero();
+    decorate(block);
+
+    expect(block.querySelector('[data-tire-finder]').dataset.tireFinder).to.equal('vehicle');
+  });
+
+  it('keeps the authored label and the pill it is drawn as', () => {
+    const block = buildPromoHero();
+    decorate(block);
+
+    const trigger = block.querySelector('[data-tire-finder]');
+    expect(trigger.textContent.trim()).to.equal('Find tires');
+    expect(trigger.classList.contains('button')).to.be.true;
+    expect(trigger.classList.contains('accent')).to.be.true;
+  });
+
+  it('navigates nowhere, as live\'s own control does', () => {
+    const block = buildPromoHero();
+    decorate(block);
+
+    expect(block.querySelector('[data-tire-finder]').hasAttribute('href')).to.be.false;
+    expect(block.querySelectorAll('a[href="/perfect-fit"]')).to.have.length(0);
+  });
+
+  it('leaves the CTAs that do navigate alone', () => {
+    const block = buildPromoHero();
+    decorate(block);
+
+    const store = block.querySelector('a[href="/Store-finder"]');
+    expect(store, 'the store finder link').to.exist;
+    expect(store.tagName).to.equal('A');
+    expect(store.hasAttribute('data-tire-finder')).to.be.false;
+  });
+
+  // the finder page is a page, and a link to it stays a link everywhere the
+  // promo marquee is not
+  it('leaves a finder link alone in a hero that is not a promo hero', () => {
+    const block = buildPromoHero({ variant: 'left' });
+    decorate(block);
+
+    expect(block.querySelector('[data-tire-finder]')).to.not.exist;
+    expect(block.querySelector('a[href="/perfect-fit"]')).to.exist;
+  });
+
+  it('puts both CTAs in the row the hero builds for them', () => {
+    const block = buildPromoHero();
+    decorate(block);
+
+    const ctas = block.querySelector('.hero-ctas');
+    expect(ctas.querySelectorAll('a, button')).to.have.length(2);
+  });
+});
+
+describe('Hero, the promo marquee', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/hero/hero.css')).text());
+  });
+
+  function value(selector, prop) {
+    const rules = [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+    const matches = (r) => r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
+    return rule ? rule.style.getPropertyValue(prop).trim() : null;
+  }
+
+  // ours was a gradient clear from 60% of the height up, and the title sits at
+  // 28% down, so on /ccpromotion's bright sky the h1 was close to invisible
+  it("lays live's flat 50% black over the whole photo", () => {
+    expect(value('.hero.promo .hero-image::after', 'background')).to.equal('rgb(0 0 0 / 50%)');
+  });
+
+  it('sets the title as live sets it, uppercase at 6px', () => {
+    expect(value('.hero.promo .hero-content h1', 'text-transform')).to.equal('uppercase');
+    expect(value('.hero.promo .hero-content h1', 'letter-spacing')).to.equal('6px');
+  });
+
+  // live's marquee CTAs are white by default, which the base hero draws
+  // already; /promotion opts its pair into the offer's own yellow
+  it("gives the high-impact CTA live's yellow", () => {
+    expect(value('.hero.promo .button.accent', 'background-color')).to.equal('var(--conti-yellow)');
+    expect(value('.hero.promo .button.accent', 'color')).to.equal('var(--conti-black)');
+  });
+
+  it('draws the third CTA as live does, outlined and on its own row', () => {
+    expect(value('.hero.promo .button.secondary', 'border-color')).to.equal('var(--conti-yellow)');
+    expect(value('.hero.promo .button.secondary', 'background-color')).to.equal('transparent');
+    expect(value('.hero.promo .hero-ctas .button-wrapper:has(.secondary)', 'flex-basis')).to.equal('100%');
+  });
+});
