@@ -12,6 +12,10 @@ function label(cell) {
  * A row is a tab: the first cell names it, the second is its panel, and an
  * optional third stands beside the panel. A row that names nothing is skipped.
  *
+ * The bar opens its first tab, or the one `data-selected` names. Live's store
+ * finder and its online retailers are two pages behind one bar, each opening
+ * its own tab; both land on one page here, which says which tab opens.
+ *
  * Live leaves its own unselected tab at tabindex -1 with no arrow handling, so
  * a keyboard never reaches it. This one follows the tab pattern instead: one
  * stop in the tab order, and the arrows walk the bar.
@@ -87,5 +91,6 @@ export default function decorate(block) {
   });
 
   block.replaceChildren(list, ...panels);
-  select(0);
+  const marked = Number(block.dataset.selected);
+  select(tabs[marked] ? marked : 0);
 }

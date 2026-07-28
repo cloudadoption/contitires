@@ -28,12 +28,12 @@ const SAMPLE = [
   ],
 ];
 
-function buildTabs(rows = SAMPLE) {
+function buildTabs(rows = SAMPLE, variant = '') {
   document.body.innerHTML = `
     <main>
       <div class="section tabs-container">
         <div class="tabs-wrapper">
-          <div class="tabs block" data-block-name="tabs">
+          <div class="tabs ${variant} block" data-block-name="tabs">
             ${rows.map((cells) => `<div>${cells.map((c) => `<div>${c}</div>`).join('')}</div>`).join('')}
           </div>
         </div>
@@ -172,6 +172,31 @@ describe('Tabs block, what a row holds', () => {
     decorate(block);
     expect(block.querySelectorAll('[role="tab"]')).to.have.length(1);
     expect(block.querySelectorAll('[role="tabpanel"]')).to.have.length(1);
+  });
+
+  /**
+   * Live's /online-retailers and /Store-finder are two pages behind one bar,
+   * each opening its own tab. Both land on /online-retailers here, so the page
+   * says which tab opens rather than the bar always opening its first.
+   */
+  it('opens the tab the block marks', () => {
+    block = buildTabs();
+    block.dataset.selected = '1';
+    decorate(block);
+    const tabs = block.querySelectorAll('[role="tab"]');
+    const panels = block.querySelectorAll('[role="tabpanel"]');
+    expect(tabs[1].getAttribute('aria-selected')).to.equal('true');
+    expect(tabs[0].getAttribute('aria-selected')).to.equal('false');
+    expect(panels[1].hasAttribute('hidden')).to.be.false;
+    expect(panels[0].hasAttribute('hidden')).to.be.true;
+    expect(tabs[1].tabIndex, 'the open tab is the one stop').to.equal(0);
+  });
+
+  it('opens the first tab when the mark names no row it has', () => {
+    block = buildTabs();
+    block.dataset.selected = '7';
+    decorate(block);
+    expect(block.querySelector('[role="tab"]').getAttribute('aria-selected')).to.equal('true');
   });
 });
 
@@ -342,5 +367,88 @@ describe('Tabs block, live\'s measurements', () => {
     expect(getComputedStyle(wrapper).marginTop).to.equal('16px');
     expect(getComputedStyle(button).backgroundColor).to.equal('rgb(255, 165, 0)');
     expect(Math.round(button.getBoundingClientRect().height)).to.equal(45);
+  });
+});
+
+/**
+ * Live runs a second bar over the same type: the one that stands between its
+ * store finder and its online retailers. It sits 8 under what came before,
+ * pads its tabs 10 rather than 12, and sets them 38 apart at 769 and up, 20
+ * below. Read off continentaltire.com/online-retailers at 1440, 900, 768 and
+ * 375. Issue #91.
+ */
+describe('Tabs block, live\'s nav bar', () => {
+  let block;
+
+  async function adopt(...paths) {
+    const sheets = await Promise.all(paths.map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+  }
+
+  before(async () => {
+    await adopt('/styles/styles.css', '/blocks/tabs/tabs.css');
+    const stop = new CSSStyleSheet();
+    await stop.replace('* { transition: none !important }');
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, stop];
+    document.body.classList.add('appear');
+  });
+
+  after(() => {
+    document.body.classList.remove('appear');
+  });
+
+  beforeEach(() => {
+    block = buildTabs([['<p>Store Near You</p>', '<p>a finder</p>'],
+      ['<p>Online Retailers</p>', '<p>three shops</p>']], 'nav');
+    decorate(block);
+  });
+
+  it('stands the bar 49 tall, 8 under what came before, at 1440', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const list = block.querySelector('[role="tablist"]');
+    const tabs = block.querySelectorAll('[role="tab"]');
+    expect(Math.round(list.getBoundingClientRect().height)).to.equal(49);
+    expect(Math.round(tabs[0].getBoundingClientRect().top
+      - list.getBoundingClientRect().top)).to.equal(8);
+  });
+
+  it('pads its tabs 10 over a 41 row, and sets them 38 apart at 1440', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const tabs = block.querySelectorAll('[role="tab"]');
+    expect(getComputedStyle(tabs[0]).paddingTop).to.equal('10px');
+    expect(Math.round(tabs[0].getBoundingClientRect().height)).to.equal(41);
+    expect(Math.round(tabs[1].getBoundingClientRect().left
+      - tabs[0].getBoundingClientRect().right)).to.equal(38);
+  });
+
+  // live's underline sits at the foot of the row, not against the text
+  it('rests the underline at the foot of the bar', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const tabs = block.querySelectorAll('[role="tab"]');
+    const underline = getComputedStyle(tabs[0], '::after');
+    expect(underline.height).to.equal('5px');
+    expect(underline.backgroundColor).to.equal('rgb(255, 165, 0)');
+    expect(underline.bottom).to.equal('0px');
+  });
+
+  it('closes the tabs to 20 apart at 375', async () => {
+    await setViewport({ width: 375, height: 812 });
+    const tabs = block.querySelectorAll('[role="tab"]');
+    expect(Math.round(tabs[1].getBoundingClientRect().left
+      - tabs[0].getBoundingClientRect().right)).to.equal(20);
+  });
+
+  it('pads a panel 40 over and 80 under at 1440, 40 both at 375', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const panel = block.querySelector('[role="tabpanel"]');
+    expect(getComputedStyle(panel).paddingTop).to.equal('40px');
+    expect(getComputedStyle(panel).paddingBottom).to.equal('80px');
+    await setViewport({ width: 375, height: 812 });
+    expect(getComputedStyle(panel).paddingTop).to.equal('40px');
+    expect(getComputedStyle(panel).paddingBottom).to.equal('40px');
   });
 });

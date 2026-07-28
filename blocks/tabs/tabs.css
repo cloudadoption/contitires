@@ -156,3 +156,36 @@ main .section.tabs-container {
     margin: 0 auto;
   }
 }
+
+/* ---- nav: live's second bar over the same type, the one that stands between
+   its store finder and its online retailers. It opens 8 under what came
+   before, pads its tabs 10 rather than 12 and rests the underline at the foot
+   of a 41 row, and sets the tabs 38 apart at 769 and up, 20 below. Read off
+   continentaltire.com/online-retailers at 1440, 900, 768 and 375. ---- */
+.tabs.nav .tabs-list {
+  box-sizing: content-box;
+  min-height: 41px;
+  padding-top: 8px;
+}
+
+.tabs.nav .tabs-tab {
+  padding: 10px 0 15px;
+}
+
+.tabs.nav .tabs-tab + .tabs-tab {
+  margin-left: 20px;
+}
+
+.tabs.nav .tabs-panel {
+  padding: 40px 0;
+}
+
+@media (width >= 769px) {
+  .tabs.nav .tabs-tab + .tabs-tab {
+    margin-left: 38px;
+  }
+
+  .tabs.nav .tabs-panel {
+    padding: 40px 0 80px;
+  }
+}
