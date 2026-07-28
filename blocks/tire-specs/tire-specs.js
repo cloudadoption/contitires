@@ -1,3 +1,5 @@
+import { SPECS_COLUMNS, missingColumns } from '../../scripts/products.js';
+
 // ask for the specs sheet alone: the workbook also carries the products and
 // catalog sheets, which a product page never reads
 const SPECS_URL = '/products.json?sheet=specs';
@@ -35,25 +37,36 @@ async function loadRows(url) {
  * single-sheet response puts them at data, a whole workbook at specs.data.
  * Falls back to the legacy /product-specs.json shape
  * ({ slug: [{ size, specs }] }) when neither has rows.
+ *
+ * A sheet that has rows and not the columns this reads is a broken contract,
+ * not a product without sizes, so it comes back as an error the band shows.
+ * Renaming either column in DA used to leave every product page with an empty
+ * selector and nothing said. Issue #122.
  * @param {string} slug the product slug
- * @returns {Promise<Array<{size: string, specs: Object}>>}
+ * @returns {Promise<{sizes?: Array<{size: string, specs: Object}>, error?: string}>}
  */
 async function loadSizes(slug) {
   const rows = await loadRows(SPECS_URL);
   if (rows) {
-    return rows
-      .filter((row) => row.slug === slug)
-      .map((row) => {
-        const specs = { ...row };
-        delete specs.slug;
-        delete specs.size;
-        return { size: row.size, specs };
-      });
+    const missing = missingColumns(rows, SPECS_COLUMNS);
+    if (missing.length) {
+      return { error: `the specs sheet has no ${missing.join(' and no ')} column` };
+    }
+    return {
+      sizes: rows
+        .filter((row) => row.slug === slug)
+        .map((row) => {
+          const specs = { ...row };
+          delete specs.slug;
+          delete specs.size;
+          return { size: row.size, specs };
+        }),
+    };
   }
   const legacy = await fetch(LEGACY_SPECS_URL);
-  if (!legacy.ok) return [];
+  if (!legacy.ok) return { sizes: [] };
   const legacyData = await legacy.json();
-  return legacyData[slug] || [];
+  return { sizes: legacyData[slug] || [] };
 }
 
 /**
@@ -80,9 +93,22 @@ function specGrid(entry) {
  * once the sheet has landed.
  * @param {Element} block the tire-specs block
  * @param {Element} heading the heading the block was decorated with
- * @param {Array<{size: string, specs: Object}>} sizes the product's sizes
+ * @param {{sizes?: Array<{size: string, specs: Object}>, error?: string}} result
  */
-function fill(block, heading, sizes) {
+function fill(block, heading, result) {
+  // a sheet the block cannot read is an authoring mistake, and it is the whole
+  // catalogue's, so say which column is gone rather than blank every page
+  if (result.error) {
+    // eslint-disable-next-line no-console
+    console.error(`tire-specs: ${result.error}`);
+    const message = document.createElement('p');
+    message.className = 'tire-specs-error';
+    message.textContent = `Specifications are unavailable: ${result.error}.`;
+    block.replaceChildren(heading, message);
+    return;
+  }
+
+  const sizes = result.sizes || [];
   // nothing to show: take the block out rather than leave its dark band empty
   if (!sizes.length) {
     (block.closest('.tire-specs-wrapper') || block).remove();
@@ -133,6 +159,6 @@ export default function decorate(block) {
   block.replaceChildren(heading);
 
   loadSizes(slug)
-    .catch(() => [])
-    .then((sizes) => fill(block, heading, sizes));
+    .catch(() => ({ sizes: [] }))
+    .then((result) => fill(block, heading, result));
 }

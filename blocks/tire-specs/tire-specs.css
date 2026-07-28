@@ -46,6 +46,14 @@
   font-size: var(--body-font-size-s);
 }
 
+/* what a broken column contract reads as, on the band rather than in a console
+   nobody has open. Issue #122. */
+.tire-specs-error {
+  margin: 0;
+  color: var(--conti-grey);
+  font-size: var(--body-font-size-s);
+}
+
 .tire-specs-select {
   box-sizing: border-box;
   min-width: 280px;

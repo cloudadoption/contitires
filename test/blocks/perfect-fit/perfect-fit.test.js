@@ -22,6 +22,37 @@ const PRODUCTS = {
   ],
 };
 
+/*
+ * The specs sheet those products come with. It is derived from their sizes the
+ * way the workbook's own sizes cell is derived from the sheet, so one place
+ * writes a size and the assertions below hold whichever sheet the finder reads.
+ * The sheet spaces a size out where the cell does not.
+ */
+const SPEC_SHEET = {
+  data: PRODUCTS.products.flatMap((product) => product.sizes.map((size) => ({
+    slug: product.slug,
+    size: size.replace(/^(\d{3})\/(\d{2})(Z?R)(\d{2})$/, '$1/$2 $3 $4'),
+    'Load Index': '95',
+  }))),
+};
+
+/**
+ * A fetch stub that answers a sheet request with that sheet, building a fresh
+ * Response every call. The finder reads two sheets and a Response body can only
+ * be read once, so one shared Response answers the second read with nothing.
+ * @param {Object} sheets sheet name to the body that request answers with
+ */
+function stubSheets(sheets) {
+  return sinon.stub(window, 'fetch').callsFake((url) => {
+    const name = new URL(String(url), 'https://x').searchParams.get('sheet');
+    const body = sheets[name] || { data: [] };
+    return Promise.resolve(new Response(JSON.stringify(body)));
+  });
+}
+
+/** The workbook the three products above make. */
+const CATALOGUE = { products: PRODUCTS, specs: SPEC_SHEET };
+
 /**
  * Waits for what a click brings about. The modal is built on the first one, so
  * it arrives after the handler has read the catalogue, and a mutation observer
@@ -120,7 +151,7 @@ describe('perfect-fit bar, the catalogue it does not read', () => {
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
-    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+    fetchStub = stubSheets(CATALOGUE);
   });
   afterEach(() => fetchStub.restore());
 
@@ -138,15 +169,17 @@ describe('perfect-fit bar, the catalogue it does not read', () => {
     const block = buildBar();
     await decorate(block);
     await openFrom(block, 1);
-    expect(fetchStub.calledOnce).to.be.true;
+    // the two sheets the catalogue is made of
+    expect(fetchStub.callCount).to.equal(2);
   });
 
   it('reads it once, however often the bar is clicked', async () => {
     const block = buildBar();
     await decorate(block);
     await openFrom(block, 0);
+    const read = fetchStub.callCount;
     await openFrom(block, 1);
-    expect(fetchStub.calledOnce).to.be.true;
+    expect(fetchStub.callCount, 'reads on the second click').to.equal(read);
     expect(document.querySelectorAll('.perfect-fit-overlay')).to.have.length(1);
   });
 });
@@ -156,7 +189,7 @@ describe('perfect-fit block', () => {
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
-    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+    fetchStub = stubSheets(CATALOGUE);
   });
   afterEach(() => fetchStub.restore());
 
@@ -252,7 +285,7 @@ describe('perfect-fit modal, rebuilt against live', () => {
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
-    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+    fetchStub = stubSheets(CATALOGUE);
   });
   afterEach(() => fetchStub.restore());
 
@@ -386,7 +419,13 @@ const WORKBOOK = {
     ],
   },
   specs: {
-    total: 0, offset: 0, limit: 0, data: [],
+    total: 2,
+    offset: 0,
+    limit: 2,
+    data: [
+      { slug: 'pure-ls', size: '195/65 R 15', 'Load Index': '91' },
+      { slug: 'pure-ls', size: '205/55 R 16', 'Load Index': '94' },
+    ],
   },
 };
 
@@ -395,7 +434,7 @@ describe('perfect-fit block, multi-sheet workbook', () => {
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
-    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+    fetchStub = stubSheets({ products: WORKBOOK, specs: WORKBOOK });
   });
   afterEach(() => fetchStub.restore());
 
@@ -449,18 +488,21 @@ describe('perfect-fit block, single-sheet request', () => {
   });
   afterEach(() => fetchStub.restore());
 
-  // the workbook carries a 1656-row specs sheet the finder never reads, so ask
-  // the sheet API for the products sheet alone
-  it('asks for the products sheet, not the whole workbook', async () => {
-    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+  // the workbook's third sheet, catalog, belongs to the listing, so ask for the
+  // two sheets the finder reads by name rather than for the whole workbook
+  it('asks for its two sheets by name, not for the whole workbook', async () => {
+    fetchStub = stubSheets({ products: WORKBOOK, specs: WORKBOOK });
     const block = buildBar();
     await decorate(block);
     await openFrom(block, 0);
-    expect(fetchStub.firstCall.args[0]).to.equal('/products.json?sheet=products');
+    const asked = fetchStub.getCalls().map((call) => String(call.args[0]));
+    expect(asked).to.have.lengthOf(2);
+    expect(asked[0]).to.equal('/products.json?sheet=products');
+    expect(asked[1]).to.equal('/products.json?sheet=specs&limit=10000');
   });
 
   it('reads the rows a single-sheet response puts at data', async () => {
-    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK.products)));
+    fetchStub = stubSheets({ products: WORKBOOK.products, specs: WORKBOOK.specs });
     const block = buildBar();
     await decorate(block);
     await openFrom(block, 1); // By Tire Size
@@ -490,7 +532,7 @@ describe('perfect-fit modal, opened without a block', () => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
     document.body.innerHTML = '<main><div class="section"><p>a page with no bar</p></div></main>';
-    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+    fetchStub = stubSheets(CATALOGUE);
   });
   afterEach(() => fetchStub.restore());
 
@@ -557,7 +599,7 @@ describe('perfect-fit card, the product hero variant', () => {
   beforeEach(() => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
-    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(PRODUCTS)));
+    fetchStub = stubSheets(CATALOGUE);
   });
   afterEach(() => fetchStub.restore());
 
@@ -686,7 +728,7 @@ describe('The finder reads its sizes from the specs sheet', () => {
   // products.sizes disagrees with the sheet three ways at once: it is short of
   // one size the sheet carries, it carries one the sheet does not, and one
   // product has no rows in the sheet at all
-  const SHEETS = {
+  const DISAGREEING = {
     products: {
       total: 2,
       offset: 0,
@@ -710,14 +752,6 @@ describe('The finder reads its sizes from the specs sheet', () => {
       ],
     },
   };
-
-  /** Answers each sheet request with that sheet, the way the sheet API does. */
-  function stubSheets(sheets) {
-    return sinon.stub(window, 'fetch').callsFake((url) => {
-      const name = new URL(String(url), 'https://x').searchParams.get('sheet');
-      return Promise.resolve(new Response(JSON.stringify(sheets[name] || { data: [] })));
-    });
-  }
 
   /** Runs one width/aspect/rim search and returns the hrefs it lists. */
   async function search(width, aspect, rim) {
@@ -748,7 +782,7 @@ describe('The finder reads its sizes from the specs sheet', () => {
   });
 
   it('asks for the whole specs sheet, past the row the API pages at', async () => {
-    fetchStub = stubSheets(SHEETS);
+    fetchStub = stubSheets(DISAGREEING);
     const block = buildBar();
     await decorate(block);
     await openFrom(block, 0);
@@ -757,13 +791,13 @@ describe('The finder reads its sizes from the specs sheet', () => {
   });
 
   it('finds a product by a size only the sheet carries', async () => {
-    fetchStub = stubSheets(SHEETS);
+    fetchStub = stubSheets(DISAGREEING);
     // 245/40ZR18 is in the specs sheet and not in products.sizes
     expect(await search('245', '40', '18')).to.deep.equal(['/tires/viking-7']);
   });
 
   it('does not offer a size the sheet has no row for', async () => {
-    fetchStub = stubSheets(SHEETS);
+    fetchStub = stubSheets(DISAGREEING);
     const block = buildBar();
     await decorate(block);
     await openFrom(block, 1);
@@ -775,12 +809,12 @@ describe('The finder reads its sizes from the specs sheet', () => {
   });
 
   it('offers nothing for a product the sheet has no rows for', async () => {
-    fetchStub = stubSheets(SHEETS);
+    fetchStub = stubSheets(DISAGREEING);
     expect(await search('225', '45', '17')).to.deep.equal([]);
   });
 
   it('says which products the sheet has no rows for', async () => {
-    fetchStub = stubSheets(SHEETS);
+    fetchStub = stubSheets(DISAGREEING);
     const block = buildBar();
     await decorate(block);
     await openFrom(block, 0);
@@ -790,8 +824,10 @@ describe('The finder reads its sizes from the specs sheet', () => {
 
   it('falls back to products.sizes when the sheet does not carry its columns', async () => {
     fetchStub = stubSheets({
-      ...SHEETS,
-      specs: { total: 1, offset: 0, limit: 1, data: [{ product: 'viking-7', tireSize: '205/55 R 16' }] },
+      ...DISAGREEING,
+      specs: {
+        total: 1, offset: 0, limit: 1, data: [{ product: 'viking-7', tireSize: '205/55 R 16' }],
+      },
     });
     const errors = sinon.stub(console, 'error');
     try {
