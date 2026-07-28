@@ -2,6 +2,7 @@
 /* global describe it before after */
 
 import { expect } from '@esm-bundle/chai';
+import { setViewport } from '@web/test-runner-commands';
 import decorate from '../../../blocks/cards/cards.js';
 
 // The Confidence on the Road band now sits on every product page, not the
@@ -241,5 +242,157 @@ describe("Sports band, the pill's own text", () => {
   it('draws the name without the site link underline', () => {
     const pill = document.querySelector('.cards.teaser .cards-card-body a');
     expect(getComputedStyle(pill).textDecorationLine).to.equal('none');
+  });
+});
+
+/**
+ * The Go In-Depth band on a Conti Crew page. Live scrolls short fact cards
+ * sideways under a centred title: two visible at 1440 and one at 375, each
+ * black with a yellow mark down its left. Read off
+ * continentaltire.com/experience/conti-crew/speed-academy. Issue #104.
+ */
+describe("Go In-Depth band, live's fact scroller", () => {
+  let block;
+
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/cards/cards.css'].map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    const main = document.createElement('main');
+    main.innerHTML = `
+      <div class="section cards-container dark">
+        <div class="default-content-wrapper"><h2>Go In-Depth</h2></div>
+        <div class="cards-wrapper">
+          <div class="cards facts block">
+            <div><div><p>We started working with Continental Tire almost 20 years ago.</p></div></div>
+            <div><div><p>Earlier this year, we moved into a new shop space.</p></div></div>
+            <div><div><p>We are track guys more than show car guys.</p></div></div>
+            <div><div><p>Peter bought another BMW.</p></div></div>
+          </div>
+        </div>
+      </div>`;
+    document.body.replaceChildren(main);
+    block = main.querySelector('.cards.facts');
+    decorate(block);
+  });
+
+  after(() => { document.body.replaceChildren(); });
+
+  it('draws each fact as a black card, padded 20', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const card = block.querySelector('li');
+    const styles = getComputedStyle(card);
+    expect(styles.backgroundColor).to.equal('rgb(0, 0, 0)');
+    expect(styles.padding).to.equal('20px');
+    expect(styles.color).to.equal('rgb(255, 255, 255)');
+  });
+
+  it('shows two cards at 1440 and scrolls the rest', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const list = block.querySelector('ul');
+    const cards = block.querySelectorAll('li');
+    expect(getComputedStyle(list).overflowX).to.equal('auto');
+    expect(Math.round(cards[0].getBoundingClientRect().width)).to.equal(564);
+    expect(Math.round(cards[1].getBoundingClientRect().left
+      - cards[0].getBoundingClientRect().right)).to.equal(16);
+    expect(list.scrollWidth, 'the rest scroll').to.be.greaterThan(list.clientWidth);
+  });
+
+  it('shows one card at 375', async () => {
+    await setViewport({ width: 375, height: 800 });
+    const card = block.querySelector('li');
+    expect(Math.round(card.getBoundingClientRect().width)).to.equal(279);
+    expect(getComputedStyle(block.querySelector('ul')).scrollSnapType).to.contain('x');
+  });
+
+  // the mark is chrome on every card, so it is drawn rather than authored
+  it("marks each card with live's yellow mark", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const card = block.querySelector('li');
+    const mark = getComputedStyle(card, '::before');
+    expect(mark.content).to.not.equal('none');
+    expect(mark.width).to.equal('40px');
+    expect(mark.height).to.equal('40px');
+    expect(mark.backgroundColor).to.equal('rgb(255, 165, 0)');
+  });
+});
+
+/**
+ * The You Might Also Like band. Live closes a Conti Crew page with three
+ * teasers on black: a 4:3 photo with a round logo and the show name over its
+ * foot. 365 wide at 1440, stacked at 375. Issue #104.
+ */
+describe("You Might Also Like band, live's crew teasers", () => {
+  let block;
+
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/cards/cards.css'].map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    const main = document.createElement('main');
+    const card = (name, slug) => `
+      <div><div><picture><img src="/icons/search.svg" alt="${name}"></picture></div>
+      <div><picture><img src="/icons/search.svg" alt="${name} Logo"></picture>
+      <p><a href="/experience/conti-crew/${slug}">${name}</a></p></div></div>`;
+    main.innerHTML = `
+      <div class="section cards-container dark">
+        <div class="default-content-wrapper"><h2>You might also like...</h2></div>
+        <div class="cards-wrapper">
+          <div class="cards crew block">
+            ${card('Engineering Explained', 'engineering-explained')}
+            ${card('Gears &amp; Gasoline', 'gears-gasoline')}
+            ${card('Dinner With Racers', 'dinner-with-racers')}
+          </div>
+        </div>
+      </div>`;
+    document.body.replaceChildren(main);
+    block = main.querySelector('.cards.crew');
+    decorate(block);
+  });
+
+  after(() => { document.body.replaceChildren(); });
+
+  it('lays three teasers across at 1440', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const cards = block.querySelectorAll('li');
+    expect(cards).to.have.length(3);
+    expect(Math.round(cards[0].getBoundingClientRect().width)).to.equal(365);
+    expect(Math.round(cards[1].getBoundingClientRect().left
+      - cards[0].getBoundingClientRect().right)).to.equal(20);
+    expect(Math.round(cards[0].getBoundingClientRect().height)).to.equal(274);
+  });
+
+  it("rounds the corner and shades the photo's foot", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const card = block.querySelector('li');
+    expect(getComputedStyle(card).borderRadius).to.equal('12px');
+    expect(getComputedStyle(card).overflow).to.equal('hidden');
+    expect(getComputedStyle(card, '::after').content).to.not.equal('none');
+  });
+
+  it('rings the logo and sets the name over the foot', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const logo = block.querySelector('.cards-card-body picture');
+    const name = block.querySelector('.cards-card-body a');
+    expect(Math.round(logo.getBoundingClientRect().width)).to.equal(70);
+    expect(getComputedStyle(logo).borderRadius).to.equal('50%');
+    expect(getComputedStyle(name).fontSize).to.equal('18px');
+    expect(getComputedStyle(name).color).to.equal('rgb(255, 255, 255)');
+    expect(getComputedStyle(name).textDecorationLine).to.equal('none');
+  });
+
+  it('stacks the teasers at 375', async () => {
+    await setViewport({ width: 375, height: 800 });
+    const cards = block.querySelectorAll('li');
+    expect(Math.round(cards[1].getBoundingClientRect().top
+      - cards[0].getBoundingClientRect().bottom)).to.equal(20);
+    expect(Math.round(cards[0].getBoundingClientRect().left))
+      .to.equal(Math.round(cards[1].getBoundingClientRect().left));
   });
 });
