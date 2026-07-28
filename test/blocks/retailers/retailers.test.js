@@ -316,6 +316,27 @@ describe('Retailers block, live\'s measurements', () => {
     expect(styles.boxShadow).to.equal('rgba(0, 0, 0, 0.1) 0px 0px 40px 0px');
   });
 
+  // live hangs the card off the link, not off the foot of the tile
+  it('hangs the card 10 under the link that opened it', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const button = block.querySelector('button.retailers-financing');
+    button.click();
+    const panel = block.querySelector('.retailers-panel');
+    expect(panel.getBoundingClientRect().top)
+      .to.be.closeTo(button.getBoundingClientRect().bottom + 10, 0.5);
+  });
+
+  it('closes the card with live\'s ringed cross', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    block.querySelector('button.retailers-financing').click();
+    const close = block.querySelector('button.retailers-close');
+    const box = close.getBoundingClientRect();
+    expect(Math.round(box.width)).to.equal(16);
+    expect(Math.round(box.height)).to.equal(16);
+    expect(getComputedStyle(close).borderRadius, 'live rings it').to.equal('50%');
+    expect(getComputedStyle(close).borderTopWidth).to.equal('1px');
+  });
+
   it('keeps a closed panel out of the page', async () => {
     await setViewport({ width: 1440, height: 900 });
     const panel = block.querySelector('.retailers-panel');
