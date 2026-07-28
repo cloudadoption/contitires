@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before afterEach */
+/* global describe it before after afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import decorate, { buildBreadcrumb } from '../../../blocks/banner/banner.js';
@@ -107,9 +107,10 @@ describe('Banner block, the band', () => {
 
 /**
  * The band itself. Live draws it black with a glow behind the title, white
- * 42/48 type at 1025 and 30/36 below, neither tracked nor uppercased. Ours
- * drew a white band with black uppercase tracked type. Every number here was
- * read off continentaltire.com at 1440, 1025, 1024, 900, 769, 768 and 375.
+ * 42/48 type at 1025 and 30/36 below. Six of the 13 pages set that title in
+ * capitals and the other seven leave it as written, so capitals are a variant.
+ * Ours drew a white band and uppercased every title on it. Every number here
+ * was read off continentaltire.com at 1440, 1025, 1024, 900, 769, 768 and 375.
  */
 describe('Banner block, live\'s dark band', () => {
   let sheet;
@@ -148,13 +149,13 @@ describe('Banner block, live\'s dark band', () => {
     expect(value('.banner.block', 'min-height', '1025px')).to.equal('210px');
   });
 
-  it('takes live\'s title scale, neither tracked nor uppercased', () => {
+  it('takes live\'s title scale, and leaves a title as written', () => {
     expect(value('.banner-title', 'font-size')).to.equal('30px');
     expect(value('.banner-title', 'line-height')).to.equal('36px');
     expect(value('.banner-title', 'font-weight')).to.equal('300');
     expect(value('.banner-title', 'color')).to.equal('var(--conti-white)');
-    expect(value('.banner-title', 'text-transform'), 'live uppercases nothing here').to.be.null;
-    expect(value('.banner-title', 'letter-spacing'), 'live tracks nothing here').to.be.null;
+    expect(value('.banner-title', 'text-transform'), 'the band uppercases nothing').to.be.null;
+    expect(value('.banner-title', 'letter-spacing'), 'the band tracks nothing').to.be.null;
     expect(value('.banner-title', 'font-size', '1025px')).to.equal('42px');
     expect(value('.banner-title', 'line-height', '1025px')).to.equal('48px');
   });
@@ -180,6 +181,15 @@ describe('Banner block, live\'s dark band', () => {
     expect(value('.banner-breadcrumb li + li::before', 'transform')).to.equal('rotate(15deg)');
   });
 
+  // six of the 13 pages set their title in capitals. Live does that with a
+  // class on the title rather than by typing it, and tracks it 5 below 1025
+  // and 6 above, which is the scale the promo marquee takes
+  it('sets a title in capitals only where the page asks for it', () => {
+    expect(value('.banner.block.uppercase .banner-title', 'text-transform')).to.equal('uppercase');
+    expect(value('.banner.block.uppercase .banner-title', 'letter-spacing')).to.equal('5px');
+    expect(value('.banner.block.uppercase .banner-title', 'letter-spacing', '1025px')).to.equal('6px');
+  });
+
   // the trail sits at the top of the band and the title stays centred under
   // it, so a page with a trail and one without put their titles in the same
   // place at 1025
@@ -188,5 +198,48 @@ describe('Banner block, live\'s dark band', () => {
     expect(value('.banner-breadcrumb', 'top', '1025px')).to.equal('23px');
     expect(value('.banner.block:has(.banner-breadcrumb)', 'padding-top')).to.equal('15px');
     expect(value('.banner.block:has(.banner-breadcrumb)', 'padding-top', '769px')).to.equal('23px');
+  });
+});
+
+/**
+ * The band inside the article template. /experience/sports carries the band
+ * and is authored as an article, and that template holds every section in a
+ * 640px reading column with padding of its own. The band runs edge to edge on
+ * live there like it does everywhere else, so it has to win that cascade
+ * wherever the two sheets land in the document.
+ */
+describe('Banner block, the band in the article template', () => {
+  let adopted;
+
+  before(async () => {
+    const sheets = await Promise.all(['/blocks/banner/banner.css', '/styles/styles.css',
+      '/styles/article.css'].map(async (href) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(href)).text());
+      return sheet;
+    }));
+    adopted = document.adoptedStyleSheets;
+    // the band's own sheet first, which is the worst order it can be given
+    document.adoptedStyleSheets = sheets;
+  });
+
+  after(() => {
+    document.adoptedStyleSheets = adopted;
+    document.body.className = '';
+    document.body.innerHTML = '';
+  });
+
+  it('runs edge to edge in the article template too', () => {
+    document.body.className = 'article';
+    document.body.innerHTML = `
+      <main><div class="section banner-container"><div class="banner-wrapper">
+        <div class="banner block"><h1 class="banner-title">Celebrating the athletic spirit</h1></div>
+      </div></div></main>`;
+
+    const section = getComputedStyle(document.querySelector('.section'));
+    expect(section.maxWidth, 'the reading column does not hold the band').to.equal('none');
+    expect(section.padding).to.equal('0px');
+    expect(section.marginLeft).to.equal('0px');
+    expect(getComputedStyle(document.querySelector('.banner-wrapper')).padding).to.equal('0px');
   });
 });
