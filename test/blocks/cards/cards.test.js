@@ -103,22 +103,24 @@ describe("Sports band, live's dark teaser band", () => {
   const BAND = 'main .section.cards-container:has(.cards.teaser)';
 
   it('runs the band black, edge to edge', () => {
-    expect(value(BAND, 'background-color')).to.equal('#000');
+    expect(value(BAND, 'background-color')).to.equal('rgb(0, 0, 0)');
     expect(value(BAND, 'color')).to.equal('var(--conti-white)');
   });
 
   // live pads the band 38 below 769 and 80 above
   it('pads the band the way live pads it, at both widths', () => {
-    expect(value(BAND, 'padding')).to.equal('38px 0');
-    expect(value(BAND, 'padding', '769px')).to.equal('80px 0');
+    expect(value(BAND, 'padding')).to.equal('38px 0px');
+    expect(value(BAND, 'padding', '769px')).to.equal('80px 0px');
   });
 
   // live holds the band's content to 1136 with 20 of page padding below 769
   // and 16 above, where the site's own container gives 24 and 32
+  // the container is content-box, so the cap is live's 1136 of content and the
+  // padding sits outside it
   it("measures the band's content the way live measures it", () => {
-    expect(value(`${BAND} > div`, 'max-width')).to.equal('1168px');
-    expect(value(`${BAND} > div`, 'padding')).to.equal('0 20px');
-    expect(value(`${BAND} > div`, 'padding', '769px')).to.equal('0 16px');
+    expect(value(`${BAND} > div`, 'max-width')).to.equal('1136px');
+    expect(value(`${BAND} > div`, 'padding')).to.equal('0px 20px');
+    expect(value(`${BAND} > div`, 'padding', '769px')).to.equal('0px 16px');
   });
 
   it('centres the heading and the line under it', () => {
@@ -138,7 +140,7 @@ describe("Sports band, live's dark teaser band", () => {
 
   // the line under the heading sits 8 below it and grows to 24/34 from 769
   it("sets the line under the heading on live's scale", () => {
-    expect(value(`${BAND} .default-content-wrapper p`, 'margin')).to.equal('8px 0 0');
+    expect(value(`${BAND} .default-content-wrapper p`, 'margin')).to.equal('8px 0px 0px');
     expect(value(`${BAND} .default-content-wrapper p`, 'font-size')).to.equal('15px');
     expect(value(`${BAND} .default-content-wrapper p`, 'line-height')).to.equal('22px');
     expect(value(`${BAND} .default-content-wrapper p`, 'font-size', '769px')).to.equal('24px');
@@ -157,13 +159,13 @@ describe("Sports band, live's dark teaser band", () => {
     expect(value('.cards.teaser > ul', 'grid-template-columns')).to.equal('1fr');
     expect(value('.cards.teaser > ul > li', 'background-color')).to.equal('transparent');
     expect(value('.cards.teaser > ul > li', 'box-shadow')).to.equal('none');
-    expect(value('.cards.teaser > ul > li', 'border-radius')).to.equal('0');
+    expect(value('.cards.teaser > ul > li', 'border-radius')).to.equal('0px');
     expect(value('.cards.teaser > ul > li img', 'aspect-ratio')).to.equal('16 / 9');
   });
 
   it('centres the name over the photo', () => {
     expect(value('.cards.teaser .cards-card-body', 'position')).to.equal('absolute');
-    expect(value('.cards.teaser .cards-card-body', 'inset')).to.equal('0');
+    expect(value('.cards.teaser .cards-card-body', 'inset')).to.equal('0px');
     expect(value('.cards.teaser .cards-card-body', 'justify-content')).to.equal('center');
     expect(value('.cards.teaser .cards-card-body', 'align-items')).to.equal('center');
   });
@@ -174,7 +176,7 @@ describe("Sports band, live's dark teaser band", () => {
     const pill = '.cards.teaser .cards-card-body a';
     expect(value(pill, 'border')).to.equal('2px solid var(--conti-yellow)');
     expect(value(pill, 'border-radius')).to.equal('26px');
-    expect(value(pill, 'background-color')).to.equal('rgb(0 0 0 / 50%)');
+    expect(value(pill, 'background-color')).to.equal('rgba(0, 0, 0, 0.5)');
     expect(value(pill, 'color')).to.equal('var(--conti-white)');
     expect(value(pill, 'font-size')).to.equal('12px');
     expect(value(pill, 'font-weight')).to.equal('700');
@@ -185,9 +187,17 @@ describe("Sports band, live's dark teaser band", () => {
     expect(value(pill, 'padding', '769px')).to.equal('12px 26px');
   });
 
+  // an inline box takes its height from the font rather than the line box, so
+  // the pill measured 40 against live's 45
+  it("gives the pill live's height", () => {
+    expect(value('.cards.teaser .cards-card-body a', 'display')).to.equal('inline-flex');
+    expect(value('.cards.teaser .cards-card-body a', 'line-height')).to.equal('16.8px');
+    expect(value('.cards.teaser .cards-card-body a', 'text-align')).to.equal('center');
+  });
+
   // live makes the whole teaser the link, as the other card variants do
   it('makes the whole teaser the link', () => {
     expect(value('.cards.teaser > ul > li', 'position')).to.equal('relative');
-    expect(value('.cards.teaser .cards-card-body a::before', 'inset')).to.equal('0');
+    expect(value('.cards.teaser .cards-card-body a::before', 'inset')).to.equal('0px');
   });
 });

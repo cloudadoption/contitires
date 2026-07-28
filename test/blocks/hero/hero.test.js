@@ -250,4 +250,23 @@ describe('Hero, the slim divided band', () => {
   it('leaves the homepage strip at its own 200', () => {
     expect(value('.hero.stacked .hero-image', 'height')).to.equal('200px');
   });
+
+  // the left variant caps its copy at 640 and pins it left, which is the
+  // desktop overlay. Divided, live runs the copy the width of the page and
+  // centres it, so ours sat left of centre at 900 and 1024.
+  it('runs the divided copy the width of the page', () => {
+    expect(value('.hero.stacked .hero-content', 'max-width')).to.equal('none');
+    expect(value('.hero.stacked .hero-content', 'margin-inline')).to.equal('auto');
+  });
+
+  it('gives the left variant its cap back at 1025', () => {
+    expect(value('.hero.stacked.left .hero-content', 'max-width', '1025px')).to.equal('640px');
+  });
+
+  // the base hero sets a heading at 1.14, which is 34.2 on a 30px title and
+  // 47.88 on a 42px one. Live's marquee runs 30/36 and 42/48.
+  it("sets the title on live's line height at both widths", () => {
+    expect(value('.hero.stacked .hero-content h1', 'line-height')).to.equal('36px');
+    expect(value('.hero.stacked .hero-content h1', 'line-height', '1025px')).to.equal('48px');
+  });
 });
