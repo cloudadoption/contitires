@@ -550,6 +550,15 @@ describe("Register your tires band, live's six benefits", () => {
       - items[0].getBoundingClientRect().bottom)).to.equal(38);
   });
 
+  // one per row leaves room, and live spends it: a benefit reads 27 characters
+  // wide there rather than the 228 it takes in a column
+  it('widens a benefit to 27 characters below 769', async () => {
+    await setViewport({ width: 768, height: 900 });
+    const body = block.querySelector('.cards-card-body');
+    expect(getComputedStyle(body).maxWidth).to.equal('27ch');
+    expect(Math.round(body.getBoundingClientRect().width)).to.be.within(285, 293);
+  });
+
   // live holds a benefit to 228 in a 16 gutter, centred in its column
   it('holds a benefit to 260 and centres it in its column', async () => {
     await setViewport({ width: 1440, height: 900 });
