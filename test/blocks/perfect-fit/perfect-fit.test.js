@@ -599,7 +599,8 @@ describe('perfect-fit card, the product hero variant', () => {
 
 // Live's finder bar puts the icon left of the label in one row from 769 up,
 // alongside its heading, and stacks icon over label below that with all three
-// items still on one row. Measured on continentaltire.com at 768 and 769.
+// items still on one row. Measured on continentaltire.com at 768 and 769. We
+// open the bar at the project's 900 band, so the row starts there. #113.
 describe('Perfect fit bar, live\'s two rows', () => {
   let sheet;
 
@@ -626,9 +627,9 @@ describe('Perfect fit bar, live\'s two rows', () => {
     expect(value('.perfect-fit-items', 'flex-wrap')).to.equal('nowrap');
   });
 
-  it('sets the icon beside its label from 769 up', () => {
-    expect(value('.perfect-fit-item', 'flex-direction', '769px')).to.equal('row');
-    expect(value('.perfect-fit-item', 'align-items', '769px')).to.equal('center');
+  it('sets the icon beside its label from 900 up', () => {
+    expect(value('.perfect-fit-item', 'flex-direction', '900px')).to.equal('row');
+    expect(value('.perfect-fit-item', 'align-items', '900px')).to.equal('center');
   });
 });
 

@@ -29,7 +29,7 @@ body.article main .section > div {
    the space the live article carries above its headline */
 body.article main .section:first-of-type {
   max-width: 940px;
-  padding-top: 40px;
+  padding-top: 24px;
   padding-bottom: 8px;
 }
 
@@ -45,9 +45,9 @@ body.article main .section:first-of-type:not(:where(:has(.share-wrapper))) {
   padding-bottom: 20px;
 }
 
-@media (width <= 600px) {
+@media (width >= 600px) {
   body.article main .section:first-of-type {
-    padding-top: 24px;
+    padding-top: 40px;
   }
 }
 

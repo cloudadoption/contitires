@@ -4,12 +4,12 @@
    The sheet lands after the sections under this one are on screen, so the band
    holds the room the filled sheet takes. Every product carries the same 19
    fields, so the height turns on the width rather than on the product: the grid
-   below pairs the fields two across from 700px up. These are the heights the
-   filled band settles at, read off six product pages at ten widths from 320 to
-   1440: 1472 at 320 and 375, 1289 from 480, 853 at 700 falling to 837 at 768,
-   808 from 900. A band holds the tallest of the widths in it, so the room is
-   never short of the sheet. Where it is over, the sheet sits in a taller band
-   rather than moving what is under it. Issue #111. */
+   below pairs the fields two across from 600px up. These are the heights the
+   filled band settles at, read off four product pages at twelve widths from
+   320 to 1440: 1472 at 320 falling to 1289 by 480, 962 at 600 falling to 805
+   by 899, 808 from 900. A band holds the tallest of the widths in it, so the
+   room is never short of the sheet. Where it is over, the sheet sits in a
+   taller band rather than moving what is under it. Issues #111 and #113. */
 .tire-specs {
   box-sizing: border-box;
   min-height: 1472px;
@@ -19,15 +19,9 @@
   text-align: center;
 }
 
-@media (width >= 480px) {
+@media (width >= 600px) {
   .tire-specs {
-    min-height: 1289px;
-  }
-}
-
-@media (width >= 700px) {
-  .tire-specs {
-    min-height: 853px;
+    min-height: 962px;
   }
 }
 
@@ -96,7 +90,11 @@
   font-weight: 700;
 }
 
-@media (width >= 700px) {
+/* live pairs the fields two across from 375 up, and four across on a wide
+   desk. Read off continentaltire.com/tires/contiprocontact at 375, 600, 768,
+   769, 900, 1024 and 1440. The project's 600 band is the earliest we pair
+   them. Issue #113. */
+@media (width >= 600px) {
   .tire-specs-grid {
     grid-template-columns: 1fr auto 1fr auto;
   }

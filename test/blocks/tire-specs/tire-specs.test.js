@@ -314,11 +314,12 @@ describe('Tire specs block, sheets longer than one page', () => {
  * The sheet lands after the sections under this one are on screen, so the block
  * holds the room its spec sheet takes. Every product carries the same 19
  * fields, so the height turns on the width rather than on the product: the grid
- * pairs the fields two across from 700px up. These are the heights the filled
- * band settles at, read off six product pages from 320 to 1440: 1472 at 320 and
- * 375, 1289 from 480, 853 from 700, 808 from 900. A band holds the tallest of
- * the widths in it, so the room is never short of the sheet. Where it is over,
- * the sheet sits in a taller band rather than moving what is under it.
+ * pairs the fields two across from 600px up. These are the heights the filled
+ * band settles at, read off four product pages at twelve widths from 320 to
+ * 1440: 1472 at 320 falling to 1289 by 480, 962 at 600 falling to 805 by 899,
+ * 808 from 900. A band holds the tallest of the widths in it, so the room is
+ * never short of the sheet. Where it is over, the sheet sits in a taller band
+ * rather than moving what is under it.
  */
 describe('The room the spec sheet takes', () => {
   let block;
@@ -343,14 +344,19 @@ describe('The room the spec sheet takes', () => {
     expect(height()).to.equal(1472);
   });
 
-  it('holds the shorter stack open from 480', async () => {
-    await setViewport({ width: 600, height: 800 });
-    expect(height()).to.equal(1289);
+  it('holds the stack open to the foot of its band', async () => {
+    await setViewport({ width: 599, height: 800 });
+    expect(height()).to.equal(1472);
   });
 
-  it('holds the paired sheet open from 700', async () => {
+  it('holds the paired sheet open from 600', async () => {
+    await setViewport({ width: 600, height: 800 });
+    expect(height()).to.equal(962);
+  });
+
+  it('holds it open across that band', async () => {
     await setViewport({ width: 768, height: 800 });
-    expect(height()).to.equal(853);
+    expect(height()).to.equal(962);
   });
 
   it('holds the desk sheet open from 900', async () => {

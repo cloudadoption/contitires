@@ -7,8 +7,9 @@ main .article-cards .article-cards-list {
   gap: 32px;
 }
 
-/* desktop: two columns, matching live's learn category grid */
-@media (width >= 769px) {
+/* two columns, as live's learn category grid runs from 769. The project
+   bands at 600/900/1200, so this opens at 900. Issue #113. */
+@media (width >= 900px) {
   main .article-cards .article-cards-list {
     grid-template-columns: repeat(2, 1fr);
     gap: 60px 38px;
@@ -28,7 +29,7 @@ main .article-cards .article-card {
 }
 
 /* desktop: horizontal, image on the left at a fixed width, text on the right */
-@media (width >= 769px) {
+@media (width >= 900px) {
   main .article-cards .article-card {
     display: flex;
     align-items: flex-start;
@@ -51,7 +52,7 @@ main .article-cards .article-card-image img {
   transition: transform 0.4s ease;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   main .article-cards .article-card-image {
     width: 171px;
     flex-shrink: 0;
@@ -70,7 +71,7 @@ main .article-cards .article-card-body {
   padding-top: 8px;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   main .article-cards .article-card-body {
     padding-top: 0;
   }
@@ -134,7 +135,7 @@ main .article-cards .article-cards-list li + li .article-teaser {
   padding-top: 20px;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   main .article-cards.columns .article-cards-list li + li .article-teaser {
     padding-top: 0;
   }
@@ -164,9 +165,10 @@ main .article-cards .article-teaser:focus-visible h3 {
 }
 
 /* ---- feature: a square category image beside a text-only teaser list.
-   Tire Tips and Technology on the learn hub. Below 769 the image runs full
-   width and the heading sits on it over a scrim; from 769 the heading moves
-   into the text column beside the image. Measured on live at 1440 and 375. */
+   Tire Tips and Technology on the learn hub. Below the band the image runs
+   full width and the heading sits on it over a scrim; above it the heading
+   moves into the text column beside the image. Measured on live at 1440 and
+   375, where live makes the move at 769 and we make it at 900. */
 main .article-cards.feature {
   display: grid;
   grid-template-columns: 1fr;
@@ -234,7 +236,7 @@ main .article-cards.feature > p:last-child {
   margin: 0;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   /* the image column spans these three rows, so they have to be explicit:
      grid-row 1 / -1 counts lines in the explicit grid */
   main .article-cards.feature {
@@ -290,7 +292,7 @@ main .article-cards.columns .article-cards-list {
   gap: 0;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   main .article-cards.columns .article-cards-list {
     grid-template-columns: repeat(3, 1fr);
     gap: 0 38px;
@@ -311,7 +313,7 @@ main .section.article-cards-container:has(.article-cards.columns) h2 {
   font-weight: 400;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   main .section.article-cards-container:has(.article-cards.feature) {
     padding: 60px 0;
   }

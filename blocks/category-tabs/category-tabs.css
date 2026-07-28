@@ -1,19 +1,18 @@
+/* Live runs this strip as one row at every width: it never wraps, it scrolls
+   where it does not fit, and it centres where it does. Read off
+   continentaltire.com/learn/tips at 375, 600, 700, 768, 769, 900 and 1440.
+   `safe` gives up the centring rather than the start of the row, which plain
+   centring puts out of reach once the row overflows. So the row needs no
+   breakpoint of its own. Issue #113. */
 .category-tabs-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+  justify-content: safe center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   border-bottom: 1px solid var(--conti-lightest-grey);
-}
-
-@media (width <= 700px) {
-  .category-tabs-list {
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
 }
 
 .category-tabs-list li {
