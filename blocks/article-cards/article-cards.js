@@ -121,18 +121,43 @@ export function selectRows(rows, { category } = {}) {
     });
 }
 
-export default async function decorate(block) {
-  const cells = [...block.querySelectorAll(':scope > div > div')]
-    .map((cell) => cell.textContent.trim())
-    .filter(Boolean);
-  let source = DEFAULT_SOURCE;
-  let category = '';
-  let limit = 0;
-  cells.forEach((text) => {
-    if (text.startsWith('/')) source = text;
-    else if (/^\d+$/.test(text)) limit = Number(text);
-    else category = text;
+const LABELS = ['source', 'category', 'limit'];
+
+/**
+ * The block's configuration. An author labels a row and the label says what
+ * the value is: Source, Category or Limit. A row that carries one cell is the
+ * older shape the learn bands still carry, read by what the value looks like:
+ * a leading slash is the index, all digits the limit, anything else the
+ * category. That shape cannot tell a category of digits from a limit, which
+ * is why the labels are there.
+ * @param {Element} block the article-cards block
+ * @returns {{source: string, category: string, limit: number}} the config
+ */
+export function readConfig(block) {
+  const config = { source: DEFAULT_SOURCE, category: '', limit: 0 };
+  const loose = [];
+
+  [...block.children].forEach((row) => {
+    const cells = [...row.children].map((cell) => cell.textContent.trim());
+    const label = cells.length > 1 ? cells[0].toLowerCase() : '';
+    if (LABELS.includes(label)) {
+      const [, value] = cells;
+      if (value) config[label] = label === 'limit' ? Number(value) || 0 : value;
+    } else {
+      loose.push(...cells.filter(Boolean));
+    }
   });
+
+  loose.forEach((text) => {
+    if (text.startsWith('/')) config.source = text;
+    else if (/^\d+$/.test(text)) config.limit = Number(text);
+    else config.category = text;
+  });
+  return config;
+}
+
+export default async function decorate(block) {
+  const { source, category, limit } = readConfig(block);
   // the learn hub bands show teasers rather than thumbnail cards; the feature
   // band also puts a category image beside them
   const feature = block.classList.contains('feature');
