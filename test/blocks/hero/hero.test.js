@@ -220,3 +220,34 @@ describe('Hero, the promo marquee', () => {
     expect(value(selector, 'font-size')).to.equal('var(--body-font-size-xs)');
   });
 });
+
+// Live's divided marquee is 160 tall on a page whose marquee carries a
+// breadcrumb trail, against the homepage's 200. Read off
+// continentaltire.com/experience at 1024, 900, 768 and 375, where the strip
+// measured 160 at every one. Issue #96.
+describe('Hero, the slim divided band', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/hero/hero.css')).text());
+  });
+
+  function value(selector, prop, media) {
+    const rules = media
+      ? [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
+        && r.conditionText.includes(media)).flatMap((r) => [...r.cssRules])
+      : [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+    const matches = (r) => r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
+    return rule ? rule.style.getPropertyValue(prop).trim() : null;
+  }
+
+  it("holds the strip to live's 160 where live divides at 160", () => {
+    expect(value('.hero.stacked.slim .hero-image', 'height')).to.equal('160px');
+  });
+
+  it('leaves the homepage strip at its own 200', () => {
+    expect(value('.hero.stacked .hero-image', 'height')).to.equal('200px');
+  });
+});
