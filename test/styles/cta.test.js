@@ -101,7 +101,10 @@ describe("The cta band, live's heading over its controls", () => {
     await setViewport({ width: 1440, height: 900 });
     const link = light.querySelector('a');
     const styles = getComputedStyle(link);
-    expect(styles.display).to.equal('inline-flex');
+    // a flex item, so the authored inline-flex is blockified to flex
+    expect(styles.display).to.equal('flex');
+    expect(styles.alignItems).to.equal('center');
+    expect(styles.padding).to.equal('0px');
     expect(styles.fontSize).to.equal('12px');
     expect(styles.lineHeight).to.equal('16px');
     expect(styles.fontWeight).to.equal('700');
