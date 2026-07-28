@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before beforeEach afterEach */
+/* global describe it before after beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
+import { setViewport } from '@web/test-runner-commands';
 import sinon from 'sinon';
 import decorate, {
   parseSize, sizeOptions, findBySize, findByVehicleClass, openTireFinder,
@@ -628,5 +629,47 @@ describe('Perfect fit bar, live\'s two rows', () => {
   it('sets the icon beside its label from 769 up', () => {
     expect(value('.perfect-fit-item', 'flex-direction', '769px')).to.equal('row');
     expect(value('.perfect-fit-item', 'align-items', '769px')).to.equal('center');
+  });
+});
+
+/**
+ * Live opens the bar at 769: the heading moves beside the three items and each
+ * item sets its icon beside its label, which takes the bar from 124px tall to
+ * 56. Read off continentaltire.com at 768 and 769.
+ *
+ * Ours opened the bar at 700 and its items at 769, so from 700 to 768 it ran a
+ * row of stacked items, which live never draws. Both open at 900 now, the
+ * project's band, and live's bar from 769 to 899 is what we give up. #113.
+ */
+describe('Perfect fit, where the bar opens out', () => {
+  let sheet;
+  let block;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/perfect-fit/perfect-fit.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    block = buildBar();
+    decorate(block);
+  });
+
+  after(async () => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  const dir = (sel) => getComputedStyle(document.querySelector(sel)).flexDirection;
+
+  it('stacks the bar and its items at 899', async () => {
+    await setViewport({ width: 899, height: 900 });
+    expect(dir('.perfect-fit'), 'the bar').to.equal('column');
+    expect(dir('.perfect-fit-item'), 'an item').to.equal('column');
+  });
+
+  it('sets the heading and the icons on their rows from 900', async () => {
+    await setViewport({ width: 900, height: 900 });
+    expect(dir('.perfect-fit'), 'the bar').to.equal('row');
+    expect(dir('.perfect-fit-item'), 'an item').to.equal('row');
   });
 });

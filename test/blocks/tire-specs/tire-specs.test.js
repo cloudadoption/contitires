@@ -358,3 +358,49 @@ describe('The room the spec sheet takes', () => {
     expect(height()).to.equal(808);
   });
 });
+
+/**
+ * Live pairs the spec fields two across from 375 up, and goes four across on a
+ * wide desk. Read off continentaltire.com/tires/contiprocontact at 375, 600,
+ * 768, 769, 900, 1024 and 1440, where its details list holds two pairs a row
+ * below 1440 and four at it.
+ *
+ * Ours ran one pair a row below 700. That is the width the project's 600 band
+ * replaces, so the sheet pairs up 100px earlier and closer to live. #113.
+ */
+describe('Tire specs, where the sheet pairs up', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/tire-specs/tire-specs.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    const pairs = SPEC_ORDER.map((key, i) => `<dt>${key}</dt><dd>v${i}</dd>`).join('');
+    document.body.innerHTML = `
+      <main><div class="section tire-specs-container"><div class="tire-specs-wrapper">
+        <div class="tire-specs block">
+          <h2>Specifications</h2>
+          <div class="tire-specs-panel"><dl class="tire-specs-grid">${pairs}</dl></div>
+        </div>
+      </div></div></main>`;
+  });
+
+  after(async () => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  const tracks = () => getComputedStyle(document.querySelector('.tire-specs-grid'))
+    .gridTemplateColumns.split(' ').length;
+
+  it('runs one pair a row at 599', async () => {
+    await setViewport({ width: 599, height: 900 });
+    expect(tracks()).to.equal(2);
+  });
+
+  it('pairs them two across from 600', async () => {
+    await setViewport({ width: 600, height: 900 });
+    expect(tracks()).to.equal(4);
+  });
+});
