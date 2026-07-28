@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before */
+/* global describe it before after */
 
 import { expect } from '@esm-bundle/chai';
+import decorate from '../../../blocks/cards/cards.js';
 
 // The Confidence on the Road band now sits on every product page, not the
 // homepage alone. Live lays its six coverage items out as one row of six from
@@ -199,5 +200,45 @@ describe("Sports band, live's dark teaser band", () => {
   it('makes the whole teaser the link', () => {
     expect(value('.cards.teaser > ul > li', 'position')).to.equal('relative');
     expect(value('.cards.teaser .cards-card-body a::before', 'inset')).to.equal('0px');
+  });
+});
+
+/*
+ * The pill is a control, and live draws it without the underline this site
+ * gives a link. Declaring it on the variant is not enough: the site's own link
+ * rule names `main :is(.cards, ...) :is(p, li) a:any-link`, which outweighs it.
+ */
+describe("Sports band, the pill's own text", () => {
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/cards/cards.css'].map(async (p) => {
+      const sheet = new CSSStyleSheet();
+      await sheet.replace(await (await fetch(p)).text());
+      return sheet;
+    }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    const main = document.createElement('main');
+    const section = document.createElement('div');
+    section.className = 'section cards-container';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'cards-wrapper';
+    const block = document.createElement('div');
+    block.className = 'cards teaser block';
+    const row = document.createElement('div');
+    row.innerHTML = '<div><picture><img src="/icons/search.svg" alt=""></picture></div><div><h3><a href="/experience/soccer">Soccer</a></h3></div>';
+    block.append(row);
+    wrapper.append(block);
+    section.append(wrapper);
+    main.append(section);
+    document.body.replaceChildren(main);
+    decorate(block);
+  });
+
+  after(() => {
+    document.body.replaceChildren();
+  });
+
+  it('draws the name without the site link underline', () => {
+    const pill = document.querySelector('.cards.teaser .cards-card-body a');
+    expect(getComputedStyle(pill).textDecorationLine).to.equal('none');
   });
 });
