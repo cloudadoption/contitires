@@ -1,0 +1,158 @@
+/* live's numbers, off continentaltire.com/media. The bar centres its tabs and
+   underlines the selected one; the panel below it runs a sidebar down the
+   right at 769 and up, and stacks under 769. */
+
+/* live opens the bar straight under the band above it, and the panel's own
+   padding stands in for the gap under it */
+main .section.tabs-container {
+  margin: 0;
+}
+
+.tabs .tabs-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabs .tabs-tab {
+  position: relative;
+  display: block;
+  margin: 0;
+  border: 0;
+  padding: 12px 0;
+  background: none;
+  color: inherit;
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 16px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tabs .tabs-tab + .tabs-tab {
+  margin-left: 60px;
+}
+
+.tabs .tabs-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 5px;
+  background-color: transparent;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.tabs .tabs-tab[aria-selected='true']::after,
+.tabs .tabs-tab:hover::after {
+  width: 100%;
+  background-color: var(--conti-yellow);
+}
+
+.tabs .tabs-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 28px;
+  padding: 38px 0;
+}
+
+/* a grid outranks the display the hidden attribute carries */
+.tabs .tabs-panel[hidden] {
+  display: none;
+}
+
+.tabs .tabs-main > :first-child {
+  margin-top: 0;
+}
+
+/* the sidebar: each heading opens a panel of its own, under a hairline */
+.tabs .tabs-aside {
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.tabs .tabs-aside > * {
+  margin: 0;
+}
+
+.tabs .tabs-aside > * + * {
+  margin-top: 20px;
+}
+
+.tabs .tabs-aside > :is(h1, h2, h3, h4, h5, h6) {
+  border-top: 1px solid var(--conti-grey);
+  padding-top: 28px;
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 22px;
+  letter-spacing: 1.25px;
+
+  /* live centres the sidebar's titles while it stands under the panel */
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.tabs .tabs-aside > * + :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 38px;
+}
+
+.tabs .tabs-aside .button-wrapper {
+  margin-top: 16px;
+}
+
+/* live marks each rule with the sign it uses for a thing you may not do */
+.tabs .tabs-aside ul {
+  margin-left: 1.5em;
+  padding-left: 0;
+  list-style: none;
+}
+
+.tabs .tabs-aside li {
+  position: relative;
+}
+
+.tabs .tabs-aside li + li {
+  margin-top: 20px;
+}
+
+.tabs .tabs-aside li::before {
+  content: '';
+  position: absolute;
+  left: -1.5em;
+  display: block;
+  width: 1em;
+  height: 1em;
+  background: url("data:image/svg+xml,%3Csvg height='17' viewBox='0 0 17 17' width='17' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd' stroke='%23ff2d37' transform='translate(1 1)'%3E%3Ccircle cx='7.5' cy='7.5' r='7.5'/%3E%3Cpath d='m4.5 10.5 6-6m0 6-6-6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E") no-repeat center center;
+  background-size: 1em;
+  transform: translateY(15%);
+}
+
+/* under the panel rather than beside it, live gives the button the width */
+.tabs .tabs-aside .button {
+  width: 100%;
+}
+
+@media (width >= 769px) {
+  .tabs .tabs-panel {
+    padding: 80px 0;
+  }
+
+  .tabs .tabs-aside > :is(h1, h2, h3, h4, h5, h6) {
+    text-align: left;
+  }
+
+  .tabs .tabs-aside .button {
+    width: auto;
+  }
+
+  .tabs .tabs-panel:has(.tabs-aside) {
+    grid-template-columns: 1fr 310px;
+    column-gap: 100px;
+    max-width: 1015px;
+    margin: 0 auto;
+  }
+}
