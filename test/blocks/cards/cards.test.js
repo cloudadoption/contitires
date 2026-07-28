@@ -611,6 +611,27 @@ describe("Register your tires band, live's six benefits", () => {
     expect(Math.round(mark.left - body.left)).to.equal(Math.round(body.right - mark.right));
   });
 
+  // a mark arrives after the page paints, so its box has to be there before
+  // it does. Left to the file, six marks grew from nothing at once and took
+  // the band down the page with them.
+  it('reserves the box a mark will take', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const fresh = document.createElement('div');
+    fresh.className = 'cards benefits block';
+    fresh.innerHTML = '<div><div><p><span class="icon icon-limited-warranty"></span></p>'
+      + '<h2>Limited Warranty</h2><p>A benefit.</p></div></div>';
+    // outside the band, so a failure here leaves the fixture alone
+    document.body.append(fresh);
+    decorateIcons(fresh);
+    decorate(fresh);
+    const mark = fresh.querySelector('.icon');
+    // measured before the file can have arrived
+    expect(Math.round(mark.getBoundingClientRect().width)).to.equal(57);
+    expect(Math.round(mark.getBoundingClientRect().height)).to.equal(55);
+    expect(getComputedStyle(mark.querySelector('img')).objectFit).to.equal('scale-down');
+    fresh.remove();
+  });
+
   it('sets the title 14/20 bold uppercase, 12 under the mark', async () => {
     await setViewport({ width: 1440, height: 900 });
     const title = block.querySelector('h2');
