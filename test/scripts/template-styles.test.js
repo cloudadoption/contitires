@@ -38,6 +38,17 @@ describe('Template styles', () => {
     document.head.querySelectorAll(PROMO).forEach((link) => link.remove());
   });
 
+  // live builds the five Conti Crew member pages from a template of its own,
+  // and the bands under the marquee belong to it. Issue #104
+  it('loads the crew stylesheet for a crew page', async () => {
+    const CREW = 'link[href$="/styles/crew.css"]';
+    document.body.classList.add('crew');
+    await loadTemplateStyles();
+    expect(document.head.querySelector(CREW)).to.exist;
+    document.body.classList.remove('crew');
+    document.head.querySelectorAll(CREW).forEach((link) => link.remove());
+  });
+
   // the reveal awaits this promise, so it has to stay pending until the
   // stylesheet is in effect. A promise that resolves early gates nothing.
   it('stays pending until the stylesheet is in effect', async () => {

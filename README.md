@@ -191,7 +191,7 @@ The partnership and sponsorship section: hub plus 15 subpages (AMG Driving Acade
 - Code: [blocks/share/share.js](blocks/share/share.js), [styles/article.css](styles/article.css)
 - Author: [experience in DA](https://da.live/edit#/cloudadoption/contitires/experience)
 
-Differs from live: live's Sports subpage renders most of its items client-side, so only the server-rendered part could be migrated. The conti-crew member subpages linked from the nav are not published.
+Differs from live: live's Sports subpage renders most of its items client-side, so only the server-rendered part could be migrated. The Conti Crew member pages carry live's own template, and they leave out the EmbedSocial feed live runs between the quote and the fact scroller.
 
 ### Simple content pages
 
@@ -205,7 +205,7 @@ Differs from live: rebate submission, credit-card application, tire registration
 
 ### URL aliases
 
-Drupal answers a set of old paths with a 301. The migration copied the links that use them, but not the aliases behind them. A [redirects sheet](https://da.live/sheet#/cloudadoption/contitires/redirects) holds them now: 17 rows of `Source` and `Destination`, read by the pipeline before any page is served. It covers live's own aliases (`/partners`, `/conti-crew`, `/experience/bmw-cca`, `/store-finder`), the paths whose pages the POC does not have (`/tire-search`, `/perfect-fit`, `/tires/fleet`, four Conti Crew show pages), and two documents that stayed on live. The sheet is content, so an author adds a redirect without a deploy, and it applies to every branch preview at once.
+Drupal answers a set of old paths with a 301. The migration copied the links that use them, but not the aliases behind them. A [redirects sheet](https://da.live/sheet#/cloudadoption/contitires/redirects) holds them now: 13 rows of `Source` and `Destination`, read by the pipeline before any page is served. It covers live's own aliases (`/partners`, `/conti-crew`, `/experience/bmw-cca`, `/store-finder`), the paths whose pages the POC does not have (`/tire-search`, `/perfect-fit`, `/tires/fleet`), the Conti Crew show whose page sits under a different slug (`/experience/conti-crew/straight-pipes`), and two documents that stayed on live. The sheet is content, so an author adds a redirect without a deploy, and it applies to every branch preview at once.
 
 - Sheet: [redirects in DA](https://da.live/sheet#/cloudadoption/contitires/redirects), served at [/redirects.json](https://main--contitires--cloudadoption.aem.live/redirects.json)
 - Docs: [aem.live redirects](https://www.aem.live/docs/redirects)
