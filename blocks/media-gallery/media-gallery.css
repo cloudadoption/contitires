@@ -105,16 +105,17 @@ main .media-gallery .media-gallery-tile:focus-visible {
 
 /* ---- the modal the selected tile opens on ---- */
 
-/* Live insets its stage 40px and hangs the arrows 15px off the viewport edge,
-   over the image. The thumbnail strip goes under both, and this is where we
-   part company: live's strip starts at 934 in a 900 tall window, so it is off
-   the screen at every width we support. Ours is a column that fits. */
+/* Live insets its stage 40px and hangs the arrows 15px inside it, over the
+   image. The thumbnail strip goes under both, and that is where we part
+   company: live's strip starts at 934 in a 900 tall window, so it is off the
+   screen at every width we support. Ours is a column that fits. */
 main .media-gallery .media-gallery-modal {
+  box-sizing: border-box;
   width: 100%;
   max-width: none;
   height: 100%;
   max-height: none;
-  padding: 40px 15px 24px;
+  padding: 40px 40px 24px;
   border: 0;
   background-color: transparent;
 }
@@ -136,7 +137,6 @@ main .media-gallery .media-gallery-frame {
   position: relative;
   flex: 1;
   min-height: 0;
-  padding-inline: 25px;
 }
 
 main .media-gallery .media-gallery-stage {
@@ -149,20 +149,20 @@ main .media-gallery .media-gallery-stage {
 }
 
 /* the stage fills what the strip leaves, and the medium fits the stage, so
-   neither needs to know the height of the other */
+   neither needs to know the height of the other. scale-down rather than
+   contain, because live shows a tire at the 555px it was photographed at
+   rather than blown up to the height of the window */
 main .media-gallery .media-gallery-stage > picture {
-  display: flex;
+  display: block;
   position: absolute;
   inset: 0;
-  align-items: center;
-  justify-content: center;
 }
 
 main .media-gallery .media-gallery-stage > picture img {
   display: block;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
 }
 
 /* the video block caps a player at live's 747px, which is the article column
@@ -199,11 +199,11 @@ main .media-gallery :is(.media-gallery-prev, .media-gallery-next) {
 }
 
 main .media-gallery .media-gallery-prev {
-  left: 0;
+  left: 15px;
 }
 
 main .media-gallery .media-gallery-next {
-  right: 0;
+  right: 15px;
 }
 
 main .media-gallery :is(.media-gallery-prev, .media-gallery-next)::before {
@@ -278,11 +278,7 @@ main .media-gallery :is(.media-gallery-thumb, .media-gallery-prev, .media-galler
 
 @media (width < 769px) {
   main .media-gallery .media-gallery-modal {
-    padding: 24px 8px 16px;
-  }
-
-  main .media-gallery .media-gallery-frame {
-    padding-inline: 12px;
+    padding: 24px 20px 16px;
   }
 
   /* live's own mobile thumbnail, at half the desktop square */
