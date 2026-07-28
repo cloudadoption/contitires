@@ -137,6 +137,8 @@ function buildProductViewer(main) {
  * attribute, and adds `Column: Sidebar` to stand beside the rest of that tab
  * rather than in it. Sections carrying no `Tab` are left where they are.
  *
+ * `Tabs` names the bar's variant and `Selected` the tab the page opens on.
+ *
  * The panels are sections rather than cells an author wrote, because EDS
  * carries no block inside a block cell and every panel here holds one.
  *
@@ -152,12 +154,16 @@ function buildTabs(main) {
 
   const order = [];
   const groups = new Map();
+  let selected;
+  const variants = new Set();
   tabbed.forEach((section) => {
     const name = section.dataset.tab.trim();
     if (!groups.has(name)) {
       groups.set(name, { body: [], aside: [] });
       order.push(name);
     }
+    if (section.dataset.tabs) variants.add(section.dataset.tabs.trim());
+    if (section.dataset.selected) selected = order.indexOf(name);
     const side = /sidebar/i.test(section.dataset.column || '');
     // a section's children are the wrappers decorateSections grouped its
     // content into; a cell holds the content itself, the way one an author
@@ -172,7 +178,8 @@ function buildTabs(main) {
   section.style.display = 'none';
   const wrapper = document.createElement('div');
   const block = document.createElement('div');
-  block.className = 'tabs';
+  block.className = ['tabs', ...variants].join(' ');
+  if (selected !== undefined) block.dataset.selected = String(selected);
 
   const cells = order.map((name) => {
     const row = document.createElement('div');

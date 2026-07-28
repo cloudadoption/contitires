@@ -30,6 +30,11 @@ const SAMPLE = [
   ],
 ];
 
+/** The tiles the block drew, not the list items inside a financing panel. */
+function tiles(block) {
+  return block.querySelectorAll(':scope > ul > li');
+}
+
 function buildRetailers(rows = SAMPLE) {
   document.body.innerHTML = `
     <main>
@@ -50,13 +55,12 @@ describe('Retailers block, what a row holds', () => {
 
   it('makes one tile of each row', () => {
     decorate(block);
-    const tiles = block.querySelectorAll('li');
-    expect(tiles).to.have.length(2);
+    expect(tiles(block)).to.have.length(2);
   });
 
   it('links the logo to the shop', () => {
     decorate(block);
-    const links = block.querySelectorAll('li a.retailers-logo');
+    const links = block.querySelectorAll(':scope > ul > li a.retailers-logo');
     expect(links).to.have.length(2);
     expect(links[0].href).to.equal('https://www.tirerack.com/x');
     expect(links[0].querySelector('img'), 'the logo is inside the link').to.exist;
@@ -71,7 +75,7 @@ describe('Retailers block, what a row holds', () => {
       FINANCING,
     ]]);
     decorate(block);
-    const link = block.querySelector('li a.retailers-logo');
+    const link = block.querySelector(':scope > ul > li a.retailers-logo');
     expect(link, 'the logo is linked').to.exist;
     expect(link.href).to.equal('https://www.tirerack.com/x');
     expect(link.querySelector('img')).to.exist;
@@ -80,8 +84,8 @@ describe('Retailers block, what a row holds', () => {
   it('draws a tile with no logo link, rather than dropping it', () => {
     block = buildRetailers([['<picture><img src="/x.png" alt="X"></picture>', FINANCING]]);
     decorate(block);
-    expect(block.querySelectorAll('li')).to.have.length(1);
-    expect(block.querySelector('li picture'), 'the logo still shows').to.exist;
+    expect(tiles(block)).to.have.length(1);
+    expect(block.querySelector(':scope > ul > li picture'), 'the logo still shows').to.exist;
   });
 
   it('ignores a row that holds nothing', () => {
@@ -89,7 +93,7 @@ describe('Retailers block, what a row holds', () => {
       '<a href="/x"><picture><img src="/a.png" alt="A"></picture></a>', FINANCING,
     ], ['', '']]);
     decorate(block);
-    expect(block.querySelectorAll('li')).to.have.length(1);
+    expect(tiles(block)).to.have.length(1);
   });
 });
 
@@ -182,7 +186,7 @@ describe('Retailers block, the financing disclosure', () => {
   it('draws no financing link on a row that carries no copy', () => {
     block = buildRetailers([['<a href="/x"><picture><img src="/a.png" alt="A"></picture></a>']]);
     decorate(block);
-    expect(block.querySelectorAll('li')).to.have.length(1);
+    expect(tiles(block)).to.have.length(1);
     expect(block.querySelector('button.retailers-financing')).to.not.exist;
   });
 });
@@ -229,11 +233,11 @@ describe('Retailers block, live\'s measurements', () => {
   it('runs three 250 tiles 40 apart, capped at 830 and centred, at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
     const list = block.querySelector('ul');
-    const tiles = [...block.querySelectorAll('li')];
+    const drawn = [...tiles(block)];
     expect(Math.round(list.getBoundingClientRect().width)).to.equal(830);
-    tiles.forEach((tile) => expect(Math.round(tile.getBoundingClientRect().width)).to.equal(250));
-    expect(Math.round(tiles[1].getBoundingClientRect().left
-      - tiles[0].getBoundingClientRect().right)).to.equal(40);
+    drawn.forEach((tile) => expect(Math.round(tile.getBoundingClientRect().width)).to.equal(250));
+    expect(Math.round(drawn[1].getBoundingClientRect().left
+      - drawn[0].getBoundingClientRect().right)).to.equal(40);
     const wrapper = block.closest('.section').firstElementChild.getBoundingClientRect();
     expect(Math.round(list.getBoundingClientRect().left - wrapper.left))
       .to.equal(Math.round(wrapper.right - list.getBoundingClientRect().right));
@@ -241,7 +245,7 @@ describe('Retailers block, live\'s measurements', () => {
 
   it('gives a tile live\'s shadow, radius and rows at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
-    const tile = block.querySelector('li');
+    const [tile] = tiles(block);
     const styles = getComputedStyle(tile);
     expect(styles.boxShadow).to.equal('rgba(0, 0, 0, 0.1) 0px 0px 40px 0px');
     expect(styles.borderRadius).to.equal('8px');
@@ -252,7 +256,7 @@ describe('Retailers block, live\'s measurements', () => {
 
   it('contains the logo rather than cropping it, 100 tall at most', async () => {
     await setViewport({ width: 1440, height: 900 });
-    const img = block.querySelector('li img');
+    const img = block.querySelector(':scope > ul > li img');
     const styles = getComputedStyle(img);
     expect(styles.objectFit).to.equal('contain');
     expect(styles.maxHeight).to.equal('100px');
@@ -293,15 +297,15 @@ describe('Retailers block, live\'s measurements', () => {
 
   it('turns to two tiles 16 apart at 375, on live\'s shorter grid', async () => {
     await setViewport({ width: 375, height: 812 });
-    const tiles = [...block.querySelectorAll('li')];
-    const styles = getComputedStyle(tiles[0]);
-    expect(Math.round(tiles[1].getBoundingClientRect().left
-      - tiles[0].getBoundingClientRect().right)).to.equal(16);
-    expect(Math.round(tiles[2].getBoundingClientRect().top))
-      .to.be.above(Math.round(tiles[0].getBoundingClientRect().bottom));
+    const drawn = [...tiles(block)];
+    const styles = getComputedStyle(drawn[0]);
+    expect(Math.round(drawn[1].getBoundingClientRect().left
+      - drawn[0].getBoundingClientRect().right)).to.equal(16);
+    expect(Math.round(drawn[2].getBoundingClientRect().top))
+      .to.be.above(Math.round(drawn[0].getBoundingClientRect().bottom));
     expect(styles.gridTemplateRows).to.equal('10px 80px 20px');
     expect(styles.padding).to.equal('4px 14px');
-    expect(getComputedStyle(block.querySelector('li img')).maxHeight).to.equal('80px');
+    expect(getComputedStyle(block.querySelector(':scope > ul > li img')).maxHeight).to.equal('80px');
   });
 
   it('shrinks the financing link at 375, as live does', async () => {

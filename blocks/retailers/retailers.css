@@ -1,0 +1,209 @@
+/* ---- live's online retailer tiles: three 250 tiles 40 apart, capped at 830
+   and centred, each a 20/120/20 grid holding a contained logo over a Credit
+   Card Financing link. Two tiles 16 apart below 769, on a shorter grid. Read
+   off continentaltire.com/online-retailers at 1440, 900, 768, 641, 380 and
+   375. ---- */
+
+.retailers > ul {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 830px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.retailers > ul > li {
+  display: grid;
+  grid-template-rows: 10px 80px 20px;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 4px 14px;
+  border-radius: 8px;
+  box-shadow: 0 0 40px 0 rgb(0 0 0 / 10%);
+
+  /* the panel hangs off the tile and must not be clipped by it */
+  position: relative;
+}
+
+.retailers-logo,
+.retailers > ul > li > picture {
+  display: flex;
+  grid-row: 2;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.retailers > ul > li img {
+  max-width: 100%;
+  max-height: 80px;
+  object-fit: contain;
+}
+
+/* ---- the financing link, and the terms behind it ---- */
+
+.retailers-financing {
+  display: inline-flex;
+  grid-row: 3;
+  align-items: center;
+  justify-self: center;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--heading-font-family);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.retailers-financing:hover,
+.retailers-financing:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--conti-dark-yellow);
+}
+
+.retailers-financing .icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-inline-end: 0.15em;
+}
+
+/* live hangs the terms under the link as a 350 card and holds it inside the
+   page, with its arrow left on the link. `left` and the arrow's offset are
+   set when it opens, because both depend on where the link sits. */
+.retailers-panel {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 10px);
+  box-sizing: border-box;
+  width: 350px;
+  max-width: calc(100vw - 10px);
+  padding: 24px 16px 16px;
+  border-radius: 10px;
+  background-color: var(--conti-white);
+  box-shadow: 0 0 40px 0 rgb(0 0 0 / 10%);
+  color: var(--conti-black);
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+}
+
+.retailers-panel::before {
+  position: absolute;
+  bottom: 100%;
+  left: var(--retailers-arrow, 50%);
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-block-end-color: var(--conti-white);
+  content: '';
+  transform: translateX(-50%);
+}
+
+.retailers-panel > * {
+  margin: 0;
+}
+
+.retailers-panel > * + * {
+  margin-top: 15px;
+}
+
+.retailers-panel ul {
+  margin-left: 1.5em;
+  padding-left: 0;
+  list-style: none;
+}
+
+/* live marks the terms with its own check rather than a bullet */
+.retailers-panel ul > li {
+  position: relative;
+}
+
+.retailers-panel ul > li + li {
+  margin-top: 0.5em;
+}
+
+.retailers-panel ul > li::before {
+  position: absolute;
+  left: -1.5em;
+  display: block;
+  width: 1em;
+  height: 1em;
+  background: url("data:image/svg+xml,%3Csvg height='14' viewBox='0 0 16 14' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m0 6.49226357 5.03588867 5.50773643 8.96411133-11.82753036' fill='none' stroke='%23333' stroke-width='2'/%3E%3C/svg%3E") no-repeat center center;
+  background-size: 1em;
+  content: '';
+  transform: translateY(15%);
+}
+
+.retailers-panel em {
+  display: inline-block;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 16px;
+}
+
+.retailers-close {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.retailers-close::before,
+.retailers-close::after {
+  position: absolute;
+  top: 7px;
+  left: 1px;
+  width: 14px;
+  border-block-start: 2px solid currentcolor;
+  content: '';
+}
+
+.retailers-close::before {
+  transform: rotate(45deg);
+}
+
+.retailers-close::after {
+  transform: rotate(-45deg);
+}
+
+@media (width >= 380px) {
+  .retailers-financing {
+    font-size: 10px;
+  }
+}
+
+@media (width >= 769px) {
+  .retailers > ul {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+
+  .retailers > ul > li {
+    grid-template-rows: 20px 120px 20px;
+    padding: 16px 18px;
+  }
+
+  .retailers > ul > li img {
+    max-height: 100px;
+  }
+
+  .retailers-financing {
+    font-size: 12px;
+  }
+}
