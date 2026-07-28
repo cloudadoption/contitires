@@ -57,69 +57,69 @@ describe('Learn hub band treatments', () => {
 
   describe('feature band: Tire Tips and Technology', () => {
     it('stacks the image over the teasers on a narrow screen', () => {
-      expect(feature('.article-cards.feature', 'grid-template-columns')).to.equal('1fr');
+      expect(feature('main .article-cards.feature', 'grid-template-columns')).to.equal('1fr');
     });
 
-    it("sets the image beside the teasers at live's 769", () => {
-      expect(feature('.article-cards.feature', 'grid-template-columns', '769px'))
+    it('sets the image beside the teasers from 900', () => {
+      expect(feature('main .article-cards.feature', 'grid-template-columns', '900px'))
         .to.equal('460px 1fr');
-      expect(feature('.article-cards.feature', 'column-gap', '769px')).to.equal('100px');
+      expect(feature('main .article-cards.feature', 'column-gap', '900px')).to.equal('100px');
     });
 
     // `grid-row: 1 / -1` counts lines in the explicit grid. With the rows left
     // implicit it resolves to row 1 alone, and the teasers stack below the
     // image instead of beside it: the band read 908 tall against live's 580.
     it('gives the image column rows to span', () => {
-      expect(feature('.article-cards.feature', 'grid-template-rows', '769px'))
+      expect(feature('main .article-cards.feature', 'grid-template-rows', '900px'))
         .to.equal('auto auto 1fr');
     });
 
     it('mirrors the columns for the image-right variant', () => {
-      expect(feature('.article-cards.feature.image-right .article-cards-media', 'grid-column', '769px'))
+      expect(feature('main .article-cards.feature.image-right .article-cards-media', 'grid-column', '900px'))
         .to.equal('2');
     });
 
     it('overlays the heading on the image only below the breakpoint', () => {
       // the overlay sits in the image cell, over a half-black scrim
-      expect(feature('.article-cards.feature .article-cards-media', 'grid-area')).to.equal('media');
-      expect(feature('.article-cards.feature .article-cards-intro', 'grid-area')).to.equal('media');
-      expect(feature('.article-cards.feature .article-cards-media::after', 'background-color'))
+      expect(feature('main .article-cards.feature .article-cards-media', 'grid-area')).to.equal('media');
+      expect(feature('main .article-cards.feature .article-cards-intro', 'grid-area')).to.equal('media');
+      expect(feature('main .article-cards.feature .article-cards-media::after', 'background-color'))
         .to.equal('rgba(0, 0, 0, 0.5)');
       // at desktop the intro leaves the image cell for the text column
-      expect(feature('.article-cards.feature .article-cards-intro', 'grid-column', '769px'))
+      expect(feature('main .article-cards.feature .article-cards-intro', 'grid-column', '900px'))
         .to.equal('2');
-      expect(feature('.article-cards.feature .article-cards-media::after', 'content', '769px'))
+      expect(feature('main .article-cards.feature .article-cards-media::after', 'content', '900px'))
         .to.equal('none');
     });
 
     it("holds the band heading to live's two sizes", () => {
-      expect(feature('.article-cards.feature .article-cards-intro h2', 'font-size')).to.equal('30px');
-      expect(feature('.article-cards.feature .article-cards-intro h2', 'font-size', '769px')).to.equal('42px');
-      expect(feature('.article-cards.feature .article-cards-intro h2', 'text-transform')).to.equal('uppercase');
-      expect(feature('.article-cards.feature .article-cards-intro h2', 'letter-spacing')).to.equal('6px');
-      expect(feature('.article-cards.feature .article-cards-intro h2', 'font-weight')).to.equal('300');
+      expect(feature('main .article-cards.feature .article-cards-intro h2', 'font-size')).to.equal('30px');
+      expect(feature('main .article-cards.feature .article-cards-intro h2', 'font-size', '900px')).to.equal('42px');
+      expect(feature('main .article-cards.feature .article-cards-intro h2', 'text-transform')).to.equal('uppercase');
+      expect(feature('main .article-cards.feature .article-cards-intro h2', 'letter-spacing')).to.equal('6px');
+      expect(feature('main .article-cards.feature .article-cards-intro h2', 'font-weight')).to.equal('300');
     });
 
     it('rules the teaser list off in gold, and each teaser in grey', () => {
-      expect(feature('.article-cards.feature .article-cards-list', 'border-top'))
+      expect(feature('main .article-cards.feature .article-cards-list', 'border-top'))
         .to.equal('1px solid var(--conti-yellow)');
-      expect(feature('.article-cards .article-teaser', 'border-bottom'))
+      expect(feature('main .article-cards .article-teaser', 'border-bottom'))
         .to.equal('1px solid var(--conti-light-grey)');
     });
 
     it('keeps the category image square', () => {
-      expect(feature('.article-cards.feature .article-cards-media img', 'aspect-ratio')).to.equal('1 / 1');
+      expect(feature('main .article-cards.feature .article-cards-media img', 'aspect-ratio')).to.equal('1 / 1');
     });
   });
 
   describe('columns band: News', () => {
     it('runs one teaser per row on a narrow screen', () => {
-      expect(feature('.article-cards.columns .article-cards-list', 'grid-template-columns'))
+      expect(feature('main .article-cards.columns .article-cards-list', 'grid-template-columns'))
         .to.equal('1fr');
     });
 
-    it("runs live's three columns from 769 up", () => {
-      expect(feature('.article-cards.columns .article-cards-list', 'grid-template-columns', '769px'))
+    it("runs live's three columns from 900 up", () => {
+      expect(feature('main .article-cards.columns .article-cards-list', 'grid-template-columns', '900px'))
         .to.equal('repeat(3, 1fr)');
     });
   });

@@ -251,3 +251,35 @@ describe('Article template, title inside the body', () => {
     expect(getComputedStyle(section).paddingBottom, 'padding under the article').to.equal('8px');
   });
 });
+
+/**
+ * The space above the article title, which the template opened to 40 on a desk
+ * and held to 24 on a phone. The rule read as a max-width query at 600, the one
+ * desktop-first query left in the sheet; mobile-first the phone value is the
+ * base and 600 is where the desk value comes in. #113.
+ */
+describe('Article template, the room above the title', () => {
+  before(async () => {
+    await adopt('/styles/styles.css', '/styles/article.css');
+    document.body.classList.add('article', 'appear');
+    buildArticle();
+  });
+
+  after(async () => {
+    document.body.classList.remove('article', 'appear');
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  const padTop = () => getComputedStyle(document.querySelector('main .section:first-of-type')).paddingTop;
+
+  it('holds the title band to 24 below 600', async () => {
+    await setViewport({ width: 599, height: 900 });
+    expect(padTop()).to.equal('24px');
+  });
+
+  it('opens it to 40 from 600', async () => {
+    await setViewport({ width: 600, height: 900 });
+    expect(padTop()).to.equal('40px');
+  });
+});

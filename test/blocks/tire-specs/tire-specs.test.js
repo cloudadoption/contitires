@@ -314,11 +314,12 @@ describe('Tire specs block, sheets longer than one page', () => {
  * The sheet lands after the sections under this one are on screen, so the block
  * holds the room its spec sheet takes. Every product carries the same 19
  * fields, so the height turns on the width rather than on the product: the grid
- * pairs the fields two across from 700px up. These are the heights the filled
- * band settles at, read off six product pages from 320 to 1440: 1472 at 320 and
- * 375, 1289 from 480, 853 from 700, 808 from 900. A band holds the tallest of
- * the widths in it, so the room is never short of the sheet. Where it is over,
- * the sheet sits in a taller band rather than moving what is under it.
+ * pairs the fields two across from 600px up. These are the heights the filled
+ * band settles at, read off four product pages at twelve widths from 320 to
+ * 1440: 1472 at 320 falling to 1289 by 480, 962 at 600 falling to 805 by 899,
+ * 808 from 900. A band holds the tallest of the widths in it, so the room is
+ * never short of the sheet. Where it is over, the sheet sits in a taller band
+ * rather than moving what is under it.
  */
 describe('The room the spec sheet takes', () => {
   let block;
@@ -343,18 +344,69 @@ describe('The room the spec sheet takes', () => {
     expect(height()).to.equal(1472);
   });
 
-  it('holds the shorter stack open from 480', async () => {
-    await setViewport({ width: 600, height: 800 });
-    expect(height()).to.equal(1289);
+  it('holds the stack open to the foot of its band', async () => {
+    await setViewport({ width: 599, height: 800 });
+    expect(height()).to.equal(1472);
   });
 
-  it('holds the paired sheet open from 700', async () => {
+  it('holds the paired sheet open from 600', async () => {
+    await setViewport({ width: 600, height: 800 });
+    expect(height()).to.equal(962);
+  });
+
+  it('holds it open across that band', async () => {
     await setViewport({ width: 768, height: 800 });
-    expect(height()).to.equal(853);
+    expect(height()).to.equal(962);
   });
 
   it('holds the desk sheet open from 900', async () => {
     await setViewport({ width: 1200, height: 800 });
     expect(height()).to.equal(808);
+  });
+});
+
+/**
+ * Live pairs the spec fields two across from 375 up, and goes four across on a
+ * wide desk. Read off continentaltire.com/tires/contiprocontact at 375, 600,
+ * 768, 769, 900, 1024 and 1440, where its details list holds two pairs a row
+ * below 1440 and four at it.
+ *
+ * Ours ran one pair a row below 700. That is the width the project's 600 band
+ * replaces, so the sheet pairs up 100px earlier and closer to live. #113.
+ */
+describe('Tire specs, where the sheet pairs up', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/tire-specs/tire-specs.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    const pairs = SPEC_ORDER.map((key, i) => `<dt>${key}</dt><dd>v${i}</dd>`).join('');
+    document.body.innerHTML = `
+      <main><div class="section tire-specs-container"><div class="tire-specs-wrapper">
+        <div class="tire-specs block">
+          <h2>Specifications</h2>
+          <div class="tire-specs-panel"><dl class="tire-specs-grid">${pairs}</dl></div>
+        </div>
+      </div></div></main>`;
+  });
+
+  after(async () => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  const tracks = () => getComputedStyle(document.querySelector('.tire-specs-grid'))
+    .gridTemplateColumns.split(' ').length;
+
+  it('runs one pair a row at 599', async () => {
+    await setViewport({ width: 599, height: 900 });
+    expect(tracks()).to.equal(2);
+  });
+
+  it('pairs them two across from 600', async () => {
+    await setViewport({ width: 600, height: 900 });
+    expect(tracks()).to.equal(4);
   });
 });

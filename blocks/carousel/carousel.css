@@ -68,7 +68,7 @@ main .section.carousel-container {
 
 /* live uses an outlined pill button for the slide CTA, not an underlined link.
    the "a" tag out-specifies the global a:any-link color so the label is dark. */
-a.carousel-cta {
+main .carousel a.carousel-cta {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--conti-black);
@@ -84,8 +84,8 @@ a.carousel-cta {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-a.carousel-cta:hover,
-a.carousel-cta:focus-visible {
+main .carousel a.carousel-cta:hover,
+main .carousel a.carousel-cta:focus-visible {
   background-color: var(--conti-black);
   color: var(--conti-white);
 }

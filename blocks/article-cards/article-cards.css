@@ -1,4 +1,4 @@
-.article-cards-list {
+main .article-cards .article-cards-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -7,20 +7,21 @@
   gap: 32px;
 }
 
-/* desktop: two columns, matching live's learn category grid */
-@media (width >= 769px) {
-  .article-cards-list {
+/* two columns, as live's learn category grid runs from 769. The project
+   bands at 600/900/1200, so this opens at 900. Issue #113. */
+@media (width >= 900px) {
+  main .article-cards .article-cards-list {
     grid-template-columns: repeat(2, 1fr);
     gap: 60px 38px;
   }
 }
 
-.article-cards-list li {
+main .article-cards .article-cards-list li {
   margin: 0;
 }
 
 /* stacked (mobile): image on top, text below. */
-.article-card {
+main .article-cards .article-card {
   display: block;
   height: 100%;
   color: inherit;
@@ -28,14 +29,14 @@
 }
 
 /* desktop: horizontal, image on the left at a fixed width, text on the right */
-@media (width >= 769px) {
-  .article-card {
+@media (width >= 900px) {
+  main .article-cards .article-card {
     display: flex;
     align-items: flex-start;
   }
 }
 
-.article-card-image {
+main .article-cards .article-card-image {
   overflow: hidden;
   margin-bottom: 8px;
   border: 1px solid var(--conti-light-grey);
@@ -43,7 +44,7 @@
   background-color: var(--conti-light-grey);
 }
 
-.article-card-image img {
+main .article-cards .article-card-image img {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
@@ -51,8 +52,8 @@
   transition: transform 0.4s ease;
 }
 
-@media (width >= 769px) {
-  .article-card-image {
+@media (width >= 900px) {
+  main .article-cards .article-card-image {
     width: 171px;
     flex-shrink: 0;
     margin: 0 16px 0 0;
@@ -60,22 +61,23 @@
   }
 }
 
-.article-card:hover .article-card-image img,
-.article-card:focus-visible .article-card-image img {
+/* :where() holds this at the specificity the unscoped selector read as, so the
+   feature band's own image rule below still wins on source order */
+main .article-cards .article-card:where(:hover, :focus-visible) .article-card-image img {
   transform: scale(1.08);
 }
 
-.article-card-body {
+main .article-cards .article-card-body {
   padding-top: 8px;
 }
 
-@media (width >= 769px) {
-  .article-card-body {
+@media (width >= 900px) {
+  main .article-cards .article-card-body {
     padding-top: 0;
   }
 }
 
-.article-card-body h3 {
+main .article-cards .article-card-body h3 {
   margin: 0 0 8px;
   font-family: var(--body-font-family);
   font-size: 14px;
@@ -85,7 +87,7 @@
   color: var(--conti-black);
 }
 
-.article-card-body p {
+main .article-cards .article-card-body p {
   margin: 0;
   font-size: 15px;
   line-height: 22px;
@@ -97,7 +99,7 @@
   overflow: hidden;
 }
 
-.article-cards-more {
+main .article-cards .article-cards-more {
   display: block;
   margin: 40px auto 0;
   border: 1px solid currentcolor;
@@ -114,14 +116,14 @@
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.article-cards-more:hover,
-.article-cards-more:focus-visible {
+main .article-cards .article-cards-more:hover,
+main .article-cards .article-cards-more:focus-visible {
   background-color: var(--conti-black);
   color: var(--conti-white);
 }
 
 /* ---- teaser: a title and its excerpt, no thumbnail ---- */
-.article-cards .article-teaser {
+main .article-cards .article-teaser {
   display: block;
   padding: 0 0 20px;
   border-bottom: 1px solid var(--conti-light-grey);
@@ -129,17 +131,17 @@
   text-decoration: none;
 }
 
-.article-cards .article-cards-list li + li .article-teaser {
+main .article-cards .article-cards-list li + li .article-teaser {
   padding-top: 20px;
 }
 
-@media (width >= 769px) {
-  .article-cards.columns .article-cards-list li + li .article-teaser {
+@media (width >= 900px) {
+  main .article-cards.columns .article-cards-list li + li .article-teaser {
     padding-top: 0;
   }
 }
 
-.article-cards .article-teaser h3 {
+main .article-cards .article-teaser h3 {
   margin: 0;
   font-family: var(--body-font-family);
   font-size: 14px;
@@ -149,24 +151,25 @@
   color: inherit;
 }
 
-.article-cards .article-teaser p {
+main .article-cards .article-teaser p {
   margin: 4px 0 0;
   font-size: 15px;
   line-height: 22px;
   color: inherit;
 }
 
-.article-cards .article-teaser:hover h3,
-.article-cards .article-teaser:focus-visible h3 {
+main .article-cards .article-teaser:hover h3,
+main .article-cards .article-teaser:focus-visible h3 {
   text-decoration: underline;
   text-decoration-color: var(--conti-yellow);
 }
 
 /* ---- feature: a square category image beside a text-only teaser list.
-   Tire Tips and Technology on the learn hub. Below 769 the image runs full
-   width and the heading sits on it over a scrim; from 769 the heading moves
-   into the text column beside the image. Measured on live at 1440 and 375. */
-.article-cards.feature {
+   Tire Tips and Technology on the learn hub. Below the band the image runs
+   full width and the heading sits on it over a scrim; above it the heading
+   moves into the text column beside the image. Measured on live at 1440 and
+   375, where live makes the move at 769 and we make it at 900. */
+main .article-cards.feature {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -176,26 +179,26 @@
   row-gap: 28px;
 }
 
-.article-cards.feature .article-cards-media {
+main .article-cards.feature .article-cards-media {
   grid-area: media;
   position: relative;
 }
 
-.article-cards.feature .article-cards-media img {
+main .article-cards.feature .article-cards-media img {
   display: block;
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
 }
 
-.article-cards.feature .article-cards-media::after {
+main .article-cards.feature .article-cards-media::after {
   content: '';
   position: absolute;
   inset: 0;
   background-color: rgb(0 0 0 / 50%);
 }
 
-.article-cards.feature .article-cards-intro {
+main .article-cards.feature .article-cards-intro {
   grid-area: media;
   z-index: 1;
   place-self: center;
@@ -203,7 +206,7 @@
   text-align: center;
 }
 
-.article-cards.feature .article-cards-intro h2 {
+main .article-cards.feature .article-cards-intro h2 {
   margin: 0;
   font-size: 30px;
   font-weight: 300;
@@ -212,14 +215,14 @@
   color: var(--conti-white);
 }
 
-.article-cards.feature .article-cards-intro p {
+main .article-cards.feature .article-cards-intro p {
   margin: 4px 0 0;
   font-size: 18px;
   line-height: 26px;
   color: var(--conti-white);
 }
 
-.article-cards.feature .article-cards-list {
+main .article-cards.feature .article-cards-list {
   grid-area: list;
   grid-template-columns: 1fr;
   gap: 0;
@@ -228,69 +231,69 @@
 }
 
 /* the all-articles link closes the band */
-.article-cards.feature > p:last-child {
+main .article-cards.feature > p:last-child {
   grid-area: link;
   margin: 0;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   /* the image column spans these three rows, so they have to be explicit:
      grid-row 1 / -1 counts lines in the explicit grid */
-  .article-cards.feature {
+  main .article-cards.feature {
     grid-template: auto auto 1fr / 460px 1fr;
     gap: 28px 100px;
     align-items: start;
   }
 
-  .article-cards.feature .article-cards-media {
+  main .article-cards.feature .article-cards-media {
     grid-column: 1;
     grid-row: 1 / -1;
   }
 
-  .article-cards.feature .article-cards-media::after {
+  main .article-cards.feature .article-cards-media::after {
     content: none;
   }
 
-  .article-cards.feature .article-cards-intro,
-  .article-cards.feature .article-cards-list,
-  .article-cards.feature > p:last-child {
+  main .article-cards.feature .article-cards-intro,
+  main .article-cards.feature .article-cards-list,
+  main .article-cards.feature > p:last-child {
     grid-area: auto;
     grid-column: 2;
   }
 
-  .article-cards.feature .article-cards-intro {
+  main .article-cards.feature .article-cards-intro {
     place-self: auto;
     padding: 0;
     text-align: left;
   }
 
-  .article-cards.feature .article-cards-intro h2 {
+  main .article-cards.feature .article-cards-intro h2 {
     font-size: 42px;
   }
 
-  .article-cards.feature.image-right .article-cards-media {
+  main .article-cards.feature.image-right .article-cards-media {
     grid-column: 2;
   }
 
-  .article-cards.feature.image-right {
+  main .article-cards.feature.image-right {
     grid-template-columns: 1fr 460px;
   }
 
-  .article-cards.feature.image-right .article-cards-intro,
-  .article-cards.feature.image-right .article-cards-list,
-  .article-cards.feature.image-right > p:last-child {
+  main .article-cards.feature.image-right .article-cards-intro,
+  main .article-cards.feature.image-right .article-cards-list,
+  main .article-cards.feature.image-right > p:last-child {
     grid-column: 1;
   }
 }
 
 /* ---- columns: three text-only teasers, the News band on the learn hub ---- */
-.article-cards.columns .article-cards-list {
+main .article-cards.columns .article-cards-list {
   grid-template-columns: 1fr;
   gap: 0;
 }
 
-@media (width >= 769px) {
-  .article-cards.columns .article-cards-list {
+@media (width >= 900px) {
+  main .article-cards.columns .article-cards-list {
     grid-template-columns: repeat(3, 1fr);
     gap: 0 38px;
   }
@@ -310,7 +313,7 @@ main .section.article-cards-container:has(.article-cards.columns) h2 {
   font-weight: 400;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   main .section.article-cards-container:has(.article-cards.feature) {
     padding: 60px 0;
   }

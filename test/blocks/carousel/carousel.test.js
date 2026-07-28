@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before beforeEach */
+/* global describe it before after beforeEach */
 
 import { expect } from '@esm-bundle/chai';
 import decorate from '../../../blocks/carousel/carousel.js';
@@ -96,5 +96,57 @@ describe('Carousel, the pagination and the pill', () => {
 
   it('reserves the pinned pagination room in the content column', () => {
     expect(value('.carousel-content', 'padding', '900px')).to.equal('0px 0px 72px');
+  });
+});
+
+// The slide CTA is an outlined pill, and the "a" in the selector was there to
+// out-specify the global a:any-link colour. At document level it also claimed
+// any other link that happens to carry the class. Issue #112.
+describe('Carousel, the CTA it claims', () => {
+  let sheet;
+  let global;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/carousel/carousel.css')).text());
+    global = new CSSStyleSheet();
+    await global.replace(await (await fetch('/styles/styles.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, global, sheet];
+    document.body.classList.add('appear');
+    document.body.innerHTML = `
+      <main>
+        <div class="section carousel-container">
+          <div class="carousel-wrapper">
+            <div class="carousel block">
+              <div class="carousel-viewport"><div class="carousel-track">
+                <div class="carousel-slide"><div class="carousel-content">
+                  <p class="carousel-cta-wrapper"><a class="carousel-cta" href="/learn">Learn more</a></p>
+                </div></div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+        <div class="loose"><a class="carousel-cta" href="/learn">Learn more</a></div>
+      </main>`;
+  });
+
+  after(() => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets
+      .filter((s) => s !== sheet && s !== global);
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+  });
+
+  it('draws the pill on its own slide CTA', () => {
+    const cta = document.querySelector('.carousel .carousel-cta');
+    expect(getComputedStyle(cta).borderTopWidth).to.equal('1px');
+    expect(getComputedStyle(cta).borderTopLeftRadius).to.equal('24px');
+    expect(getComputedStyle(cta).display).to.equal('inline-flex');
+  });
+
+  it('leaves a link outside the block alone', () => {
+    const loose = document.querySelector('.loose .carousel-cta');
+    expect(getComputedStyle(loose).borderTopWidth).to.equal('0px');
+    expect(getComputedStyle(loose).display).to.equal('inline');
   });
 });

@@ -55,7 +55,8 @@ main > .section.perfect-fit-host > div {
 }
 
 /* live stacks the icon over its label below 769 and sets it beside the label
-   above, alongside the bar's heading. Measured at 768 and 769. */
+   above, alongside the bar's heading. Measured at 768 and 769. The bar and its
+   items open together, at the project's 900 band. Issue #113. */
 .perfect-fit-item {
   display: flex;
   flex-direction: column;
@@ -70,7 +71,7 @@ main > .section.perfect-fit-host > div {
   cursor: pointer;
 }
 
-@media (width >= 769px) {
+@media (width >= 900px) {
   .perfect-fit-item {
     flex-direction: row;
     align-items: center;
@@ -111,7 +112,7 @@ main > .section.perfect-fit-host > div {
   filter: invert(1);
 }
 
-@media (width >= 700px) {
+@media (width >= 900px) {
   .perfect-fit {
     flex-direction: row;
     justify-content: center;
