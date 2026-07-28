@@ -254,9 +254,10 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
    continentaltire.com/experience/amg-driving-academy at 1440, 1200, 1025,
    1024, 900, 769, 768 and 375. ---- */
 
-/* live starts the page flush under the header, and pads it 20 each side */
+/* live starts the page flush under the header, pads it 20 each side, and
+   closes it with 38 under the columns */
 body.article main .section.partner {
-  padding: 0 20px;
+  padding: 0 20px 38px;
   row-gap: 38px;
 }
 
@@ -270,6 +271,12 @@ body.article main .section.partner h1 {
   letter-spacing: 3px;
   text-align: center;
   text-transform: uppercase;
+}
+
+/* live sets the sidebar copy on a flat 22, where the reading column runs at
+   1.48, which is 22.2 on a 15px body */
+body.article main .section.partner .partner-sidebar .default-content-wrapper {
+  line-height: 22px;
 }
 
 /* the logo is a plain 2:1 box: no radius, and no descender gap under an
