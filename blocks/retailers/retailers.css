@@ -126,6 +126,18 @@
   margin-top: 15px;
 }
 
+/* the close control stands outside the flow, so it opens no gap */
+.retailers-panel > .retailers-close + * {
+  margin-top: 0;
+}
+
+/* the terms live sets small, closer to what they follow */
+.retailers-panel > p:has(> em:only-child) {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
 .retailers-panel ul {
   margin-left: 1.5em;
   padding-left: 0;
@@ -154,10 +166,7 @@
 }
 
 .retailers-panel em {
-  display: inline-block;
-  font-size: 12px;
   font-style: normal;
-  line-height: 16px;
 }
 
 /* live rings the cross, the way its own close control does */

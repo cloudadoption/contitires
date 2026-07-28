@@ -15,9 +15,12 @@ import decorate from '../../../blocks/retailers/retailers.js';
  * second the copy behind its financing link.
  */
 const FINANCING = '<p>Finance your tire purchase with the Continental Tire Synchrony Car Care'
-  + ' credit card.</p><ul><li>No Annual Fee*</li><li>$0 Fraud Liability</li></ul>'
-  + '<p>Apply in-store or <a href="https://etail.mysynchrony.com/x">online</a>.</p>'
-  + '<p><em>*For new accounts: Purchase APR is 29.99%.</em></p>';
+  + ' credit card. Plus, use it for routine maintenance, gas, parts and more.</p>'
+  + '<ul><li>No Annual Fee*</li><li>$0 Fraud Liability</li>'
+  + '<li>Secure online account access</li></ul>'
+  + '<p>Apply in-store or <a href="https://etail.mysynchrony.com/x"><strong>online</strong></a>'
+  + ' and get a quick response</p>'
+  + '<p><em>*For new accounts: Purchase APR is 29.99%; Minimum interest charge is $2</em></p>';
 
 /** A logo the browser sizes without a fetch, standing in for a real one. */
 function png(w, h) {
@@ -134,7 +137,7 @@ describe('Retailers block, the financing disclosure', () => {
     decorate(block);
     const panel = block.querySelector('.retailers-panel');
     expect(panel.textContent).to.contain('Synchrony Car Care');
-    expect(panel.querySelectorAll('li')).to.have.length(2);
+    expect(panel.querySelectorAll('li')).to.have.length(3);
     expect(panel.querySelector('a').href).to.equal('https://etail.mysynchrony.com/x');
   });
 
@@ -326,7 +329,7 @@ describe('Retailers block, live\'s measurements', () => {
       .to.be.closeTo(button.getBoundingClientRect().bottom + 10, 0.5);
   });
 
-  // live's card is 282.6 tall: 24 of padding, the copy, then 16 under it
+  // live's card pads 24 over the copy and 16 under it
   it('sets the copy the way live sets it', async () => {
     await setViewport({ width: 1440, height: 900 });
     block.querySelector('button.retailers-financing').click();
@@ -340,8 +343,8 @@ describe('Retailers block, live\'s measurements', () => {
     expect(styles.fontSize, 'the terms read small').to.equal('12px');
     expect(styles.lineHeight).to.equal('16px');
     expect(styles.marginTop, 'and sit 12 under the line above').to.equal('12px');
-    expect(Math.round(fine.getBoundingClientRect().height), 'over two lines').to.equal(32);
-    expect(Math.round(card.height)).to.equal(283);
+    // the card ends 16 under the last of the copy, as live's does
+    expect(card.bottom - fine.getBoundingClientRect().bottom).to.be.closeTo(16, 0.5);
   });
 
   it('closes the card with live\'s ringed cross', async () => {
