@@ -215,7 +215,7 @@ describe('Tire specs block, legacy product-specs.json', () => {
     await when(() => block.querySelector('.tire-specs-status'));
 
     expect(document.querySelector('.tire-specs-wrapper')).to.exist;
-    expect(block.querySelector('.tire-specs-panel')).to.not.exist;
+    expect(block.querySelector('.tire-specs-grid'), 'a spec table').to.not.exist;
   });
 });
 
