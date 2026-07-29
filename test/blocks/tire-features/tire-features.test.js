@@ -296,7 +296,8 @@ describe('Tire features, live\'s measurements', () => {
     expect(title(cards[0]).fontWeight).to.equal('400');
     expect(title(cards[0]).color, 'the open card is named in yellow').to.equal('rgb(255, 165, 0)');
     expect(title(cards[1]).color).to.equal('rgb(255, 255, 255)');
-    expect(getComputedStyle(cards[1]).opacity).to.equal('0.4');
+    // how far a closed card is dimmed is the contrast test's to fix
+    expect(Number(getComputedStyle(cards[1]).opacity)).to.be.below(1);
     expect(getComputedStyle(cards[0]).opacity).to.equal('1');
   });
 
@@ -312,6 +313,33 @@ describe('Tire features, live\'s measurements', () => {
       expect(box(n).top).to.be.above(box(figure).top);
     });
     expect(Math.round(box(notes[1]).top)).to.be.above(Math.round(box(notes[0]).top));
+  });
+
+  // Live dims a closed card to 0.4, which leaves its white words at #666 on
+  // #141414 once the band shows through: 3.2 to 1, under the 4.5 WCAG asks of
+  // text this size. Lighthouse scored the page 97 for it.
+  it('holds a closed card\'s words to the contrast WCAG asks for', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    decorate(block = features());
+    const rgb = (s) => s.match(/\d+/g).slice(0, 3).map(Number);
+    const over = (c, bg, a) => c.map((v, i) => Math.round(a * v + (1 - a) * bg[i]));
+    const lum = (c) => {
+      const f = (v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+      return 0.2126 * f(c[0] / 255) + 0.7152 * f(c[1] / 255) + 0.0722 * f(c[2] / 255);
+    };
+    const ratio = (a, b) => {
+      const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+      return (hi + 0.05) / (lo + 0.05);
+    };
+    const closed = block.querySelectorAll('.tire-features-card')[1];
+    const alpha = Number(getComputedStyle(closed).opacity);
+    expect(alpha, 'a closed card is still dimmed').to.be.below(1);
+    const band = rgb(getComputedStyle(document.querySelector('.section')).backgroundColor);
+    const paper = over(rgb(getComputedStyle(closed).backgroundColor), band, alpha);
+    ['h3', 'p'].forEach((sel) => {
+      const ink = over(rgb(getComputedStyle(closed.querySelector(sel)).color), band, alpha);
+      expect(ratio(ink, paper), `${sel} on a closed card`).to.be.at.least(4.5);
+    });
   });
 
   // there is 852 of room at 900 and live never blows the drawing up to fill it

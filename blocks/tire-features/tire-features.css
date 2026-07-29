@@ -52,7 +52,10 @@ main .section.tire-features-container h2 {
   color: var(--conti-white);
   font-family: var(--body-font-family);
   text-align: left;
-  opacity: 0.4;
+
+  /* live dims a closed card to 0.4, which leaves its words at 3.2 to 1 against
+     the band showing through. 0.55 dims it and clears the 4.5 WCAG asks for. */
+  opacity: 0.55;
   cursor: pointer;
   transition: opacity 0.3s ease, box-shadow 0.3s ease;
 }
