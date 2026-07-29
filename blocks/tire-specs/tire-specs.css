@@ -1,42 +1,19 @@
-/* product specifications: a dark band with a size selector and the selected
-   size's spec sheet, matching the live product page.
+/* product specifications: a dark band with a size picker, and the chosen
+   size's spec sheet under it, matching the live product page.
 
-   The sheet lands after the sections under this one are on screen, so the band
-   holds the room the filled sheet takes. Every product carries the same 19
-   fields, so the height turns on the width rather than on the product: the grid
-   below pairs the fields two across from 600px up. These are the heights the
-   filled band settles at, read off four product pages at twelve widths from
-   320 to 1440: 1472 at 320 falling to 1289 by 480, 962 at 600 falling to 805
-   by 899, 808 from 900. A band holds the tallest of the widths in it, so the
-   room is never short of the sheet. Where it is over, the sheet sits in a
-   taller band rather than moving what is under it. Issues #111 and #113. */
+   The band holds no room for a sheet, because live shows no sheet until a
+   reader asks for one. Live's own band is 428 at 1440 with nothing chosen, on a
+   product with 119 sizes and on one with none alike, and 788 once a size is
+   picked. Ours draws the band in full before the specs sheet lands, and the
+   sheet only fills the picker, so nothing in it moves late and nothing needs
+   reserving. Read at 1440x1000 with the profile's storage cleared and the cache
+   bypassed. Issues #314, #242, #232 and #111. */
 .tire-specs {
   box-sizing: border-box;
-  min-height: 1472px;
   background-color: var(--conti-dark-black);
   color: var(--conti-white);
   padding: 48px 24px;
   text-align: center;
-}
-
-@media (width >= 600px) {
-  .tire-specs {
-    min-height: 962px;
-  }
-}
-
-@media (width >= 900px) {
-  .tire-specs {
-    min-height: 808px;
-  }
-}
-
-/* live's own band on a product with no sizes holds no room for a sheet that is
-   not coming: 404 at 375, 336 at 600, 416 at 900 and 428 at 1440, against the
-   heights above. Read off continentaltire.com/tires/4x4sportcontact with the
-   profile's storage cleared. Issues #242 and #232. */
-.tire-specs.tire-specs-empty {
-  min-height: 0;
 }
 
 /* live sets the product's own name in title case and tracks out the word after
@@ -52,12 +29,6 @@
 .tire-specs h2 span {
   letter-spacing: 6px;
   text-transform: uppercase;
-}
-
-.tire-specs-count {
-  margin: 0 0 24px;
-  color: var(--conti-grey);
-  font-size: var(--body-font-size-s);
 }
 
 /* what a broken column contract reads as, on the band rather than in a console

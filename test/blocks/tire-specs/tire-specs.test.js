@@ -105,8 +105,16 @@ function when(check) {
   });
 }
 
-/** The block once the sheet has landed and the selector is in place. */
-const filled = (block) => when(() => block.querySelector('.tire-specs-select'));
+/** The block once the sheet has landed and the picker holds its sizes. */
+const filled = (block) => when(() => block.querySelector('.tire-specs-select option[value="0"]'));
+
+/** Chooses a size in the picker, the way a reader does. */
+function choose(block, index) {
+  const select = block.querySelector('.tire-specs-select');
+  select.value = String(index);
+  select.dispatchEvent(new Event('change'));
+  return select;
+}
 
 /** A tire-specs block with the product slug authored in its first cell. */
 function build(slug) {
@@ -168,18 +176,26 @@ describe('Tire specs block, legacy product-specs.json', () => {
   let fetchStub;
   afterEach(() => fetchStub?.restore());
 
-  it('renders a size selector and the first size specs', async () => {
+  it('offers the sizes under live\'s placeholder, and shows none of them yet', async () => {
     fetchStub = stubFetch({ '/product-specs.json': SPECS });
     const block = build('my-tire');
     decorate(block);
     await filled(block);
 
-    const opts = block.querySelectorAll('.tire-specs-select option');
-    expect(opts).to.have.length(2);
-    expect(opts[0].textContent).to.equal('205/45 ZR 16');
+    const opts = [...block.querySelectorAll('.tire-specs-select option')].map((o) => o.textContent);
+    expect(opts).to.deep.equal(['Select a size', '205/45 ZR 16', '225/45 ZR 17']);
+    expect(block.textContent).to.not.contain('Load Index');
+  });
+
+  it('shows a size\'s specs once a reader chooses it', async () => {
+    fetchStub = stubFetch({ '/product-specs.json': SPECS });
+    const block = build('my-tire');
+    decorate(block);
+    await filled(block);
+
+    choose(block, 0);
     expect(block.textContent).to.contain('Load Index');
     expect(block.textContent).to.contain('83');
-    expect(block.querySelector('.tire-specs-count').textContent).to.contain('2');
   });
 
   it('switches specs when a different size is selected', async () => {
@@ -188,9 +204,7 @@ describe('Tire specs block, legacy product-specs.json', () => {
     decorate(block);
     await filled(block);
 
-    const select = block.querySelector('.tire-specs-select');
-    select.value = '1';
-    select.dispatchEvent(new Event('change'));
+    choose(block, 1);
     expect(block.textContent).to.contain('88');
   });
 
@@ -201,7 +215,7 @@ describe('Tire specs block, legacy product-specs.json', () => {
     await when(() => block.querySelector('.tire-specs-status'));
 
     expect(document.querySelector('.tire-specs-wrapper')).to.exist;
-    expect(block.querySelector('.tire-specs-panel')).to.not.exist;
+    expect(block.querySelector('.tire-specs-grid'), 'a spec table').to.not.exist;
   });
 });
 
@@ -215,11 +229,10 @@ describe('Tire specs block, multi-sheet workbook', () => {
     decorate(block);
     await filled(block);
 
-    const opts = block.querySelectorAll('.tire-specs-select option');
-    expect(opts).to.have.length(2);
-    expect(opts[0].textContent).to.equal('155/70 R 19');
-    expect(opts[1].textContent).to.equal('285/40 R 19');
+    const opts = [...block.querySelectorAll('.tire-specs-select option')].map((o) => o.textContent);
+    expect(opts).to.deep.equal(['Select a size', '155/70 R 19', '285/40 R 19']);
 
+    choose(block, 0);
     const dts = [...block.querySelectorAll('.tire-specs-grid dt')].map((dt) => dt.textContent);
     expect(dts).to.deep.equal(SPEC_ORDER); // slug and size excluded, order preserved
     expect(block.textContent).to.contain('88'); // Load Index of the first size
@@ -244,7 +257,7 @@ describe('Tire specs block, multi-sheet workbook', () => {
     await filled(block);
 
     expect(document.querySelectorAll('.tire-specs-wrapper').length).to.equal(1);
-    expect(block.querySelectorAll('.tire-specs-select option').length).to.equal(2);
+    expect(block.querySelectorAll('.tire-specs-select option').length).to.equal(3);
   });
 });
 
@@ -260,8 +273,9 @@ describe("Tire specs, live's empty state", () => {
   let fetchStub;
   afterEach(() => fetchStub?.restore());
 
-  /** The band once the sheet has landed and the empty state is in place. */
-  const empty = (block) => when(() => block.querySelector('.tire-specs-status'));
+  /** The band once the sheet has landed and the picker has no size to offer. */
+  const empty = (block) => when(() => [...block.querySelectorAll('.tire-specs-select option')]
+    .some((o) => o.textContent === 'No results found'));
 
   it('heads the band with the product name, live\'s eyebrow after it', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
@@ -323,28 +337,80 @@ describe("Tire specs, live's empty state", () => {
     expect(link.getAttribute('href')).to.equal('/tires/4x4sportcontact/specs');
   });
 
-  // the band reserves the room a spec sheet takes, so the sections under it
-  // stay put while the sheet is on the way. A product with no sizes has no
-  // sheet coming, and live's band on one is a third of that. #232.
-  it('stops holding room for a sheet that is not coming', async () => {
+  it('shows no spec panel, because there is nothing to put in one', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
     const block = buildProductPage('4x4sportcontact', '4x4 SportContact');
     decorate(block);
     await empty(block);
 
-    expect(block.classList.contains('tire-specs-empty')).to.be.true;
+    expect(block.querySelector('.tire-specs-grid')).to.not.exist;
   });
+});
 
-  it('draws none of it on a product with sizes', async () => {
+/*
+ * Live's band is the same on a product with sizes as on one without. Only the
+ * picker's contents differ: 119 options against none. It says the same sentence,
+ * carries the same hint and the same link, and shows NO spec table until a size
+ * is chosen. Read off continentaltire.com/tires/extremecontact-dws06-plus at
+ * 1440x1000 with the profile's storage cleared and the cache bypassed: 428 tall
+ * with nothing chosen, 788 once 195/50 ZR 16 is picked, and the sentence stays
+ * on screen either way. #314.
+ */
+describe("Tire specs, live's band on a product with sizes", () => {
+  let fetchStub;
+  afterEach(() => fetchStub?.restore());
+
+  const page = () => buildProductPage('vikingcontact-7', 'VikingContact 7');
+
+  it('says what live says, rather than counting the sizes', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
-    const block = buildProductPage('vikingcontact-7', 'VikingContact 7');
+    const block = page();
     decorate(block);
     await filled(block);
 
-    expect(block.querySelector('.tire-specs-status'), 'the empty line').to.not.exist;
-    expect(block.querySelector('.tire-specs-help'), 'the hint').to.not.exist;
-    expect(block.classList.contains('tire-specs-empty'), 'the empty modifier').to.be.false;
-    expect(block.querySelectorAll('.tire-specs-select option')).to.have.length(2);
+    expect(block.querySelector('.tire-specs-status').textContent)
+      .to.equal('Make a selection below to view tire specifications.');
+    expect(block.textContent).to.not.contain('sizes available');
+    expect(block.querySelector('.tire-specs-count')).to.not.exist;
+  });
+
+  it('waits for the reader, showing no size nobody chose', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = page();
+    decorate(block);
+    await filled(block);
+
+    const select = block.querySelector('.tire-specs-select');
+    expect(select.options[0].textContent, 'what the picker reads').to.equal('Select a size');
+    expect(select.value, 'nothing chosen').to.equal('');
+    expect(block.querySelector('.tire-specs-grid'), 'a spec table').to.not.exist;
+  });
+
+  it('carries live\'s hint and link here too', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = page();
+    decorate(block);
+    await filled(block);
+
+    expect(block.querySelector('.tire-specs-help').textContent.replace(/\s+/g, ' '))
+      .to.equal('Need Help? Find size by vehicle or plate');
+    expect(block.querySelector('.tire-specs-view-all').getAttribute('href'))
+      .to.equal('/tires/vikingcontact-7/specs');
+  });
+
+  it('puts the specs where live puts them, under the hint and above the link', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = page();
+    decorate(block);
+    await filled(block);
+    choose(block, 0);
+
+    const order = [...block.children].map((el) => el.className || el.tagName);
+    expect(order).to.deep.equal([
+      'H2', 'tire-specs-status', 'tire-specs-field', 'tire-specs-help',
+      'tire-specs-panel', 'tire-specs-view-all',
+    ]);
+    expect(block.querySelector('.tire-specs-panel .tire-specs-grid')).to.exist;
   });
 });
 
@@ -366,7 +432,7 @@ describe('Tire specs block, single-sheet request', () => {
     decorate(block);
     await filled(block);
 
-    const opts = block.querySelectorAll('.tire-specs-select option');
+    const opts = block.querySelectorAll('.tire-specs-select option:not([value=""])');
     expect(opts).to.have.length(2);
     expect(opts[0].textContent).to.equal('155/70 R 19');
   });
@@ -399,7 +465,7 @@ describe('Tire specs block, sheets longer than one page', () => {
     decorate(block);
     await filled(block);
 
-    expect(block.querySelectorAll('.tire-specs-select option')).to.have.length(3);
+    expect(block.querySelectorAll('.tire-specs-select option:not([value=""])')).to.have.length(3);
   });
 
   it('stops once it has every row', async () => {
@@ -417,86 +483,41 @@ describe('Tire specs block, sheets longer than one page', () => {
     decorate(block);
     await filled(block);
 
-    expect(block.querySelectorAll('.tire-specs-select option')).to.have.length(3);
+    expect(block.querySelectorAll('.tire-specs-select option:not([value=""])')).to.have.length(3);
   });
 });
 
 /*
- * The sheet lands after the sections under this one are on screen, so the block
- * holds the room its spec sheet takes. Every product carries the same 19
- * fields, so the height turns on the width rather than on the product: the grid
- * pairs the fields two across from 600px up. These are the heights the filled
- * band settles at, read off four product pages at twelve widths from 320 to
- * 1440: 1472 at 320 falling to 1289 by 480, 962 at 600 falling to 805 by 899,
- * 808 from 900. A band holds the tallest of the widths in it, so the room is
- * never short of the sheet. Where it is over, the sheet sits in a taller band
- * rather than moving what is under it.
+ * Live's band waits for the reader, so nothing lands in it late and it holds no
+ * room for a sheet. Its own band is 428 at 1440 with nothing chosen, on a
+ * product with 119 sizes and on one with none alike, and grows to 788 when a
+ * size is picked. Ours used to reserve 1472, 962 and 808 for a sheet it drew
+ * without being asked. Read off continentaltire.com at 1440x1000 with the
+ * profile's storage cleared and the cache bypassed. #314, #232.
  */
-describe('The room the spec sheet takes', () => {
-  let block;
-
-  before(async () => {
-    const sheet = new CSSStyleSheet();
-    await sheet.replace(await (await fetch('/blocks/tire-specs/tire-specs.css')).text());
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
-    document.body.innerHTML = '<main><div class="section"><div><div class="tire-specs"></div></div></div></main>';
-    block = document.querySelector('.tire-specs');
-  });
-
-  after(() => {
-    document.adoptedStyleSheets = document.adoptedStyleSheets.slice(0, -1);
-    document.querySelector('main').remove();
-  });
-
-  const height = () => Math.round(block.getBoundingClientRect().height);
-
-  it('holds the stacked sheet open on a phone', async () => {
-    await setViewport({ width: 375, height: 800 });
-    expect(height()).to.equal(1472);
-  });
-
-  it('holds the stack open to the foot of its band', async () => {
-    await setViewport({ width: 599, height: 800 });
-    expect(height()).to.equal(1472);
-  });
-
-  it('holds the paired sheet open from 600', async () => {
-    await setViewport({ width: 600, height: 800 });
-    expect(height()).to.equal(962);
-  });
-
-  it('holds it open across that band', async () => {
-    await setViewport({ width: 768, height: 800 });
-    expect(height()).to.equal(962);
-  });
-
-  it('holds the desk sheet open from 900', async () => {
-    await setViewport({ width: 1200, height: 800 });
-    expect(height()).to.equal(808);
-  });
-});
-
-/*
- * A product with no sizes has no spec sheet coming, so the band holds no room
- * for one. Live's own band on such a product is 404 at 375, 336 at 600, 416 at
- * 900 and 428 at 1440, against the 1472, 962 and 808 ours reserves for a sheet.
- * Read off continentaltire.com/tires/4x4sportcontact with storage cleared.
- */
-describe('The room an empty band does not hold', () => {
+describe('The room the band no longer holds', () => {
   let sheet;
-  let block;
+
+  const band = (extra) => {
+    document.body.innerHTML = `<main><div class="section"><div>
+      <div class="tire-specs">
+        <h2>VikingContact 7 <span>Specifications</span></h2>
+        <p class="tire-specs-status">Make a selection below to view tire specifications.</p>
+        <div class="tire-specs-field">
+          <label class="tire-specs-label" for="s">Tire size</label>
+          <select class="tire-specs-select" id="s"><option>Select a size</option></select>
+        </div>
+        <p class="tire-specs-help">Need Help? Find size by vehicle or plate</p>
+        <div class="tire-specs-panel">${extra}</div>
+        <a class="tire-specs-view-all" href="/tires/vikingcontact-7/specs">View all sizes &amp; specs</a>
+      </div></div></div></main>`;
+    return document.querySelector('.tire-specs');
+  };
 
   before(async () => {
     sheet = new CSSStyleSheet();
     await sheet.replace(await (await fetch('/blocks/tire-specs/tire-specs.css')).text());
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
-    document.body.innerHTML = `<main><div class="section"><div>
-      <div class="tire-specs tire-specs-empty">
-        <h2>4x4 SportContact <span>Specifications</span></h2>
-        <p class="tire-specs-status">Make a selection below to view tire specifications.</p>
-        <p class="tire-specs-help">Need Help? Find size by vehicle or plate</p>
-      </div></div></div></main>`;
-    block = document.querySelector('.tire-specs');
   });
 
   after(async () => {
@@ -505,25 +526,29 @@ describe('The room an empty band does not hold', () => {
     await setViewport({ width: 1440, height: 900 });
   });
 
-  const reserved = () => getComputedStyle(block).minHeight;
-  const height = () => Math.round(block.getBoundingClientRect().height);
+  const reserved = (el) => getComputedStyle(el).minHeight;
 
   it('reserves nothing on a phone', async () => {
     await setViewport({ width: 375, height: 800 });
-    expect(reserved()).to.equal('0px');
-    expect(height(), 'the reserved room').to.be.below(1472);
+    expect(reserved(band(''))).to.equal('0px');
   });
 
   it('reserves nothing from 600', async () => {
     await setViewport({ width: 600, height: 800 });
-    expect(reserved()).to.equal('0px');
-    expect(height(), 'the reserved room').to.be.below(962);
+    expect(reserved(band(''))).to.equal('0px');
   });
 
   it('reserves nothing on a desk', async () => {
     await setViewport({ width: 1200, height: 800 });
-    expect(reserved()).to.equal('0px');
-    expect(height(), 'the reserved room').to.be.below(808);
+    expect(reserved(band(''))).to.equal('0px');
+  });
+
+  it('stands taller once a reader has chosen a size', async () => {
+    await setViewport({ width: 1200, height: 800 });
+    const empty = band('').getBoundingClientRect().height;
+    const pairs = SPEC_ORDER.map((key, i) => `<dt>${key}</dt><dd>v${i}</dd>`).join('');
+    const chosen = band(`<dl class="tire-specs-grid">${pairs}</dl>`).getBoundingClientRect().height;
+    expect(chosen, 'the band with a spec sheet in it').to.be.above(empty);
   });
 });
 

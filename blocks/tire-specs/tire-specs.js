@@ -70,6 +70,25 @@ async function loadSizes(slug) {
 }
 
 /**
+ * Builds a definition list of one size's spec fields, matching the live
+ * per-size spec sheet.
+ * @param {{size: string, specs: Object}} entry one size and its specs
+ * @returns {HTMLDListElement}
+ */
+function specGrid(entry) {
+  const dl = document.createElement('dl');
+  dl.className = 'tire-specs-grid';
+  Object.entries(entry.specs).forEach(([key, value]) => {
+    const dt = document.createElement('dt');
+    dt.textContent = key;
+    const dd = document.createElement('dd');
+    dd.textContent = value;
+    dl.append(dt, dd);
+  });
+  return dl;
+}
+
+/**
  * A control that opens the tire finder on one of its tabs, the way live's hint
  * does. The finder is a block of its own, so it loads on the click rather than
  * riding along with every product page.
@@ -90,17 +109,23 @@ function finderButton(tab) {
 }
 
 /**
- * Live's own band on a product it has no sizes for: the heading, the line above
- * the picker, an empty picker, the hint under it and the link to the full size
- * and spec page. Read off continentaltire.com/tires/4x4sportcontact at
- * 1440x1000 with the profile's storage cleared, in the state a reader arrives
- * in. Its picker holds 0 options where the same band on
- * /tires/extremecontact-dws06-plus holds 119.
+ * Live's band, the same on a product with 119 sizes as on one with none: the
+ * heading, the line above the picker, the picker under its label, the hint, the
+ * chosen size's specs, and the link to the full sheet. Only the picker's
+ * contents differ between the two. Read off continentaltire.com at 1440x1000
+ * with the profile's storage cleared and the cache bypassed, in the settled
+ * state: 428 tall with nothing chosen, 788 once a size is picked, and the
+ * sentence on screen either way.
+ *
+ * It is built before the sheet lands, and the sheet only fills the picker, so
+ * nothing in the band moves late.
  * @param {Element} block the tire-specs block
  * @param {Element} heading the heading the block was decorated with
  * @param {string} slug the product slug
+ * @returns {{select: HTMLSelectElement, panel: HTMLElement}} the picker and the
+ * panel its choice fills
  */
-function emptyState(block, heading, slug) {
+function band(block, heading, slug) {
   const status = document.createElement('p');
   status.className = 'tire-specs-status';
   status.textContent = 'Make a selection below to view tire specifications.';
@@ -108,14 +133,10 @@ function emptyState(block, heading, slug) {
   const select = document.createElement('select');
   select.className = 'tire-specs-select';
   select.id = 'tire-specs-size';
-  ['Select a size', 'No results found'].forEach((text, i) => {
-    const option = document.createElement('option');
-    option.textContent = text;
-    option.value = '';
-    // the second is what the open picker reads, and there is nothing to take
-    option.disabled = i > 0;
-    select.append(option);
-  });
+  const placeholder = document.createElement('option');
+  placeholder.textContent = 'Select a size';
+  placeholder.value = '';
+  select.append(placeholder);
 
   const label = document.createElement('label');
   label.className = 'tire-specs-label';
@@ -130,44 +151,56 @@ function emptyState(block, heading, slug) {
   hint.className = 'tire-specs-help';
   hint.append('Need Help? Find size by ', finderButton('vehicle'), ' or ', finderButton('plate'));
 
+  const panel = document.createElement('div');
+  panel.className = 'tire-specs-panel';
+
   const viewAll = document.createElement('a');
   viewAll.className = 'tire-specs-view-all';
   viewAll.href = `/tires/${slug}/specs`;
   viewAll.textContent = 'View all sizes & specs';
 
-  // no sheet is coming, so the band stops holding the room one takes
-  block.classList.add('tire-specs-empty');
-  block.replaceChildren(heading, status, field, hint, viewAll);
+  block.replaceChildren(heading, status, field, hint, panel, viewAll);
+  return { select, panel };
 }
 
 /**
- * Builds a definition list of one size's spec fields, matching the live
- * per-size spec sheet.
- * @param {{size: string, specs: Object}} entry one size and its specs
- * @returns {HTMLDListElement}
+ * Puts the product's sizes in the picker and shows the one a reader chooses.
+ * A product the sheet has no rows for gets live's own answer in the picker, and
+ * nothing else about the band changes.
+ * @param {HTMLSelectElement} select the picker
+ * @param {HTMLElement} panel the panel a choice fills
+ * @param {Array<{size: string, specs: Object}>} sizes the product's sizes
  */
-function specGrid(entry) {
-  const dl = document.createElement('dl');
-  dl.className = 'tire-specs-grid';
-  Object.entries(entry.specs).forEach(([key, value]) => {
-    const dt = document.createElement('dt');
-    dt.textContent = key;
-    const dd = document.createElement('dd');
-    dd.textContent = value;
-    dl.append(dt, dd);
+function offerSizes(select, panel, sizes) {
+  if (!sizes.length) {
+    const none = document.createElement('option');
+    none.textContent = 'No results found';
+    none.value = '';
+    none.disabled = true;
+    select.append(none);
+    return;
+  }
+  sizes.forEach((entry, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = entry.size;
+    select.append(option);
   });
-  return dl;
+  select.addEventListener('change', () => {
+    const entry = sizes[Number(select.value)];
+    panel.replaceChildren(...(entry ? [specGrid(entry)] : []));
+  });
 }
 
 /**
- * Fills the band with the size selector and the selected size's spec sheet,
- * once the sheet has landed.
+ * Fills the picker once the sheet has landed.
  * @param {Element} block the tire-specs block
  * @param {Element} heading the heading the block was decorated with
- * @param {string} slug the product slug
+ * @param {HTMLSelectElement} select the picker
+ * @param {HTMLElement} panel the panel a choice fills
  * @param {{sizes?: Array<{size: string, specs: Object}>, error?: string}} result
  */
-function fill(block, heading, slug, result) {
+function fill(block, heading, select, panel, result) {
   // a sheet the block cannot read is an authoring mistake, and it is the whole
   // catalogue's, so say which column is gone rather than blank every page
   if (result.error) {
@@ -180,46 +213,19 @@ function fill(block, heading, slug, result) {
     return;
   }
 
-  const sizes = result.sizes || [];
-  // nothing to show: live keeps its band and shows an empty picker in it
-  if (!sizes.length) {
-    emptyState(block, heading, slug);
-    return;
-  }
-
-  const count = document.createElement('p');
-  count.className = 'tire-specs-count';
-  count.textContent = `${sizes.length} sizes available. Select a size to see its specs.`;
-
-  const select = document.createElement('select');
-  select.className = 'tire-specs-select';
-  select.setAttribute('aria-label', 'Select a tire size');
-  sizes.forEach((entry, i) => {
-    const option = document.createElement('option');
-    option.value = String(i);
-    option.textContent = entry.size;
-    select.append(option);
-  });
-
-  const panel = document.createElement('div');
-  panel.className = 'tire-specs-panel';
-  const render = (i) => panel.replaceChildren(specGrid(sizes[i]));
-  select.addEventListener('change', () => render(Number(select.value)));
-  render(0);
-
-  block.replaceChildren(heading, count, select, panel);
+  offerSizes(select, panel, result.sizes || []);
 }
 
 /**
- * Tire specifications: a size selector plus the selected size's spec sheet,
- * matching the live product page. The product is identified by a slug authored
+ * Tire specifications: live's band, with a size picker that shows a size's
+ * specs once a reader chooses one. The product is identified by a slug authored
  * in the block, falling back to the last path segment. Per-size specs come
  * from the /products.json workbook, or the legacy product-specs.json.
  *
  * The sheet is 827KB over 1656 rows, and a product page carries three more
  * sections under this block, which loadSections reaches only once this returns.
- * So the band is headed here and filled when the sheet lands, and the
- * stylesheet holds the room the filled sheet takes. Issue #111.
+ * So the band is drawn here in full and the sheet only fills the picker, which
+ * moves nothing. Issues #111 and #314.
  * @param {Element} block the tire-specs block
  */
 export default function decorate(block) {
@@ -235,9 +241,9 @@ export default function decorate(block) {
   const name = document.querySelector('main h1');
   if (name) heading.append(`${name.textContent.trim()} `);
   heading.append(eyebrow);
-  block.replaceChildren(heading);
 
+  const { select, panel } = band(block, heading, slug);
   loadSizes(slug)
     .catch(() => ({ sizes: [] }))
-    .then((result) => fill(block, heading, slug, result));
+    .then((result) => fill(block, heading, select, panel, result));
 }
