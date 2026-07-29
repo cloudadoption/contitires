@@ -475,3 +475,87 @@ describe('Tire specs, a sheet that does not carry its columns', () => {
     expect(errors.called, 'console.error').to.be.false;
   });
 });
+
+/**
+ * Six of the 46 products have no rows anywhere in the specs sheet:
+ * 4x4sportcontact, contipremiumcontact-2, contitrac, controlcontact-tour-as-plus,
+ * purecontact-ls and truecontact-tour. Counted over all 1656 rows, with the
+ * fetch proven complete against the sheet's own total. #242 says six and names
+ * these; #232 says four, and four is wrong.
+ *
+ * Live has no sizes for them either and still renders the band. Read on
+ * continentaltire.com/tires/4x4sportcontact with the profile's storage cleared
+ * first: the band is 1440 by 428 on black, headed `4x4 SportContact
+ * Specifications`, exactly the same 428 as a product with 49 sizes. Only the
+ * option count differs.
+ *
+ * We removed the wrapper instead, so the band went. That is the parity defect
+ * in #242 and the late collapse in #232, which are one defect: a band that is
+ * never removed cannot collapse. (#242, folding in #232)
+ */
+describe('Tire specs, the products with no sizes', () => {
+  let fetchStub;
+  afterEach(() => {
+    fetchStub.restore();
+    document.querySelector('main')?.remove();
+  });
+
+  it('keeps the band where it used to take it away', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildInSection('purecontact-ls');
+    decorate(block);
+    await when(() => document.querySelector('.tire-specs-count'));
+
+    expect(document.querySelector('.tire-specs-wrapper'), 'the wrapper').to.exist;
+    expect(document.querySelector('.tire-specs-container').children.length).to.equal(1);
+    expect(block.querySelector('h2').textContent).to.equal('Specifications');
+  });
+
+  it('says plainly that no sizes are listed', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildInSection('purecontact-ls');
+    decorate(block);
+    const count = await when(() => document.querySelector('.tire-specs-count'));
+
+    expect(count.textContent).to.equal('No sizes are listed for this tire.');
+  });
+
+  // a picker with nothing in it is a control that does nothing, which is the
+  // shape #307 took out of the finder
+  it('draws no picker when there is nothing to pick', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildInSection('purecontact-ls');
+    decorate(block);
+    await when(() => document.querySelector('.tire-specs-count'));
+
+    expect(block.querySelector('select')).to.not.exist;
+    expect(block.querySelector('.tire-specs-grid')).to.not.exist;
+  });
+
+  // live's hint reads "Find size by vehicle or plate". Neither of those finds a
+  // size here, which is #243, so this offers the one search that does.
+  it('offers the search that does find a size', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildInSection('purecontact-ls');
+    decorate(block);
+    await when(() => document.querySelector('.tire-specs-count'));
+
+    const trigger = block.querySelector('[data-tire-finder]');
+    expect(trigger, 'the finder trigger').to.exist;
+    expect(trigger.dataset.tireFinder).to.equal('tire-size');
+    expect(trigger.textContent.trim()).to.equal('Search by tire size');
+    expect(/vehicle|plate/i.test(block.textContent), 'no vehicle or plate claim').to.be.false;
+  });
+
+  it('still fills the band for a product that has rows', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await filled(block);
+
+    expect(block.querySelectorAll('.tire-specs-select option').length).to.equal(2);
+    expect(block.querySelector('[data-tire-finder]'), 'no empty-state help').to.not.exist;
+    expect(block.querySelector('.tire-specs-count').textContent)
+      .to.equal('2 sizes available. Select a size to see its specs.');
+  });
+});
