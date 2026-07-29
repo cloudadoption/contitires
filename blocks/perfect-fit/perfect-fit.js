@@ -1,4 +1,7 @@
 import { createOptimizedPicture, decorateIcons, loadCSS } from '../../scripts/aem.js';
+import {
+  SPECS_COLUMNS, missingColumns, sizesBySlug, sheetRows,
+} from '../../scripts/products.js';
 
 /**
  * "Find your perfect fit:" bar plus its tire-finder modal. The three items
@@ -7,9 +10,12 @@ import { createOptimizedPicture, decorateIcons, loadCSS } from '../../scripts/ae
  * the matching tires.
  */
 
-// ask for the products sheet alone: the workbook also carries a 1315-row specs
-// sheet the finder never reads
+// the two sheets the finder reads: the products sheet for what a tire is, the
+// specs sheet for which sizes it comes in. The workbook's third sheet, catalog,
+// belongs to the listing. The sheet API serves 1000 rows to a request that
+// names no limit and the specs sheet is longer than that, so ask for all of it.
 const PRODUCTS_URL = '/products.json?sheet=products';
+const SPECS_URL = '/products.json?sheet=specs&limit=10000';
 
 const TABS = [
   { id: 'vehicle', label: 'By Vehicle' },
@@ -447,28 +453,62 @@ function buildModal(products) {
   return { overlay, open };
 }
 
+/** Splits a comma-joined sheet cell, tolerating a cell that is already a list. */
+function listCell(value) {
+  if (typeof value === 'string') return value.split(',').map((s) => s.trim()).filter(Boolean);
+  return value || [];
+}
+
+/**
+ * Which sizes each product comes in, read from the specs sheet. That sheet is
+ * the one source: the products sheet also carries a comma-joined sizes cell,
+ * derived from this and out of date the moment either is edited alone. Issue
+ * #122.
+ * @returns {Promise<Map<string, Array<string>>|null>} null when the sheet
+ * cannot be read, which leaves the caller the stale cell to fall back on
+ */
+async function loadSpecSizes() {
+  try {
+    const resp = await fetch(SPECS_URL);
+    if (!resp.ok) return null;
+    const rows = sheetRows(await resp.json(), 'specs');
+    const missing = missingColumns(rows, SPECS_COLUMNS);
+    if (missing.length) {
+      // eslint-disable-next-line no-console
+      console.error(`perfect-fit: the specs sheet has no ${missing.join(' and no ')} column, so the finder is reading the products.sizes cell instead`);
+      return null;
+    }
+    return sizesBySlug(rows);
+  } catch (e) {
+    return null;
+  }
+}
+
 /** Reads the tire catalogue. Returns an empty list when the sheet is missing. */
 async function loadProducts() {
   try {
-    const resp = await fetch(PRODUCTS_URL);
+    const [resp, specSizes] = await Promise.all([fetch(PRODUCTS_URL), loadSpecSizes()]);
     if (!resp.ok) return [];
     const json = await resp.json();
     // support all three shapes: a single-sheet response (data), the whole
     // multi-sheet workbook (products.data), and the legacy single-object
     // file ({ products: [...] }).
-    const rows = json.data
-      || (json.products && json.products.data)
-      || json.products
-      || [];
-    return rows.map((product) => ({
+    const rows = sheetRows(json, 'products').length
+      ? sheetRows(json, 'products')
+      : (json.products || []);
+    const products = rows.map((product) => ({
       ...product,
-      sizes: typeof product.sizes === 'string'
-        ? product.sizes.split(',').map((s) => s.trim()).filter(Boolean)
-        : (product.sizes || []),
-      vehicleTypes: typeof product.vehicleTypes === 'string'
-        ? product.vehicleTypes.split(',').map((s) => s.trim()).filter(Boolean)
-        : (product.vehicleTypes || []),
+      sizes: specSizes ? (specSizes.get(product.slug) || []) : listCell(product.sizes),
+      vehicleTypes: listCell(product.vehicleTypes),
     }));
+    // a product the specs sheet has no row for is searchable by vehicle and not
+    // by size, and that is worth saying: it means a size nobody can spec
+    const unspecced = specSizes ? products.filter((p) => !p.sizes.length).map((p) => p.slug) : [];
+    if (unspecced.length) {
+      // eslint-disable-next-line no-console
+      console.warn(`perfect-fit: the specs sheet has no rows for ${unspecced.join(', ')}, so those tires answer no size search`);
+    }
+    return products;
   } catch (e) {
     return [];
   }

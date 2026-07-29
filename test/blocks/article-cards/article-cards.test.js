@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it afterEach */
+/* global describe it beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
@@ -358,5 +358,92 @@ describe('Article cards, the authored configuration', () => {
     expect(fetchStub.firstCall.args[0]).to.equal('/learn/query-index.json');
     expect(block.querySelectorAll('.article-card')).to.have.length(2);
     expect(block.textContent).to.not.contain('C');
+  });
+});
+
+// #124: the block filters the index by an exact Category string an author
+// types into a cell. A typo used to render an empty list, on a page that looks
+// finished until someone counts the cards.
+describe('Article cards, a category nobody publishes under', () => {
+  let fetchStub;
+  let errors;
+
+  const ROWS = [
+    {
+      path: '/learn/a', title: 'A', image: '/a.png', category: 'Tire Tips',
+    },
+    {
+      path: '/learn/b', title: 'B', image: '/b.png', category: 'News',
+    },
+  ];
+
+  function build(...rows) {
+    document.body.innerHTML = `<div class="article-cards block">${
+      rows.map((cells) => `<div>${cells.map((c) => `<div>${c}</div>`).join('')}</div>`).join('')
+    }</div>`;
+    return document.querySelector('.article-cards.block');
+  }
+
+  function stub() {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify({
+      total: ROWS.length, offset: 0, limit: ROWS.length, data: ROWS,
+    })));
+  }
+
+  beforeEach(() => {
+    errors = sinon.stub(console, 'error');
+  });
+  afterEach(() => {
+    fetchStub?.restore();
+    errors.restore();
+  });
+
+  it('names the typed value and what it could have been', async () => {
+    stub();
+    const block = build(['Category', 'Tire Tps']);
+    await decorate(block);
+
+    const message = block.querySelector('.article-cards-error');
+    expect(message, 'the message').to.exist;
+    expect(message.textContent).to.contain('Tire Tps');
+    expect(message.textContent).to.contain('Tire Tips');
+  });
+
+  it('lists nothing under a category it cannot place', async () => {
+    stub();
+    const block = build(['Category', 'Tire Tps']);
+    await decorate(block);
+    expect(block.querySelectorAll('.article-card')).to.have.length(0);
+  });
+
+  it('reports it to the console as well', async () => {
+    stub();
+    const block = build(['Category', 'Tire Tps']);
+    await decorate(block);
+    expect(errors.called, 'console.error').to.be.true;
+  });
+
+  it('catches the typo in a one-cell row too', async () => {
+    stub();
+    const block = build(['Tire Tps']);
+    await decorate(block);
+    expect(block.querySelector('.article-cards-error')).to.exist;
+  });
+
+  it('says nothing about a category that is published under', async () => {
+    stub();
+    const block = build(['Category', 'Tire Tips']);
+    await decorate(block);
+    expect(block.querySelector('.article-cards-error')).to.not.exist;
+    expect(block.querySelectorAll('.article-card')).to.have.length(1);
+    expect(errors.called, 'console.error').to.be.false;
+  });
+
+  it('says nothing about a band that filters by no category', async () => {
+    stub();
+    const block = build(['/learn/query-index.json']);
+    await decorate(block);
+    expect(block.querySelector('.article-cards-error')).to.not.exist;
+    expect(block.querySelectorAll('.article-card')).to.have.length(2);
   });
 });

@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { categoryNames } from '../../scripts/categories.js';
 
 const DEFAULT_SOURCE = '/learn/query-index.json';
 const BATCH = 12;
@@ -156,6 +157,28 @@ export function readConfig(block) {
   return config;
 }
 
+/**
+ * Says what an author typed and what the index publishes under, on the page.
+ * A category no article carries renders an empty grid, and an empty grid reads
+ * as a section nobody has written yet rather than as a typo. The list comes
+ * from the index rather than from the vocabulary, so a category an author adds
+ * needs no code change to read right. Issue #124.
+ * @param {string} category the category as it was authored
+ * @param {Array<Object>} rows every row of the index
+ * @returns {HTMLParagraphElement}
+ */
+function unknownCategory(category, rows) {
+  const published = [...new Set(rows.map((row) => (row.category || '').trim()).filter(Boolean))];
+  const known = published.length ? published.join(', ') : categoryNames().join(', ');
+  const said = `No article is published under "${category}". The index publishes under ${known}.`;
+  // eslint-disable-next-line no-console
+  console.error(`article-cards: ${said}`);
+  const message = document.createElement('p');
+  message.className = 'article-cards-error';
+  message.textContent = said;
+  return message;
+}
+
 export default async function decorate(block) {
   const { source, category, limit } = readConfig(block);
   // the learn hub bands show teasers rather than thumbnail cards; the feature
@@ -174,7 +197,15 @@ export default async function decorate(block) {
     rows = [];
   }
 
+  const indexed = rows;
   rows = selectRows(rows, { category });
+
+  // an index that answered, a category asked for, and no article carrying it:
+  // the cell says something the site does not publish under
+  if (category && indexed.length && !rows.length) {
+    block.append(unknownCategory(category, indexed));
+    return;
+  }
 
   const list = document.createElement('ul');
   list.className = 'article-cards-list';

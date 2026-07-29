@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before after afterEach */
+/* global describe it before after beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
@@ -408,5 +408,70 @@ describe('Tire specs, where the sheet pairs up', () => {
   it('pairs them two across from 600', async () => {
     await setViewport({ width: 600, height: 900 });
     expect(tracks()).to.equal(4);
+  });
+});
+
+// #122: the block reads the sheet by two column names. Renaming either one in
+// DA used to leave every product page with no spec panel and nothing said.
+describe('Tire specs, a sheet that does not carry its columns', () => {
+  let fetchStub;
+  let errors;
+
+  beforeEach(() => {
+    errors = sinon.stub(console, 'error');
+  });
+  afterEach(() => {
+    fetchStub.restore();
+    errors.restore();
+  });
+
+  /** The specs sheet with one column renamed, the way a sheet edit renames it. */
+  const renamed = (from, to) => ({
+    total: 2,
+    offset: 0,
+    limit: 2,
+    data: WORKBOOK.specs.data
+      .filter((row) => row.slug === 'vikingcontact-7')
+      .map(({ [from]: value, ...rest }) => ({ [to]: value, ...rest })),
+  });
+
+  it('names the missing column in the band instead of taking the band away', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(renamed('slug', 'product'))));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+
+    const message = await when(() => block.querySelector('.tire-specs-error'));
+    expect(message.textContent).to.contain('slug');
+    expect(document.querySelector('.tire-specs-wrapper'), 'the band').to.exist;
+  });
+
+  it('names a renamed size column too', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(renamed('size', 'tireSize'))));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+
+    const message = await when(() => block.querySelector('.tire-specs-error'));
+    expect(message.textContent).to.contain('size');
+  });
+
+  it('reports the breach to the console as well', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(renamed('slug', 'product'))));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+
+    await when(() => block.querySelector('.tire-specs-error'));
+    expect(errors.called, 'console.error').to.be.true;
+  });
+
+  // a sheet that carries its columns and no row for this product is the
+  // ordinary case for the six products live has no spec table for either
+  it('still takes the band away when the sheet is whole and the product has no rows', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+    const block = buildInSection('purecontact-ls');
+    decorate(block);
+
+    await when(() => !document.querySelector('.tire-specs-wrapper'));
+    expect(document.querySelector('.tire-specs-error'), 'no authoring error').to.not.exist;
+    expect(errors.called, 'console.error').to.be.false;
   });
 });

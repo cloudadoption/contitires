@@ -35,6 +35,9 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [PDP media gallery and fitment checker](#pdp-media-gallery-and-fitment-checker)
   - [Martech and third-party embeds](#martech-and-third-party-embeds)
   - [Forms with a backend](#forms-with-a-backend)
+- [Authoring contracts](#authoring-contracts)
+  - [The products workbook](#the-products-workbook)
+  - [The learn categories](#the-learn-categories)
 - [Global caveats](#global-caveats)
 - [Working on this repo](#working-on-this-repo)
 - [Documentation](#documentation)
@@ -147,7 +150,7 @@ Measured against live at 375, 900 and 1440: the card width, tire image, badge ro
 
 ### Product pages and the products workbook
 
-46 tire product pages, generated from scraped live data and pushed to DA as normal editable documents: product hero (image, name, description, Highlights, Best for and Technology lists) plus a [tire-specs](blocks/tire-specs/tire-specs.js) block with a size selector and per-size spec grid (UTQG, load index, tread depth, 19 fields). The data behind the finder, the listing and the spec tables is a single multi-sheet DA workbook, `/products.json`: a `products` sheet (46 rows), a `specs` sheet (1315 size rows) and a `catalog` sheet (46 rows, what the listing renders). Authors edit it like a spreadsheet; no deploy involved. Live builds its spec table client-side from JSON too, so the mechanism matches. Each block asks for the one sheet it needs, so no page pays for the whole workbook. The spec sheet is the long one, so the band is headed and its room held from the start and filled when the sheet lands, which leaves the three sections under it to load meanwhile.
+46 tire product pages, generated from scraped live data and pushed to DA as normal editable documents: product hero (image, name, description, Highlights, Best for and Technology lists) plus a [tire-specs](blocks/tire-specs/tire-specs.js) block with a size selector and per-size spec grid (UTQG, load index, tread depth, 19 fields). The data behind the finder, the listing and the spec tables is a single multi-sheet DA workbook, `/products.json`: a `products` sheet (46 rows), a `specs` sheet (1656 size rows) and a `catalog` sheet (46 rows, what the listing renders). Authors edit it like a spreadsheet; no deploy involved. Live builds its spec table client-side from JSON too, so the mechanism matches. Each block asks for the sheets it needs, so no page pays for the whole workbook. The finder reads two of them, and which sizes a tire comes in is the specs sheet's answer alone: see [the products workbook](#the-products-workbook). The spec sheet is the long one, so the band is headed and its room held from the start and filled when the sheet lands, which leaves the three sections under it to load meanwhile.
 
 - Live: [/tires/extremecontact-sport-02](https://continentaltire.com/tires/extremecontact-sport-02)
 - POC: [/tires/extremecontact-sport-02](https://main--contitires--cloudadoption.aem.live/tires/extremecontact-sport-02), data at [/products.json](https://main--contitires--cloudadoption.aem.live/products.json)
@@ -165,7 +168,7 @@ The largest content type, migrated completely: 214 articles as plain documents w
 - Code: [blocks/article-cards](blocks/article-cards/article-cards.js), [blocks/category-tabs](blocks/category-tabs/category-tabs.js), [blocks/banner](blocks/banner/banner.js), [styles/article.css](styles/article.css)
 - Author: [learn hub in DA](https://da.live/edit#/cloudadoption/contitires/learn), [an article in DA](https://da.live/edit#/cloudadoption/contitires/learn/seven-tips-storing-tires)
 
-Differs from live: live paginates 10 per page server-side, the POC batches 12 behind a load-more button. The article share sidebar was left out; articles use a centered reading column instead. 3 articles have no category and appear only in unfiltered lists.
+Differs from live: live paginates 10 per page server-side, the POC batches 12 behind a load-more button. The article share sidebar was left out; articles use a centered reading column instead. The categories an article can carry are listed under [the learn categories](#the-learn-categories).
 
 ### Video articles
 
@@ -259,6 +262,45 @@ Live loads Google Tag Manager on every page, pushes ecommerce events on PDPs, sh
 
 The racer tire program page is a Drupal webform on live and a design shell here, because there is no backend to receive submissions. Options in EDS: a forms block posting to a sheet or endpoint, or an external form service embedded like the [HubSpot newsletter widget](widgets/hubspot/newsletter.html). Every other live form is an outbound redirect (Zendesk, Synchrony, the rebate portal) and is reproduced as an outbound link.
 
+## Authoring contracts
+
+Two things an author edits are read by code that assumes a shape. Break the shape and the page does not complain: it renders less. What follows is the shape, and `tools/authoring-check.mjs` reads the published site against it.
+
+```sh
+node tools/authoring-check.mjs                 # the live site
+node tools/authoring-check.mjs --host http://localhost:3000
+```
+
+It exits non-zero when anything is broken, and prints what and where. Run it after editing the workbook.
+
+### The products workbook
+
+[`/products.json`](https://main--contitires--cloudadoption.aem.live/products.json) holds three sheets, and the blocks read them by column name:
+
+| Sheet | Read by | Columns it is read by |
+|---|---|---|
+| `products` | [perfect-fit](blocks/perfect-fit/perfect-fit.js), the tire finder | `slug`, `name`, `category`, `season`, `vehicleTypes`, `image` |
+| `specs` | [tire-specs](blocks/tire-specs/tire-specs.js) and the finder | `slug`, `size`, plus the 19 spec fields, which render in column order |
+| `catalog` | [tire-listing](blocks/tire-listing/tire-listing.js) | `slug`, `name`, `path`, `image`, `bestFor`, `facetWeights`, `weight` |
+
+Renaming `slug` or `size` on the `specs` sheet used to blank every product page's spec panel with nothing said. The panel now names the missing column on the page, and the finder says so in the console and reads the older `products.sizes` cell instead.
+
+**The specs sheet is the one source of which sizes a product comes in.** One row per size, and it repeats a size once per load range. The `sizes` cell on the `products` sheet is derived from it and nothing reads it while the specs sheet is whole. The two write a size differently, `205/55 R 16` against `205/55R16`, and [`scripts/products.js`](scripts/products.js) holds the one function that settles which of the two is one size. A product with no rows on the `specs` sheet lists no specs and answers no size search; the checker names it.
+
+### The learn categories
+
+An article carries one `Category` value, and a listing filters the index by the same string. Both ends are free text in DA, so a typo at either drops articles out of a page that still renders.
+
+| Category | Its page | Articles |
+|---|---|---|
+| `Tire Tips` | [/learn/tips](https://main--contitires--cloudadoption.aem.live/learn/tips) | 48 |
+| `Technology` | [/learn/technology](https://main--contitires--cloudadoption.aem.live/learn/technology) | 16 |
+| `News` | [/learn/news-and-events](https://main--contitires--cloudadoption.aem.live/learn/news-and-events) | 150 |
+
+Those three are the vocabulary, and [`scripts/categories.js`](scripts/categories.js) is where they are written down. The three listing pages are indexed themselves and carry no category of their own, which is right. [`/learn/product-highlights`](https://main--contitires--cloudadoption.aem.live/learn/product-highlights) is a hand-built page rather than a category, so nothing is filed under it.
+
+An [article-cards](blocks/article-cards/article-cards.js) block asking for a category no article carries now says so on the page, and names what the index does publish under. It reads that list off the index rather than off the vocabulary, so a category an author adds needs no code change. The checker reads the other end: every indexed article's category against the vocabulary, every vocabulary term against the articles, and each listing page against the block that fills it.
+
 ## Global caveats
 
 - Fonts are hotlinked from the live site. A production build licenses and self-hosts them.
@@ -267,7 +309,7 @@ The racer tire program page is a Drupal webform on live and a design shell here,
 - Both `.aem.page` and `.aem.live` send `x-robots-tag: noindex` until a production domain exists. Right for a demo, and it caps Lighthouse SEO crawlability scores on these hosts.
 - The remaining parity, code, and authoring findings from the 2026-07-26 audit are tracked as issues #75 to #127.
 - Article ordering rests on scraped editorial order, not real publish dates; live does not expose any. The same holds for the tire listing, where the order is scraped per category.
-- The learn index has 217 rows for the 218 pages under `/learn/`; 3 articles have no category.
+- The learn index has 217 rows for the 218 pages under `/learn/`: 214 articles and the 3 category pages. Every article carries a category.
 
 ## Working on this repo
 
@@ -285,6 +327,12 @@ Before pushing:
 ```sh
 npm run lint
 npm test        # @web/test-runner; 11 test suites cover the blocks with JS logic
+```
+
+After a content edit, read the site against the [authoring contracts](#authoring-contracts):
+
+```sh
+node tools/authoring-check.mjs
 ```
 
 ## Documentation
