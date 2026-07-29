@@ -307,16 +307,43 @@ describe('Events filter, live\'s measurements', () => {
     decorate(block);
   });
 
-  // live sets the filter in a 265 track beside the results, 50 apart, from 769
+  // live's own track at 1440: 265 wide, the form 245 of it, 50 to the results
   it('stands the panel beside the calendar at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
-    const panel = block.querySelector('.events-panel');
+    const side = block.querySelector('.events-side');
+    const form = block.querySelector('.events-filter');
     const results = block.querySelector('.events-results');
     expect(getComputedStyle(block.querySelector('.events-toggle')).display).to.equal('none');
     expect(getComputedStyle(block.querySelector('.events-apply')).display).to.equal('none');
-    expect(Math.round(panel.getBoundingClientRect().width)).to.equal(265);
+    expect(Math.round(side.getBoundingClientRect().width)).to.equal(265);
+    expect(Math.round(form.getBoundingClientRect().width)).to.equal(245);
     expect(Math.round(results.getBoundingClientRect().left
-      - panel.getBoundingClientRect().right)).to.equal(50);
+      - form.getBoundingClientRect().right)).to.equal(50);
+  });
+
+  // live's own numbers for the panel's parts, read off continentaltire.com
+  it('sets the panel to live\'s type', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const heading = block.querySelector('.events-filter h2');
+    const legend = block.querySelector('.events-filter legend');
+    const label = block.querySelector('.events-filter label');
+    const box = block.querySelector('.events-filter input');
+    const count = block.querySelector('.events-count');
+    expect(getComputedStyle(heading).fontSize).to.equal('30px');
+    expect(getComputedStyle(heading).lineHeight).to.equal('38px');
+    expect(getComputedStyle(heading).paddingBottom).to.equal('20px');
+    expect(getComputedStyle(legend).fontSize).to.equal('12px');
+    expect(getComputedStyle(legend).letterSpacing).to.equal('1.25px');
+    expect(getComputedStyle(legend).textTransform).to.equal('uppercase');
+    expect(getComputedStyle(label).fontSize).to.equal('14px');
+    expect(getComputedStyle(label).fontWeight).to.equal('400');
+    expect(Math.round(box.getBoundingClientRect().width)).to.equal(16);
+    expect(getComputedStyle(box).borderRadius).to.equal('4px');
+    expect(Math.round(label.getBoundingClientRect().left
+      - box.getBoundingClientRect().right)).to.equal(9);
+    expect(getComputedStyle(count).fontSize).to.equal('30px');
+    expect(getComputedStyle(count).lineHeight).to.equal('38px');
+    expect(getComputedStyle(count).marginBottom).to.equal('20px');
   });
 
   it('takes the panel off the page until it is asked for at 375', async () => {

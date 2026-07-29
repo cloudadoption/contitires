@@ -179,10 +179,14 @@
   background-color: var(--conti-white);
 }
 
-/* live stands this over a rule, with the results below it */
-.events .events-toggle {
+/* live stands the button over a rule that runs the column's width */
+.events .events-side {
   margin-bottom: 20px;
   border-bottom: 1px solid var(--conti-grey);
+  padding-bottom: 20px;
+}
+
+.events .events-toggle {
   padding: 8px 12px;
 }
 
@@ -192,13 +196,15 @@
 
 /* ---------- filter form ---------- */
 
+/* live's own numbers at 1440: the heading 30 over 38 above a rule, every
+   group closed by the same rule 20 under its last box, the boxes 12 apart */
 .events .events-filter h2 {
   margin: 0;
   border-bottom: 1px solid var(--conti-grey);
   padding-bottom: 20px;
-  font-size: var(--heading-font-size-l);
+  font-size: 30px;
   font-weight: 400;
-  line-height: 1.27;
+  line-height: 38px;
   text-align: center;
 }
 
@@ -217,7 +223,7 @@
 }
 
 .events .events-filter ul {
-  margin: 8px 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -225,28 +231,30 @@
 .events .events-filter li {
   display: flex;
   align-items: center;
-}
-
-.events .events-filter li + li {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .events .events-filter input[type="checkbox"] {
   position: relative;
   flex: 0 0 auto;
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   margin: 0;
-  border: 1px solid var(--conti-dark-grey);
-  border-radius: 3px;
+  border: 1px solid #4a4a4b;
+  border-radius: 4px;
   padding: 0;
   background: var(--conti-white);
   cursor: pointer;
   appearance: none;
-  transition: border-color 0.3s;
+  transition: background-color 0.2s;
 }
 
-.events .events-filter input[type="checkbox"]:checked,
+/* live fills the checked box dark and ticks it in yellow */
+.events .events-filter input[type="checkbox"]:checked {
+  border-color: var(--conti-dark-grey);
+  background: #2f2f2f;
+}
+
 .events .events-filter input[type="checkbox"]:hover:not(:checked) {
   border-color: var(--conti-yellow);
 }
@@ -254,20 +262,21 @@
 .events .events-filter input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
-  top: 1px;
-  left: 4px;
-  width: 5px;
-  height: 9px;
-  border: 2px solid var(--conti-black);
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: 2px solid var(--conti-yellow);
   border-top: 0;
   border-left: 0;
-  transform: rotate(43deg);
+  transform: rotate(45deg);
 }
 
 .events .events-filter label {
-  margin-left: 12px;
+  margin-left: 9px;
   font-size: var(--body-font-size-xs);
-  line-height: 1.43;
+  font-weight: 400;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -294,16 +303,15 @@
 
 .events .events-apply {
   width: 100%;
-  margin-top: 12px;
 }
 
 /* ---------- the results header ---------- */
 
 .events .events-count {
   margin: 0 0 20px;
-  font-size: var(--heading-font-size-m);
+  font-size: 30px;
   font-weight: 400;
-  line-height: 1.33;
+  line-height: 38px;
 }
 
 @media (width >= 769px) {
@@ -314,9 +322,21 @@
     column-gap: 50px;
   }
 
+  /* live insets the filter 20 into its own track and keeps the 50 to the
+     results, so the form runs 245 of the 265 */
+  .events .events-side {
+    margin-bottom: 0;
+    border-bottom: 0;
+    padding: 0 0 0 20px;
+  }
+
   .events .events-toggle,
   .events .events-apply {
     display: none;
+  }
+
+  .events .events-filter h2 {
+    text-align: left;
   }
 
   .events .events-panel,
