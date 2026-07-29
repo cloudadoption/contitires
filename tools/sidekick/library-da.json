@@ -1,0 +1,64 @@
+{
+  "total": 14,
+  "limit": 14,
+  "offset": 0,
+  "data": [
+    {
+      "name": "Hero",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/hero"
+    },
+    {
+      "name": "Cards",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/cards"
+    },
+    {
+      "name": "Columns",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/columns"
+    },
+    {
+      "name": "Carousel",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/carousel"
+    },
+    {
+      "name": "Article Cards",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/article-cards"
+    },
+    {
+      "name": "Category Tabs",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/category-tabs"
+    },
+    {
+      "name": "Promo Bar",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/promo-bar"
+    },
+    {
+      "name": "Perfect Fit",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/perfect-fit"
+    },
+    {
+      "name": "Size List",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/size-list"
+    },
+    {
+      "name": "Banner",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/banner"
+    },
+    {
+      "name": "Tire Specs",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/tire-specs"
+    },
+    {
+      "name": "Related Articles",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/related-articles"
+    },
+    {
+      "name": "Tire Listing",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/tire-listing"
+    },
+    {
+      "name": "Video",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/video"
+    }
+  ],
+  ":type": "sheet"
+}
