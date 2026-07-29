@@ -114,6 +114,76 @@ describe('product hero, the Best for icons', () => {
   });
 });
 
+/**
+ * The rebate, on the 19 of 46 live product pages that show one. Campaign copy
+ * with an end date, so it is authored and an author takes an expired offer down
+ * by deleting two paragraphs.
+ *
+ * Live puts a `$110 Rebate Offer` flag above the title: 132 by 20, 11px/700 at
+ * 0.5px in `rgb(29, 29, 29)` on `rgb(255, 165, 0)`, a 4px radius down its left
+ * edge and a notch cut out of its right by
+ * `polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%)`. Below the store CTA it
+ * pairs the sentence with its `Offer details` link in a 20px-gapped row, the
+ * sentence at 12px/700 on a 20px line. (#241)
+ */
+describe('product hero, the rebate', () => {
+  const rebate = `
+    <p><em><a href="/promotion">$110 Rebate Offer</a></em></p>
+    <h1>4x4 SportContact</h1>
+    <p>The ideal ultra-high perfomance light truck/SUV tire.</p>
+    <p><strong><a href="/store-finder">Find a store</a></strong></p>
+    <p>Get a $110 Continental Tire Prepaid Mastercard&reg; by mail when you purchase a set of 4 qualifying Continental Tires through August 31, 2026.</p>
+    <p><em><a href="/promotion">Offer details</a></em></p>
+    <p><a href="/warranty">Total Confidence Plan</a></p>
+    <ul><li>60 Day Trial</li></ul>`;
+
+  it('names the flag above the title', () => {
+    const block = authored(rebate);
+    decorate(block);
+
+    const flag = block.querySelector('.product-hero-rebate');
+    expect(flag, 'the flag').to.exist;
+    expect(flag.textContent.trim()).to.equal('$110 Rebate Offer');
+    expect(flag.nextElementSibling.tagName).to.equal('H1');
+    block.remove();
+  });
+
+  it('pairs the sentence with its Offer details link', () => {
+    const block = authored(rebate);
+    decorate(block);
+
+    const panel = block.querySelector('.product-hero-offer');
+    expect(panel, 'the offer row').to.exist;
+    expect(panel.children.length).to.equal(2);
+    expect(panel.children[0].textContent).to.contain('August 31, 2026');
+    expect(panel.children[1].querySelector('a').getAttribute('href')).to.equal('/promotion');
+    expect(panel.previousElementSibling.querySelector('a[href="/store-finder"]'), 'under the store CTA').to.exist;
+    block.remove();
+  });
+
+  it('leaves the plan and Best for where they were', () => {
+    const block = authored(rebate);
+    decorate(block);
+
+    expect(block.querySelector('.product-hero-plan'), 'the plan list').to.exist;
+    expect(block.querySelector('.product-hero-plan-link'), 'the plan link').to.exist;
+    expect(block.querySelector('.product-hero-offer').nextElementSibling
+      .classList.contains('product-hero-plan-link')).to.be.true;
+    block.remove();
+  });
+
+  // 27 of live's 46 product pages carry no rebate, and an expired offer is
+  // taken down by deleting the two paragraphs
+  it('draws nothing on a page with no rebate authored', () => {
+    const block = authored(cell);
+    decorate(block);
+
+    expect(block.querySelector('.product-hero-rebate')).to.not.exist;
+    expect(block.querySelector('.product-hero-offer')).to.not.exist;
+    block.remove();
+  });
+});
+
 describe('product hero, the treatments live gives those groups', () => {
   let sheet;
 
@@ -159,6 +229,26 @@ describe('product hero, the treatments live gives those groups', () => {
     expect(value('.columns.product-hero .product-hero-plan li', 'line-height')).to.equal('22px');
     expect(value('.columns.product-hero .product-hero-plan li::before', 'border-color'))
       .to.equal('var(--conti-yellow-contrast)');
+  });
+
+  it('draws the rebate flag at live\'s size, colour and notch', () => {
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'font-size')).to.equal('11px');
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'letter-spacing')).to.equal('0.5px');
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'line-height')).to.equal('16px');
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'padding')).to.equal('2px 16px 2px 12px');
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'background-color')).to.equal('var(--conti-yellow)');
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'color')).to.equal('var(--conti-dark-black)');
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'border-radius')).to.equal('4px 0 0 4px');
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'clip-path'))
+      .to.equal('polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%)');
+  });
+
+  it('sets the offer sentence beside its link, as live pairs them', () => {
+    expect(value('.columns.product-hero .product-hero-offer', 'display')).to.equal('flex');
+    expect(value('.columns.product-hero .product-hero-offer', 'gap')).to.equal('20px');
+    expect(value('.columns.product-hero .product-hero-offer p', 'font-size')).to.equal('12px');
+    expect(value('.columns.product-hero .product-hero-offer p', 'font-weight')).to.equal('700');
+    expect(value('.columns.product-hero .product-hero-offer p', 'line-height')).to.equal('20px');
   });
 
   it('drops the marker both lists would otherwise carry', () => {

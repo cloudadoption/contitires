@@ -32,11 +32,14 @@ function productHero(cell) {
   return main;
 }
 
-/** The cell as the 45 product pages author it. */
+/** The cell as the 45 product pages author it, on one of the 19 with a rebate. */
 const authored = `
+  <p><em><a href="/promotion">$110 Rebate Offer</a></em></p>
   <h1 id="x4-sportcontact">4x4 SportContact</h1>
   <p>The ideal ultra-high perfomance light truck/SUV tire.</p>
   <p><strong><a href="/store-finder">Find a store</a></strong></p>
+  <p>Get a $110 Continental Tire Prepaid Mastercard&reg; by mail when you purchase a set of 4 qualifying Continental Tires through August 31, 2026.</p>
+  <p><em><a href="/promotion">Offer details</a></em></p>
   <p><a href="/warranty">Total Confidence Plan</a></p>
   <ul>
     <li>60 Day Trial</li>
@@ -69,8 +72,21 @@ describe('product hero order', () => {
     decorateMain(main);
 
     expect(order(main)).to.deep.equal([
-      'h1', 'finder', 'p', 'p', 'p', 'ul', 'p', 'ul',
+      'p', 'h1', 'finder', 'p', 'p', 'p', 'p', 'p', 'ul', 'p', 'ul',
     ]);
+  });
+
+  // the rebate badge is authored above the title, so the card cannot take the
+  // first place in the cell and still stand under it
+  it('keeps the rebate badge above the title', () => {
+    const main = productHero(authored);
+    decorateMain(main);
+
+    const cell = main.querySelector('.columns.product-hero > div > div:last-child');
+    const badge = cell.querySelector('a[href="/promotion"]');
+    expect(badge.textContent.trim()).to.equal('$110 Rebate Offer');
+    expect(cell.firstElementChild.contains(badge), 'first in the cell').to.be.true;
+    expect(cell.querySelector('.perfect-fit').previousElementSibling.tagName).to.equal('H1');
   });
 
   it('takes the authored link with it, so the reader meets one checker', () => {
