@@ -498,6 +498,16 @@ main .section.cards-container:has(.cards.category) > div {
   object-fit: contain;
 }
 
+/* marks: a tile holding a drawn mark rather than a photograph. Cover fills the
+   tile and throws away whatever does not fit, which cut all six pictograms on
+   /vancontact-as-ultra: the van lost both bumpers, the EV frame lost its top
+   and bottom edges. The six have six different shapes, so there is no ratio to
+   name the way `logos` names one. The tile keeps whatever shape its own
+   variant gives it and only the crop goes. (#90) */
+.cards.marks > ul > li img {
+  object-fit: contain;
+}
+
 .cards.category > ul > li img {
   width: 220px;
   height: auto;
