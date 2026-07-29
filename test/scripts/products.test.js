@@ -5,6 +5,7 @@ import { expect } from '@esm-bundle/chai';
 import {
   SPECS_COLUMNS, missingColumns, sizeKey, sizesBySlug,
 } from '../../scripts/products.js';
+import { renderName } from '../../scripts/product-name.js';
 
 // rows in the shape the sheet API delivers them: one flat object per row, every
 // column a key. The specs sheet writes a size with spaces, the finder's sizes
@@ -88,5 +89,51 @@ describe('Sizes derived from the specs sheet', () => {
   it('reads an empty sheet as no sizes', () => {
     expect(sizesBySlug([]).size).to.equal(0);
     expect(sizesBySlug(null).size).to.equal(0);
+  });
+});
+
+/*
+ * Live sets the tail of ten product names as a superscript: ExtremeContact
+ * Sport<sup>02</sup>. The mark is authored markup in a sheet cell, so the
+ * readers that print a name need one sanitiser between the cell and the DOM.
+ * It lives here, with the rest of the workbook contract, because the listing,
+ * the finder and the specs band all print a name and a block must not import
+ * from another block. Issue #238.
+ */
+describe('renderName, the one sanitiser for an authored product name', () => {
+  const html = (fragment) => {
+    const host = document.createElement('span');
+    host.append(fragment);
+    return host.innerHTML;
+  };
+
+  it('keeps the superscript live sets on the name', () => {
+    expect(html(renderName('ExtremeContact Sport<sup>02</sup>')))
+      .to.equal('ExtremeContact Sport<sup>02</sup>');
+  });
+
+  it('keeps live\'s own space before the mark', () => {
+    expect(html(renderName('ControlContact Tour <sup>A/S Plus</sup>')))
+      .to.equal('ControlContact Tour <sup>A/S Plus</sup>');
+  });
+
+  it('keeps the text that follows the mark', () => {
+    expect(html(renderName('ControlContact Tour<sup>M</sup> A/S')))
+      .to.equal('ControlContact Tour<sup>M</sup> A/S');
+  });
+
+  it('drops every other tag, keeping its text', () => {
+    expect(html(renderName('Pure<em>Contact</em> <script>x</script>LS')))
+      .to.equal('PureContact LS');
+  });
+
+  it('reads a name with no markup as its own text', () => {
+    expect(html(renderName('VikingContact 7'))).to.equal('VikingContact 7');
+  });
+
+  it('reads an empty cell as nothing', () => {
+    expect(html(renderName(''))).to.equal('');
+    expect(html(renderName(undefined))).to.equal('');
+    expect(html(renderName(null))).to.equal('');
   });
 });

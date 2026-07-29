@@ -147,6 +147,27 @@ h6 {
   scroll-margin: 40px;
 }
 
+/*
+ * Ten of the 46 product names end in a superscript, and live sets it the same
+ * way wherever it appears: 0.6 of the parent's size, lifted half its own size,
+ * on a zero line box so the raised mark does not open the line up. Measured on
+ * live at all four sizes it renders at, the 14px nav link, the 30px h1, the 18px
+ * description and the 42px specs heading, where the ratio is 0.600 and the lift
+ * is -0.5em every time. In em, one rule is all of them.
+ *
+ * display stays inline, live's own inline-block deliberately not copied: an
+ * inline-block child makes the accessible-name computation insert a space, so a
+ * screen reader announces "ExtremeContact Sport 02" as two words where live's
+ * own reader says the name in two and ours says it in one. Issue #238.
+ */
+sup {
+  position: relative;
+  top: -0.5em;
+  font-size: 0.6em;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
 h1 { font-size: var(--heading-font-size-xxl); }
 h2 { font-size: var(--heading-font-size-xl); }
 h3 { font-size: var(--heading-font-size-l); }

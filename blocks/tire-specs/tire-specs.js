@@ -1,4 +1,5 @@
 import { SPECS_COLUMNS, missingColumns } from '../../scripts/products.js';
+import { renderName } from '../../scripts/product-name.js';
 
 // ask for the specs sheet alone: the workbook also carries the products and
 // catalog sheets, which a product page never reads
@@ -238,8 +239,13 @@ export default function decorate(block) {
   const heading = document.createElement('h2');
   const eyebrow = document.createElement('span');
   eyebrow.textContent = 'Specifications';
+  // the name carries a superscript on ten of the 46 products, so the h1 is read
+  // as markup: textContent flattened the mark even where the page had it
   const name = document.querySelector('main h1');
-  if (name) heading.append(`${name.textContent.trim()} `);
+  if (name) {
+    heading.append(renderName(name.innerHTML.trim()));
+    heading.append(' ');
+  }
   heading.append(eyebrow);
 
   const { select, panel } = band(block, heading, slug);
