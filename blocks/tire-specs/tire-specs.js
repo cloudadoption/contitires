@@ -109,14 +109,34 @@ function fill(block, heading, result) {
   }
 
   const sizes = result.sizes || [];
-  // nothing to show: take the block out rather than leave its dark band empty
+  const count = document.createElement('p');
+  count.className = 'tire-specs-count';
+
+  // Six of the 46 products have no rows anywhere in the sheet. Live has none
+  // for them either and still renders this band, the same 428px tall as a
+  // product with 49 sizes, so the band stays and says what is there. Taking it
+  // out lost the reader a section live keeps, and it collapsed the room the
+  // stylesheet had already reserved, which are one defect rather than two.
+  //
+  // Live fills the empty band with the same "make a selection" line, an empty
+  // picker, a "find size by vehicle or plate" hint and a link to a /specs page.
+  // A picker with nothing in it is a control that does nothing, and neither a
+  // vehicle nor a plate finds a size here, so this states the fact and offers
+  // the one search that does. (#242, folding in #232)
   if (!sizes.length) {
-    (block.closest('.tire-specs-wrapper') || block).remove();
+    count.textContent = 'No sizes are listed for this tire.';
+    const help = document.createElement('p');
+    help.className = 'tire-specs-help';
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'button secondary';
+    trigger.dataset.tireFinder = 'tire-size';
+    trigger.textContent = 'Search by tire size';
+    help.append(trigger);
+    block.replaceChildren(heading, count, help);
     return;
   }
 
-  const count = document.createElement('p');
-  count.className = 'tire-specs-count';
   count.textContent = `${sizes.length} sizes available. Select a size to see its specs.`;
 
   const select = document.createElement('select');

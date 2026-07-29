@@ -185,13 +185,16 @@ describe('Tire specs block, legacy product-specs.json', () => {
     expect(block.textContent).to.contain('88');
   });
 
-  it('takes the block out when the product has no specs', async () => {
+  it('keeps the band and says so when the product has no specs', async () => {
     fetchStub = stubFetch({ '/product-specs.json': SPECS });
     const block = build('unknown-tire');
     decorate(block);
-    await when(() => !block.isConnected);
+    await when(() => block.querySelector('.tire-specs-count'));
 
+    expect(block.isConnected, 'the block stays').to.be.true;
     expect(document.querySelector('.tire-specs-select')).to.not.exist;
+    expect(block.querySelector('.tire-specs-count').textContent)
+      .to.equal('No sizes are listed for this tire.');
   });
 });
 
@@ -215,15 +218,16 @@ describe('Tire specs block, multi-sheet workbook', () => {
     expect(block.textContent).to.contain('88'); // Load Index of the first size
   });
 
-  // an empty block still paints its dark band, leaving a black stripe under the
-  // hero on the products live has no sizes for
-  it('takes its wrapper out of the section when the slug has no rows', async () => {
+  // the band used to be removed so an empty one would not paint a bare black
+  // stripe under the hero. It is filled now rather than emptied, so it stays,
+  // which is what live does on the same six products. (#242)
+  it('keeps its wrapper in the section when the slug has no rows', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
     const block = buildInSection('purecontact-ls');
     decorate(block);
-    await when(() => !document.querySelector('.tire-specs-wrapper'));
+    await when(() => document.querySelector('.tire-specs-count'));
 
-    expect(document.querySelector('.tire-specs-container').children.length).to.equal(0);
+    expect(document.querySelector('.tire-specs-container').children.length).to.equal(1);
   });
 
   it('keeps its wrapper when the slug has rows', async () => {
@@ -463,14 +467,16 @@ describe('Tire specs, a sheet that does not carry its columns', () => {
     expect(errors.called, 'console.error').to.be.true;
   });
 
-  // a sheet that carries its columns and no row for this product is the
-  // ordinary case for the six products live has no spec table for either
-  it('still takes the band away when the sheet is whole and the product has no rows', async () => {
+  // a sheet that has its columns and no row for this product is the ordinary
+  // case for the six products live has no spec table for either. It is not an
+  // authoring mistake, so it reads as the empty band rather than as an error.
+  it('shows the empty band when the sheet is whole and the product has no rows', async () => {
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
     const block = buildInSection('purecontact-ls');
     decorate(block);
 
-    await when(() => !document.querySelector('.tire-specs-wrapper'));
+    await when(() => document.querySelector('.tire-specs-count'));
+    expect(document.querySelector('.tire-specs-wrapper'), 'the band stays').to.exist;
     expect(document.querySelector('.tire-specs-error'), 'no authoring error').to.not.exist;
     expect(errors.called, 'console.error').to.be.false;
   });
