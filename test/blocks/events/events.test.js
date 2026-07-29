@@ -46,7 +46,7 @@ describe('Events block, the card', () => {
 
   it('makes one card of each authored row', () => {
     decorate(block);
-    const cards = block.querySelectorAll('ul > li');
+    const cards = block.querySelectorAll('.events-list > li');
     expect(cards).to.have.length(2);
     expect(cards[0].querySelector('.events-date'), 'the date band').to.exist;
     expect(cards[0].querySelector('.events-detail'), 'the detail column').to.exist;
@@ -54,8 +54,8 @@ describe('Events block, the card', () => {
 
   it('lists the events, so a reader is told how many there are', () => {
     decorate(block);
-    expect(block.querySelector('ul'), 'a list').to.exist;
-    expect(block.querySelector('ul').children).to.have.length(2);
+    expect(block.querySelector('.events-list'), 'a list').to.exist;
+    expect(block.querySelector('.events-list').children).to.have.length(2);
   });
 
   it('splits the pill into the weekday, the year and the range', () => {
@@ -115,7 +115,7 @@ describe('Events block, the card', () => {
 
   it('makes the details link a button beside the category', () => {
     decorate(block);
-    const cta = block.querySelectorAll('ul > li')[1].querySelector('.events-cta a');
+    const cta = block.querySelectorAll('.events-list > li')[1].querySelector('.events-cta a');
     expect(cta, 'the call to action').to.exist;
     expect(cta.classList.contains('button')).to.be.true;
     expect(cta.getAttribute('href')).to.equal('https://www.usfprochampionships.info/');
@@ -164,7 +164,7 @@ describe('Events block, what an author leaves out', () => {
   it('builds a card with only a name', () => {
     const block = buildEvents([['', '<h2>MLS Activation</h2>', '']]);
     decorate(block);
-    expect(block.querySelectorAll('ul > li')).to.have.length(1);
+    expect(block.querySelectorAll('.events-list > li')).to.have.length(1);
     expect(block.querySelector('.events-name').textContent).to.equal('MLS Activation');
     expect(block.querySelector('.events-location')).to.not.exist;
   });
@@ -207,7 +207,7 @@ describe('Events block, live\'s measurements', () => {
 
   it('sets a 256 band beside the rest at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
-    const card = block.querySelector('ul > li');
+    const card = block.querySelector('.events-list > li');
     const band = card.querySelector('.events-date');
     const detail = card.querySelector('.events-detail');
     expect(Math.round(band.getBoundingClientRect().width)).to.equal(256);
@@ -219,7 +219,7 @@ describe('Events block, live\'s measurements', () => {
 
   it('rounds and shadows the card, and leaves 20 to the next', async () => {
     await setViewport({ width: 1440, height: 900 });
-    const cards = block.querySelectorAll('ul > li');
+    const cards = block.querySelectorAll('.events-list > li');
     const styles = getComputedStyle(cards[0]);
     expect(styles.borderRadius).to.equal('10px');
     expect(styles.boxShadow).to.equal('rgba(0, 0, 0, 0.1) 0px 0px 40px 0px');
@@ -305,7 +305,7 @@ describe('Events block, live\'s measurements', () => {
 
   it('rings the details button in yellow on white at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
-    const cta = block.querySelectorAll('ul > li')[1].querySelector('.events-cta a');
+    const cta = block.querySelectorAll('.events-list > li')[1].querySelector('.events-cta a');
     const styles = getComputedStyle(cta);
     expect(styles.borderColor).to.equal('rgb(255, 165, 0)');
     expect(styles.backgroundColor).to.equal('rgb(255, 255, 255)');
@@ -316,7 +316,7 @@ describe('Events block, live\'s measurements', () => {
 
   it('stacks the card and pads the band 20 16 12 12 at 375', async () => {
     await setViewport({ width: 375, height: 812 });
-    const card = block.querySelector('ul > li');
+    const card = block.querySelector('.events-list > li');
     const band = card.querySelector('.events-date');
     const detail = card.querySelector('.events-detail');
     expect(getComputedStyle(band).padding).to.equal('20px 16px 12px 12px');
@@ -353,7 +353,7 @@ describe('Events block, live\'s measurements', () => {
 
   it('stands the category over a full-width button at 375', async () => {
     await setViewport({ width: 375, height: 812 });
-    const card = block.querySelectorAll('ul > li')[1];
+    const card = block.querySelectorAll('.events-list > li')[1];
     const footer = card.querySelector('.events-footer');
     const category = card.querySelector('.events-category');
     const cta = card.querySelector('.events-cta a');

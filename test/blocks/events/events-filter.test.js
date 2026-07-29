@@ -64,14 +64,17 @@ function check(block, label) {
 
 /** The names of the events a reader can still see. */
 function shown(block) {
-  return [...block.querySelectorAll('ul > li')]
+  return [...block.querySelectorAll('.events-list > li')]
     .filter((li) => !li.hidden)
     .map((li) => li.querySelector('.events-name').textContent.trim());
 }
 
 describe('Events filter, the panel live puts beside the calendar', () => {
   let block;
-  beforeEach(() => { block = buildEvents(); });
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/events');
+    block = buildEvents();
+  });
 
   it('heads the panel the way live does', () => {
     decorate(block);
@@ -130,7 +133,11 @@ describe('Events filter, the panel live puts beside the calendar', () => {
 
 describe('Events filter, what a reader is left with', () => {
   let block;
-  beforeEach(() => { block = buildEvents(); decorate(block); });
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/events');
+    block = buildEvents();
+    decorate(block);
+  });
 
   it('shows only the checked type', () => {
     check(block, 'Racing');
@@ -194,7 +201,11 @@ describe('Events filter, what a reader is left with', () => {
  */
 describe('Events filter, the panel behind live\'s Show filter button', () => {
   let block;
-  beforeEach(() => { block = buildEvents(); decorate(block); });
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/events');
+    block = buildEvents();
+    decorate(block);
+  });
 
   it('starts closed, behind a button labelled the way live labels it', () => {
     const toggle = block.querySelector('.events-toggle');
@@ -242,6 +253,13 @@ describe('Events filter, the URL a filtered calendar has', () => {
     expect(searchFromState({ types: [], months: [] })).to.equal('');
   });
 
+  it('keeps whatever else the URL was carrying', () => {
+    expect(searchFromState({ types: ['racing'], months: [] }, '?utm_source=news&type=old'))
+      .to.equal('?utm_source=news&type=racing');
+    expect(searchFromState({ types: [], months: [] }, '?utm_source=news'))
+      .to.equal('?utm_source=news');
+  });
+
   it('round-trips', () => {
     const state = { types: ['racing', 'major-league-soccer'], months: ['jul-2026', 'oct-2026'] };
     expect(stateFromSearch(searchFromState(state))).to.eql(state);
@@ -283,7 +301,11 @@ describe('Events filter, live\'s measurements', () => {
 
   after(() => { document.body.classList.remove('appear'); });
 
-  beforeEach(() => { block = buildEvents(); decorate(block); });
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/events');
+    block = buildEvents();
+    decorate(block);
+  });
 
   // live sets the filter in a 265 track beside the results, 50 apart, from 769
   it('stands the panel beside the calendar at 1440', async () => {
@@ -307,7 +329,7 @@ describe('Events filter, live\'s measurements', () => {
 
   it('takes a filtered-out event off the page', () => {
     check(block, 'Racing');
-    const gone = [...block.querySelectorAll('ul > li')].find((li) => li.hidden);
+    const gone = [...block.querySelectorAll('.events-list > li')].find((li) => li.hidden);
     expect(getComputedStyle(gone).display).to.equal('none');
   });
 });
