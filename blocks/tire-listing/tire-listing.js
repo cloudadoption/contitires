@@ -1,4 +1,5 @@
 import { decorateIcons } from '../../scripts/aem.js';
+import { renderName } from '../../scripts/product-name.js';
 
 const DEFAULT_SOURCE = '/products.json?sheet=catalog';
 const DEFAULT_PAGE_SIZE = 10;
@@ -263,33 +264,10 @@ export function searchFromState({ selection = {}, sort = SORTS[0].key, page = 1 
   return parts.length ? `?${parts.join('&')}` : '';
 }
 
-/**
- * Builds a product name for display, keeping the superscript ten of the live
- * names carry and dropping every other tag, since the name comes from a sheet.
- * @param {string} html the authored name markup
- * @returns {DocumentFragment}
- */
-export function renderName(html) {
-  const fragment = document.createDocumentFragment();
-  const parsed = new DOMParser().parseFromString(String(html ?? ''), 'text/html');
-  const copy = (source, target) => {
-    [...source.childNodes].forEach((node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        target.append(node.textContent);
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        if (node.tagName === 'SUP') {
-          const sup = document.createElement('sup');
-          copy(node, sup);
-          target.append(sup);
-        } else {
-          copy(node, target);
-        }
-      }
-    });
-  };
-  copy(parsed.body, fragment);
-  return fragment;
-}
+// The name sanitiser is shared with the finder and the specs band, which print
+// the same names from the same cells, so it lives in scripts/product-name.js.
+// Re-exported here because this block's own tests are its contract.
+export { renderName };
 
 /** A five-star widget filled to the rating, plus the count, plus a text equivalent. */
 function ratingWidget(row) {

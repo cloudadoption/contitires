@@ -3,8 +3,9 @@
 
 import { expect } from '@esm-bundle/chai';
 import {
-  SPECS_COLUMNS, missingColumns, sizeKey, sizesBySlug, renderName,
+  SPECS_COLUMNS, missingColumns, sizeKey, sizesBySlug,
 } from '../../scripts/products.js';
+import { renderName } from '../../scripts/product-name.js';
 
 // rows in the shape the sheet API delivers them: one flat object per row, every
 // column a key. The specs sheet writes a size with spaces, the finder's sizes

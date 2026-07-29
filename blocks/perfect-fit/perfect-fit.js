@@ -2,6 +2,7 @@ import { createOptimizedPicture, decorateIcons, loadCSS } from '../../scripts/ae
 import {
   SPECS_COLUMNS, missingColumns, sizesBySlug, sheetRows,
 } from '../../scripts/products.js';
+import { renderName } from '../../scripts/product-name.js';
 
 /**
  * "Find your perfect fit:" bar plus its tire-finder modal. The three items
@@ -205,7 +206,9 @@ function productCard(product) {
   const body = document.createElement('div');
   body.className = 'perfect-fit-result-body';
   const heading = document.createElement('h4');
-  heading.textContent = product.name;
+  // the name carries a superscript on ten of the 46 products. The sheet holds it
+  // in a nameHtml cell beside the plain name, which is what the image alt takes.
+  heading.append(renderName(product.nameHtml || product.name));
   const meta = document.createElement('p');
   meta.textContent = [product.category, product.season].filter(Boolean).join(' · ');
   body.append(heading, meta);
