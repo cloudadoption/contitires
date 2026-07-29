@@ -1,0 +1,332 @@
+/* The annotated tire live draws under the four claims it makes for a tire.
+   Four cards down one side, and beside them the tire with a ring on each part
+   a card claims. Read off continentaltire.com/all-new-securecontact-aw at
+   1440, 1200, 1181, 1180, 900, 768 and 375.
+
+   Live measures 460 by 600 for the drawing, 280 for the note column and 60
+   between them, a 98 ring centred on the point, and the words 47 under the
+   ring they name with the line 55 under it. Below 1181 it drops to one
+   column. Issue #255. */
+
+/* live carries the heading inside the component and centres it over the band */
+main .section.tire-features-container h2 {
+  text-align: center;
+}
+
+.tire-features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+/* ---- the cards: live's bar of claims, one open at a time ---- */
+
+/* live runs the bar as a carousel under 1181 and gives it arrows; this scrolls
+   and snaps instead, so the arrows are the keys that already open a card */
+.tire-features .tire-features-list {
+  display: flex;
+  gap: 12px;
+  align-self: stretch;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.tire-features .tire-features-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tire-features .tire-features-card {
+  display: flex;
+  flex: 0 0 min(320px, 88%);
+  gap: 12px;
+  align-items: flex-start;
+  scroll-snap-align: center;
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px;
+  background-color: var(--conti-black);
+  color: var(--conti-white);
+  font-family: var(--body-font-family);
+  text-align: left;
+
+  /* live dims a closed card to 0.4, which leaves its words at 3.2 to 1 against
+     the band showing through. 0.55 dims it and clears the 4.5 WCAG asks for. */
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tire-features .tire-features-card:hover {
+  opacity: 0.8;
+}
+
+.tire-features .tire-features-card[aria-selected='true'] {
+  opacity: 1;
+  box-shadow: 0 8px 12px rgb(0 0 0 / 25%);
+}
+
+.tire-features .tire-features-card:focus-visible {
+  outline: 2px solid var(--conti-yellow);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.tire-features .tire-features-card-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.tire-features .tire-features-card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tire-features .tire-features-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tire-features .tire-features-card :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.25px;
+  color: var(--conti-white);
+  transition: color 0.3s ease;
+}
+
+.tire-features .tire-features-card[aria-selected='true'] :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--conti-yellow);
+}
+
+.tire-features .tire-features-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.7px;
+  color: var(--conti-white);
+}
+
+/* ---- the drawing, and the rings on it ---- */
+
+.tire-features .tire-features-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  align-self: stretch;
+}
+
+/* a flex box outranks the display the hidden attribute carries */
+.tire-features .tire-features-panel[hidden] {
+  display: none;
+}
+
+/* the drawing is 460 across and live never blows it up past that */
+.tire-features .tire-features-figure {
+  position: relative;
+  align-self: center;
+  width: 100%;
+  max-width: 460px;
+}
+
+.tire-features .tire-features-figure img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+/* the ring, centred on the point its two percentages name */
+.tire-features .tire-features-mark {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  box-sizing: border-box;
+  width: calc(60px * var(--ring, 1));
+  height: calc(60px * var(--ring, 1));
+  border: 2px solid var(--conti-white);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tire-features .tire-features-mark::before,
+.tire-features .tire-features-mark::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tire-features .tire-features-mark::before {
+  width: 24px;
+  height: 24px;
+  background-color: #000;
+}
+
+.tire-features .tire-features-mark::after {
+  width: 12px;
+  height: 12px;
+  background-color: var(--conti-yellow);
+}
+
+/* the line reaches the note column, which only stands beside the drawing from
+   1181 up, so under that there is nothing for it to reach */
+.tire-features .tire-features-line {
+  display: none;
+}
+
+.tire-features .tire-features-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-self: stretch;
+  text-align: center;
+}
+
+.tire-features .tire-features-note > * {
+  margin: 0;
+}
+
+.tire-features .tire-features-note :is(h1, h2, h3, h4, h5, h6) {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: 0.25px;
+  color: var(--conti-white);
+}
+
+.tire-features .tire-features-note p {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.7px;
+  color: var(--conti-white);
+}
+
+/* ---- from 1181 live stands the cards beside the drawing and hangs each
+   note off its own ring ---- */
+@media (width >= 1181px) {
+  .tire-features {
+    display: grid;
+    grid-template-columns: auto 800px;
+    gap: 38px;
+    align-items: center;
+    min-height: 600px;
+  }
+
+  .tire-features .tire-features-list {
+    flex-direction: column;
+    gap: 20px;
+    overflow: visible;
+  }
+
+  .tire-features .tire-features-card {
+    flex: 0 0 auto;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .tire-features .tire-features-card-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .tire-features .tire-features-card :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 20px;
+    line-height: 26px;
+    letter-spacing: normal;
+  }
+
+  /* 460 for the drawing, 60 of air, 280 for the notes */
+  .tire-features .tire-features-panel {
+    flex-direction: row;
+    gap: 60px;
+    align-items: flex-start;
+  }
+
+  .tire-features .tire-features-figure {
+    flex: 0 0 460px;
+    height: 600px;
+    max-width: none;
+  }
+
+  .tire-features .tire-features-figure img {
+    object-fit: cover;
+  }
+
+  .tire-features .tire-features-mark {
+    width: calc(98px * var(--ring, 1));
+    height: calc(98px * var(--ring, 1));
+  }
+
+  /* live runs the line 55 under the ring, out to 5 short of the notes */
+  .tire-features .tire-features-line {
+    display: block;
+    position: absolute;
+    left: calc(var(--x) + 56px);
+    top: calc(var(--y) + 55px);
+    width: calc(459px - var(--x));
+    height: 2px;
+    background-color: var(--conti-yellow);
+  }
+
+  /* and the short diagonal that carries it back to the ring */
+  .tire-features .tire-features-line::before {
+    content: '';
+    position: absolute;
+    right: 100%;
+    bottom: 0;
+    width: 79px;
+    height: 2px;
+    background-color: var(--conti-yellow);
+    transform-origin: right center;
+    transform: rotate(45deg);
+  }
+
+  .tire-features .tire-features-notes {
+    position: relative;
+    flex: 0 0 280px;
+    height: 600px;
+    gap: 0;
+    text-align: left;
+  }
+
+  .tire-features .tire-features-note {
+    position: absolute;
+    left: 0;
+    top: calc(var(--y) + 47px);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 280px;
+  }
+
+  /* down turns the line over: it leaves the ring going up, and the note it
+     reaches stands above the ring rather than below it */
+  .tire-features .tire-features-line.tire-features-down {
+    top: calc(var(--y) - 57px);
+  }
+
+  .tire-features .tire-features-line.tire-features-down::before {
+    bottom: auto;
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  .tire-features .tire-features-note.tire-features-down {
+    top: calc(var(--y) - 67px);
+  }
+}
