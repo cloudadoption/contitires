@@ -202,7 +202,11 @@ Live prints a related-articles panel on 79 of the 237 learn and experience pages
 - Code: [blocks/share/share.js](blocks/share/share.js), [styles/article.css](styles/article.css)
 - Author: [experience in DA](https://da.live/edit#/cloudadoption/contitires/experience)
 
-Differs from live: live's Sports subpage renders most of its items client-side, so only the server-rendered part could be migrated. The Conti Crew member pages carry live's own template, and they leave out the EmbedSocial feed live runs between the quote and the fact scroller.
+The two `/experience` landing pages were stubs, 399 and 197 bytes against live's 52,604 and 53,089 (#283). Those live numbers are chrome. Rendered in a browser, live's `/experience/sports` gives a reader 303 characters and one tile, Soccer, and live's `/experience/partners` gives 307 characters over an empty grey band: its partner grid has no children and no request is ever made to fill it. Both pages here take the shape the [hub](https://main--contitires--cloudadoption.aem.live/experience) already uses. [Sports](https://main--contitires--cloudadoption.aem.live/experience/sports) is the title band, the tab row and the Soccer tile, which is what live shows. [Partners](https://main--contitires--cloudadoption.aem.live/experience/partners) is live's marquee and its line, the same tab row, the nine partners the site's own menu files under Partners, and the Soccer tile under the Sports heading live puts there.
+
+Listing those nine is the one place this goes past live, and it invents nothing: the grouping is live's own, carried in the nav, and every page is one this site already publishes. Five of the nine logos are named `ct-experience-partners-<name>-logo` in the media corpus, so they were cut for this grid. They are not on the page: the cards block crops to 4:3 and two of the nine are wide enough to lose a word, so the cards name each partner and link it. Its `h1` also read `ROLLING WITHTHE BEST`, which reached the browser tab, the same word join #251 records.
+
+Differs from live: the Conti Crew member pages use live's own template, and they leave out the EmbedSocial feed live runs between the quote and the fact scroller.
 
 ### Simple content pages
 
