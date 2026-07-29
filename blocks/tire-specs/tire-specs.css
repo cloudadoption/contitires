@@ -31,12 +31,26 @@
   }
 }
 
+/* live's own band on a product with no sizes holds no room for a sheet that is
+   not coming: 404 at 375, 336 at 600, 416 at 900 and 428 at 1440, against the
+   heights above. Read off continentaltire.com/tires/4x4sportcontact with the
+   profile's storage cleared. Issues #242 and #232. */
+.tire-specs.tire-specs-empty {
+  min-height: 0;
+}
+
+/* live sets the product's own name in title case and tracks out the word after
+   it: "4x4 SportContact SPECIFICATIONS", 42px at 300 with 6px on the second
+   part. Read at 1440. */
 .tire-specs h2 {
   margin: 0 0 12px;
   font-family: var(--heading-font-family);
   font-size: var(--heading-font-size-l);
   font-weight: 300;
-  letter-spacing: 4px;
+}
+
+.tire-specs h2 span {
+  letter-spacing: 6px;
   text-transform: uppercase;
 }
 
@@ -52,6 +66,60 @@
   margin: 0;
   color: var(--conti-grey);
   font-size: var(--body-font-size-s);
+}
+
+/* the empty band's own lines, at the sizes live sets them: the line above the
+   picker 24px at 300, the field name 10px uppercase on 1px, the hint 15px, and
+   the link to the full sheet 12px uppercase on 1.25px, underlined. */
+.tire-specs-status {
+  margin: 0 0 32px;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.tire-specs-label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.tire-specs-help {
+  margin: 12px 0 0;
+  font-size: 15px;
+}
+
+/* the words live opens its finder from, set as the sentence around them */
+.tire-specs-finder-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tire-specs-finder-link:focus-visible {
+  outline: 2px solid var(--conti-yellow);
+  outline-offset: 2px;
+}
+
+.tire-specs-view-all {
+  display: inline-block;
+  margin: 32px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+}
+
+/* dark sections colour their own links, so out-specify that and let this one
+   follow the band */
+main .section .tire-specs a.tire-specs-view-all:any-link {
+  color: inherit;
+  text-decoration: underline;
 }
 
 .tire-specs-select {
