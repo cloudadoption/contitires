@@ -1,0 +1,168 @@
+/* eslint-disable no-unused-expressions */
+/* global describe it before */
+
+import { expect } from '@esm-bundle/chai';
+import decorate from '../../../blocks/columns/columns.js';
+
+/**
+ * The trailing groups of live's product hero column, read off
+ * continentaltire.com/tires/4x4sportcontact at 1440.
+ *
+ * Total Confidence Plan: three lines, `60 Day Trial`, `3 Year Roadside
+ * Assistance` and `12 Month Road Hazard Coverage`, each with a gold checkmark
+ * drawn at 15px in #a36a00, set 14.88px on a 22px line. The issue names two of
+ * the three; live shows three.
+ *
+ * Best for: a 12px/700 label at 1.25px letter-spacing in caps, then one row per
+ * entry, a 30px line icon and a 14.88px/700 label 8px to its right on a 30px
+ * row. Live's 14.88 is its own rem scale and the site's equivalent is 15.
+ *
+ * A hairline rules each group off: 1px solid #cdcdcd with 20px above and below.
+ * (#241)
+ */
+const authored = (cell) => {
+  const block = document.createElement('div');
+  block.className = 'columns product-hero block';
+  block.innerHTML = `<div><div><p><picture><img src="/tire.png" alt="tire"></picture></p></div><div>${cell}</div></div>`;
+  document.body.append(block);
+  return block;
+};
+
+const cell = `
+  <h1>4x4 SportContact</h1>
+  <p>The ideal ultra-high perfomance light truck/SUV tire.</p>
+  <p><a href="/warranty">Total Confidence Plan</a></p>
+  <ul>
+    <li>60 Day Trial</li>
+    <li>3 Year Roadside Assistance</li>
+    <li>12 Month Road Hazard Coverage</li>
+  </ul>
+  <p><strong>Best for</strong></p>
+  <ul>
+    <li>Crossover</li>
+    <li>Light Truck/SUV</li>
+    <li>Original Equipment</li>
+    <li>Ultra-High Performance</li>
+    <li>Summer</li>
+  </ul>`;
+
+describe('product hero, the Best for icons', () => {
+  it('gives every entry the badge live draws beside it', () => {
+    const block = authored(cell);
+    decorate(block);
+
+    const list = block.querySelector('.product-hero-best-for');
+    expect(list, 'the Best for list').to.exist;
+    const icons = [...list.querySelectorAll('li > span.icon')].map((s) => s.className);
+    expect(icons).to.deep.equal([
+      'icon icon-badge-crossover',
+      'icon icon-badge-light-truck-suv',
+      'icon icon-badge-original-equipment',
+      'icon icon-badge-ultra-high-performance',
+      'icon icon-badge-summer',
+    ]);
+    block.remove();
+  });
+
+  it('names the label so the group can be ruled off', () => {
+    const block = authored(cell);
+    decorate(block);
+
+    const label = block.querySelector('.product-hero-best-for-label');
+    expect(label, 'the label').to.exist;
+    expect(label.textContent.trim()).to.equal('Best for');
+    expect(label.nextElementSibling.classList.contains('product-hero-best-for')).to.be.true;
+    block.remove();
+  });
+
+  it('leaves the plan summary out of it, and names it instead', () => {
+    const block = authored(cell);
+    decorate(block);
+
+    const plan = block.querySelector('.product-hero-plan');
+    expect(plan, 'the plan list').to.exist;
+    expect([...plan.querySelectorAll('li')].map((li) => li.textContent.trim())).to.deep.equal([
+      '60 Day Trial', '3 Year Roadside Assistance', '12 Month Road Hazard Coverage',
+    ]);
+    expect(plan.querySelectorAll('span.icon').length, 'no badges on the plan').to.equal(0);
+    block.remove();
+  });
+
+  it('leaves an entry with no badge of its own alone', () => {
+    const block = authored(`
+      <p><strong>Best for</strong></p>
+      <ul><li>Crossover</li><li>Sunday drives</li></ul>`);
+    decorate(block);
+
+    const items = block.querySelectorAll('.product-hero-best-for li');
+    expect(items[0].querySelector('span.icon'), 'the one with a badge').to.exist;
+    expect(items[1].querySelector('span.icon'), 'the one without').to.not.exist;
+    expect(items[1].textContent.trim()).to.equal('Sunday drives');
+    block.remove();
+  });
+
+  it('touches nothing on a columns block that is not a product hero', () => {
+    const block = document.createElement('div');
+    block.className = 'columns block';
+    block.innerHTML = `<div><div><p><strong>Best for</strong></p><ul><li>Crossover</li></ul></div></div>`;
+    document.body.append(block);
+    decorate(block);
+
+    expect(block.querySelector('.product-hero-best-for')).to.not.exist;
+    expect(block.querySelector('span.icon')).to.not.exist;
+    block.remove();
+  });
+});
+
+describe('product hero, the treatments live gives those groups', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/columns/columns.css')).text());
+  });
+
+  function value(selector, prop) {
+    const rules = [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+    const matches = (r) => r.selectorText && r.selectorText.split(',')
+      .map((s) => s.trim()).includes(selector);
+    const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
+    return rule ? rule.style.getPropertyValue(prop).trim() : null;
+  }
+
+  it('rules a hairline above each trailing group', () => {
+    expect(value('.columns.product-hero .product-hero-plan-link', 'border-top'))
+      .to.equal('1px solid var(--conti-grey)');
+    expect(value('.columns.product-hero .product-hero-best-for-label', 'border-top'))
+      .to.equal('1px solid var(--conti-grey)');
+    expect(value('.columns.product-hero .product-hero-plan-link', 'padding-top')).to.equal('20px');
+    expect(value('.columns.product-hero .product-hero-best-for-label', 'padding-top')).to.equal('20px');
+  });
+
+  it('sets the Best for label the way live sets it', () => {
+    expect(value('.columns.product-hero .product-hero-best-for-label', 'font-size')).to.equal('12px');
+    expect(value('.columns.product-hero .product-hero-best-for-label', 'font-weight')).to.equal('700');
+    expect(value('.columns.product-hero .product-hero-best-for-label', 'letter-spacing')).to.equal('1.25px');
+    expect(value('.columns.product-hero .product-hero-best-for-label', 'text-transform')).to.equal('uppercase');
+  });
+
+  it('draws the badge at live\'s 30px, 8px from its label', () => {
+    expect(value('.columns.product-hero .product-hero-best-for li', 'gap')).to.equal('8px');
+    expect(value('.columns.product-hero .product-hero-best-for .icon', 'width')).to.equal('30px');
+    expect(value('.columns.product-hero .product-hero-best-for .icon', 'height')).to.equal('30px');
+    expect(value('.columns.product-hero .product-hero-best-for li', 'font-size')).to.equal('15px');
+    expect(value('.columns.product-hero .product-hero-best-for li', 'font-weight')).to.equal('700');
+  });
+
+  it('checks off each line of the plan in live\'s gold', () => {
+    expect(value('.columns.product-hero .product-hero-plan li', 'font-size')).to.equal('15px');
+    expect(value('.columns.product-hero .product-hero-plan li', 'line-height')).to.equal('22px');
+    expect(value('.columns.product-hero .product-hero-plan li::before', 'border-color'))
+      .to.equal('var(--conti-yellow-contrast)');
+  });
+
+  it('drops the marker both lists would otherwise carry', () => {
+    expect(value('.columns.product-hero .product-hero-plan', 'list-style')).to.equal('none');
+    expect(value('.columns.product-hero .product-hero-best-for', 'list-style')).to.equal('none');
+  });
+});
