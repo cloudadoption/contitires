@@ -407,7 +407,7 @@ main .media-gallery.cards .media-gallery-caption {
   padding: 16px 20px;
   background-color: var(--conti-white);
   color: var(--conti-black);
-  text-align: left;
+  text-align: center;
 }
 
 /* a dark band whites its own headings out, and this one stands on a white
@@ -431,5 +431,67 @@ main .media-gallery.cards .media-gallery-caption p {
   main .media-gallery.cards .media-gallery-list {
     grid-template-columns: repeat(3, 1fr);
     gap: 38px;
+  }
+}
+
+/* live lefts a card name from 1025 and centres it below that */
+@media (width >= 1025px) {
+  main .media-gallery.cards .media-gallery-caption {
+    text-align: left;
+  }
+}
+
+/* ---- the leading variant: the episode live features on a video listing ---- */
+
+/*
+ * Live lists a video series through card-list card-list--single_leading: the
+ * first episode runs the width of the grid with its name and description in a
+ * white column beside the still, and the rest follow as cards below it. Read
+ * off continentaltire.com/forwhatyoudo, /lightscameratraction, /emilytalkstires
+ * and /cruisingthecontinentalus at 1440, 1200, 1025, 900, 769 and 375: the
+ * feature is 430 tall with a 400px name column padded 20 by 38, the still takes
+ * what is left, and below 769 the still goes over the name. The name is 20/30
+ * bold from 1025 and 14/20 below it, centred at every width.
+ */
+main .media-gallery.cards.leading .media-gallery-list > li:first-child {
+  border-radius: 0;
+}
+
+main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption {
+  text-align: center;
+}
+
+main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption h3 {
+  font-weight: 700;
+}
+
+@media (width >= 769px) {
+  main .media-gallery.cards.leading .media-gallery-list > li:first-child {
+    flex-direction: row-reverse;
+    grid-column: 1 / -1;
+    min-height: 430px;
+  }
+
+  /* the still takes the height the name column sets rather than its own ratio,
+     which is how live crops it */
+  main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-tile {
+    flex: 1;
+    aspect-ratio: auto;
+  }
+
+  main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption {
+    box-sizing: border-box;
+    display: flex;
+    flex: 0 0 400px;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 38px;
+  }
+}
+
+@media (width >= 1025px) {
+  main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption h3 {
+    font-size: 20px;
+    line-height: 30px;
   }
 }
