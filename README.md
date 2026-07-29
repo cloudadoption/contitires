@@ -31,6 +31,7 @@ This is a technical demo, not Continental's site. All content, images, product d
 - [What did not carry over, and how it would](#what-did-not-carry-over-and-how-it-would)
   - [Store finder](#store-finder)
   - [Vehicle and plate lookup in the tire finder](#vehicle-and-plate-lookup-in-the-tire-finder)
+  - [The events calendar](#the-events-calendar)
   - [Bazaarvoice reviews](#bazaarvoice-reviews)
   - [PDP media gallery and fitment checker](#pdp-media-gallery-and-fitment-checker)
   - [Martech and third-party embeds](#martech-and-third-party-embeds)
@@ -206,7 +207,7 @@ The long tail, all migrated as authored documents over existing blocks: the thre
 - Code: mostly [blocks/cards](blocks/cards/cards.js) and default content; [widgets/hubspot](widgets/hubspot/newsletter.html) for the form, [blocks/events](blocks/events/events.js) for the events page, [blocks/tabs](blocks/tabs/tabs.js) for the brand assets and online retailers pages, [blocks/retailers](blocks/retailers/retailers.js) for the retailer tiles, [blocks/hero](blocks/hero/hero.js) for the warranty marquee
 - Author: for example [online-retailers in DA](https://da.live/edit#/cloudadoption/contitires/online-retailers), [warranty in DA](https://da.live/edit#/cloudadoption/contitires/warranty)
 
-Differs from live: rebate submission, credit-card application, tire registration, and support chat are outbound links here, but they are outbound links on live too. The [events page](https://main--contitires--cloudadoption.aem.live/events) carries a seven-entry sample instead of the full calendar, on live's own two-part card. Live's filter reads a calendar with no public source, so the entries are authored. On the brand assets page live's tires tab also filters by category; all four groups stand on the page here, unfiltered. Live's store finder and its online retailers are two pages behind one bar; both land on /online-retailers here, so the bar holds two panels on one page and opens the retailers, as the URL says. What stands behind its first tab is the [store finder mock](#store-finder). On the warranty page a benefit title carries its disclosure marker as text where live sets a superscript link, so the longest of the six wraps a line early at 1440. Live sets a band heading at 30px and this site's scale takes an h2 to 42, which is what the two closing bands read. The marquee holds the line count the fallback face needs below 420, so the band under it stays put when Stag Sans lands; with the fonts in place that leaves 36 of empty space at 375 and 64 from 400 to 418. Live loads the newsletter form's HubSpot embed with the page; here it loads in the delayed phase, and the widget holds open the height the form settles at, so the footer stays put: 2051 below 480, 1340 from there, 1176 from 768. Live's own form leaves the lower third of that height empty and the reserved box keeps that empty space, so the form appears later here and in a box a little taller than itself.
+Differs from live: rebate submission, credit-card application, tire registration, and support chat are outbound links here, but they are outbound links on live too. The [events page](https://main--contitires--cloudadoption.aem.live/events) has its own entry under [the events calendar](#the-events-calendar), because live reads it from a database this site does not hold. On the brand assets page live's tires tab also filters by category; all four groups stand on the page here, unfiltered. Live's store finder and its online retailers are two pages behind one bar; both land on /online-retailers here, so the bar holds two panels on one page and opens the retailers, as the URL says. What stands behind its first tab is the [store finder mock](#store-finder). On the warranty page a benefit title carries its disclosure marker as text where live sets a superscript link, so the longest of the six wraps a line early at 1440. Live sets a band heading at 30px and this site's scale takes an h2 to 42, which is what the two closing bands read. The marquee holds the line count the fallback face needs below 420, so the band under it stays put when Stag Sans lands; with the fonts in place that leaves 36 of empty space at 375 and 64 from 400 to 418. Live loads the newsletter form's HubSpot embed with the page; here it loads in the delayed phase, and the widget holds open the height the form settles at, so the footer stays put: 2051 below 480, 1340 from there, 1176 from 768. Live's own form leaves the lower third of that height empty and the reserved box keeps that empty space, so the form appears later here and in a box a little taller than itself.
 
 ### URL aliases
 
@@ -247,6 +248,18 @@ Live: [/Store-finder](https://continentaltire.com/Store-finder), store search wi
 ### Vehicle and plate lookup in the tire finder
 
 Live resolves vehicles and license plates against a fitment database. Its finder API sends no CORS header, so a browser cannot call it, and there is no public alternative. The modal UI is done; wiring By Vehicle to a licensed fitment API (or a small same-origin proxy in front of one) and By Plate to a registration lookup replaces the curated demo data without touching the block's structure.
+
+### The events calendar
+
+Live: [/events](https://continentaltire.com/events), a view over an events database with a filter panel beside it. The database is not public and this site has no backend for it, so the calendar is authored content: the thirty events live listed on 2026-07-29, in live's order, with live's own text and links. It is a snapshot, not a feed. Live adds an event and this page does not, until an author adds it too. Re-reading live is `.mossy/parity/258/author.py`, which reads the page and writes the rows.
+
+The filter is not a data problem, so it is built. The [events block](blocks/events/events.js) reads its own authored rows: one Event type box per type the events carry, one Event Date box per month they fall in. Boxes in one fieldset are OR and the two fieldsets are AND, which is what live's own result counts show, and the results header counts what is left. Nothing about the panel is authored, so an author adds an event and its type and month appear in the filter. The state goes in the URL, so a filtered calendar can be linked.
+
+- POC: [/events](https://main--contitires--cloudadoption.aem.live/events)
+- Code: [blocks/events](blocks/events/events.js)
+- Author: [events in DA](https://da.live/edit#/cloudadoption/contitires/events)
+
+Differs from live: live narrows its own Event type list to the type already checked, so a second type cannot be reached from the panel, only from the URL. All four boxes stay here. Live's Apply posts its form; here the calendar has already moved when a box changes, so the button only closes the panel it opened. Live prints the details URL as text at the end of two descriptions and again as their More details button, and the sentence goes. The calendar column runs 885 at 1440 where live's runs 789, because a section on this site holds 1200 of content where live's container holds 1136. Live closes the page with a black band holding its Social gallery beside its News list; the News half is here on the learn hub's band treatment, and the Social half is a decision of its own about an Instagram feed.
 
 ### Bazaarvoice reviews
 
@@ -318,6 +331,7 @@ An [article-cards](blocks/article-cards/article-cards.js) block asking for a cat
 - The remaining parity, code, and authoring findings from the 2026-07-26 audit are tracked as issues #75 to #127.
 - Article ordering rests on scraped editorial order, not real publish dates; live does not expose any. The same holds for the tire listing, where the order is scraped per category.
 - The learn index has 217 rows for the 218 pages under `/learn/`: 214 articles and the 3 category pages. Every article carries a category.
+- A section takes its band treatment from a Section Metadata block with a `Style` row, which the pipeline turns into a class on the section. A class written on the section div itself is stripped. `dark`, `black`, `light`, `cta` and `full-width` are the styles the stylesheet reads; pages carry a few more that name a template.
 
 ## Working on this repo
 
