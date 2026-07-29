@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it beforeEach */
+/* global describe it before after beforeEach */
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
-import decorate from '../../../blocks/events/events.js';
+import decorate, { searchFromState, stateFromSearch } from '../../../blocks/events/events.js';
 
 /**
  * Live puts a filter beside the calendar: an Event type fieldset holding one
@@ -121,7 +121,10 @@ describe('Events filter, the panel live puts beside the calendar', () => {
 
   it('announces the count when it changes', () => {
     decorate(block);
-    expect(block.querySelector('.events-count').getAttribute('aria-live')).to.equal('polite');
+    const status = block.querySelector('.events-status');
+    expect(status.getAttribute('role')).to.equal('status');
+    expect(status.getAttribute('aria-live')).to.equal('polite');
+    expect(status.querySelector('.events-count'), 'the count is what it announces').to.exist;
   });
 });
 
@@ -177,33 +180,134 @@ describe('Events filter, what a reader is left with', () => {
   it('gives the whole calendar back on reset', () => {
     check(block, 'Racing');
     check(block, 'October 2026');
-    block.querySelector('.events-filter-reset').click();
+    block.querySelector('.events-reset').click();
     expect(shown(block)).to.have.length(6);
     expect(block.querySelector('.events-count').textContent.trim()).to.equal('6 Results');
     expect(block.querySelectorAll('input:checked')).to.have.length(0);
   });
 });
 
-describe('Events filter, the panel below live\'s 769', () => {
-  it('stands the panel open beside the calendar on a wide viewport', async () => {
-    await setViewport({ width: 1440, height: 900 });
-    const block = buildEvents();
-    decorate(block);
-    expect(block.querySelector('.events-filter').hidden, 'the panel is open').to.be.false;
-  });
+/**
+ * The tire listing already carries live's filter panel, so this one is built
+ * the same way: a Show filter button that stands the panel over the page below
+ * the band, an Apply that closes it, Escape as well.
+ */
+describe('Events filter, the panel behind live\'s Show filter button', () => {
+  let block;
+  beforeEach(() => { block = buildEvents(); decorate(block); });
 
-  it('folds the panel behind a button on a narrow one, as live does', async () => {
-    await setViewport({ width: 375, height: 800 });
-    const block = buildEvents();
-    decorate(block);
-    const toggle = block.querySelector('.events-filter-toggle');
+  it('starts closed, behind a button labelled the way live labels it', () => {
+    const toggle = block.querySelector('.events-toggle');
     expect(toggle, 'the show-filter button').to.exist;
     expect(toggle.textContent.trim()).to.equal('Show filter');
     expect(toggle.getAttribute('aria-expanded')).to.equal('false');
-    expect(block.querySelector('.events-filter').hidden, 'closed to start').to.be.true;
+    expect(toggle.getAttribute('aria-controls')).to.equal(block.querySelector('.events-panel').id);
+    expect(block.classList.contains('events-open')).to.be.false;
+  });
 
+  it('opens on the button and closes on Apply', () => {
+    const toggle = block.querySelector('.events-toggle');
     toggle.click();
+    expect(block.classList.contains('events-open')).to.be.true;
     expect(toggle.getAttribute('aria-expanded')).to.equal('true');
-    expect(block.querySelector('.events-filter').hidden, 'open once pressed').to.be.false;
+
+    block.querySelector('.events-apply').click();
+    expect(block.classList.contains('events-open')).to.be.false;
+    expect(toggle.getAttribute('aria-expanded')).to.equal('false');
+  });
+
+  it('closes on Escape', () => {
+    block.querySelector('.events-toggle').click();
+    block.querySelector('.events-panel')
+      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(block.classList.contains('events-open')).to.be.false;
+  });
+});
+
+describe('Events filter, the URL a filtered calendar has', () => {
+  it('reads the checked boxes off the search', () => {
+    expect(stateFromSearch('?type=racing,bmw-car-club-of-america&month=aug-2026')).to.eql({
+      types: ['racing', 'bmw-car-club-of-america'],
+      months: ['aug-2026'],
+    });
+  });
+
+  it('reads an empty search as nothing checked', () => {
+    expect(stateFromSearch('')).to.eql({ types: [], months: [] });
+  });
+
+  it('writes the checked boxes back, and writes nothing when none are', () => {
+    expect(searchFromState({ types: ['racing'], months: ['aug-2026'] }))
+      .to.equal('?type=racing&month=aug-2026');
+    expect(searchFromState({ types: [], months: [] })).to.equal('');
+  });
+
+  it('round-trips', () => {
+    const state = { types: ['racing', 'major-league-soccer'], months: ['jul-2026', 'oct-2026'] };
+    expect(stateFromSearch(searchFromState(state))).to.eql(state);
+  });
+
+  it('opens on the filter the URL asked for', () => {
+    window.history.replaceState({}, '', '/events?type=racing');
+    const block = buildEvents();
+    decorate(block);
+    expect(shown(block)).to.eql(['TRD GR Cup: Rounds 9 & 10', 'TRD GR Cup: Rounds 13 & 14']);
+    expect(block.querySelector('input[value="racing"]').checked).to.be.true;
+    window.history.replaceState({}, '', '/events');
+  });
+
+  it('puts the filter in the URL, and takes it out again on reset', () => {
+    window.history.replaceState({}, '', '/events');
+    const block = buildEvents();
+    decorate(block);
+    check(block, 'Racing');
+    expect(window.location.search).to.equal('?type=racing');
+    block.querySelector('.events-reset').click();
+    expect(window.location.search).to.equal('');
+  });
+});
+
+describe('Events filter, live\'s measurements', () => {
+  let block;
+
+  before(async () => {
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/events/events.css']
+      .map(async (path) => {
+        const sheet = new CSSStyleSheet();
+        await sheet.replace(await (await fetch(path)).text());
+        return sheet;
+      }));
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    document.body.classList.add('appear');
+  });
+
+  after(() => { document.body.classList.remove('appear'); });
+
+  beforeEach(() => { block = buildEvents(); decorate(block); });
+
+  // live sets the filter in a 265 track beside the results, 50 apart, from 769
+  it('stands the panel beside the calendar at 1440', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const panel = block.querySelector('.events-panel');
+    const results = block.querySelector('.events-results');
+    expect(getComputedStyle(block.querySelector('.events-toggle')).display).to.equal('none');
+    expect(getComputedStyle(block.querySelector('.events-apply')).display).to.equal('none');
+    expect(Math.round(panel.getBoundingClientRect().width)).to.equal(265);
+    expect(Math.round(results.getBoundingClientRect().left
+      - panel.getBoundingClientRect().right)).to.equal(50);
+  });
+
+  it('takes the panel off the page until it is asked for at 375', async () => {
+    await setViewport({ width: 375, height: 812 });
+    expect(getComputedStyle(block.querySelector('.events-panel')).display).to.equal('none');
+    expect(getComputedStyle(block.querySelector('.events-toggle')).display).to.not.equal('none');
+    block.querySelector('.events-toggle').click();
+    expect(getComputedStyle(block.querySelector('.events-panel')).display).to.equal('block');
+  });
+
+  it('takes a filtered-out event off the page', () => {
+    check(block, 'Racing');
+    const gone = [...block.querySelectorAll('ul > li')].find((li) => li.hidden);
+    expect(getComputedStyle(gone).display).to.equal('none');
   });
 });
