@@ -104,7 +104,7 @@ describe('product hero, the Best for icons', () => {
   it('touches nothing on a columns block that is not a product hero', () => {
     const block = document.createElement('div');
     block.className = 'columns block';
-    block.innerHTML = `<div><div><p><strong>Best for</strong></p><ul><li>Crossover</li></ul></div></div>`;
+    block.innerHTML = '<div><div><p><strong>Best for</strong></p><ul><li>Crossover</li></ul></div></div>';
     document.body.append(block);
     decorate(block);
 

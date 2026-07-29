@@ -86,6 +86,12 @@ const FINDER_CARD_QUESTION = 'Does this tire fit? Check now:';
 /**
  * Product pages author one "Find your size" link into the hero. Live offers
  * the three searches there instead, in a card. Build the card from the link.
+ *
+ * Live stands the card directly under the title, above the description and
+ * everything below it, and the authored link is last. The card's position is
+ * the template's rather than the author's, because the card is built rather
+ * than authored, so it goes where live puts it. A cell with no title keeps the
+ * card where the link stood. (#241)
  * @param {Element} main The container element
  */
 function buildFinderCardAutoBlocks(main) {
@@ -94,7 +100,13 @@ function buildFinderCardAutoBlocks(main) {
     if (!p || p.textContent.trim() !== link.textContent.trim()) return;
     const card = buildBlock('perfect-fit', FINDER_CARD_QUESTION);
     card.classList.add('card');
-    p.replaceWith(card);
+    const title = p.parentElement.querySelector(':scope > h1');
+    if (title) {
+      p.remove();
+      title.after(card);
+    } else {
+      p.replaceWith(card);
+    }
   });
 }
 
