@@ -31,8 +31,12 @@ describe('Cards, the logos variant', () => {
     expect(value('.cards > ul > li img', 'aspect-ratio')).to.equal('4 / 3');
   });
 
-  it('gives a logo card the image\'s own shape instead', () => {
-    expect(value('.cards.logos > ul > li img', 'aspect-ratio')).to.equal('auto');
+  // A ratio the browser can use before the image arrives. `auto` reads the
+  // ratio off the file, which a lazy image has not delivered yet, so the tile
+  // has no height until it does and the grid reflows under it. That measured
+  // 0.168 CLS against 0.001, which is a real defect traded for the crop.
+  it('gives a logo card the logos\' own shape, reserved up front', () => {
+    expect(value('.cards.logos > ul > li img', 'aspect-ratio')).to.equal('280 / 105');
     expect(value('.cards.logos > ul > li img', 'height')).to.equal('auto');
     expect(value('.cards.logos > ul > li img', 'object-fit')).to.equal('contain');
   });

@@ -487,12 +487,14 @@ main .section.cards-container:has(.cards.category) > div {
 }
 
 /* logos: a brand asset tile. The 4:3 crop suits a photo and cuts a wide
-   wordmark to a fragment, which is what /media showed. Live draws each tile at
-   the logo's own shape, so the image keeps its ratio here. Each logo carries
-   its own background, so nothing is letterboxed. (#90) */
+   wordmark to a fragment, which is what /media showed. Live gives every logo
+   tile one wide shape, and all ten brand assets are 280 by 105, so this is
+   their own ratio rather than a box they are fitted into. Naming it rather
+   than reading it off the file is what reserves the tile before a lazy image
+   arrives: `auto` measured 0.168 CLS where this measures 0.001. (#90) */
 .cards.logos > ul > li img {
   height: auto;
-  aspect-ratio: auto;
+  aspect-ratio: 280 / 105;
   object-fit: contain;
 }
 
