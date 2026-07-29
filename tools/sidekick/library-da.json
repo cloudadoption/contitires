@@ -1,6 +1,6 @@
 {
-  "total": 17,
-  "limit": 17,
+  "total": 20,
+  "limit": 20,
   "offset": 0,
   "data": [
     {
@@ -70,6 +70,18 @@
     {
       "name": "Crew",
       "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/crew"
+    },
+    {
+      "name": "Tire Features",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/tire-features"
+    },
+    {
+      "name": "Events",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/events"
+    },
+    {
+      "name": "Retailers",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/retailers"
     }
   ],
   ":type": "sheet"

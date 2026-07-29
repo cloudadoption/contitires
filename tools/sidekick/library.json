@@ -1,7 +1,7 @@
 {
-  "total": 17,
+  "total": 20,
   "offset": 0,
-  "limit": 17,
+  "limit": 20,
   "data": [
     {
       "name": "Hero",
@@ -70,6 +70,18 @@
     {
       "name": "Crew",
       "path": "/tools/sidekick/blocks/crew"
+    },
+    {
+      "name": "Tire Features",
+      "path": "/tools/sidekick/blocks/tire-features"
+    },
+    {
+      "name": "Events",
+      "path": "/tools/sidekick/blocks/events"
+    },
+    {
+      "name": "Retailers",
+      "path": "/tools/sidekick/blocks/retailers"
     }
   ],
   "columns": [
