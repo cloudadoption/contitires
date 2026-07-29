@@ -3,15 +3,47 @@ import decorateVideo from '../video/video.js';
 
 /**
  * One item per authored row: the still in the first cell, an optional YouTube
- * link in the second. A row with a link is a video.
+ * link in the second, an optional description in the third. A row with a link
+ * is a video. The description is read by the cards variant alone.
  * @param {Element} row an authored row
- * @returns {{picture: Element, link: Element}|null} the item, or null
+ * @returns {{picture: Element, link: Element, text: string}|null} the item, or null
  */
 function readRow(row) {
   const picture = row.querySelector('picture');
   const link = row.querySelector('a[href]');
   if (!picture && !link) return null;
-  return { picture, link };
+  const text = [...row.children][2]?.textContent.trim() || '';
+  return { picture, link, text };
+}
+
+/**
+ * What the item is called: the video's title, or what the still shows.
+ * @param {{picture: Element, link: Element}} item one item
+ * @returns {string} the title
+ */
+function titleOf({ picture, link }) {
+  if (link) return link.textContent.trim();
+  return picture?.querySelector('img')?.getAttribute('alt') || '';
+}
+
+/**
+ * The name live prints under a card, and the description it prints on the
+ * cards it shows one for.
+ * @param {{picture: Element, link: Element, text: string}} item one item
+ * @returns {Element} the caption
+ */
+function buildCaption(item) {
+  const caption = document.createElement('div');
+  caption.className = 'media-gallery-caption';
+  const heading = document.createElement('h3');
+  heading.textContent = titleOf(item);
+  caption.append(heading);
+  if (item.text) {
+    const text = document.createElement('p');
+    text.textContent = item.text;
+    caption.append(text);
+  }
+  return caption;
 }
 
 /**
@@ -19,27 +51,24 @@ function readRow(row) {
  * @param {{picture: Element, link: Element}} item one item
  * @returns {string} the label
  */
-function label({ picture, link }) {
-  if (link) {
-    const title = link.textContent.trim();
-    return title ? `Play ${title}` : 'Play video';
-  }
-  const alt = picture.querySelector('img')?.getAttribute('alt') || '';
-  return alt ? `View ${alt}` : 'View image';
+function label(item) {
+  const title = titleOf(item);
+  if (item.link) return title ? `Play ${title}` : 'Play video';
+  return title ? `View ${title}` : 'View image';
 }
 
 /**
  * The grid tile and the strip thumbnail are the same button at two sizes.
  * @param {{picture: Element, link: Element}} item one item
- * @param {string} name `tile` or `thumb`
+ * @param {string} kind `tile` or `thumb`
  * @returns {Element} the button
  */
-function buildButton(item, name) {
+function buildButton(item, kind) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = item.link
-    ? `media-gallery-${name} media-gallery-${name}-video`
-    : `media-gallery-${name}`;
+    ? `media-gallery-${kind} media-gallery-${kind}-video`
+    : `media-gallery-${kind}`;
   button.setAttribute('aria-label', label(item));
   if (item.picture) button.append(item.picture.cloneNode(true));
   return button;
@@ -50,6 +79,10 @@ function buildButton(item, name) {
  * modal that pages the whole set. The player is the video block's, so a page of
  * videos asks nothing of YouTube until someone asks to watch one.
  *
+ * The `cards` variant is the same gallery in the shape live gives a landing
+ * page: a wider still with the video's name under it, and the description on
+ * the cards live shows one for.
+ *
  * The modal is a native dialog shown modally, which is where the focus trap,
  * Escape and the handoff back to the tile come from. Live gives none of the
  * three: its dialog is a div, it has no close control, and its thumbnail strip
@@ -59,6 +92,7 @@ function buildButton(item, name) {
 export default function decorate(block) {
   const items = [...block.children].map(readRow).filter(Boolean);
   if (!items.length) return;
+  const captions = block.classList.contains('cards');
 
   const modal = document.createElement('dialog');
   modal.className = 'media-gallery-modal';
@@ -177,6 +211,9 @@ export default function decorate(block) {
       modal.showModal();
     });
     cell.append(tile);
+    // live's card names the video under the still, and the still itself is the
+    // whole of the click target
+    if (captions) cell.append(buildCaption(item));
     list.append(cell);
   });
 

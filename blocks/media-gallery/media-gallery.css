@@ -354,3 +354,75 @@ main .media-gallery.product .media-gallery-tile {
 main .media-gallery.product .media-gallery-tile img {
   object-fit: contain;
 }
+
+/* ---- the cards variant: the same gallery as a landing page card grid ---- */
+
+/*
+ * Live's /experience/soccer runs its videos as cards rather than square tiles:
+ * a 16/9 still over a white footer naming the video, three across from 769 and
+ * one below. Read off continentaltire.com/experience/soccer at 1440, 900, 769,
+ * 600 and 375: a 6 track grid 38px apart holding cards two tracks wide, so 1136
+ * of container gives 353.33, 868 gives 264 and 737 gives 220.33. Below 769 the
+ * card takes the column and the rows close to 20px. The footer is padded 16 by
+ * 20, the name is 14/20, and the corner is 12px.
+ *
+ * Our section holds 1200 where live's container holds 1136, so the cards run
+ * wider here. That is site-wide rather than this page's.
+ */
+main .media-gallery.cards {
+  max-width: none;
+}
+
+main .media-gallery.cards .media-gallery-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px 38px;
+  margin-inline: 0;
+  padding-inline: 0;
+  overflow: visible;
+}
+
+main .media-gallery.cards .media-gallery-list > li {
+  display: flex;
+  flex: initial;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--conti-white);
+}
+
+main .media-gallery.cards .media-gallery-tile {
+  flex: none;
+  border-radius: 0;
+  aspect-ratio: 16 / 9;
+}
+
+/* the card stands on a dark band, so the footer carries its own colours rather
+   than the section's */
+main .media-gallery.cards .media-gallery-caption {
+  flex: 1;
+  padding: 16px 20px;
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+  text-align: left;
+}
+
+main .media-gallery.cards .media-gallery-caption h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+main .media-gallery.cards .media-gallery-caption p {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+@media (width >= 769px) {
+  main .media-gallery.cards .media-gallery-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 38px;
+  }
+}

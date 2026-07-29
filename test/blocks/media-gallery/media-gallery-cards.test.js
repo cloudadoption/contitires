@@ -24,20 +24,34 @@ const card = (src, alt, href, title, text) => `
 // the CSS is written against the shape the pipeline delivers, so the block
 // stands in a section wrapper inside main or none of it applies
 const authored = (rows, variant = 'cards') => {
-  document.body.innerHTML = `<main><div class="section"><div class="media-gallery-wrapper">`
+  document.body.innerHTML = '<main><div class="section"><div class="media-gallery-wrapper">'
     + `<div class="media-gallery ${variant} block">${rows.join('')}</div></div></div></main>`;
   return document.querySelector('.media-gallery.block');
 };
 
 /** the head of live's This is MLS section: its leading card and two others */
 const mls = (variant) => authored([
-  card('/media/mls-15-years.jpg', 'Continental Tire x MLS', 'https://www.youtube.com/watch?v=KOQDHoMjWSk',
+  card(
+    '/media/mls-15-years.jpg',
+    'Continental Tire x MLS',
+    'https://www.youtube.com/watch?v=KOQDHoMjWSk',
     'Continental Tire x MLS: 15 Years of Passion, Pride & Partnership',
-    'From the pitch to the stands, this partnership is built on energy, loyalty, and a deep connection to the fans.'),
-  card('/media/fan-energy.jpg', 'Fan Energy', 'https://www.youtube.com/watch?v=ARU7Lzi3_P4',
-    "Passionate MLS Fans Are What It's All About!", ''),
-  card('/media/opposing-fans.jpg', 'Opposing fans', 'https://www.youtube.com/watch?v=p5MZYIHMhwc',
-    'Opposing MLS Fans & How They Affect the Game', ''),
+    'From the pitch to the stands, this partnership is built on energy, loyalty, and a deep connection to the fans.',
+  ),
+  card(
+    '/media/fan-energy.jpg',
+    'Fan Energy',
+    'https://www.youtube.com/watch?v=ARU7Lzi3_P4',
+    "Passionate MLS Fans Are What It's All About!",
+    '',
+  ),
+  card(
+    '/media/opposing-fans.jpg',
+    'Opposing fans',
+    'https://www.youtube.com/watch?v=p5MZYIHMhwc',
+    'Opposing MLS Fans & How They Affect the Game',
+    '',
+  ),
 ], variant);
 
 describe('Media gallery cards, the name live puts under the still', () => {
