@@ -33,6 +33,7 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [Vehicle and plate lookup in the tire finder](#vehicle-and-plate-lookup-in-the-tire-finder)
   - [The events calendar](#the-events-calendar)
   - [The sports landing page](#the-sports-landing-page)
+  - [The video series pages](#the-video-series-pages)
   - [Bazaarvoice reviews](#bazaarvoice-reviews)
   - [PDP media gallery and fitment checker](#pdp-media-gallery-and-fitment-checker)
   - [Martech and third-party embeds](#martech-and-third-party-embeds)
@@ -275,6 +276,18 @@ The page had arrived as a stub: a title, a picture and one orphaned card heading
 - Author: [soccer in DA](https://da.live/edit#/cloudadoption/contitires/experience/soccer)
 
 Differs from live: the page came in on the article template, which holds a section to a 640px reading column. The template row is gone and the marquee is a hero, the way the warranty page already carries live's own. That is the same fix #213 and #251 ask for on the two sibling pages. Live's marquee sets its title and copy to the left of the photograph and ours centres them. Live gives the first card of three sections a wide treatment with its text beside the still, and every card is the same size here, so the row holding a description leaves space beside it. Live shows a description on five of its 43 cards and hides the rest, and those five are the only ones authored here. Live uppercases and centres its band heading at 42; ours takes this site's own h2, left and as written. Live pages the MLS section seven at a time behind a Load more, and all 33 stand on the page here.
+
+### The video series pages
+
+Live: [/forwhatyoudo](https://continentaltire.com/forwhatyoudo), [/lightscameratraction](https://continentaltire.com/lightscameratraction), [/emilytalkstires](https://continentaltire.com/emilytalkstires) and [/cruisingthecontinentalus](https://continentaltire.com/cruisingthecontinentalus), one page per video series. The episodes come from the same service the sports page uses, and two of the four page the rest behind a Load more. Live's first render carries 7 of the 19 episodes on /forwhatyoudo and 7 of the 10 in the 2021 section of /cruisingthecontinentalus, and the import read that first page and stopped. There is no backend for the list here, so the episodes are authored content: the 49 live listed on 2026-07-29, in live's order, with live's own titles, posters and videos. It is a snapshot, not a feed. Re-reading live is `.mossy/parity/256-257/episodes.py`, which walks every pager and writes the sections.
+
+The pages listed their episodes as plain cards whose Watch video link left the site for YouTube. They run on the [media-gallery](blocks/media-gallery/media-gallery.js) block's `cards leading` variant now, which is live's own treatment: the first episode across the width of the grid with its name and description beside the still, the rest three up below it, a play control on every still, and the video on a modal rather than a trip to YouTube. The link is still what the block reads, so with JavaScript off each episode is a picture and a link to its video.
+
+- POC: [/forwhatyoudo](https://main--contitires--cloudadoption.aem.live/forwhatyoudo), [/cruisingthecontinentalus](https://main--contitires--cloudadoption.aem.live/cruisingthecontinentalus)
+- Code: [blocks/media-gallery](blocks/media-gallery/media-gallery.js)
+- Author: [forwhatyoudo in DA](https://da.live/edit#/cloudadoption/contitires/forwhatyoudo)
+
+Differs from live: live opens one video per modal. Ours pages the whole series behind arrows and a thumbnail strip, which is the gallery's own modal, and it closes on Escape where live's has no close control at all. Live hides the description on every episode but the featured one, and those four are the only ones authored here, so the blurbs the import had carried on the other cards are gone. Live holds the feature at 430 tall and this site takes 430 as a floor, so /forwhatyoudo reads 450 at 1440 where its description runs longer than the still. Live pads the band 80 top and bottom and this site pads a section 56. Live stands a year tab row over the two sections of /cruisingthecontinentalus and this site has none. Live pages 12 episodes behind /forwhatyoudo's Load more and 3 behind /cruisingthecontinentalus's, and all of them stand on the page here.
 
 ### Bazaarvoice reviews
 
