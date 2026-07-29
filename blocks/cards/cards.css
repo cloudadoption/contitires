@@ -486,6 +486,16 @@ main .section.cards-container:has(.cards.category) > div {
   width: auto;
 }
 
+/* logos: a brand asset tile. The 4:3 crop suits a photo and cuts a wide
+   wordmark to a fragment, which is what /media showed. Live draws each tile at
+   the logo's own shape, so the image keeps its ratio here. Each logo carries
+   its own background, so nothing is letterboxed. (#90) */
+.cards.logos > ul > li img {
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
 .cards.category > ul > li img {
   width: 220px;
   height: auto;
