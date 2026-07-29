@@ -281,6 +281,30 @@ function buildPartnerSidebar(main) {
 }
 
 /**
+ * Ends a product page with the rating band, the way live ends one with its
+ * reviews section. A product page is one carrying the product hero or the
+ * specs band: 44 of the 46 carry both, /tires/purecontact-ls and
+ * /tires/truecontact-tour have no specs band, and /vancontact-as-ultra has no
+ * hero variant. The product is the page's own last path segment, which is the
+ * catalog slug on all 46.
+ *
+ * It is built rather than authored because the band takes no authored input:
+ * the heading is fixed and the score and the count come from the catalog
+ * sheet, keyed by a slug the page's path already carries. Authoring it would
+ * put the same inert block on all 46 pages for an author to maintain and never
+ * edit, and a slug held twice is what #122 had to undo. Issue #268.
+ * @param {Element} main The container element
+ */
+function buildTireRating(main) {
+  if (!main.querySelector('.columns.product-hero, .tire-specs')) return;
+  if (main.querySelector('.tire-rating')) return;
+  const slug = window.location.pathname.replace(/\/$/, '').split('/').pop();
+  const section = document.createElement('div');
+  section.append(buildBlock('tire-rating', [[slug]]));
+  main.append(section);
+}
+
+/**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
@@ -305,6 +329,7 @@ function buildAutoBlocks(main) {
     }
     buildWidgetAutoBlocks(main);
     buildFinderCardAutoBlocks(main);
+    buildTireRating(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
