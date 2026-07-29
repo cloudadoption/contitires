@@ -29,6 +29,13 @@ main > .section:has(h2) h2 {
   line-height: 38px;
 }
 
+/* live sets the link 16px under the heading. Putting that on the link left the
+   paragraph's own 14.4px in front of it and measured a 30px gap, so the room
+   belongs to the paragraph. */
+main > .section:has(h2) p {
+  margin: 16px 0 0;
+}
+
 /* the download link. A lone link becomes a button only when it is authored
    bold or italic, so a plain one arrives here with no class and this is the
    whole of its treatment. The five Read more links are italic, which makes
@@ -38,7 +45,6 @@ main > .section:has(h2) p:not(.button-wrapper) > a {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 16px;
   color: var(--text-color);
   font-size: 12px;
   font-weight: 700;
@@ -53,8 +59,4 @@ main > .section:has(h2) p:not(.button-wrapper) > a::after {
   height: 20px;
   background-color: currentcolor;
   mask: url('/icons/download-arrow.svg') no-repeat center / contain;
-}
-
-main > .section:has(h2) p.button-wrapper {
-  margin-top: 16px;
 }

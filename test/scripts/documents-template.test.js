@@ -86,8 +86,14 @@ describe('The documents template', () => {
     expect(s.letterSpacing).to.equal('1.25px');
     expect(s.textTransform).to.equal('uppercase');
     expect(s.textDecorationLine).to.equal('underline');
-    expect(s.marginTop).to.equal('16px');
     expect(s.backgroundColor).to.equal('rgba(0, 0, 0, 0)');
+  });
+
+  // The room belongs to the paragraph. On the link it added to the
+  // paragraph's own 14.4px and measured a 30px gap where live reads 16.
+  it('sets the link 16px under the heading, the way live does', () => {
+    expect(style(row('download-row').querySelector('p')).marginTop).to.equal('16px');
+    expect(style(row('read-row').querySelector('p')).marginTop).to.equal('16px');
   });
 
   it('puts a 20px arrow after the download label', () => {
