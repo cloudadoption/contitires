@@ -259,9 +259,26 @@ describe('Tire features, live\'s measurements', () => {
     const figure = open().querySelector('.tire-features-figure');
     const line = open().querySelector('.tire-features-line');
     const note1 = open().querySelector('.tire-features-note');
+    const mark = open().querySelector('.tire-features-mark');
     expect(Math.round(box(line).height)).to.equal(2);
     expect(Math.round(box(line).right)).to.be.closeTo(Math.round(box(note1).left), 6);
     expect(Math.round(box(line).left - box(figure).left)).to.equal(Math.round(0.304 * 460) + 56);
+    expect(Math.round(box(line).top - (box(mark).top + box(mark).height / 2))).to.equal(55);
+  });
+
+  // half of live's rings hang the other way to keep two notes off each other
+  it('turns a down ring\'s line up and stands its note above it', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    decorate(block = features());
+    block.querySelectorAll('.tire-features-card')[1].click();
+    const marks = [...open().querySelectorAll('.tire-features-mark')];
+    const lines = [...open().querySelectorAll('.tire-features-line')];
+    const notes = [...open().querySelectorAll('.tire-features-note')];
+    const centre = (m) => box(m).top + box(m).height / 2;
+    expect(Math.round(box(lines[1]).top - centre(marks[1])), 'the line leaves upward').to.equal(-57);
+    expect(Math.round(box(notes[1]).top - centre(marks[1]))).to.equal(-67);
+    expect(Math.round(box(lines[0]).top - centre(marks[0])), 'its neighbour is unchanged').to.equal(55);
+    expect(Math.round(box(notes[0]).top - centre(marks[0]))).to.equal(47);
   });
 
   it('gives a card live\'s type, and dims the ones that are closed', async () => {
