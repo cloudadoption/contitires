@@ -1,7 +1,7 @@
 {
-  "total": 20,
+  "total": 22,
   "offset": 0,
-  "limit": 20,
+  "limit": 22,
   "data": [
     {
       "name": "Hero",
@@ -82,6 +82,14 @@
     {
       "name": "Retailers",
       "path": "/tools/sidekick/blocks/retailers"
+    },
+    {
+      "name": "Search",
+      "path": "/tools/sidekick/blocks/search"
+    },
+    {
+      "name": "Store Locator",
+      "path": "/tools/sidekick/blocks/store-locator"
     }
   ],
   "columns": [
