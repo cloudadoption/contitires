@@ -49,6 +49,17 @@ describe('Template styles', () => {
     document.head.querySelectorAll(CREW).forEach((link) => link.remove());
   });
 
+  // live builds /customer-support/technical-documents as a stack of hairline
+  // rows, and that treatment belongs to it rather than to every page. Issue #262
+  it('loads the documents stylesheet for a documents page', async () => {
+    const DOCS = 'link[href$="/styles/documents.css"]';
+    document.body.classList.add('documents');
+    await loadTemplateStyles();
+    expect(document.head.querySelector(DOCS)).to.exist;
+    document.body.classList.remove('documents');
+    document.head.querySelectorAll(DOCS).forEach((link) => link.remove());
+  });
+
   // the reveal awaits this promise, so it has to stay pending until the
   // stylesheet is in effect. A promise that resolves early gates nothing.
   it('stays pending until the stylesheet is in effect', async () => {

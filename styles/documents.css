@@ -1,0 +1,76 @@
+/*
+ * The documents template. Live builds /customer-support/technical-documents as
+ * a stack of rows, one per document: a hairline above each, a centred heading,
+ * and the link under it. The treatment lives here rather than in styles.css so
+ * only this page pays for it. Loaded by loadTemplateStyles for a page whose
+ * metadata says `Template: documents`.
+ *
+ * Read off continentaltire.com/customer-support/technical-documents at 1440.
+ * Live's row is a `.banner`: 38px of padding, a 1px #e9e9e9 top border, rows
+ * touching. Its heading is 30px on 38px at weight 400. Its download link is
+ * 12px at weight 700, 1.25px letter-spacing, uppercase, underlined, 16px under
+ * the heading, with a 20px arrow beside the label.
+ */
+
+/* a row is a section holding a heading. That leaves out the hero, which holds
+   an h1, and the empty section the metadata block leaves behind, which would
+   otherwise draw a rule under the last document. */
+main > .section:has(h2) {
+  margin: 0;
+  padding: 38px 0;
+  text-align: center;
+}
+
+/* the rule goes BETWEEN rows. Live's first banner reads 0px where the other
+   nine read 1px, so a rule above the first document is a line live does not
+   draw. */
+main > .section:has(h2) + .section:has(h2) {
+  border-top: 1px solid #e9e9e9;
+}
+
+main > .section:has(h2) h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 38px;
+}
+
+/* live sets the link 16px under the heading. Putting that on the link left the
+   paragraph's own 14.4px in front of it and measured a 30px gap, so the room
+   belongs to the paragraph. */
+main > .section:has(h2) p {
+  margin: 16px 0 0;
+}
+
+/* the link paragraph is a flex row, the way live's link is. As a line box it
+   carried the paragraph's leading above the link and measured a 22px gap
+   where live reads 16. */
+main > .section:has(h2) p:not(.button-wrapper) {
+  display: flex;
+  justify-content: center;
+}
+
+/* the download link. A lone link becomes a button only when it is authored
+   bold or italic, so a plain one arrives here with no class and this is the
+   whole of its treatment. The five Read more links are italic, which makes
+   them the outline button live draws for them, and nothing here reaches
+   them. */
+main > .section:has(h2) p:not(.button-wrapper) > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-color);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+
+main > .section:has(h2) p:not(.button-wrapper) > a::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background-color: currentcolor;
+  mask: url('/icons/download-arrow.svg') no-repeat center / contain;
+}
