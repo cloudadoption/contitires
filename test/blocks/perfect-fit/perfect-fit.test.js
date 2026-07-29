@@ -839,3 +839,118 @@ describe('The finder reads its sizes from the specs sheet', () => {
     }
   });
 });
+
+/**
+ * What the finder claims. Live's own label is "See tires that fit" on all three
+ * tabs, and live earns it: its By Vehicle resolves a car to an exact size
+ * through a service and returns only tires stocked in it.
+ *
+ * Ours cannot. #243 established that vehicle to size is resolvable only through
+ * that service, so this flow will never check fit. Measured on a 2022 Honda
+ * Civic: ours returned 29 products under that button, and our own specs sheet
+ * says 10 of them come in none of the three sizes live resolves that car to.
+ * The plate tab reaches no registration service either and answers with the
+ * all-season range whatever plate is typed.
+ *
+ * So each tab says what it searches on, the terms sentence quotes its own
+ * button, and the results name the basis. Only the size tab keeps a fit claim,
+ * because a size match is a fit. (#307)
+ */
+describe('perfect-fit, what each tab claims', () => {
+  let fetchStub;
+  const setField = (panel, name, value) => {
+    const el = panel.querySelector(`[name="${name}"]`);
+    el.value = value;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  async function open(index = 0) {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, index);
+    return block;
+  }
+  const label = (id) => panelOf(id).querySelector('.perfect-fit-search').textContent.trim();
+  const terms = (id) => panelOf(id).querySelector('.perfect-fit-terms')
+    .textContent.replace(/\s+/g, ' ').trim();
+
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = stubSheets(CATALOGUE);
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('names what each tab searches on rather than promising a fit', async () => {
+    await open();
+    expect(label('vehicle')).to.equal('See tires for this vehicle type');
+    expect(label('tire-size')).to.equal('See tires in this size');
+    expect(label('plate')).to.equal('See all-season tires');
+  });
+
+  it('claims no fit on the two tabs that cannot check one', async () => {
+    await open();
+    expect(/\bfit/i.test(label('vehicle')), 'vehicle button').to.be.false;
+    expect(/\bfit/i.test(label('plate')), 'plate button').to.be.false;
+    expect(/\bfit/i.test(terms('vehicle')), 'vehicle terms').to.be.false;
+    expect(/\bfit/i.test(terms('plate')), 'plate terms').to.be.false;
+  });
+
+  it('quotes each tab\'s own button in its terms sentence', async () => {
+    await open();
+    ['vehicle', 'tire-size', 'plate'].forEach((id) => {
+      expect(terms(id), `${id} terms`).to.equal(
+        `By selecting "${label(id)}" I confirm that I have read the `
+        + 'Tire Selector Terms of Use and I accept the terms.',
+      );
+      expect(panelOf(id).querySelector('.perfect-fit-terms a').getAttribute('href')).to.equal('/legal');
+    });
+  });
+
+  it('names the basis under the vehicle results', async () => {
+    await open();
+    const panel = panelOf('vehicle');
+    setField(panel, 'make', 'Toyota');
+    setField(panel, 'model', 'RAV4');
+    setField(panel, 'year', '2024');
+    panel.querySelector('.perfect-fit-search').click();
+    const basis = await when(() => document.querySelector('.perfect-fit-result-basis'), 'the basis line');
+    expect(basis.textContent.replace(/\s+/g, ' ').trim())
+      .to.equal('Matched on vehicle type, not on the tire size your vehicle takes.');
+  });
+
+  it('names the basis under the size results, where the match is a fit', async () => {
+    await open(1);
+    const panel = panelOf('tire-size');
+    setField(panel, 'width', '245');
+    setField(panel, 'aspect', '40');
+    setField(panel, 'rim', '18');
+    panel.querySelector('.perfect-fit-search').click();
+    const basis = await when(() => document.querySelector('.perfect-fit-result-basis'), 'the basis line');
+    expect(basis.textContent.replace(/\s+/g, ' ').trim()).to.equal('Matched on tire size.');
+  });
+
+  it('says plainly that the plate was not read', async () => {
+    await open(2);
+    const panel = panelOf('plate');
+    setField(panel, 'plate', 'ABC1234');
+    setField(panel, 'state', 'Texas');
+    panel.querySelector('.perfect-fit-search').click();
+    const basis = await when(() => document.querySelector('.perfect-fit-result-basis'), 'the basis line');
+    expect(basis.textContent.replace(/\s+/g, ' ').trim())
+      .to.equal('Not matched on your plate. Reading one needs a registration service this site does not have.');
+  });
+
+  // "29 matching tires" says a match was computed against the vehicle, which is
+  // the same claim the button was making
+  it('counts the results without claiming they matched', async () => {
+    await open();
+    const panel = panelOf('vehicle');
+    setField(panel, 'make', 'Toyota');
+    setField(panel, 'model', 'RAV4');
+    setField(panel, 'year', '2024');
+    panel.querySelector('.perfect-fit-search').click();
+    const count = await when(() => document.querySelector('.perfect-fit-result-count'), 'the count');
+    expect(count.textContent.trim()).to.match(/^\d+ tires?$/);
+  });
+});
