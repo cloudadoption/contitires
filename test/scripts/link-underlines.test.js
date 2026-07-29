@@ -19,15 +19,14 @@ describe('Link underlines', () => {
   let host;
 
   before(async () => {
-    sheets = [];
     // the listing draws its own, so the policy has to hold with it in effect
-    for (const href of ['/styles/styles.css', '/blocks/tire-listing/tire-listing.css',
-      '/blocks/cards/cards.css']) {
+    sheets = await Promise.all(['/styles/styles.css',
+      '/blocks/tire-listing/tire-listing.css',
+      '/blocks/cards/cards.css'].map(async (href) => {
       const sheet = new CSSStyleSheet();
-      // eslint-disable-next-line no-await-in-loop
       await sheet.replace(await (await fetch(href)).text());
-      sheets.push(sheet);
-    }
+      return sheet;
+    }));
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
     host = document.createElement('main');
     host.innerHTML = `

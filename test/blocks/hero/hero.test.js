@@ -624,8 +624,9 @@ describe('Hero block, the breadcrumb variant', () => {
     expect([...nav.querySelectorAll('li')].map((li) => li.textContent.trim()))
       .to.eql(['Experience', 'Partners']);
     expect(nav.querySelector('a').getAttribute('href')).to.equal('/experience');
-    expect(nav.compareDocumentPosition(block.querySelector('h1'))
-      & Node.DOCUMENT_POSITION_FOLLOWING, 'the trail sits below the title').to.be.ok;
+    const order = [...nav.parentElement.children];
+    expect(order.indexOf(nav), 'the trail sits below the title')
+      .to.be.below(order.indexOf(nav.parentElement.querySelector('h1')));
   });
 
   it('names the page the way the trail should read', async () => {
