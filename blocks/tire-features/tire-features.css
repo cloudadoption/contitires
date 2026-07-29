@@ -8,6 +8,11 @@
    ring they name with the line 55 under it. Below 1181 it drops to one
    column. Issue #255. */
 
+/* live carries the heading inside the component and centres it over the band */
+main .section.tire-features-container h2 {
+  text-align: center;
+}
+
 .tire-features {
   display: flex;
   flex-direction: column;
@@ -123,11 +128,12 @@
   display: none;
 }
 
+/* the drawing is 460 across and live never blows it up past that */
 .tire-features .tire-features-figure {
   position: relative;
   align-self: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 460px;
 }
 
 .tire-features .tire-features-figure img {

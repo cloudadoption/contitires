@@ -20,8 +20,10 @@ import decorate from '../../../blocks/tire-features/tire-features.js';
  * A ring is placed by the percentages authored beside its words, so the same
  * numbers hold at every width without measuring anything.
  */
+// the pipeline stands a picture of its own in a paragraph, so the icon arrives
+// wrapped in one
 const card = (title, text, icon) => `<div>
-    ${icon ? `<picture><img src="${icon}" alt=""></picture>` : ''}
+    ${icon ? `<p><picture><img src="${icon}" alt=""></picture></p>` : ''}
     <h3>${title}</h3><p>${text}</p>
   </div>`;
 
@@ -191,6 +193,9 @@ describe('Tire features, the drawing behind each claim', () => {
     expect(icon).to.not.be.null;
     expect(icon.querySelector('img').getAttribute('src')).to.contain('icon-1');
     expect(b.querySelector('.tire-features-card h3').textContent).to.equal('EcoPlus Technology');
+    const said = [...b.querySelectorAll('.tire-features-card-text p')];
+    expect(said.length, 'the paragraph the picture came in is not left behind').to.equal(1);
+    expect(said[0].textContent).to.equal('Lower fuel consumption.');
   });
 });
 
@@ -307,5 +312,12 @@ describe('Tire features, live\'s measurements', () => {
       expect(box(n).top).to.be.above(box(figure).top);
     });
     expect(Math.round(box(notes[1]).top)).to.be.above(Math.round(box(notes[0]).top));
+  });
+
+  // there is 852 of room at 900 and live never blows the drawing up to fill it
+  it('never draws the tire wider than the 460 it is', async () => {
+    await setViewport({ width: 900, height: 900 });
+    decorate(block = features());
+    expect(Math.round(box(open().querySelector('.tire-features-figure')).width)).to.equal(460);
   });
 });

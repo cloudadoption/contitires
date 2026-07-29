@@ -89,7 +89,11 @@ export default function decorate(block) {
     if (picture) {
       const icon = document.createElement('span');
       icon.className = 'tire-features-card-icon';
+      // the pipeline stands a picture of its own in a paragraph, which is left
+      // empty once the picture is taken out of it
+      const held = picture.parentElement;
       icon.append(picture);
+      if (held !== text && !held.textContent.trim() && !held.children.length) held.remove();
       card.append(icon);
     }
     const body = document.createElement('span');
