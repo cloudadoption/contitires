@@ -32,6 +32,7 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [Store finder](#store-finder)
   - [Vehicle and plate lookup in the tire finder](#vehicle-and-plate-lookup-in-the-tire-finder)
   - [The events calendar](#the-events-calendar)
+  - [The sports landing page](#the-sports-landing-page)
   - [Bazaarvoice reviews](#bazaarvoice-reviews)
   - [PDP media gallery and fitment checker](#pdp-media-gallery-and-fitment-checker)
   - [Martech and third-party embeds](#martech-and-third-party-embeds)
@@ -192,6 +193,8 @@ Differs from live: live opens the video in a modal over the page, ours plays in 
 
 The partnership and sponsorship section: hub plus 15 subpages (AMG Driving Academy, BMW CCA, GR Cup, MLS, ROUSH, USF Pro and the rest), migrated on the article template. Six pages use the [share](blocks/share/share.js) block, which builds Facebook, X, LinkedIn, and mail share links from the page URL.
 
+Live prints a related-articles panel on 79 of the 237 learn and experience pages, and four of them arrived without it. The nine links are back, live's own text against our own paths, and this site prints the panel on the same 79. The BMW CCA page had carried its list as a heading and a plain list instead, and two of its three links pointed at continentaltire.com. It carries the block now, and every link is a path on this site. Live's soccer page is a landing page rather than an article, and it has [its own entry](#the-sports-landing-page).
+
 - Live: [/experience](https://continentaltire.com/experience)
 - POC: [/experience](https://main--contitires--cloudadoption.aem.live/experience), for example [/experience/amg-driving-academy](https://main--contitires--cloudadoption.aem.live/experience/amg-driving-academy)
 - Code: [blocks/share/share.js](blocks/share/share.js), [styles/article.css](styles/article.css)
@@ -260,6 +263,18 @@ The filter is not a data problem, so it is built. The [events block](blocks/even
 - Author: [events in DA](https://da.live/edit#/cloudadoption/contitires/events)
 
 Differs from live: live narrows its own Event type list to the type already checked, so a second type cannot be reached from the panel, only from the URL. All four boxes stay here. Live's Apply posts its form; here the calendar has already moved when a box changes, so the button only closes the panel it opened. Live prints the details URL as text at the end of two descriptions and again as their More details button, and the sentence goes. The calendar column runs 885 at 1440 where live's runs 789, because a section on this site holds 1200 of content where live's container holds 1136. Live closes the page with a black band holding its Social gallery beside its News list; the News half is here on the learn hub's band treatment, and the Social half is a decision of its own about an Instagram feed.
+
+### The sports landing page
+
+Live: [/experience/soccer](https://continentaltire.com/experience/soccer), four sections of video cards over an anchor tab row. The cards come from a service: the MLS section renders seven and pages the rest behind a Load more, so live's first render carries 17 cards and its pager runs to 33 in that section, 43 in all. This site has no backend for the list, so the cards are authored content: the 43 live listed on 2026-07-29, in live's order, with live's own titles, posters and videos. It is a snapshot, not a feed. Re-reading live is `.mossy/parity/259-260/soccer.py`, which walks the pager and writes the sections.
+
+The page had arrived as a stub: a title, a picture and one orphaned card heading. It carries live's marquee copy now, its four sections, and its tab row on the [category-tabs](blocks/category-tabs/category-tabs.js) block. The cards run on the [media-gallery](blocks/media-gallery/media-gallery.js) block's `cards` variant, which is the square-tile gallery's own click and modal with the video's name under a 16/9 still. Its title had read `For the Love ofSoccer`, the join #251 records on a sibling page. That reached the page title and the browser tab, and all three read `For the Love of Soccer` now.
+
+- POC: [/experience/soccer](https://main--contitires--cloudadoption.aem.live/experience/soccer)
+- Code: [blocks/media-gallery](blocks/media-gallery/media-gallery.js), [blocks/category-tabs](blocks/category-tabs/category-tabs.js), [blocks/hero](blocks/hero/hero.js)
+- Author: [soccer in DA](https://da.live/edit#/cloudadoption/contitires/experience/soccer)
+
+Differs from live: the page came in on the article template, which holds a section to a 640px reading column. The template row is gone and the marquee is a hero, the way the warranty page already carries live's own. That is the same fix #213 and #251 ask for on the two sibling pages. Live's marquee sets its title and copy to the left of the photograph and ours centres them. Live gives the first card of three sections a wide treatment with its text beside the still, and every card is the same size here, so the row holding a description leaves space beside it. Live shows a description on five of its 43 cards and hides the rest, and those five are the only ones authored here. Live uppercases and centres its band heading at 42; ours takes this site's own h2, left and as written. Live pages the MLS section seven at a time behind a Load more, and all 33 stand on the page here.
 
 ### Bazaarvoice reviews
 
