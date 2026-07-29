@@ -12,7 +12,7 @@ import {
   loadCSS,
   buildBlock,
 } from './aem.js';
-import { initFinderTriggers, toFinderTrigger } from './tire-finder.js';
+import { initFinderTriggers, markFinderTriggers, toFinderTrigger } from './tire-finder.js';
 
 if (window.trustedTypes && window.trustedTypes.createPolicy) {
   const innerTT = window.trustedTypes.createPolicy('tt-inner', {
@@ -390,8 +390,14 @@ const FINDER_TAB = 'vehicle';
  * @param {Element} main The container element
  */
 function buildFinderTriggers(main) {
-  if (!document.body.classList.contains('promo')) return;
-  main.querySelectorAll(FINDER_CTA).forEach((link) => toFinderTrigger(link, FINDER_TAB));
+  if (document.body.classList.contains('promo')) {
+    main.querySelectorAll(FINDER_CTA).forEach((link) => toFinderTrigger(link, FINDER_TAB));
+  }
+  // /tire-finder offers the three searches in its body, the same list the
+  // header and the footer author. It is read behind the template rather than
+  // on every main, because loadFragment runs decorateMain over the footer
+  // before footer.js sees it, and the footer's authored hrefs stay authored.
+  if (document.body.classList.contains('finder')) markFinderTriggers(main);
 }
 
 /**
@@ -416,7 +422,7 @@ export function decorateMain(main) {
 // a template names a stylesheet of its own under /styles. The promo pages are
 // one template on live too, which is where their band treatments belong rather
 // than in the stylesheet every page pays for.
-const TEMPLATES = ['article', 'promo', 'crew', 'documents'];
+const TEMPLATES = ['article', 'promo', 'crew', 'documents', 'finder'];
 
 /**
  * Loads the stylesheet this page's template needs. Returns a promise that

@@ -1,0 +1,57 @@
+/*
+ * The finder template. Live serves /tire-finder as a dark marquee asking the
+ * question, a white band holding three choices, and the finder itself below.
+ * Our finder is a modal, so the page is the marquee and the three choices, and
+ * each choice opens the finder on its tab. The treatment lives here rather
+ * than in styles.css so only this page pays for it. Loaded by
+ * loadTemplateStyles for a page whose metadata says `Template: finder`.
+ *
+ * Read off continentaltire.com/tire-finder at 1440: the three choices are 12px
+ * at weight 700, 1.25px letter-spacing, uppercase, rgb(51 51 51), no
+ * underline, three abreast and centred in a 52px band.
+ */
+
+/* the heading names the list for a screen reader and is the hook the finder
+   contract reads. Live shows no second heading: its h1 asks the question and
+   the three choices answer it. */
+main .default-content-wrapper h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+main .default-content-wrapper ul {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+main .default-content-wrapper ul > li {
+  margin: 0;
+  padding: 0;
+}
+
+main .default-content-wrapper ul > li::marker {
+  content: '';
+}
+
+main .default-content-wrapper [data-tire-finder] {
+  padding: 16px 20px;
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+main .default-content-wrapper [data-tire-finder]:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--conti-dark-yellow);
+}

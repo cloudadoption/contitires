@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it */
+/* global describe it beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import { markFinderTriggers } from '../../scripts/tire-finder.js';
@@ -217,5 +217,59 @@ describe('authored hrefs survive decoration', () => {
 
     expect([...main.querySelectorAll('a')].map((a) => a.getAttribute('href')))
       .to.eql(['/tire-search', '/tire-search/by-vehicle', '/tire-search', '/tire-search']);
+  });
+});
+
+/**
+ * The tire finder page. Live serves /tire-finder at 200 with the finder on it;
+ * we returned 404. The finder here is a modal, so the page offers the three
+ * searches and opens it, rather than holding a second finder. The list is the
+ * contract the header and the footer already use, and reading it in the page
+ * body is what was missing. (#254)
+ */
+function finderPage() {
+  const main = document.createElement('main');
+  main.innerHTML = `
+    <div>
+      <h1 id="how-would-you-like-to-search">How would you like to search?</h1>
+    </div>
+    <div>
+      <h2 id="search-for-tire">Search for Tire</h2>
+      <ul>
+        <li><a href="/tire-search/by-vehicle">By Vehicle</a></li>
+        <li><a href="/tire-search">By Tire Size</a></li>
+        <li><a href="/tire-search">By Plate</a></li>
+      </ul>
+    </div>`;
+  return main;
+}
+
+describe('the tire finder page', () => {
+  // The template is the guard. decorateMain also runs over the footer fragment
+  // before footer.js sees it, and the footer's authored hrefs stay authored.
+  beforeEach(() => document.body.classList.add('finder'));
+  afterEach(() => document.body.classList.remove('finder'));
+
+  it('opens the finder from a Search for Tire list in the page body', () => {
+    const main = finderPage();
+    decorateMain(main);
+
+    const triggers = [...main.querySelectorAll('[data-tire-finder]')];
+    expect(triggers.map((t) => t.dataset.tireFinder))
+      .to.eql(['vehicle', 'tire-size', 'plate']);
+    expect(triggers.map((t) => t.tagName)).to.eql(['BUTTON', 'BUTTON', 'BUTTON']);
+  });
+
+  // No page authors this shape today, so nothing else may grow a trigger.
+  it('leaves a list under any other heading alone', () => {
+    const main = document.createElement('main');
+    main.innerHTML = `
+      <div>
+        <h2 id="our-tires">Our Tires</h2>
+        <ul><li><a href="/tires/passenger">By Vehicle</a></li></ul>
+      </div>`;
+    decorateMain(main);
+
+    expect(main.querySelectorAll('[data-tire-finder]')).to.have.length(0);
   });
 });

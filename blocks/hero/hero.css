@@ -536,3 +536,51 @@ main .section.hero-container {
     margin: 0;
   }
 }
+
+/* ---- breadcrumb: the trail live draws above the marquee title on the three
+   section hubs under /experience. It reads off the same numbers banner does,
+   which are live's: the link 12px at weight 700, 0.6px letter-spacing,
+   uppercase, white and underlined, the current step the same without the
+   underline, and a leaning bar between the steps. #289 ---- */
+.hero .hero-breadcrumb {
+  display: flex;
+  margin: 0 0 24px;
+}
+
+.hero .hero-breadcrumb ol {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero .hero-breadcrumb li {
+  display: flex;
+  align-items: center;
+}
+
+.hero .hero-breadcrumb li + li::before {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 0.8em;
+  margin: 0 8px;
+  border-inline-end: 2px solid currentcolor;
+  transform: rotate(15deg);
+}
+
+.hero .hero-breadcrumb a,
+.hero .hero-breadcrumb [aria-current='page'] {
+  color: var(--conti-white);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+}
+
+.hero .hero-breadcrumb a {
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-decoration: underline;
+}
