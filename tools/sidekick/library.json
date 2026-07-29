@@ -1,7 +1,7 @@
 {
-  "total": 14,
+  "total": 17,
   "offset": 0,
-  "limit": 14,
+  "limit": 17,
   "data": [
     {
       "name": "Hero",
@@ -58,6 +58,18 @@
     {
       "name": "Video",
       "path": "/tools/sidekick/blocks/video"
+    },
+    {
+      "name": "Media Gallery",
+      "path": "/tools/sidekick/blocks/media-gallery"
+    },
+    {
+      "name": "Share",
+      "path": "/tools/sidekick/blocks/share"
+    },
+    {
+      "name": "Crew",
+      "path": "/tools/sidekick/blocks/crew"
     }
   ],
   "columns": [

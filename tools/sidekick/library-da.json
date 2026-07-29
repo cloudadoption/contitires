@@ -1,6 +1,6 @@
 {
-  "total": 14,
-  "limit": 14,
+  "total": 17,
+  "limit": 17,
   "offset": 0,
   "data": [
     {
@@ -58,6 +58,18 @@
     {
       "name": "Video",
       "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/video"
+    },
+    {
+      "name": "Media Gallery",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/media-gallery"
+    },
+    {
+      "name": "Share",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/share"
+    },
+    {
+      "name": "Crew",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/crew"
     }
   ],
   ":type": "sheet"
