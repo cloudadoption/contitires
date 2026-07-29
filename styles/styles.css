@@ -519,8 +519,3 @@ main .section.full-width > div {
   padding: 0;
 }
 
-/* library-metadata is a block-library tooling block (name, description,
-   searchtags): read as metadata, never rendered as page content */
-.library-metadata {
-  display: none;
-}

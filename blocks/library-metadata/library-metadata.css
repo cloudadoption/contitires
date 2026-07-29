@@ -1,0 +1,5 @@
+/* The picker's name, description and search terms for a sample. Read from the
+   document, never shown to a reader. */
+main .library-metadata {
+  display: none;
+}
