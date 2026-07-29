@@ -1,7 +1,7 @@
 {
-  "total": 11,
+  "total": 14,
   "offset": 0,
-  "limit": 11,
+  "limit": 14,
   "data": [
     {
       "name": "Hero",
@@ -38,6 +38,18 @@
     {
       "name": "Size List",
       "path": "/tools/sidekick/blocks/size-list"
+    },
+    {
+      "name": "Banner",
+      "path": "/tools/sidekick/blocks/banner"
+    },
+    {
+      "name": "Tire Specs",
+      "path": "/tools/sidekick/blocks/tire-specs"
+    },
+    {
+      "name": "Related Articles",
+      "path": "/tools/sidekick/blocks/related-articles"
     },
     {
       "name": "Tire Listing",
