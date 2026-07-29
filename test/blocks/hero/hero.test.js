@@ -593,6 +593,11 @@ describe('Hero, content the block has no treatment for', () => {
  * marquee at 160 "on a page whose marquee carries a breadcrumb trail". (#289)
  */
 function buildHub(variant = 'breadcrumb') {
+  document.head.querySelectorAll('meta[name="breadcrumb"]').forEach((m) => m.remove());
+  const meta = document.createElement('meta');
+  meta.name = 'breadcrumb';
+  meta.content = 'Partners';
+  document.head.append(meta);
   document.body.innerHTML = `
     <main>
       <div class="section">
@@ -613,7 +618,10 @@ describe('Hero block, the breadcrumb variant', () => {
     window.history.replaceState({}, '', '/experience/partners');
   });
 
-  after(() => window.history.replaceState({}, '', path));
+  after(() => {
+    window.history.replaceState({}, '', path);
+    document.head.querySelectorAll('meta[name="breadcrumb"]').forEach((m) => m.remove());
+  });
 
   it('draws the trail live draws, section then page, above the title', async () => {
     const block = buildHub();

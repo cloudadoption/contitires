@@ -1,3 +1,6 @@
+import { getMetadata } from '../../scripts/aem.js';
+import { buildBreadcrumb } from '../banner/banner.js';
+
 // the width at which the hero stops stacking, so the desktop art starts here
 const DESKTOP_MEDIA = '(min-width: 1025px)';
 
@@ -77,6 +80,25 @@ export default function decorate(block) {
     ctas.className = 'hero-ctas';
     ctaWrappers.forEach((p) => ctas.append(p));
     content.append(ctas);
+  }
+
+  // Live draws EXPERIENCE / PARTNERS above the marquee title on the three
+  // section hubs under /experience and draws no trail on the twelve other
+  // pages this block builds, so the trail is a variant the page carries the
+  // way live's own marquee carries `marquee--has-breadcrumbs`. hero.css sizes
+  // its divided marquee at 160 for exactly this case. #289
+  if (block.classList.contains('breadcrumb')) {
+    // the same rule banner uses: the name the page gives itself, or its title
+    // minus the site suffix. Live names a page in the trail the way its
+    // navigation names it, which is not always the title. Partners is titled
+    // ROLLING WITH THE BEST and reads Partners in the trail.
+    const label = getMetadata('breadcrumb')
+      || (document.title || '').replace(/\s*\|\s*Continental Tire\s*$/i, '').trim();
+    const trail = buildBreadcrumb(window.location.pathname, label);
+    if (trail) {
+      trail.className = 'hero-breadcrumb';
+      content.prepend(trail);
+    }
   }
 
   block.replaceChildren(imageWrap, content);
