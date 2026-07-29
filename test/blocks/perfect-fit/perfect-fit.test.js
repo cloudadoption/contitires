@@ -261,11 +261,11 @@ describe('perfect-fit block', () => {
   });
 });
 
-// Copy taken verbatim from live's own tire-finder components. Live renders the
-// button label in sentence case and uppercases it in CSS, so the DOM text is
-// "See tires that fit".
-const TERMS = 'By selecting "See Tires That Fit" I confirm that I have read the '
-  + 'Tire Selector Terms of Use and I accept the terms.';
+// The sentence shape taken from live's own tire-finder components, with the
+// button label quoted inside it. Live quotes one label on all three tabs; ours
+// quotes each tab's own, because two of the three cannot check a fit, so the
+// label is a hole here and the words are asserted in the claims describe below.
+const TERMS = /^By selecting ".+" I confirm that I have read the Tire Selector Terms of Use and I accept the terms\.$/;
 
 describe('perfect-fit modal, rebuilt against live', () => {
   let fetchStub;
@@ -303,21 +303,29 @@ describe('perfect-fit modal, rebuilt against live', () => {
     expect(heading('plate')).to.equal('Enter your license plate.');
   });
 
+  // the wording itself moved to the claims describe at the foot of this file:
+  // live quotes one label on all three tabs and ours differ per tab, because
+  // two of the three cannot check a fit. What this test protects is the
+  // sentence being present on every tab and its link going to the legal page.
   it('shows the terms sentence, with Terms of Use linking to the legal page', async () => {
     await open();
     ['vehicle', 'tire-size', 'plate'].forEach((id) => {
       const terms = panelOf(id).querySelector('.perfect-fit-terms');
       expect(terms, `${id} panel has terms`).to.exist;
-      expect(terms.textContent.replace(/\s+/g, ' ').trim()).to.equal(TERMS);
+      expect(terms.textContent.replace(/\s+/g, ' ').trim()).to.match(TERMS);
       expect(terms.querySelector('a').getAttribute('href')).to.equal('/legal');
       expect(terms.querySelector('a').textContent).to.equal('Terms of Use');
     });
   });
 
-  it('labels the call to action the way live does', async () => {
+  it('draws the call to action as a primary button on every tab', async () => {
     await open();
-    document.querySelectorAll('.perfect-fit-search').forEach((button) => {
-      expect(button.textContent).to.equal('See tires that fit');
+    const buttons = [...document.querySelectorAll('.perfect-fit-search')];
+    expect(buttons.length).to.equal(3);
+    buttons.forEach((button) => {
+      expect(button.classList.contains('primary'), button.textContent).to.be.true;
+      expect(button.type).to.equal('submit');
+      expect(button.textContent.trim().length, 'has a label').to.be.above(0);
     });
   });
 
