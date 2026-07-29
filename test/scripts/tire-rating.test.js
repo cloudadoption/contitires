@@ -50,11 +50,31 @@ describe('the rating band on a product page', () => {
     expect(main.lastElementChild.contains(band), 'in the last section').to.be.true;
   });
 
-  it('carries the slug the specs band already names', () => {
+  it('names the product by the page\'s own path, which is the catalog slug', () => {
     const main = productPage();
     decorateMain(main);
 
-    expect(main.querySelector('.tire-rating').textContent.trim()).to.equal('4x4contact');
+    const slug = window.location.pathname.replace(/\/$/, '').split('/').pop();
+    expect(main.querySelector('.tire-rating').textContent.trim()).to.equal(slug);
+  });
+
+  // /tires/purecontact-ls and /tires/truecontact-tour author no specs band,
+  // and both are rated, so the hero has to be enough to end the page.
+  it('ends a product page that authors no specs band', () => {
+    const main = productPage();
+    main.querySelector('.tire-specs').closest('div').remove();
+    decorateMain(main);
+
+    expect(main.querySelector('.tire-rating'), 'the band').to.exist;
+  });
+
+  // /vancontact-as-ultra carries a plain columns hero, not the product variant.
+  it('ends a product page whose hero carries no product variant', () => {
+    const main = productPage();
+    main.querySelector('.columns.product-hero').classList.remove('product-hero');
+    decorateMain(main);
+
+    expect(main.querySelector('.tire-rating'), 'the band').to.exist;
   });
 
   it('leaves the stores band where it is', () => {

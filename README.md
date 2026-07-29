@@ -154,10 +154,12 @@ Measured against live at 375, 900 and 1440: the card width, tire image, badge ro
 
 - Live: [/tires/extremecontact-sport-02](https://continentaltire.com/tires/extremecontact-sport-02)
 - POC: [/tires/extremecontact-sport-02](https://main--contitires--cloudadoption.aem.live/tires/extremecontact-sport-02), data at [/products.json](https://main--contitires--cloudadoption.aem.live/products.json)
-- Code: [blocks/tire-specs](blocks/tire-specs/tire-specs.js), [blocks/size-list](blocks/size-list/size-list.js)
+- Code: [blocks/tire-specs](blocks/tire-specs/tire-specs.js), [blocks/size-list](blocks/size-list/size-list.js), [blocks/tire-rating](blocks/tire-rating/tire-rating.js)
 - Author: [products sheet](https://da.live/sheet#/cloudadoption/contitires/products), [a PDP in DA](https://da.live/edit#/cloudadoption/contitires/tires/extremecontact-sport-02)
 
-Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. purecontact-ls also renders only its hero, with the page body missing (#93). No reviews, media gallery, or fitment checker (see the gaps), and no Product JSON-LD.
+A rated page ends with a [tire-rating](blocks/tire-rating/tire-rating.js) band, which is built rather than authored: it takes no authored input, and the product is the page's own last path segment. That segment is the catalog slug on all 46.
+
+Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. purecontact-ls also renders only its hero, with the page body missing (#93). The rating band carries the aggregate and not the reviews themselves (see [Bazaarvoice reviews](#bazaarvoice-reviews)). No media gallery or fitment checker (see the gaps), and no Product JSON-LD.
 
 ### Learn hub and articles
 
@@ -248,7 +250,13 @@ Live resolves vehicles and license plates against a fitment database. Its finder
 
 ### Bazaarvoice reviews
 
-Live PDPs embed Bazaarvoice reviews and Q&A. Deliberately excluded here. The EDS pattern for any such vendor script: load `bv.js` in the delayed phase ([scripts/delayed.js](scripts/delayed.js), which loads the widget embeds the same way), keep the per-product ID in page metadata, and add the container markup to the PDP. Third-party scripts stay out of the critical path by construction.
+Live ends 45 of its 46 product pages with a section headed "Why people love this tire": a rating snapshot with a bar per star, the overall score, a write-a-review control, and the written reviews with reviewer, location, date and a helpful-vote control, plus a Questions and Answers tab. It is a Bazaarvoice embed, keyed by a `data-bv-product-id` per page, and it is 3607px of the 7309px page on `/tires/4x4contact`. The review bodies, the questions, the votes and the control are that service's and this site does not hold them.
+
+The aggregate is a different matter: the catalog sheet carries `rating` and `reviews` per product, and a [tire-rating](blocks/tire-rating/tire-rating.js) band ends every rated product page with them. It is headed `Customer rating`, for what it shows rather than for what live shows. A product nobody has rated ends with no band, which is where live puts the write-a-review control.
+
+Those two numbers are a snapshot taken during the migration, not a feed. Live's counts move and the sheet does not. Swept against live's own product JSON-LD on 2026-07-29, 45 of the 46 counts still agreed, and `crosscontact-lx25` had gone from the 400 in the sheet to 401. The scores agree to the decimal live displays; live stores one more, `3.49` where the sheet and live's own widget both read `3.5`.
+
+The EDS pattern for the rest, if the service were ever in reach: load `bv.js` in the delayed phase ([scripts/delayed.js](scripts/delayed.js), which loads the widget embeds the same way), keep the per-product ID in page metadata, and add the container markup to the PDP. Third-party scripts stay out of the critical path by construction.
 
 ### PDP media gallery and fitment checker
 
@@ -281,9 +289,9 @@ It exits non-zero when anything is broken, and prints what and where. Run it aft
 |---|---|---|
 | `products` | [perfect-fit](blocks/perfect-fit/perfect-fit.js), the tire finder | `slug`, `name`, `category`, `season`, `vehicleTypes`, `image` |
 | `specs` | [tire-specs](blocks/tire-specs/tire-specs.js) and the finder | `slug`, `size`, plus the 19 spec fields, which render in column order |
-| `catalog` | [tire-listing](blocks/tire-listing/tire-listing.js) | `slug`, `name`, `path`, `image`, `bestFor`, `facetWeights`, `weight` |
+| `catalog` | [tire-listing](blocks/tire-listing/tire-listing.js), [tire-rating](blocks/tire-rating/tire-rating.js) | `slug`, `name`, `path`, `image`, `bestFor`, `facetWeights`, `weight`, `rating`, `reviews` |
 
-Renaming `slug` or `size` on the `specs` sheet used to blank every product page's spec panel with nothing said. The panel now names the missing column on the page, and the finder says so in the console and reads the older `products.sizes` cell instead.
+Renaming `slug` or `size` on the `specs` sheet used to blank every product page's spec panel with nothing said. The panel now names the missing column on the page, and the finder says so in the console and reads the older `products.sizes` cell instead. Renaming `rating` or `reviews` on the `catalog` sheet is the same shape, and the rating band names the missing column the same way.
 
 **The specs sheet is the one source of which sizes a product comes in.** One row per size, and it repeats a size once per load range. The `sizes` cell on the `products` sheet is derived from it and nothing reads it while the specs sheet is whole. The two write a size differently, `205/55 R 16` against `205/55R16`, and [`scripts/products.js`](scripts/products.js) holds the one function that settles which of the two is one size. A product with no rows on the `specs` sheet lists no specs and answers no size search; the checker names it.
 

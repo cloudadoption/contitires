@@ -21,6 +21,13 @@ export const SPECS_COLUMNS = ['slug', 'size'];
 export const PRODUCTS_COLUMNS = ['slug', 'name'];
 
 /**
+ * The columns the rating band reads off the catalog sheet. They hold the
+ * aggregate of live's Bazaarvoice reviews, which is the part of that service
+ * this site holds; the review bodies are not here and are not ours to write.
+ */
+export const CATALOG_COLUMNS = ['slug', 'rating', 'reviews'];
+
+/**
  * Which of the required columns no row of a sheet carries. A sheet with no
  * rows carries none of them.
  * @param {Array<Object>} rows the sheet's rows
