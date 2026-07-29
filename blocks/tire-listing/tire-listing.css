@@ -305,12 +305,14 @@
   text-align: center;
 }
 
+/* the product name is a title, not prose, so it takes no underline. Live's
+   own `.tire-cards__item` shows none. #240 */
 .tire-listing .tire-listing-card-title a:any-link {
   display: inline-flex;
   align-items: center;
   color: var(--conti-black);
   letter-spacing: 0.25px;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .tire-listing .tire-listing-new {
