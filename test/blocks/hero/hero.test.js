@@ -583,3 +583,66 @@ describe('Hero, content the block has no treatment for', () => {
     expect(tags).to.eql(['H1', 'P', 'UL', 'P']);
   });
 });
+
+/**
+ * A section hub under /experience. Live draws EXPERIENCE / PARTNERS above the
+ * marquee title on partners, conti-crew and soccer, and draws no trail at all
+ * on the twelve other pages this block builds. So the trail is a variant the
+ * page carries, the way live's own marquee carries `marquee--has-breadcrumbs`,
+ * rather than something every hero grows. hero.css already sizes its divided
+ * marquee at 160 "on a page whose marquee carries a breadcrumb trail". (#289)
+ */
+function buildHub(variant = 'breadcrumb') {
+  document.body.innerHTML = `
+    <main>
+      <div class="section">
+        <div class="hero ${variant} block">
+          <div><div><picture><img src="./m.jpg" width="2880" height="1000" alt=""></picture></div></div>
+          <div><div><h1>Partners</h1></div></div>
+        </div>
+      </div>
+    </main>`;
+  return document.querySelector('.hero.block');
+}
+
+describe('Hero block, the breadcrumb variant', () => {
+  let path;
+
+  before(() => {
+    path = window.location.pathname;
+    window.history.replaceState({}, '', '/experience/partners');
+  });
+
+  after(() => window.history.replaceState({}, '', path));
+
+  it('draws the trail live draws, section then page, above the title', async () => {
+    const block = buildHub();
+    await decorate(block);
+
+    const nav = block.querySelector('nav[aria-label="Breadcrumb"]');
+    expect(nav, 'no trail on a hub that asks for one').to.exist;
+    expect([...nav.querySelectorAll('li')].map((li) => li.textContent.trim()))
+      .to.eql(['Experience', 'Partners']);
+    expect(nav.querySelector('a').getAttribute('href')).to.equal('/experience');
+    expect(nav.compareDocumentPosition(block.querySelector('h1'))
+      & Node.DOCUMENT_POSITION_FOLLOWING, 'the trail sits below the title').to.be.ok;
+  });
+
+  it('names the page the way the trail should read', async () => {
+    const block = buildHub();
+    await decorate(block);
+
+    expect(block.querySelector('[aria-current="page"]').textContent.trim())
+      .to.equal('Partners');
+  });
+
+  // Twelve hero pages have two path segments and live draws no trail on any of
+  // them, the eleven tire category pages and technical-documents. A hero that
+  // built one from the path alone would invent twelve.
+  it('draws no trail on a hero that does not ask for one', async () => {
+    const block = buildHub('left');
+    await decorate(block);
+
+    expect(block.querySelector('nav[aria-label="Breadcrumb"]')).to.not.exist;
+  });
+});

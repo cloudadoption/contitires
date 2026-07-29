@@ -219,3 +219,59 @@ describe('authored hrefs survive decoration', () => {
       .to.eql(['/tire-search', '/tire-search/by-vehicle', '/tire-search', '/tire-search']);
   });
 });
+
+/**
+ * The tire finder page. Live serves /tire-finder at 200 with the finder on it;
+ * we returned 404. The finder here is a modal, so the page offers the three
+ * searches and opens it, rather than holding a second finder. The list is the
+ * contract the header and the footer already use, and reading it in the page
+ * body is what was missing. (#254)
+ */
+function finderPage() {
+  const main = document.createElement('main');
+  main.innerHTML = `
+    <div>
+      <h1 id="how-would-you-like-to-search">How would you like to search?</h1>
+    </div>
+    <div>
+      <h2 id="search-for-tire">Search for Tire</h2>
+      <ul>
+        <li><a href="/tire-search/by-vehicle"><span class="icon icon-vehicle"></span>By Vehicle</a></li>
+        <li><a href="/tire-search"><span class="icon icon-tire-size"></span>By Tire</a></li>
+        <li><a href="/tire-search"><span class="icon icon-license-plate"></span>By License Plate</a></li>
+      </ul>
+    </div>`;
+  return main;
+}
+
+describe('the tire finder page', () => {
+  it('opens the finder from a Search for Tire list in the page body', () => {
+    const main = finderPage();
+    decorateMain(main);
+
+    const triggers = [...main.querySelectorAll('[data-tire-finder]')];
+    expect(triggers.map((t) => t.dataset.tireFinder))
+      .to.eql(['vehicle', 'tire-size', 'plate']);
+    expect(triggers.map((t) => t.tagName)).to.eql(['BUTTON', 'BUTTON', 'BUTTON']);
+  });
+
+  it('keeps the icon each choice was authored with', () => {
+    const main = finderPage();
+    decorateMain(main);
+
+    expect(main.querySelector('[data-tire-finder="vehicle"] .icon-vehicle')).to.exist;
+  });
+
+  // No page authors this shape today, so nothing else may grow a trigger.
+  it('leaves a list under any other heading alone', () => {
+    const main = document.createElement('main');
+    main.innerHTML = `
+      <div>
+        <h2 id="our-tires">Our Tires</h2>
+        <ul><li><a href="/tires/passenger">By Vehicle</a></li></ul>
+      </div>`;
+    decorateMain(main);
+
+    expect(main.querySelectorAll('[data-tire-finder]')).to.have.length(0);
+  });
+});
