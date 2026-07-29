@@ -34,6 +34,7 @@ This is a technical demo, not Continental's site. All content, images, product d
   - [The events calendar](#the-events-calendar)
   - [The sports landing page](#the-sports-landing-page)
   - [The video series pages](#the-video-series-pages)
+  - [The annotated tire diagram](#the-annotated-tire-diagram)
   - [Bazaarvoice reviews](#bazaarvoice-reviews)
   - [PDP media gallery and fitment checker](#pdp-media-gallery-and-fitment-checker)
   - [Martech and third-party embeds](#martech-and-third-party-embeds)
@@ -288,6 +289,18 @@ The pages listed their episodes as plain cards whose Watch video link left the s
 - Author: [forwhatyoudo in DA](https://da.live/edit#/cloudadoption/contitires/forwhatyoudo)
 
 Differs from live: live opens one video per modal. Ours pages the whole series behind arrows and a thumbnail strip, which is the gallery's own modal, and it closes on Escape where live's has no close control at all. Live hides the description on every episode but the featured one, and those four are the only ones authored here, so the blurbs the import had carried on the other cards are gone. Live holds the feature at 430 tall and this site takes 430 as a floor, so /forwhatyoudo reads 450 at 1440 where its description runs longer than the still. Live pads the band 80 top and bottom and this site pads a section 56. Live stands a year tab row over the two sections of /cruisingthecontinentalus and this site has none. Live pages 12 episodes behind /forwhatyoudo's Load more and 3 behind /cruisingthecontinentalus's, and all of them stand on the page here.
+
+### The annotated tire diagram
+
+Live: [/all-new-securecontact-aw](https://continentaltire.com/all-new-securecontact-aw). Under the four claims it makes for the SecureContact AW, live draws the tire itself, with rings on the parts each claim rests on. The markup is `paragraph--type--tire-features-slider`: four cards, four drawings, and eight rings, each with a title and a line of explanation. The import took the four cards and used the drawings as their pictures. The page ran the cards straight into the finder bar, and none of the eight explanations were on it.
+
+The [tire-features](blocks/tire-features/tire-features.js) block builds it. A row is one feature: its drawing, its card, and a ring for each part the card claims. A ring is placed by two percentages of the picture. One pair of numbers holds at every width, and nothing measures the image while the page runs. The four drawings were already in DA, byte for byte live's. The four card icons came out of live's markup and were uploaded to the same folder.
+
+- POC: [/all-new-securecontact-aw](https://main--contitires--cloudadoption.aem.live/all-new-securecontact-aw)
+- Code: [blocks/tire-features](blocks/tire-features/tire-features.js)
+- Author: [the page in DA](https://da.live/edit#/cloudadoption/contitires/all-new-securecontact-aw)
+
+Differs from live: under 1181 live hides every ring's words and brings one back when a ring is tapped. Its rings are divs with a click handler, so a keyboard reaches none of the eight, and on a phone the words behind them cannot be read. This site prints every ring's words under the drawing at those widths, and the rings are decoration. Live runs its cards as a carousel there, which puts each card in the tab order three times; this site scrolls and snaps them. Live pads the band 80 top and bottom and this site pads a section 56. Live sets a 460KB photograph behind the black band and this site leaves it black. Live draws one of the eight rings 150 across where the other seven are 98, and this site draws it 147. Live's `*` on the wet braking card links to the disclaimer at the foot of the page, from inside the button that opens the drawing; this site leaves it as plain text.
 
 ### Bazaarvoice reviews
 
