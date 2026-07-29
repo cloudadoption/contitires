@@ -129,25 +129,59 @@ function fillSelect(select, values, placeholder) {
   }));
 }
 
-function searchButton() {
+/**
+ * What each tab searches on, and what it may therefore claim.
+ *
+ * Live labels all three "See tires that fit" and earns it: its By Vehicle
+ * resolves a car to an exact size through a service and returns only the tires
+ * stocked in that size. Ours has no such service and never will, which is the
+ * finding of #243, so two of these three tabs cannot check a fit.
+ *
+ * By Vehicle maps the model to a coarse class and filters on vehicleTypes. For
+ * a 2022 Honda Civic it returned 29 products, 10 of which our own specs sheet
+ * puts in none of the three sizes live resolves that car to. By Plate reaches
+ * no registration service and answers with the all-season range whatever plate
+ * is typed. By Tire Size is the one that does match, so it is the one that
+ * still says so. (#307)
+ */
+const TAB_CLAIMS = {
+  vehicle: {
+    action: 'See tires for this vehicle type',
+    basis: 'Matched on vehicle type, not on the tire size your vehicle takes.',
+  },
+  'tire-size': {
+    action: 'See tires in this size',
+    basis: 'Matched on tire size.',
+  },
+  plate: {
+    action: 'See all-season tires',
+    basis: 'Not matched on your plate. Reading one needs a registration service this site does not have.',
+  },
+};
+
+function searchButton(action) {
   const button = document.createElement('button');
   button.type = 'submit';
   button.className = 'button primary perfect-fit-search';
   // sentence case in the DOM, uppercased in CSS, as live does it
-  button.textContent = 'See tires that fit';
+  button.textContent = action;
   button.disabled = true;
   return button;
 }
 
-/** Live's terms sentence, shown above the call to action on every tab. */
-function termsNote() {
+/**
+ * The terms sentence, quoting the button it stands above. Live quotes its own
+ * one label; ours differ per tab, so each sentence names the control the reader
+ * is about to press.
+ */
+function termsNote(action) {
   const note = document.createElement('p');
   note.className = 'perfect-fit-terms';
   const link = document.createElement('a');
   link.href = '/legal';
   link.textContent = 'Terms of Use';
   note.append(
-    'By selecting "See Tires That Fit" I confirm that I have read the Tire Selector ',
+    `By selecting "${action}" I confirm that I have read the Tire Selector `,
     link,
     ' and I accept the terms.',
   );
@@ -185,7 +219,8 @@ function buildForm(tabId, headingText, fields, onSubmit) {
   const grid = document.createElement('div');
   grid.className = 'perfect-fit-fields';
   grid.append(...fields);
-  form.append(heading, grid, termsNote(), searchButton());
+  const { action } = TAB_CLAIMS[tabId];
+  form.append(heading, grid, termsNote(action), searchButton(action));
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     onSubmit();
@@ -213,19 +248,28 @@ function productCard(product) {
   return card;
 }
 
-function renderResults(container, products) {
+/**
+ * The results, under a count and a line naming what they were matched on. The
+ * count used to read "29 matching tires", which makes the same claim the button
+ * did: that a match was computed against the vehicle. It counts them now, and
+ * the line beneath says what the match was actually based on.
+ */
+function renderResults(container, products, basis) {
   const count = document.createElement('p');
   count.className = 'perfect-fit-result-count';
   if (!products.length) {
-    count.textContent = 'No matching tires found. Try another combination.';
+    count.textContent = 'No tires found. Try another combination.';
     container.replaceChildren(count);
     return;
   }
-  count.textContent = `${products.length} matching ${products.length === 1 ? 'tire' : 'tires'}`;
+  count.textContent = `${products.length} ${products.length === 1 ? 'tire' : 'tires'}`;
+  const note = document.createElement('p');
+  note.className = 'perfect-fit-result-basis';
+  note.textContent = basis;
   const list = document.createElement('div');
   list.className = 'perfect-fit-results-list';
   products.forEach((product) => list.append(productCard(product)));
-  container.replaceChildren(count, list);
+  container.replaceChildren(count, note, list);
 }
 
 function buildTireSizeForm(products, onResults) {
@@ -378,7 +422,10 @@ function buildModal(products) {
 
     const results = document.createElement('div');
     results.className = 'perfect-fit-results';
-    panel.append(FORM_BUILDERS[id](products, (found) => renderResults(results, found)), results);
+    panel.append(
+      FORM_BUILDERS[id](products, (found) => renderResults(results, found, TAB_CLAIMS[id].basis)),
+      results,
+    );
     panelsWrapper.append(panel);
     panels[id] = panel;
   });
