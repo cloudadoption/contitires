@@ -14,6 +14,37 @@ const BEST_FOR_BADGES = [
 const BEST_FOR_LABEL = /^best for$/i;
 
 /**
+ * The rebate, on the 19 of 46 product pages live shows one. Campaign copy with
+ * an end date, so it is authored rather than built and an author takes an
+ * expired offer down by deleting two paragraphs.
+ *
+ * Live puts the flag above the title and the sentence with its Offer details
+ * link under the store CTA, those two paired in a row. The link before the
+ * title is the flag and the one after it opens the row, which is what tells
+ * them apart. A cell with no title gets neither.
+ * @param {Element} cell The hero's copy cell
+ */
+function decorateRebate(cell) {
+  const kids = [...cell.children];
+  const titleAt = kids.findIndex((el) => el.tagName === 'H1');
+  if (titleAt < 0) return;
+
+  kids.forEach((el, at) => {
+    if (!el.querySelector('a[href="/promotion"]')) return;
+    if (at < titleAt) {
+      el.classList.add('product-hero-rebate');
+      return;
+    }
+    const sentence = kids[at - 1];
+    if (!sentence || sentence.tagName !== 'P') return;
+    const row = document.createElement('div');
+    row.className = 'product-hero-offer';
+    sentence.replaceWith(row);
+    row.append(sentence, el);
+  });
+}
+
+/**
  * Names the two trailing groups of the product hero column so the stylesheet
  * can rule them off, and gives each Best for entry its badge.
  *
@@ -23,6 +54,9 @@ const BEST_FOR_LABEL = /^best for$/i;
  * @param {Element} block The block
  */
 function decorateProductHero(block) {
+  const cell = block.querySelector(':scope > div > div:last-child');
+  if (cell) decorateRebate(cell);
+
   block.querySelectorAll('ul').forEach((list) => {
     const above = list.previousElementSibling;
     if (!above) return;

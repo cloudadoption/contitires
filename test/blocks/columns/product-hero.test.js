@@ -8,10 +8,11 @@ import decorate from '../../../blocks/columns/columns.js';
  * The trailing groups of live's product hero column, read off
  * continentaltire.com/tires/4x4sportcontact at 1440.
  *
- * Total Confidence Plan: three lines, `60 Day Trial`, `3 Year Roadside
- * Assistance` and `12 Month Road Hazard Coverage`, each with a gold checkmark
- * drawn at 15px in #a36a00, set 14.88px on a 22px line. The issue names two of
- * the three; live shows three.
+ * Total Confidence Plan: each line with a gold checkmark drawn at 15px in
+ * #a36a00, set 14.88px on a 22px line. The issue names two lines. Live shows
+ * three on 21 of its 46 product pages, four on 20 of them where the product's
+ * own mileage warranty leads, and no plan block at all on 4. So the list is
+ * authored per page and the block only names it.
  *
  * Best for: a 12px/700 label at 1.25px letter-spacing in caps, then one row per
  * entry, a 30px line icon and a 14.88px/700 label 8px to its right on a 30px
@@ -86,6 +87,26 @@ describe('product hero, the Best for icons', () => {
     ]);
     expect(plan.querySelectorAll('span.icon').length, 'no badges on the plan').to.equal(0);
     block.remove();
+  });
+
+  // 20 of live's 46 product pages lead the plan with the product's own mileage
+  // warranty, and 4 show no plan block at all
+  it('names a plan of any length, and none where none is authored', () => {
+    const four = authored(`
+      <p><a href="/warranty">Total Confidence Plan</a></p>
+      <ul><li>Up To 65K Limited Warranty</li><li>60 Day Trial</li>
+        <li>3 Year Roadside Assistance</li><li>12 Month Road Hazard Coverage</li></ul>`);
+    decorate(four);
+    expect(four.querySelectorAll('.product-hero-plan li').length).to.equal(4);
+    expect(four.querySelector('.product-hero-plan li').textContent.trim())
+      .to.equal('Up To 65K Limited Warranty');
+    four.remove();
+
+    const none = authored('<p><strong>Best for</strong></p><ul><li>Crossover</li></ul>');
+    decorate(none);
+    expect(none.querySelector('.product-hero-plan')).to.not.exist;
+    expect(none.querySelector('.product-hero-plan-link')).to.not.exist;
+    none.remove();
   });
 
   it('leaves an entry with no badge of its own alone', () => {
@@ -200,11 +221,16 @@ describe('product hero, the treatments live gives those groups', () => {
     return rule ? rule.style.getPropertyValue(prop).trim() : null;
   }
 
-  it('rules a hairline above each trailing group', () => {
-    expect(value('.columns.product-hero .product-hero-plan-link', 'border-top'))
+  // live rules the rebate row and Best for and leaves the plan without one.
+  // Read on /tires/4x4sportcontact, which has a rebate, and on
+  // /tires/procontact-tx, which has none: the plan has no top border on either.
+  it('rules a hairline above the rebate row and above Best for, and not above the plan', () => {
+    expect(value('.columns.product-hero .product-hero-offer', 'border-top'))
       .to.equal('1px solid var(--conti-grey)');
     expect(value('.columns.product-hero .product-hero-best-for-label', 'border-top'))
       .to.equal('1px solid var(--conti-grey)');
+    expect(value('.columns.product-hero .product-hero-plan-link', 'border-top')).to.equal(null);
+    expect(value('.columns.product-hero .product-hero-offer', 'padding-top')).to.equal('20px');
     expect(value('.columns.product-hero .product-hero-plan-link', 'padding-top')).to.equal('20px');
     expect(value('.columns.product-hero .product-hero-best-for-label', 'padding-top')).to.equal('20px');
   });
@@ -238,9 +264,10 @@ describe('product hero, the treatments live gives those groups', () => {
     expect(value('.columns.product-hero .product-hero-rebate a.button', 'padding')).to.equal('2px 16px 2px 12px');
     expect(value('.columns.product-hero .product-hero-rebate a.button', 'background-color')).to.equal('var(--conti-yellow)');
     expect(value('.columns.product-hero .product-hero-rebate a.button', 'color')).to.equal('var(--conti-dark-black)');
-    expect(value('.columns.product-hero .product-hero-rebate a.button', 'border-radius')).to.equal('4px 0 0 4px');
+    // the serialized form, which is what live reports too
+    expect(value('.columns.product-hero .product-hero-rebate a.button', 'border-radius')).to.equal('4px 0px 0px 4px');
     expect(value('.columns.product-hero .product-hero-rebate a.button', 'clip-path'))
-      .to.equal('polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%)');
+      .to.equal('polygon(0px 0px, 100% 0px, 95% 50%, 100% 100%, 0px 100%)');
   });
 
   it('sets the offer sentence beside its link, as live pairs them', () => {

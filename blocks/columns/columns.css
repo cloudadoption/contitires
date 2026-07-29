@@ -121,13 +121,19 @@ main .columns.bar .button.secondary:focus-visible {
 .columns.product-hero .product-hero-plan-link,
 .columns.product-hero .product-hero-best-for-label {
   margin: 0;
-  border-top: 1px solid var(--conti-grey);
   padding-top: 20px;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.25px;
   line-height: 16px;
   text-transform: uppercase;
+}
+
+/* live rules off the rebate row and Best for, and leaves the plan without one.
+   Read on /tires/4x4sportcontact, which has a rebate, and on /tires/procontact-tx,
+   which has none: the plan block has no top border on either. */
+.columns.product-hero .product-hero-best-for-label {
+  border-top: 1px solid var(--conti-grey);
 }
 
 .columns.product-hero .product-hero-plan {
@@ -185,4 +191,52 @@ main .columns.bar .button.secondary:focus-visible {
 .columns.product-hero .product-hero-best-for .icon img {
   width: 30px;
   height: 30px;
+}
+
+/* The rebate. Live's flag above the title reads 132 by 20: 11px at weight 700
+   and 0.5px in #1d1d1d on #ffa500, a 4px radius down its left edge and a notch
+   cut out of its right. Authored as an em-wrapped link, which this site draws
+   as a secondary button, so the pill is overridden here rather than authored
+   around. (#241) */
+.columns.product-hero .product-hero-rebate a.button {
+  border: 0;
+  border-radius: 4px 0 0 4px;
+  padding: 2px 16px 2px 12px;
+  background-color: var(--conti-yellow);
+  color: var(--conti-dark-black);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  line-height: 16px;
+  clip-path: polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%);
+}
+
+/* live pairs the sentence with its Offer details link, 20px apart, the sentence
+   at 12px/700 on a 20px line */
+.columns.product-hero .product-hero-offer {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-top: 20px;
+  border-top: 1px solid var(--conti-grey);
+  padding-top: 20px;
+}
+
+.columns.product-hero .product-hero-offer p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.columns.product-hero .product-hero-offer p:first-child {
+  flex: 1;
+}
+
+/* and draws Offer details as a plain small link rather than a pill */
+.columns.product-hero .product-hero-offer a.button {
+  border: 0;
+  padding: 0;
+  background-color: transparent;
+  color: var(--text-color);
+  line-height: 20px;
 }
