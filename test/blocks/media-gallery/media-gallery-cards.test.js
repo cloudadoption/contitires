@@ -23,8 +23,8 @@ const card = (src, alt, href, title, text) => `
 
 // the CSS is written against the shape the pipeline delivers, so the block
 // stands in a section wrapper inside main or none of it applies
-const authored = (rows, variant = 'cards') => {
-  document.body.innerHTML = '<main><div class="section"><div class="media-gallery-wrapper">'
+const authored = (rows, variant = 'cards', band = 'black') => {
+  document.body.innerHTML = `<main><div class="${band} section"><div class="media-gallery-wrapper">`
     + `<div class="media-gallery ${variant} block">${rows.join('')}</div></div></div></main>`;
   return document.querySelector('.media-gallery.block');
 };
@@ -157,6 +157,17 @@ describe('Media gallery cards, live\'s measurements', () => {
     expect(getComputedStyle(name).fontSize).to.equal('14px');
     expect(getComputedStyle(name).lineHeight).to.equal('20px');
     expect(getComputedStyle(caption).padding).to.equal('16px 20px');
+  });
+
+  // the band around the cards whites its own headings out, and the card is a
+  // white one standing on it
+  it('keeps the name readable on the dark band the cards stand on', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const caption = block.querySelector('.media-gallery-caption');
+    expect(getComputedStyle(block.closest('.section')).backgroundColor).to.equal('rgb(0, 0, 0)');
+    expect(getComputedStyle(caption).backgroundColor).to.equal('rgb(255, 255, 255)');
+    expect(getComputedStyle(caption.querySelector('h3')).color).to.equal('rgb(51, 51, 51)');
+    expect(getComputedStyle(caption.querySelector('p')).color).to.equal('rgb(51, 51, 51)');
   });
 
   it('stands one card across at 375', async () => {

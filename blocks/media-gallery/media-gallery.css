@@ -373,9 +373,12 @@ main .media-gallery.cards {
   max-width: none;
 }
 
+/* a card is as tall as its own name, not as tall as the longest one beside it:
+   live's leading card carries a description and its neighbours do not */
 main .media-gallery.cards .media-gallery-list {
   display: grid;
   grid-template-columns: 1fr;
+  align-items: start;
   gap: 20px 38px;
   margin-inline: 0;
   padding-inline: 0;
@@ -407,8 +410,11 @@ main .media-gallery.cards .media-gallery-caption {
   text-align: left;
 }
 
+/* a dark band whites its own headings out, and this one stands on a white
+   card, so the footer names its colour on the heading itself */
 main .media-gallery.cards .media-gallery-caption h3 {
   margin: 0;
+  color: var(--conti-black);
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
@@ -416,6 +422,7 @@ main .media-gallery.cards .media-gallery-caption h3 {
 
 main .media-gallery.cards .media-gallery-caption p {
   margin: 8px 0 0;
+  color: var(--conti-black);
   font-size: 15px;
   line-height: 22px;
 }
