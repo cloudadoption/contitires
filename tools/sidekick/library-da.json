@@ -1,6 +1,6 @@
 {
-  "total": 20,
-  "limit": 20,
+  "total": 22,
+  "limit": 22,
   "offset": 0,
   "data": [
     {
@@ -82,6 +82,14 @@
     {
       "name": "Retailers",
       "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/retailers"
+    },
+    {
+      "name": "Search",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/search"
+    },
+    {
+      "name": "Store Locator",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/store-locator"
     }
   ],
   ":type": "sheet"
