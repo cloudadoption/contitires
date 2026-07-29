@@ -22,8 +22,8 @@ const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const SAMPLED = [
   'Article Cards', 'Banner', 'Cards', 'Carousel', 'Category Tabs', 'Columns',
   'Crew', 'Events', 'Hero', 'Media Gallery', 'Perfect Fit', 'Promo Bar',
-  'Related Articles', 'Retailers', 'Share', 'Size List', 'Tire Features',
-  'Tire Listing', 'Tire Specs', 'Video',
+  'Related Articles', 'Retailers', 'Search', 'Share', 'Size List',
+  'Store Locator', 'Tire Features', 'Tire Listing', 'Tire Specs', 'Video',
 ];
 
 describe('the block library index', () => {
