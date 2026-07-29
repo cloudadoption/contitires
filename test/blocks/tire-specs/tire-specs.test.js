@@ -288,6 +288,48 @@ describe("Tire specs, live's empty state", () => {
     expect(heading.querySelector('span').textContent.trim()).to.equal('Specifications');
   });
 
+  /*
+   * Live heads the band with the mark on: "CrossContact LX<sup>25</sup>
+   * Specifications". Reading the h1 as textContent flattens it, so the band was
+   * the one surface that dropped the mark even where the page carried it. The
+   * mark stays at display inline, which keeps the accessible name one word.
+   * Issue #238.
+   */
+  it('keeps the superscript the h1 carries, as live does', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('4x4sportcontact', 'CrossContact LX<sup>25</sup>');
+    decorate(block);
+    await empty(block);
+
+    const heading = block.querySelector('h2');
+    const mark = heading.querySelector('sup');
+    expect(mark, 'the band heading carries the mark').to.exist;
+    expect(mark.textContent).to.equal('25');
+    expect(heading.textContent.replace(/\s+/g, ' ').trim()).to.equal('CrossContact LX25 Specifications');
+  });
+
+  it('keeps live\'s own space before the mark, and the text after it', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('ct-m-as', 'ControlContact Tour<sup>M</sup> A/S');
+    decorate(block);
+    await empty(block);
+
+    const heading = block.querySelector('h2');
+    expect(heading.querySelector('sup'), 'the mark').to.exist;
+    expect(heading.textContent.replace(/\s+/g, ' ').trim()).to.equal('ControlContact TourM A/S Specifications');
+  });
+
+  it('heads the band with a plain name unchanged', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('4x4sportcontact', '4x4 SportContact');
+    decorate(block);
+    await empty(block);
+
+    const heading = block.querySelector('h2');
+    expect(heading.textContent.replace(/\s+/g, ' ').trim()).to.equal('4x4 SportContact Specifications');
+    expect(heading.querySelectorAll('sup').length, 'no mark invented').to.equal(0);
+  });
+
   it('says what live says above the picker', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
     const block = buildProductPage('4x4sportcontact', '4x4 SportContact');

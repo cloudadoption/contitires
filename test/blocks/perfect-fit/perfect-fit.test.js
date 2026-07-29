@@ -11,7 +11,7 @@ import decorate, {
 const PRODUCTS = {
   products: [
     {
-      slug: 'sport-02', name: 'ExtremeContact Sport 02', category: 'Passenger', season: 'Summer', vehicleTypes: ['Cars', 'Sports Cars'], image: '/p/sport.png', sizes: ['225/45ZR17', '245/40ZR18'],
+      slug: 'sport-02', name: 'ExtremeContact Sport02', nameHtml: 'ExtremeContact Sport<sup>02</sup>', category: 'Passenger', season: 'Summer', vehicleTypes: ['Cars', 'Sports Cars'], image: '/p/sport.png', sizes: ['225/45ZR17', '245/40ZR18'],
     },
     {
       slug: 'terrain-at', name: 'TerrainContact A/T', category: 'Light Truck/SUV', season: 'All-Season', vehicleTypes: ['SUVs', 'Light Trucks'], image: '/p/terrain.png', sizes: ['265/70R17', '245/40ZR18'],
@@ -248,6 +248,56 @@ describe('perfect-fit block', () => {
     const results = panel.querySelectorAll('.perfect-fit-result');
     expect(results.length).to.equal(2);
     expect(results[0].getAttribute('href')).to.match(/^\/tires\//);
+  });
+
+  /*
+   * The finder printed its result headings as textContent off the products
+   * sheet's name cell, which holds no markup, so it was the one result surface
+   * that could not carry live's mark. The sheet gains a nameHtml cell and the
+   * heading renders it through the shared sanitiser. Issue #238.
+   */
+  it('sets the mark on a result heading live superscripts', async () => {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1); // By Tire Size
+
+    const panel = panelOf('tire-size');
+    const setSelect = (name, value) => {
+      const el = panel.querySelector(`[name="${name}"]`);
+      el.value = value;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    setSelect('width', '225');
+    setSelect('aspect', '45');
+    setSelect('rim', '17');
+    panel.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+    const heading = panel.querySelector('.perfect-fit-result h4');
+    const mark = heading.querySelector('sup');
+    expect(mark, 'the result heading carries the mark').to.exist;
+    expect(mark.textContent).to.equal('02');
+    expect(heading.textContent).to.equal('ExtremeContact Sport02');
+  });
+
+  it('reads a product with no nameHtml cell as its plain name', async () => {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+
+    const panel = panelOf('tire-size');
+    const setSelect = (name, value) => {
+      const el = panel.querySelector(`[name="${name}"]`);
+      el.value = value;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    setSelect('width', '265');
+    setSelect('aspect', '70');
+    setSelect('rim', '17');
+    panel.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+    const heading = panel.querySelector('.perfect-fit-result h4');
+    expect(heading.textContent).to.equal('TerrainContact A/T');
+    expect(heading.querySelectorAll('sup').length, 'no mark invented').to.equal(0);
   });
 
   it('closes on Escape and restores focus to the trigger', async () => {
