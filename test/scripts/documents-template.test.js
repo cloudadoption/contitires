@@ -50,13 +50,20 @@ describe('The documents template', () => {
   const row = (id) => host.querySelector(`#${id}`);
   const style = (el, pseudo) => getComputedStyle(el, pseudo);
 
-  it('draws a hairline above every row and pads it the way live does', () => {
+  it('pads every row the way live does', () => {
     const s = style(row('download-row'));
+    expect(s.paddingTop).to.equal('38px');
+    expect(s.paddingBottom).to.equal('38px');
+  });
+
+  // Between rows, not above the first. Live's first banner reads 0px and the
+  // other nine read 1px, so a rule under the hero is a line live does not draw.
+  it('draws the hairline between rows and not above the first', () => {
+    const s = style(row('read-row'));
     expect(s.borderTopWidth).to.equal('1px');
     expect(s.borderTopStyle).to.equal('solid');
     expect(s.borderTopColor).to.equal('rgb(233, 233, 233)');
-    expect(s.paddingTop).to.equal('38px');
-    expect(s.paddingBottom).to.equal('38px');
+    expect(style(row('download-row')).borderTopWidth).to.equal('0px');
   });
 
   it('centres the row, which live does for the heading and the link alike', () => {

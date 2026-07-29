@@ -18,8 +18,14 @@
 main > .section:has(h2) {
   margin: 0;
   padding: 38px 0;
-  border-top: 1px solid #e9e9e9;
   text-align: center;
+}
+
+/* the rule goes BETWEEN rows. Live's first banner reads 0px where the other
+   nine read 1px, so a rule above the first document is a line live does not
+   draw. */
+main > .section:has(h2) + .section:has(h2) {
+  border-top: 1px solid #e9e9e9;
 }
 
 main > .section:has(h2) h2 {
@@ -34,6 +40,14 @@ main > .section:has(h2) h2 {
    belongs to the paragraph. */
 main > .section:has(h2) p {
   margin: 16px 0 0;
+}
+
+/* the link paragraph is a flex row, the way live's link is. As a line box it
+   carried the paragraph's leading above the link and measured a 22px gap
+   where live reads 16. */
+main > .section:has(h2) p:not(.button-wrapper) {
+  display: flex;
+  justify-content: center;
 }
 
 /* the download link. A lone link becomes a button only when it is authored
