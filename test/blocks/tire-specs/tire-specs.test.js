@@ -122,6 +122,15 @@ function buildInSection(slug) {
   return document.querySelector('.tire-specs.block');
 }
 
+/** The same block on a product page, under the hero's h1. */
+function buildProductPage(slug, name) {
+  document.body.innerHTML = `<main><h1>${name}</h1>
+    <div class="section tire-specs-container"><div class="tire-specs-wrapper">
+      <div class="tire-specs block"><div><div>${slug}</div></div></div>
+    </div></div></main>`;
+  return document.querySelector('.tire-specs.block');
+}
+
 /*
  * A product page carries three more sections under this one, and loadSections
  * reaches them only once this block returns: loadSection awaits every block in
@@ -185,13 +194,14 @@ describe('Tire specs block, legacy product-specs.json', () => {
     expect(block.textContent).to.contain('88');
   });
 
-  it('takes the block out when the product has no specs', async () => {
+  it('keeps the band and draws the empty state when the product has no specs', async () => {
     fetchStub = stubFetch({ '/product-specs.json': SPECS });
-    const block = build('unknown-tire');
+    const block = buildInSection('unknown-tire');
     decorate(block);
-    await when(() => !block.isConnected);
+    await when(() => block.querySelector('.tire-specs-status'));
 
-    expect(document.querySelector('.tire-specs-select')).to.not.exist;
+    expect(document.querySelector('.tire-specs-wrapper')).to.exist;
+    expect(block.querySelector('.tire-specs-panel')).to.not.exist;
   });
 });
 
@@ -215,15 +225,16 @@ describe('Tire specs block, multi-sheet workbook', () => {
     expect(block.textContent).to.contain('88'); // Load Index of the first size
   });
 
-  // an empty block still paints its dark band, leaving a black stripe under the
-  // hero on the products live has no sizes for
-  it('takes its wrapper out of the section when the slug has no rows', async () => {
+  // live keeps the band on the six products its own sheet has no sizes for,
+  // and shows an empty picker inside it
+  it('keeps its wrapper in the section when the slug has no rows', async () => {
     fetchStub = stubFetch({ '/products.json': WORKBOOK });
     const block = buildInSection('purecontact-ls');
     decorate(block);
-    await when(() => !document.querySelector('.tire-specs-wrapper'));
+    await when(() => block.querySelector('.tire-specs-status'));
 
-    expect(document.querySelector('.tire-specs-container').children.length).to.equal(0);
+    expect(document.querySelector('.tire-specs-wrapper')).to.exist;
+    expect(document.querySelector('.tire-specs-container').children.length).to.equal(1);
   });
 
   it('keeps its wrapper when the slug has rows', async () => {
@@ -234,6 +245,106 @@ describe('Tire specs block, multi-sheet workbook', () => {
 
     expect(document.querySelectorAll('.tire-specs-wrapper').length).to.equal(1);
     expect(block.querySelectorAll('.tire-specs-select option').length).to.equal(2);
+  });
+});
+
+/*
+ * Live's own band on a product it has no sizes for, read off
+ * continentaltire.com/tires/4x4sportcontact at 1440x1000 with the profile's
+ * storage cleared, in the state a reader arrives in with no size chosen. Its
+ * picker holds 0 options, where the same read of the same band on
+ * /tires/extremecontact-dws06-plus holds 119. Live keeps the band, heads it
+ * with the product name, and shows an empty picker inside it. #242, #232.
+ */
+describe("Tire specs, live's empty state", () => {
+  let fetchStub;
+  afterEach(() => fetchStub?.restore());
+
+  /** The band once the sheet has landed and the empty state is in place. */
+  const empty = (block) => when(() => block.querySelector('.tire-specs-status'));
+
+  it('heads the band with the product name, live\'s eyebrow after it', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('4x4sportcontact', '4x4 SportContact');
+    decorate(block);
+    await empty(block);
+
+    const heading = block.querySelector('h2');
+    expect(heading.textContent.replace(/\s+/g, ' ').trim()).to.equal('4x4 SportContact Specifications');
+    expect(heading.querySelector('span').textContent.trim()).to.equal('Specifications');
+  });
+
+  it('says what live says above the picker', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('4x4sportcontact', '4x4 SportContact');
+    decorate(block);
+    await empty(block);
+
+    expect(block.querySelector('.tire-specs-status').textContent)
+      .to.equal('Make a selection below to view tire specifications.');
+  });
+
+  it('offers live\'s empty picker, under live\'s label', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('4x4sportcontact', '4x4 SportContact');
+    decorate(block);
+    await empty(block);
+
+    const select = block.querySelector('.tire-specs-select');
+    const label = block.querySelector('label[for]');
+    expect(label.textContent).to.equal('Tire size');
+    expect(label.getAttribute('for')).to.equal(select.id);
+    const options = [...select.options].map((o) => o.textContent);
+    expect(options).to.deep.equal(['Select a size', 'No results found']);
+    expect(select.options[1].disabled, 'nothing to choose').to.be.true;
+  });
+
+  it('carries live\'s hint, with vehicle and plate as controls', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('4x4sportcontact', '4x4 SportContact');
+    decorate(block);
+    await empty(block);
+
+    const hint = block.querySelector('.tire-specs-help');
+    expect(hint.textContent.replace(/\s+/g, ' ')).to.equal('Need Help? Find size by vehicle or plate');
+    const controls = [...hint.querySelectorAll('button')];
+    expect(controls.map((b) => b.textContent)).to.deep.equal(['vehicle', 'plate']);
+    expect(controls.map((b) => b.dataset.tab)).to.deep.equal(['vehicle', 'plate']);
+  });
+
+  it('links where live links, by the product\'s own slug', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('4x4sportcontact', '4x4 SportContact');
+    decorate(block);
+    await empty(block);
+
+    const link = block.querySelector('.tire-specs-view-all');
+    expect(link.textContent).to.equal('View all sizes & specs');
+    expect(link.getAttribute('href')).to.equal('/tires/4x4sportcontact/specs');
+  });
+
+  // the band reserves the room a spec sheet takes, so the sections under it
+  // stay put while the sheet is on the way. A product with no sizes has no
+  // sheet coming, and live's band on one is a third of that. #232.
+  it('stops holding room for a sheet that is not coming', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('4x4sportcontact', '4x4 SportContact');
+    decorate(block);
+    await empty(block);
+
+    expect(block.classList.contains('tire-specs-empty')).to.be.true;
+  });
+
+  it('draws none of it on a product with sizes', async () => {
+    fetchStub = stubFetch({ '/products.json': WORKBOOK });
+    const block = buildProductPage('vikingcontact-7', 'VikingContact 7');
+    decorate(block);
+    await filled(block);
+
+    expect(block.querySelector('.tire-specs-status'), 'the empty line').to.not.exist;
+    expect(block.querySelector('.tire-specs-help'), 'the hint').to.not.exist;
+    expect(block.classList.contains('tire-specs-empty'), 'the empty modifier').to.be.false;
+    expect(block.querySelectorAll('.tire-specs-select option')).to.have.length(2);
   });
 });
 
@@ -365,6 +476,57 @@ describe('The room the spec sheet takes', () => {
   });
 });
 
+/*
+ * A product with no sizes has no spec sheet coming, so the band holds no room
+ * for one. Live's own band on such a product is 404 at 375, 336 at 600, 416 at
+ * 900 and 428 at 1440, against the 1472, 962 and 808 ours reserves for a sheet.
+ * Read off continentaltire.com/tires/4x4sportcontact with storage cleared.
+ */
+describe('The room an empty band does not hold', () => {
+  let sheet;
+  let block;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/tire-specs/tire-specs.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    document.body.innerHTML = `<main><div class="section"><div>
+      <div class="tire-specs tire-specs-empty">
+        <h2>4x4 SportContact <span>Specifications</span></h2>
+        <p class="tire-specs-status">Make a selection below to view tire specifications.</p>
+        <p class="tire-specs-help">Need Help? Find size by vehicle or plate</p>
+      </div></div></div></main>`;
+    block = document.querySelector('.tire-specs');
+  });
+
+  after(async () => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    document.querySelector('main').remove();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  const reserved = () => getComputedStyle(block).minHeight;
+  const height = () => Math.round(block.getBoundingClientRect().height);
+
+  it('reserves nothing on a phone', async () => {
+    await setViewport({ width: 375, height: 800 });
+    expect(reserved()).to.equal('0px');
+    expect(height(), 'the reserved room').to.be.below(1472);
+  });
+
+  it('reserves nothing from 600', async () => {
+    await setViewport({ width: 600, height: 800 });
+    expect(reserved()).to.equal('0px');
+    expect(height(), 'the reserved room').to.be.below(962);
+  });
+
+  it('reserves nothing on a desk', async () => {
+    await setViewport({ width: 1200, height: 800 });
+    expect(reserved()).to.equal('0px');
+    expect(height(), 'the reserved room').to.be.below(808);
+  });
+});
+
 /**
  * Live pairs the spec fields two across from 375 up, and goes four across on a
  * wide desk. Read off continentaltire.com/tires/contiprocontact at 375, 600,
@@ -464,13 +626,13 @@ describe('Tire specs, a sheet that does not carry its columns', () => {
   });
 
   // a sheet that carries its columns and no row for this product is the
-  // ordinary case for the six products live has no spec table for either
-  it('still takes the band away when the sheet is whole and the product has no rows', async () => {
+  // ordinary case for the six products live has no sizes for either
+  it('draws the empty state, not an error, when the sheet is whole and the product has no rows', async () => {
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
     const block = buildInSection('purecontact-ls');
     decorate(block);
 
-    await when(() => !document.querySelector('.tire-specs-wrapper'));
+    await when(() => block.querySelector('.tire-specs-status'));
     expect(document.querySelector('.tire-specs-error'), 'no authoring error').to.not.exist;
     expect(errors.called, 'console.error').to.be.false;
   });

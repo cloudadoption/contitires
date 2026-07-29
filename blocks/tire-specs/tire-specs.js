@@ -70,6 +70,77 @@ async function loadSizes(slug) {
 }
 
 /**
+ * A control that opens the tire finder on one of its tabs, the way live's hint
+ * does. The finder is a block of its own, so it loads on the click rather than
+ * riding along with every product page.
+ * @param {string} tab the finder tab to open
+ * @returns {HTMLButtonElement}
+ */
+function finderButton(tab) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'tire-specs-finder-link';
+  button.dataset.tab = tab;
+  button.textContent = tab;
+  button.addEventListener('click', async () => {
+    const { openTireFinder } = await import('../perfect-fit/perfect-fit.js');
+    openTireFinder(tab, button);
+  });
+  return button;
+}
+
+/**
+ * Live's own band on a product it has no sizes for: the heading, the line above
+ * the picker, an empty picker, the hint under it and the link to the full size
+ * and spec page. Read off continentaltire.com/tires/4x4sportcontact at
+ * 1440x1000 with the profile's storage cleared, in the state a reader arrives
+ * in. Its picker holds 0 options where the same band on
+ * /tires/extremecontact-dws06-plus holds 119.
+ * @param {Element} block the tire-specs block
+ * @param {Element} heading the heading the block was decorated with
+ * @param {string} slug the product slug
+ */
+function emptyState(block, heading, slug) {
+  const status = document.createElement('p');
+  status.className = 'tire-specs-status';
+  status.textContent = 'Make a selection below to view tire specifications.';
+
+  const select = document.createElement('select');
+  select.className = 'tire-specs-select';
+  select.id = 'tire-specs-size';
+  ['Select a size', 'No results found'].forEach((text, i) => {
+    const option = document.createElement('option');
+    option.textContent = text;
+    option.value = '';
+    // the second is what the open picker reads, and there is nothing to take
+    option.disabled = i > 0;
+    select.append(option);
+  });
+
+  const label = document.createElement('label');
+  label.className = 'tire-specs-label';
+  label.htmlFor = select.id;
+  label.textContent = 'Tire size';
+
+  const field = document.createElement('div');
+  field.className = 'tire-specs-field';
+  field.append(label, select);
+
+  const hint = document.createElement('p');
+  hint.className = 'tire-specs-help';
+  hint.append('Need Help? Find size by ', finderButton('vehicle'), ' or ', finderButton('plate'));
+
+  const viewAll = document.createElement('a');
+  viewAll.className = 'tire-specs-view-all';
+  viewAll.href = `/tires/${slug}/specs`;
+  viewAll.textContent = 'View all sizes & specs';
+
+  // no sheet is coming, so the band stops holding the room one takes
+  block.classList.add('tire-specs-empty');
+  block.replaceChildren(heading, status, field, hint, viewAll);
+}
+
+/**
  * Builds a definition list of one size's spec fields, matching the live
  * per-size spec sheet.
  * @param {{size: string, specs: Object}} entry one size and its specs
@@ -93,9 +164,10 @@ function specGrid(entry) {
  * once the sheet has landed.
  * @param {Element} block the tire-specs block
  * @param {Element} heading the heading the block was decorated with
+ * @param {string} slug the product slug
  * @param {{sizes?: Array<{size: string, specs: Object}>, error?: string}} result
  */
-function fill(block, heading, result) {
+function fill(block, heading, slug, result) {
   // a sheet the block cannot read is an authoring mistake, and it is the whole
   // catalogue's, so say which column is gone rather than blank every page
   if (result.error) {
@@ -109,9 +181,9 @@ function fill(block, heading, result) {
   }
 
   const sizes = result.sizes || [];
-  // nothing to show: take the block out rather than leave its dark band empty
+  // nothing to show: live keeps its band and shows an empty picker in it
   if (!sizes.length) {
-    (block.closest('.tire-specs-wrapper') || block).remove();
+    emptyState(block, heading, slug);
     return;
   }
 
@@ -154,11 +226,18 @@ export default function decorate(block) {
   const authored = block.textContent.trim();
   const slug = authored || window.location.pathname.replace(/\/$/, '').split('/').pop();
 
+  // live heads the band with the product's own name and the word after it,
+  // tracked out: "4x4 SportContact SPECIFICATIONS". The name is already on the
+  // page, in the hero's heading.
   const heading = document.createElement('h2');
-  heading.textContent = 'Specifications';
+  const eyebrow = document.createElement('span');
+  eyebrow.textContent = 'Specifications';
+  const name = document.querySelector('main h1');
+  if (name) heading.append(`${name.textContent.trim()} `);
+  heading.append(eyebrow);
   block.replaceChildren(heading);
 
   loadSizes(slug)
     .catch(() => ({ sizes: [] }))
-    .then((result) => fill(block, heading, result));
+    .then((result) => fill(block, heading, slug, result));
 }
