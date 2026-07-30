@@ -134,7 +134,8 @@ API, a vendor account or an index configuration.
 | Content and editorial | [The homepage title](#the-homepage-title) | differs | ✅ queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
 |  | [No result count above the pager](#no-result-count-above-the-pager) | absent | ✅ queued | [#348](https://github.com/cloudadoption/contitires/issues/348) |
 |  | [Card teaser text](#card-teaser-text) | approximated | ⚙️ live's teaser field is unpublished | -- |
-|  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ README pass | [#235](https://github.com/cloudadoption/contitires/issues/235) |
+|  | [Listings behind a service, authored as snapshots](#listings-behind-a-service-authored-as-snapshots) | approximated | ⚙️ live publishes no feed | [#256](https://github.com/cloudadoption/contitires/issues/256), [#257](https://github.com/cloudadoption/contitires/issues/257), [#258](https://github.com/cloudadoption/contitires/issues/258), [#259](https://github.com/cloudadoption/contitires/issues/259) |
+|  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ this table is the source | [#362](https://github.com/cloudadoption/contitires/issues/362) |
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
 | Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ global scale shipped, block headings queued | [#351](https://github.com/cloudadoption/contitires/issues/351), [#352](https://github.com/cloudadoption/contitires/issues/352), [#353](https://github.com/cloudadoption/contitires/issues/353), [#354](https://github.com/cloudadoption/contitires/issues/354), [#355](https://github.com/cloudadoption/contitires/issues/355), [#356](https://github.com/cloudadoption/contitires/issues/356) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
@@ -146,6 +147,7 @@ API, a vendor account or an index configuration.
 |  | [Generated headings skip levels](#generated-headings-skip-levels) | differs | ✅ queued | [#117](https://github.com/cloudadoption/contitires/issues/117) |
 |  | [Security headers](#security-headers) | differs | ✅ queued | -- |
 |  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ✅ queued | [#125](https://github.com/cloudadoption/contitires/issues/125), [#317](https://github.com/cloudadoption/contitires/issues/317) |
+|  | [The annotated tire diagram](#the-annotated-tire-diagram) | diverges | ✅ live's version is the defect | [#255](https://github.com/cloudadoption/contitires/issues/255) |
 |  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | ✅ queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
 
 ## Navigation and routing
@@ -621,7 +623,7 @@ way.
 
 Nine PDF links are absolute to continentaltire.com: five on
 `/customer-support/technical-documents`, two on `/warranty`, one on `/promotion` and one on
-`/promotionended`. Our own host serves PDFs already, so this is asset migration rather than a
+`/promotionended`. Our own host serves PDFs already, so this is an asset move rather than a
 link rewrite, which is why the [#213](https://github.com/cloudadoption/contitires/issues/213) sweep left them. If the old site goes away, those nine
 break.
 
@@ -748,10 +750,41 @@ those pages tell a search engine their content is "Fort Mill, S.C.". Live's are 
 way, so it stays. Cards are unaffected, because a card renders the excerpt rather than the
 description.
 
+### Listings behind a service, authored as snapshots
+
+**approximated.** Live reads six of its lists from a content service. We authored what it listed
+on one day.
+
+Live builds `/events`, `/experience/soccer` and the four video-series pages `/forwhatyoudo`,
+`/cruisingthecontinentalus`, `/lightscameratraction` and `/emilytalkstires` from a service, and
+pages the tail of each behind a Load more. `/events` puts a filter panel beside its list.
+
+There is no backend here, so the lists are authored content, read off live on 2026-07-29 in
+live's order with live's own titles, links and posters. Counted on the published pages on
+2026-07-30: 30 event rows, 43 soccer cards across four sections, and 49 episodes across the four
+series pages. The re-read is scripted rather than remembered, in `.mossy/parity/258/author.py`,
+`.mossy/parity/259-260/soccer.py` and `.mossy/parity/256-257/episodes.py`, each of which walks
+live's pager and writes the rows back.
+
+The interaction on top of the list needed no backend, so it is built rather than approximated.
+`blocks/events` derives its filter from the authored rows: one Event type box per type present,
+one Event Date box per month. Boxes inside a fieldset are OR and the two fieldsets are AND, which
+is what live's own result counts show. An author adding an event adds its type and its month to
+the panel. `blocks/media-gallery` renders the cards and opens each video on a modal. What live
+pages behind a Load more stands on the page here.
+
+What it costs a visitor: nothing on the day the snapshot was taken, and a widening drift after
+it. Live adds an event or an episode and these pages do not, until an author adds it too.
+
+What would close it: a feed. Nothing live publishes exposes these lists as data, so the choice is
+an editorial routine that re-runs the scripts, or a real source behind the block. The block reads
+authored rows either way, so neither is a rewrite. [#256](https://github.com/cloudadoption/contitires/issues/256), [#257](https://github.com/cloudadoption/contitires/issues/257),
+[#258](https://github.com/cloudadoption/contitires/issues/258), [#259](https://github.com/cloudadoption/contitires/issues/259).
+
 ### The scale of what shipped
 
-Numbers a reader will want, each with where it came from. They are here because the README
-disagrees with several of them and the README is the stale one. [#235](https://github.com/cloudadoption/contitires/issues/235) is the pass that fixes it.
+Numbers a reader will want, each with where it came from. This table is the source for
+them. The README takes one, the page count, and links here for the rest.
 
 | Thing | Count | Where the number comes from |
 |---|---:|---|
@@ -767,11 +800,6 @@ disagrees with several of them and the README is the stale one. [#235](https://g
 | Issues closed | 161 | `gh issue list --state closed` |
 | Issues open | 79 | `gh issue list --state open`, ordered in [#359](https://github.com/cloudadoption/contitires/issues/359) |
 | Shipped for the 2026-07-30 checkpoint | 32 | [#302](https://github.com/cloudadoption/contitires/issues/302), closed, the record of what shipped |
-
-Three README figures are wrong as of today. It claims 19 blocks against 29 directories, 14 test
-files against 72, and 352 pages published against a query-index total of 327. It also says the
-build took three days. It took seven, 2026-07-24 to 2026-07-30, and [#234](https://github.com/cloudadoption/contitires/issues/234)'s own brief says four,
-which is also wrong.
 
 The query-index total is lower than the DA page count because the index excludes the block
 library and the authoring guide. A page has to be published to enter the index at all, so
@@ -1095,6 +1123,34 @@ two documents that describe a site which changed underneath them.
 What would close it: tests for the two untested blocks with delivered-shape fixtures, a runner
 fix or a lint rule for the hanging assertion, and real fixture files or stubbed requests. [#125](https://github.com/cloudadoption/contitires/issues/125),
 [#222](https://github.com/cloudadoption/contitires/issues/222), [#317](https://github.com/cloudadoption/contitires/issues/317), [#318](https://github.com/cloudadoption/contitires/issues/318), [#126](https://github.com/cloudadoption/contitires/issues/126), [#304](https://github.com/cloudadoption/contitires/issues/304), [#316](https://github.com/cloudadoption/contitires/issues/316), [#345](https://github.com/cloudadoption/contitires/issues/345), [#322](https://github.com/cloudadoption/contitires/issues/322).
+
+### The annotated tire diagram
+
+**diverges.** Live hides its ring labels below 1181 and reaches none of them by keyboard. We
+print them.
+
+Live's `/all-new-securecontact-aw` draws the tire under the four claims it makes for the
+SecureContact AW, with a ring on each part a claim rests on. The markup is
+`paragraph--type--tire-features-slider`: four cards, four drawings and eight rings, each ring
+with a title and a line of explanation. Below 1181 live hides the eight rings' words and brings
+one back when a ring is tapped. Its rings are divs with a click handler, so a keyboard reaches
+none of them, and on a phone the words behind them cannot be read. Live runs the four cards as a
+carousel at those widths, which puts each card in the tab order three times.
+
+`blocks/tire-features` builds the same component from one authored row per feature: the drawing,
+the card, and a ring for each part the card claims. A ring is placed by two percentages of the
+picture, so one pair of numbers holds at every width and no code measures the image at runtime.
+Below 1181 this site prints the ring labels under the drawing and leaves the rings as decoration,
+and it scrolls and snaps the cards where live loops them. The four drawings were already in DA,
+byte for byte live's, and the four card icons came out of live's markup.
+
+What it costs a visitor: nothing lost, and on a small screen something gained, because live's
+eight explanations cannot be read there. A visual diff against live flags the printed labels as
+text we added. They are live's own words, moved to where a reader reaches them.
+
+What would not close it: reproducing live's tap-only rings, which is a keyboard trap and hides
+content at the width where the page is hardest to read. One measured difference does stand. Live
+sets a 460KB photograph behind the black band and this site leaves it black. [#255](https://github.com/cloudadoption/contitires/issues/255).
 
 ### Carousel autoplay and reduced motion
 
