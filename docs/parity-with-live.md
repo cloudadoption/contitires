@@ -104,7 +104,7 @@ and should be left alone.
 |---|---|---|---|---|
 | Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | queued | [#337](https://github.com/cloudadoption/contitires/issues/337) |
 |  | [Live's sports sub-nav is dead on live](#lives-sports-sub-nav-points-at-two-dead-urls) | differs | no, ours is the working one | [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289) |
-|  | [No sub-nav on /experience/partners](#no-sub-nav-strip-on-experiencepartners) | absent | queued | [#289](https://github.com/cloudadoption/contitires/issues/289) |
+|  | [The sub-nav strip on /experience/partners](#the-sub-nav-strip-on-experiencepartners) | matches | fixed 2026-07-30, on a corrected premise | [#251](https://github.com/cloudadoption/contitires/issues/251), [#289](https://github.com/cloudadoption/contitires/issues/289) |
 |  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | queued | [#277](https://github.com/cloudadoption/contitires/issues/277) |
 |  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | queued | [#213](https://github.com/cloudadoption/contitires/issues/213) |
 |  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
@@ -114,7 +114,7 @@ and should be left alone.
 | Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | not knowable from outside | no, needs live's backend | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 |  | [Fit by size](#fit-by-size) | differs | queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
 |  | [Star rating and review count](#star-rating-and-review-count) | absent | the number queued, the corpus is not | [#241](https://github.com/cloudadoption/contitires/issues/241) |
-|  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | queued, dropping the link is the small fix | [#242](https://github.com/cloudadoption/contitires/issues/242) |
+|  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | queued, dropping the link is the small fix | [#357](https://github.com/cloudadoption/contitires/issues/357) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | no, needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | no, live's exclusions are Solr config | -- |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | no, needs a dealer database and a geocoder | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
@@ -137,7 +137,7 @@ and should be left alone.
 |  | [Instagram tiles are images on both sides](#instagram-tiles-are-images-on-both-sides) | matches | done | [#188](https://github.com/cloudadoption/contitires/issues/188) |
 | Content and editorial | [Page titles](#page-titles-match-live-with-one-exception) | matches | one page queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | README pass queued | [#235](https://github.com/cloudadoption/contitires/issues/235) |
-|  | [Product copy](#product-copy-and-where-it-stopped-matching-live) | differs on one page | a decision to re-make | [#171](https://github.com/cloudadoption/contitires/issues/171), [#93](https://github.com/cloudadoption/contitires/issues/93) |
+|  | [Product copy](#product-copy-and-where-it-stopped-matching-live) | matches | fixed 2026-07-30 | [#171](https://github.com/cloudadoption/contitires/issues/171), [#93](https://github.com/cloudadoption/contitires/issues/93) |
 |  | [No result count above the pager](#no-result-count-above-the-pager) | absent | queued | -- |
 |  | [Card teaser text](#card-teaser-text) | approximated | no, live's teaser field is unpublished | -- |
 | Layout and type | [The heading scale](#the-heading-scale) | differs | in flight | [#185](https://github.com/cloudadoption/contitires/issues/185) |
@@ -199,29 +199,26 @@ Nothing should close this. Reproducing live's two dead links would be copying a 
 exists so nobody re-points our tabs at `/taxonomy/term/*`, which we do not serve either. A link
 diff against live will flag ours as different, and ours is the one that works. [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289).
 
-### No sub-nav strip on `/experience/partners`
+### The sub-nav strip on `/experience/partners`
 
-**absent.** Live offers one click across to Conti crew. We removed ours on a wrong reading.
+**matches, after a correction to the record.**
 
 Live's `/experience/partners` renders
-`<con-horizontal-scrollbar class="nav-tabs animated animated--fadeInUp">` holding a single
-list item, `<a href="/experience/conti-crew">Crew</a>`. Curled from the apex on 2026-07-30. Our
-page holds a hero breadcrumb and two card blocks, and `category-tabs` appears zero times in the
-served markup. Both sibling hubs have a strip: `/experience/sports` a three-item compact one,
-`/experience/conti-crew` a one-item compact one.
+`<con-horizontal-scrollbar class="nav-tabs animated animated--fadeInUp">` holding a single list
+item, `<a href="/experience/conti-crew">Crew</a>`. Read from the apex on 2026-07-30. Ours now
+carries a `category-tabs (compact)` block with the same single item, published the same day.
 
-This one carries a correction to the record, and it is the reason the strip is missing rather
-than never built. [#251](https://github.com/cloudadoption/contitires/issues/251)'s close comment
-reads "We drew a category-tabs row here where live draws none. Guardrail 0 is match live's
-surface", and the strip was taken out on that basis. Live does draw one. The markup above is
-live's own, read today. So the guardrail was applied correctly to a fact that was wrong.
+The strip was missing until then, and the reason is worth recording.
+[#251](https://github.com/cloudadoption/contitires/issues/251)'s close comment reads "We drew a
+category-tabs row here where live draws none. Guardrail 0 is match live's surface", and the
+strip was removed on that basis. Live does draw one. The guardrail was applied correctly to a
+fact that was wrong, which is a failure mode a pixel diff does not catch: removing a real
+control looks like converging on live.
 
-What it costs a visitor: from Partners there is no way across to Conti crew without going back
-through the header menu. Live offers one click.
+What it cost a visitor while it was gone: from Partners there was no way across to Conti crew
+without going back through the header menu.
 
-What would close it: author a `category-tabs (compact)` block with a single Crew item pointing
-at `/experience/conti-crew`. The block and the variant already exist and already ship on the two
-siblings. [#289](https://github.com/cloudadoption/contitires/issues/289),
+[#289](https://github.com/cloudadoption/contitires/issues/289),
 [#252](https://github.com/cloudadoption/contitires/issues/252).
 
 ### Year tabs land on our heading ids, not live's
@@ -393,7 +390,8 @@ lands on our 404 too.
 What would close it: either drop the link, since the specs are already on the page, or add 42
 redirect rows onto the product pages. Dropping it is the smaller change and loses nothing,
 because the content the link promises is already above it.
-[#242](https://github.com/cloudadoption/contitires/issues/242).
+Filed as
+[#357](https://github.com/cloudadoption/contitires/issues/357); [#242](https://github.com/cloudadoption/contitires/issues/242) covered the specs section and closed without following the link.
 
 ## Search
 
@@ -831,7 +829,7 @@ description.
 
 ### Product copy, and where it stopped matching live
 
-**differs on one page, matches on three.**
+**matches.** All four product descriptions are live's copy now.
 
 Three product descriptions are live's text character for character, on
 `crosscontact-lx-sport`, `controlcontact-tour-m-as` and `procontact-tx10`. Each took one edit,
@@ -839,17 +837,21 @@ deleting a single space. Every other character was already live's. That reversed
 [#93](https://github.com/cloudadoption/contitires/issues/93), which had ruled the other way and
 kept ours, so the row is here to stop the next reader re-opening it.
 
-One page was held out on purpose and should be re-decided. Live's body copy on
-`/tires/extremecontact-sport-02` reads "The ExtremeContact Sport02 is a dynamic, summer
-ultra-high performance tire", with no trademark marks and the name closed up. Ours keeps
-"ExtremeContact™ Sport 02" and "SportPlus™".
+A fourth page was held out of that pass and is now aligned too.
+`/tires/extremecontact-sport-02` kept "ExtremeContact™ Sport" and "SportPlus™" in its body
+paragraph where live's body carries neither. Both marks were removed on 2026-07-30 and the
+paragraph is now byte-identical to live's, checked by fetching both and comparing.
 
-What it costs a visitor: two trademark marks and one space, on one page, visible only side by
-side with live.
+Live contradicts itself on this page, and we reproduce the contradiction rather than tidy it.
+Live's body copy reads `ExtremeContact Sport<sup>02</sup>` and `SportPlus Technology` with no
+marks. Live's own meta description on the same page reads "The ExtremeContact™ Sport 02 ...
+SportPlus™ Technology" with both marks and a space. Our metadata keeps the marks because live's
+does. The rule on this project is to copy live's copy, including where live disagrees with
+itself.
 
-The reason [#171](https://github.com/cloudadoption/contitires/issues/171) gave for holding it
-back no longer applies. Either take live's wording here as the other three did, or record why
-this page is the exception.
+The reason [#171](https://github.com/cloudadoption/contitires/issues/171) gave for holding this
+page back was that swapping the body copy would contradict our own h1. That is stale: both h1
+elements now read `ExtremeContact Sport<sup>02</sup>`, so there was nothing left to contradict.
 
 ### The scale of what shipped
 
