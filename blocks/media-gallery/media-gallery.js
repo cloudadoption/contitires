@@ -3,17 +3,29 @@ import decorateVideo from '../video/video.js';
 
 /**
  * One item per authored row: the still in the first cell, an optional YouTube
- * link in the second, an optional description in the third. A row with a link
- * is a video. The description is read by the cards variant alone.
+ * link in the second, and in the third either a description or a link on to
+ * another page. A row with a video link is a video. The third cell is read by
+ * the cards variant alone.
+ *
+ * The third cell holds one of two things and is told apart by what it HOLDS
+ * rather than by a variant: /cruisingthecontinentalus writes a sentence there,
+ * /learn/product-highlights writes the tire's page. An anchor is a structure
+ * and not a guess about a string, so the two cannot be confused the way a
+ * category of digits and a limit can.
  * @param {Element} row an authored row
- * @returns {{picture: Element, link: Element, text: string}|null} the item, or null
+ * @returns {{picture: Element, link: Element, text: string, cta: Element}|null} the item
  */
 function readRow(row) {
   const picture = row.querySelector('picture');
-  const link = row.querySelector('a[href]');
+  const cells = [...row.children];
+  const link = cells[1]?.querySelector('a[href]') || row.querySelector('a[href]');
   if (!picture && !link) return null;
-  const text = [...row.children][2]?.textContent.trim() || '';
-  return { picture, link, text };
+  const third = cells[2];
+  const cta = third?.querySelector('a[href]') || null;
+  const text = cta ? '' : third?.textContent.trim() || '';
+  return {
+    picture, link, text, cta,
+  };
 }
 
 /**
@@ -27,9 +39,10 @@ function titleOf({ picture, link }) {
 }
 
 /**
- * The name live prints under a card, and the description it prints on the
- * cards it shows one for.
- * @param {{picture: Element, link: Element, text: string}} item one item
+ * The name live prints under a card, then either the description it prints on
+ * the cards it shows one for, or the link it puts on the cards that lead
+ * somewhere. Live's product highlight card ends on `Tire details`.
+ * @param {{picture: Element, link: Element, text: string, cta: Element}} item one item
  * @returns {Element} the caption
  */
 function buildCaption(item) {
@@ -42,6 +55,16 @@ function buildCaption(item) {
     const text = document.createElement('p');
     text.textContent = item.text;
     caption.append(text);
+  }
+  if (item.cta) {
+    const cta = document.createElement('p');
+    cta.className = 'media-gallery-cta';
+    const link = item.cta.cloneNode(true);
+    // the still beside it already opens the video, so the name the card gives
+    // assistive tech has to say which tire this link is for
+    link.setAttribute('aria-label', `${link.textContent.trim()} for ${titleOf(item)}`);
+    cta.append(link);
+    caption.append(cta);
   }
   return caption;
 }

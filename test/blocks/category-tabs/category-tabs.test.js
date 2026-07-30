@@ -44,6 +44,47 @@ describe('Category tabs active state', () => {
 });
 
 /**
+ * The `jump` variant's tabs are in-page anchors, `#year2021` against a heading
+ * id on the same page, which is what /cruisingthecontinentalus needs and what
+ * live runs there. Live marks no tab current in that row, and neither does
+ * this: a fragment resolves to pathname `/`, which the trailing-slash strip
+ * turns into the empty string, and the `href &&` guard drops it.
+ *
+ * These passed the day they were written. They are here because the jump
+ * variant now DEPENDS on that guard, and nothing else states it. Issue #277.
+ */
+describe('Category tabs, in-page jump links', () => {
+  /** A jump-link row: fragments against headings on the same page. */
+  function jumpList() {
+    const ul = document.createElement('ul');
+    ul.innerHTML = ['#year2021', '#year2020']
+      .map((h) => `<li><a href="${h}">${h.slice(5)}</a></li>`).join('');
+    return ul;
+  }
+
+  it('marks no tab current on a page served at the site root', () => {
+    const list = jumpList();
+    markActive(list, '/');
+    expect(list.querySelectorAll('.category-tab-active')).to.have.length(0);
+  });
+
+  it('marks no tab current on the page the fragments point into', () => {
+    const list = jumpList();
+    markActive(list, '/cruisingthecontinentalus');
+    expect(list.querySelectorAll('.category-tab-active')).to.have.length(0);
+  });
+
+  it('still marks a path tab beside a fragment tab', () => {
+    const list = jumpList();
+    list.insertAdjacentHTML('beforeend', '<li><a href="/learn/tips">Tire tips</a></li>');
+    markActive(list, '/learn/tips');
+    const active = list.querySelectorAll('.category-tab-active');
+    expect(active).to.have.length(1);
+    expect(active[0].getAttribute('href')).to.equal('/learn/tips');
+  });
+});
+
+/**
  * Live's category strip is one row at every width: it never wraps, it scrolls
  * when it does not fit, and it centres when it does. Read off
  * continentaltire.com/learn/tips at 375, 600, 700, 768, 769, 900 and 1440,
