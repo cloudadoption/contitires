@@ -101,7 +101,13 @@ function buildCard(row) {
  * index path can be authored in the block; it defaults to the learn index.
  * @param {Element} block the article-cards block
  */
-export function selectRows(rows, { category } = {}) {
+export function selectRows(rows, { category, subcategory } = {}) {
+  // `category` is which LISTING a row belongs to; `subcategory` is which pill it
+  // takes inside that listing. Two axes, two fields, and each filters on its
+  // own. Everything is the listing with no pill asked for, so a row carrying no
+  // pill term shows there and under neither pill, the way live shows its 8.
+  const matches = (value, wanted) => !wanted
+    || (value || '').toLowerCase() === wanted.toLowerCase();
   // articles carry an editorial `weight` (their position in the live category
   // listing); sort by it ascending. Rows with no weight fall to the end,
   // newest first, so a not-yet-weighted article never jumps the order.
@@ -113,7 +119,8 @@ export function selectRows(rows, { category } = {}) {
   };
   return rows
     .filter((row) => row.image && !row.image.includes('/default-meta-image'))
-    .filter((row) => !category || (row.category || '').toLowerCase() === category.toLowerCase())
+    .filter((row) => matches(row.category, category))
+    .filter((row) => matches(row.subcategory, subcategory))
     .sort((a, b) => {
       const wa = weightOf(a);
       const wb = weightOf(b);
@@ -122,20 +129,25 @@ export function selectRows(rows, { category } = {}) {
     });
 }
 
-const LABELS = ['source', 'category', 'limit'];
+const LABELS = ['source', 'category', 'subcategory', 'limit'];
 
 /**
  * The block's configuration. An author labels a row and the label says what
- * the value is: Source, Category or Limit. A row that carries one cell is the
- * older shape the learn bands still carry, read by what the value looks like:
- * a leading slash is the index, all digits the limit, anything else the
- * category. That shape cannot tell a category of digits from a limit, which
- * is why the labels are there.
+ * the value is: Source, Category, Subcategory or Limit. A row that carries one
+ * cell is the older shape the learn bands still carry, read by what the value
+ * looks like: a leading slash is the index, all digits the limit, anything else
+ * the category. That shape cannot tell a category of digits from a limit, which
+ * is why the labels are there, and it cannot reach Subcategory at all.
+ *
+ * Category names the LISTING, Subcategory the pill inside it. A page that leaves
+ * Subcategory empty is the Everything view of its listing.
  * @param {Element} block the article-cards block
- * @returns {{source: string, category: string, limit: number}} the config
+ * @returns {{source: string, category: string, subcategory: string, limit: number}} the config
  */
 export function readConfig(block) {
-  const config = { source: DEFAULT_SOURCE, category: '', limit: 0 };
+  const config = {
+    source: DEFAULT_SOURCE, category: '', subcategory: '', limit: 0,
+  };
   const loose = [];
 
   [...block.children].forEach((row) => {
@@ -180,7 +192,7 @@ function unknownCategory(category, rows) {
 }
 
 export default async function decorate(block) {
-  const { source, category, limit } = readConfig(block);
+  const { source, category, subcategory, limit } = readConfig(block);
   // the learn hub bands show teasers rather than thumbnail cards; the feature
   // band also puts a category image beside them
   const feature = block.classList.contains('feature');
@@ -198,7 +210,7 @@ export default async function decorate(block) {
   }
 
   const indexed = rows;
-  rows = selectRows(rows, { category });
+  rows = selectRows(rows, { category, subcategory });
 
   // an index that answered, a category asked for, and no article carrying it:
   // the cell says something the site does not publish under
