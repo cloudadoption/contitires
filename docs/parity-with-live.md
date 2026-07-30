@@ -139,7 +139,7 @@ API, a vendor account or an index configuration.
 |  | [Listings behind a service, authored as snapshots](#listings-behind-a-service-authored-as-snapshots) | approximated | ⚙️ live publishes no feed | [#256](https://github.com/cloudadoption/contitires/issues/256), [#257](https://github.com/cloudadoption/contitires/issues/257), [#258](https://github.com/cloudadoption/contitires/issues/258), [#259](https://github.com/cloudadoption/contitires/issues/259) |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ this table is the source | [#362](https://github.com/cloudadoption/contitires/issues/362) |
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
-| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ global scale and the three product and article headings shipped, four queued | [#354](https://github.com/cloudadoption/contitires/issues/354), [#355](https://github.com/cloudadoption/contitires/issues/355), [#356](https://github.com/cloudadoption/contitires/issues/356), [#368](https://github.com/cloudadoption/contitires/issues/368) |
+| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ sizes and levels match live; the h2 line-height is 2px short and is one global cause | [#373](https://github.com/cloudadoption/contitires/issues/373), [#368](https://github.com/cloudadoption/contitires/issues/368) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ✅ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
@@ -933,14 +933,27 @@ authors either level inside an article body. Its basis is live's own computed st
 `.news-article__body h3` and on body h4, which is public observation. It lacks a picture rather
 than a source.
 
-Four divergences are open. `/experience/partners` prints a heading live does not have
-([#354](https://github.com/cloudadoption/contitires/issues/354)), four `/media` headings are
-authored h3 where live uses h2 ([#356](https://github.com/cloudadoption/contitires/issues/356)),
-authored heading levels have no owning issue since #117 covers generated DOM only
-([#355](https://github.com/cloudadoption/contitires/issues/355)), and the article subhead
-line-height is 24 at 375 and 36 at 900 and 1440 against live's 38 at each
-([#368](https://github.com/cloudadoption/contitires/issues/368)). The last is fallout from the
-subhead fix: the rule that sets the weight is not the rule that sets the line-height.
+Three more closed on 2026-07-30. `/experience/partners` no longer prints a heading live does not
+have (#354). Authored heading levels now have an owning issue rather than being assumed to fall
+under #117, which covers generated DOM only (#355). The four `/media` panel titles are h2 like
+live's, and they take live's 24 on 32 under 769 where our global h2 held 30 at every width (#356,
+shipped in [#374](https://github.com/cloudadoption/contitires/pull/374)). That last rule is scoped
+by `.tabs .tabs-main h2:has(+ .cards)`, which reaches the five panel titles live gives a
+counterpart and leaves alone the two it does not.
+
+What is open is the line-height, and it is one cause rather than two symptoms.
+[#373](https://github.com/cloudadoption/contitires/issues/373) is the global h2: live sets 38
+where we compute 1.2 times 30, so 36, and that is the 2px behind both the article subhead gap
+([#368](https://github.com/cloudadoption/contitires/issues/368)) and the panel-title reading above
+769.
+
+**It stayed invisible because it had a wrong owner rather than no owner.** The 2px was measured
+and written down during the `/media` work, then routed to #368, which is scoped to article body
+subheads. A panel title is not one, so the delta was filed against an issue that does not cover it
+and would have disappeared the moment #368 closed. The scoped line-height that shipped with the
+product title is the same cause patched a third time in a third place. A reader should take those
+scoped rules as symptoms of #373 rather than as a pattern to copy, because copying them puts the
+next heading at 36 behind a fourth scoped rule and leaves the global wrong.
 
 The article template runs the other way. `styles/article.css` pins the default-content h2
 and h3 to 20px at every width with no override in its 769 block, so the six h2 on
