@@ -135,6 +135,7 @@ API, a vendor account or an index configuration.
 |  | [No result count above the pager](#no-result-count-above-the-pager) | absent | ✅ queued | [#348](https://github.com/cloudadoption/contitires/issues/348) |
 |  | [Card teaser text](#card-teaser-text) | approximated | ⚙️ live's teaser field is unpublished | -- |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ README pass | [#235](https://github.com/cloudadoption/contitires/issues/235) |
+|  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
 | Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ global scale shipped, block headings queued | [#351](https://github.com/cloudadoption/contitires/issues/351), [#352](https://github.com/cloudadoption/contitires/issues/352), [#353](https://github.com/cloudadoption/contitires/issues/353), [#354](https://github.com/cloudadoption/contitires/issues/354), [#355](https://github.com/cloudadoption/contitires/issues/355), [#356](https://github.com/cloudadoption/contitires/issues/356) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
@@ -775,6 +776,46 @@ which is also wrong.
 The query-index total is lower than the DA page count because the index excludes the block
 library and the authoring guide. A page has to be published to enter the index at all, so
 preview-only pages are invisible to every list view on the site.
+
+### Commercial claims, copyright and operator identity
+
+**diverges, and deliberately.** This site may not make a commercial claim, assert
+Continental's copyright, or imply Continental operates it. Where matching live would do any
+of those, it does not match live. Reproducing live's wording in these places is the defect
+rather than the fix, so a diff against live flags all of them correctly and none of them is
+a parity gap.
+
+Four places.
+
+**The footer, on all 327 pages.** Live's copyright line is gone. Two paragraphs stand in its
+place: one attributing Continental's content, images and trademarks to Continental, one
+stating that this is an Adobe engineering proof of concept, not operated by, affiliated with
+or endorsed by Continental.
+
+**The homepage hero.** The eyebrow reads `An Adobe engineering proof of concept` where live
+reads `Welcome to`, and the paragraph under the h1 is a disclaimer where live carries a
+rebate offer. The h1 itself is unchanged and still matches live.
+
+**The promo bar, at the top of every page.** Live promises a $110 rebate on a set of four
+tires. The intended replacement promises a rebate on a PageSpeed score and points its
+`See Full Details` at this document rather than at `/offers`.
+
+**Any future removal of a commercial claim.** `/promotion`, `/promotionended` and `/offers`
+still carry live's rebate copy up to $200, and if they change, that change belongs here.
+
+#### The promo bar replacement has reached one page
+
+Measured on the rendered page on 2026-07-30, at 1440, because a block builds this bar at
+runtime and a curl of the page does not show it.
+
+`/` renders `See how we got a 50-point PSI rebate`. `/tires` and `/learn` both render
+`Get a $110 Rebate when you purchase a set of 4 qualifying Continental Tires!` with
+`See Full Details` pointing at `/offers`. The site-wide source,
+`/fragments/promo-bar.plain.html`, still carries live's wording.
+
+So the decision above is taken and its implementation reached the homepage. The remaining
+326 pages still carry live's claim. That is unfinished work in this category rather than a
+parity gap, and it is not filed as one.
 
 ## Layout and type
 
