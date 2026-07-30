@@ -119,6 +119,139 @@ describe('The heading type scale', () => {
 });
 
 /**
+ * The specs band title, which live sizes on its own class rather than on the
+ * scale. Its three rules, read off live's CSSOM on /vancontact-as-ultra at
+ * 1440 and confirmed against computed sizes at 375, 800, 900, 1025 and 1440:
+ *
+ *   .tire-specs__title                 --font-size-42, --line-height-48
+ *   under max-width 1024               --font-size-30, --line-height-36
+ *   under max-width 768                --font-size-32, --line-height-36
+ *
+ * The 768 rule follows the 1024 one in live's source, so the narrow band takes
+ * 32 and not 30. Live's weight is 300 at every width, which ours already sets.
+ *
+ * Ours read 28px to 899 and 30px above it, so the band was wrong at four of
+ * the five widths and right only between 900 and 1024. Issue #352.
+ */
+describe('The specs band title', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/tire-specs/tire-specs.css')).text());
+  });
+
+  /**
+   * What a selector's property resolves to at a width. Walks the base rules and
+   * every min-width block the sheet carries, keeps those the viewport has
+   * reached, and takes the last declaration, which is what the cascade does.
+   */
+  function resolved(selector, prop, width) {
+    const base = [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+    const blocks = [{ min: 0, rules: base }].concat(
+      [...sheet.cssRules]
+        .filter((r) => r instanceof CSSMediaRule)
+        .map((r) => ({
+          min: +(r.conditionText.match(/width\s*>=\s*(\d+)px|min-width:\s*(\d+)px/) || [])
+            .slice(1).find(Boolean),
+          rules: [...r.cssRules],
+        }))
+        .filter((b) => !Number.isNaN(b.min)),
+    );
+    const matches = (r) => r.selectorText
+      && r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    return blocks
+      .filter((b) => b.min <= width)
+      .sort((a, c) => a.min - c.min)
+      .reduce((found, b) => {
+        const rule = [...b.rules].reverse().find((r) => matches(r)
+          && r.style.getPropertyValue(prop));
+        return rule ? rule.style.getPropertyValue(prop).trim() : found;
+      }, null);
+  }
+
+  const title = '.tire-specs h2';
+
+  it('carries live\'s 32 / 30 / 42 across live\'s two breakpoints', () => {
+    const at = (w) => resolved(title, 'font-size', w);
+    expect(at(375), 'below 769').to.equal('32px');
+    expect(at(800), 'between 769 and 1024').to.equal('30px');
+    expect(at(900), 'still between 769 and 1024').to.equal('30px');
+    expect(at(1025), 'at live\'s breakpoint').to.equal('42px');
+    expect(at(1440), 'above it').to.equal('42px');
+  });
+
+  it('takes live\'s line height with the size, 36 then 48', () => {
+    const at = (w) => resolved(title, 'line-height', w);
+    expect(at(375), 'below 769').to.equal('36px');
+    expect(at(900), 'between 769 and 1024').to.equal('36px');
+    expect(at(1440), 'above 1025').to.equal('48px');
+  });
+
+  it('switches where live switches, not at 900', () => {
+    expect(resolved(title, 'font-size', 899), 'at 899')
+      .to.equal(resolved(title, 'font-size', 900));
+  });
+});
+
+/**
+ * The product page title, which live keeps off the h1 step. Live renders it as
+ * `<h1 class="tire-page__title">` and then sizes it with the h2 rule,
+ * `h2, .as-h2, .tire-page__title { font-size: 30px; line-height: 38px }`, under
+ * no media query at all. So live's product title is 30px at every width, and it
+ * is the one place live deliberately refuses the h1 size for a page title.
+ *
+ * Ours authored it as a default-content h1, so it took the global h1 token and
+ * stepped to 42px from 1025. Measured on /vancontact-as-ultra against live at
+ * 375, 800, 900, 1025 and 1440: the two agree at the first three and read 30
+ * against 42 at the last two. Issue #351.
+ *
+ * Line-height comes with it. Ours read 36 at every width, from the global 1.2 on
+ * headings, where live reads 38 at every width, so the title matched live at
+ * three widths and now matches at five.
+ *
+ * The selector is measured, not assumed: all 46 product pages carry both
+ * `.columns.product-hero` and `.tire-specs` in the delivered markup, each has
+ * exactly one h1, and no other page in the 327-page index carries either block.
+ */
+describe('The product page title', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/styles/styles.css')).text());
+  });
+
+  const title = 'main:has(.columns.product-hero, .tire-specs) h1';
+
+  /** Every declaration of a property for a selector, base rules and media alike. */
+  function declarations(selector, prop) {
+    const walk = (rules) => [...rules].flatMap((r) => (r instanceof CSSMediaRule
+      ? walk(r.cssRules).map((d) => ({ ...d, media: r.conditionText }))
+      : []).concat(
+      r.selectorText === selector && r.style.getPropertyValue(prop)
+        ? [{ value: r.style.getPropertyValue(prop).trim(), media: null }]
+        : [],
+    ));
+    return walk(sheet.cssRules);
+  }
+
+  it('holds live\'s 30px, the h2 size, on an element that is an h1', () => {
+    expect(declarations(title, 'font-size').map((d) => d.value)).to.deep.equal(['30px']);
+  });
+
+  it('takes live\'s 38px line height, not the 36 the global 1.2 gives', () => {
+    expect(declarations(title, 'line-height').map((d) => d.value)).to.deep.equal(['38px']);
+  });
+
+  it('sits under no media query, because live\'s rule does not either', () => {
+    const sizes = declarations(title, 'font-size');
+    expect(sizes, 'the title size rule').to.have.lengthOf(1);
+    expect(sizes[0].media, 'the condition it sits under').to.be.null;
+  });
+});
+
+/**
  * The article body, which live sizes separately from the global scale.
  *
  *   .news-article__body h2   20px under max-width 768
@@ -156,6 +289,43 @@ describe('The article body subhead', () => {
 
   it('returns to live\'s 30px above 769, where live drops its own pin', () => {
     expect(value(subhead, 'font-size', '769px')).to.equal('30px');
+  });
+
+  /**
+   * Weight, which #185 left alone deliberately because that slice was scoped to
+   * the scale. Live has no weight rule for h2 or for `.news-article__body h2`,
+   * so `h1..h6 { font-weight: inherit }` over `body { font-weight: normal }`
+   * puts it at 400. Live DOES set `.news-article__body h3` to 700 and body h4
+   * to 700. Ours had all three at 300. Issue #353.
+   *
+   * The h2 half is photographed: six subheads on
+   * /learn/how-do-i-check-my-tire-pressure, live against ours at 375, 900 and
+   * 1440. The h3 and h4 half is NOT, and cannot be, because no article page on
+   * this site authors either level: 21 authored h2 across 9 of the 224
+   * article-template pages, zero h3, zero h4. Its basis is live's own computed
+   * style, which is public observation and is evidence; what it lacks is a
+   * picture, not a source.
+   */
+  function weightOf(selector) {
+    const rule = [...sheet.cssRules]
+      .filter((r) => !(r instanceof CSSMediaRule))
+      .reverse()
+      .find((r) => r.selectorText === selector && r.style.getPropertyValue('font-weight'));
+    return rule ? rule.style.getPropertyValue('font-weight').trim() : null;
+  }
+
+  const scope = 'body.article main .section .default-content-wrapper';
+
+  it('inherits live\'s 400 on h2, where live sets no weight rule at all', () => {
+    expect(weightOf(`${scope} h2`)).to.equal('400');
+  });
+
+  it('takes live\'s bold on h3 and h4, which live does set', () => {
+    expect(weightOf(`${scope} :is(h3, h4)`)).to.equal('700');
+  });
+
+  it('leaves no 300 behind on the three levels together', () => {
+    expect(weightOf(`${scope} :is(h2, h3, h4)`), 'the shared subhead rule').to.be.null;
   });
 });
 

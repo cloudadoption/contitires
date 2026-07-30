@@ -265,6 +265,19 @@ sup {
 }
 
 h1 { font-size: var(--heading-font-size-xxl); }
+
+/* the one place live refuses the h1 size for a page title: it renders the
+   product name as <h1 class="tire-page__title"> and then sizes it with the h2
+   rule, `h2, .as-h2, .tire-page__title { font-size: 30px; line-height: 38px }`,
+   under no media query. So live's product title is 30 / 38 at every width where
+   ours stepped to 42 from 1025 and sat on the global 1.2 below it (#351).
+   All 46 product pages carry both blocks named here and one h1 each, and no
+   other page in the 327-page index carries either, so this reaches 46 and 46. */
+main:has(.columns.product-hero, .tire-specs) h1 {
+  font-size: 30px;
+  line-height: 38px;
+}
+
 h2 { font-size: var(--heading-font-size-xl); }
 h3 { font-size: var(--heading-font-size-l); }
 h4 { font-size: var(--heading-font-size-m); }
