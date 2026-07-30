@@ -447,3 +447,56 @@ describe('Article cards, a category nobody publishes under', () => {
     expect(block.querySelectorAll('.article-card')).to.have.length(2);
   });
 });
+
+/**
+ * Live's news-and-events page carries TWO controls. The category tabs pick the
+ * LISTING, /learn/tips against /learn/technology against news-and-events. The
+ * pills below them pick a term INSIDE that listing, Everything against News
+ * against Corporate, and they link to /learn/news and /learn/corporate.
+ *
+ * They are two axes, so they are two fields. `category` keeps saying which
+ * listing a row belongs to and is untouched. `subcategory` says which pill it
+ * takes, and an article is allowed to carry NONE.
+ *
+ * Everything is the UNFILTERED listing, not a union of the pills and not an
+ * exclusion of the other listings. Measured on live: 148 in Everything, 129
+ * News, 11 Corporate, 8 in Everything under neither pill, and no row in a pill
+ * that is not also in Everything. The 8 are correct by construction only while
+ * an empty subcategory stays legal, which is what these pin. Issue #246.
+ */
+describe('selectRows, the pill term inside a listing', () => {
+  /** three News rows: one Corporate, one News, one carrying no pill term */
+  const rows = () => [
+    { image: '/a.png', category: 'News', subcategory: 'Corporate', lastModified: '3' },
+    { image: '/b.png', category: 'News', subcategory: 'News', lastModified: '2' },
+    { image: '/c.png', category: 'News', lastModified: '1' },
+    { image: '/d.png', category: 'Tire Tips', lastModified: '0' },
+  ];
+
+  it('shows a row with no pill term under Everything', () => {
+    const out = selectRows(rows(), { category: 'News' });
+    expect(out.map((r) => r.lastModified)).to.deep.equal(['3', '2', '1']);
+  });
+
+  it('leaves a row with no pill term out of both pills', () => {
+    expect(selectRows(rows(), { category: 'News', subcategory: 'News' })
+      .map((r) => r.lastModified)).to.deep.equal(['2']);
+    expect(selectRows(rows(), { category: 'News', subcategory: 'Corporate' })
+      .map((r) => r.lastModified)).to.deep.equal(['3']);
+  });
+
+  it('does not treat Everything as a union of the pills', () => {
+    const everything = selectRows(rows(), { category: 'News' });
+    const pills = [
+      ...selectRows(rows(), { category: 'News', subcategory: 'News' }),
+      ...selectRows(rows(), { category: 'News', subcategory: 'Corporate' }),
+    ];
+    expect(everything.length).to.be.greaterThan(pills.length);
+  });
+
+  it('keeps the pill term out of the listing axis', () => {
+    // asking for a listing must not be answered by a pill term of the same name
+    expect(selectRows(rows(), { category: 'Tire Tips' })
+      .map((r) => r.lastModified)).to.deep.equal(['0']);
+  });
+});
