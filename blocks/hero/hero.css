@@ -55,10 +55,16 @@ main .section.hero-container {
   text-align: center;
 }
 
+/* the marquee decides the title size, not the level authored inside it, which
+   is what live does too: its marquee title is its global h1 at 30px and 42px
+   above 1024. Two pages author this heading below h1 (/learn at h3,
+   /all-new-securecontact-aw at h2), so the pin is what lets #117 promote them
+   later without resizing the page. It points at the h1 token so all of them
+   render live's 30/30/42. */
 .hero-content :is(h1, h2, h3, h4, h5, h6) {
   margin: 0;
   color: inherit;
-  font-size: var(--heading-font-size-xl);
+  font-size: var(--heading-font-size-xxl);
   line-height: 1.14;
 }
 

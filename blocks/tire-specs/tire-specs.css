@@ -18,12 +18,23 @@
 
 /* live sets the product's own name in title case and tracks out the word after
    it: "4x4 SportContact SPECIFICATIONS", 42px at 300 with 6px on the second
-   part. Read at 1440. */
+   part. Read at 1440.
+   The size below is this band's own, not a step of the global scale. It read
+   the h3 token and #185 moved that token to live's 24px, so the numbers the
+   band already rendered are written out here instead, which keeps the scale
+   change confined to default content. The 42px this comment records is still
+   not what the band draws; that gap predates #185 and is filed separately. */
 .tire-specs h2 {
   margin: 0 0 12px;
   font-family: var(--heading-font-family);
-  font-size: var(--heading-font-size-l);
+  font-size: 28px;
   font-weight: 300;
+}
+
+@media (width >= 900px) {
+  .tire-specs h2 {
+    font-size: 30px;
+  }
 }
 
 .tire-specs h2 span {

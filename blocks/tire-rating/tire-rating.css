@@ -30,11 +30,20 @@
 }
 
 /* the section heading live sets at 42/48 with 6px of tracking, which is the
-   treatment the warranty band above already carries */
+   treatment the warranty band above already carries. It reached 42 through the
+   global h2, which #185 moved to live's 30px, so the band now carries the pair
+   itself: live's own reviews heading reads 30px at 375 and 900 and 42px at
+   1440, measured on /vancontact-as-ultra. */
 .tire-rating h2 {
   margin: 0 0 24px;
   letter-spacing: 4px;
   text-transform: uppercase;
+}
+
+@media (width >= 1025px) {
+  .tire-rating h2 {
+    font-size: 42px;
+  }
 }
 
 .tire-rating .tire-rating-score {

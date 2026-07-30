@@ -42,8 +42,10 @@ main .section.columns-container {
   }
 }
 
+/* the feature heading keeps the numbers it rendered before #185 moved the h3
+   token to live's 24px */
 .columns.feature h2 {
-  font-size: var(--heading-font-size-l);
+  font-size: 28px;
   font-weight: 400;
 }
 
@@ -101,6 +103,10 @@ main .columns.bar .button.secondary:focus-visible {
   main .columns.bar > div > div:first-child,
   main .columns.bar > div > div:last-child {
     flex: 0 0 auto;
+  }
+
+  .columns.feature h2 {
+    font-size: 30px;
   }
 }
 

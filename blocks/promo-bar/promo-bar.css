@@ -118,10 +118,11 @@ main .section.promo-bar-container {
   transition-delay: 0.05s;
 }
 
-/* the panel heading keeps its size whatever level the author gives it */
+/* the panel heading keeps its size whatever level the author gives it, and it
+   keeps the numbers it rendered before #185 moved the h3 token to live's 24px */
 .promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6) {
   margin-top: 0;
-  font-size: var(--heading-font-size-l);
+  font-size: 28px;
 }
 
 .promo-bar-panel-content p {
@@ -135,5 +136,9 @@ main .section.promo-bar-container {
 
   .promo-bar-panel-content {
     padding: 32px;
+  }
+
+  .promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 30px;
   }
 }
