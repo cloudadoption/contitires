@@ -123,6 +123,11 @@ main .section.promo-bar-container {
 .promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6) {
   margin-top: 0;
   font-size: 28px;
+
+  /* frozen at what it rendered on the old 1.2 ratio (#373). The promo bar is a
+     divergence zone (guardrail 23), so this holds the zone still rather than
+     moving it toward anything on live */
+  line-height: 33.6px;
 }
 
 .promo-bar-panel-content p {

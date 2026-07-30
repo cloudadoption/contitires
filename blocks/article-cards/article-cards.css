@@ -275,8 +275,11 @@ main .article-cards.feature > p:last-child {
     text-align: left;
   }
 
+  /* frozen at what it rendered on the old 1.2 ratio, so the flat 38px on the
+     h2 rule does not reach it (#373) */
   main .article-cards.feature .article-cards-intro h2 {
     font-size: 42px;
+    line-height: 50.4px;
   }
 
   main .article-cards.feature.image-right .article-cards-media {

@@ -556,14 +556,31 @@ describe('The blocks that resize an h2 keep their own line box', () => {
     }));
   });
 
+  /**
+   * Splits a selector list on its top-level commas only. Four of the seven
+   * selectors below end in `:is(h1, h2, h3, h4, h5, h6)`, and a plain
+   * `split(',')` tears that into six fragments so the rule never matches.
+   */
+  function parts(selector) {
+    const out = [];
+    let depth = 0;
+    let cur = '';
+    [...selector].forEach((ch) => {
+      if (ch === '(' || ch === '[') depth += 1;
+      if (ch === ')' || ch === ']') depth -= 1;
+      if (ch === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += ch;
+    });
+    out.push(cur);
+    return out.map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+
   /** Every declaration of a property for a selector, with the condition it sits under. */
   function declarations(file, selector, prop) {
     const norm = (s) => s.replace(/\s+/g, ' ').trim();
     const walk = (rules, media) => [...rules].flatMap((r) => {
       if (r instanceof CSSMediaRule) return walk(r.cssRules, r.conditionText);
       if (!r.selectorText || !r.style.getPropertyValue(prop)) return [];
-      const parts = norm(r.selectorText).split(',').map(norm);
-      return parts.includes(norm(selector))
+      return parts(r.selectorText).includes(norm(selector))
         ? [{ value: r.style.getPropertyValue(prop).trim(), media }]
         : [];
     });
