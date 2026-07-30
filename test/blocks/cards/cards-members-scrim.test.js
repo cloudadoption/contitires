@@ -8,29 +8,32 @@ import { expect } from '@esm-bundle/chai';
  * only thing making that readable is the scrim the tile draws across its foot.
  * At `rgb(0 0 0 / 60%)` it is not enough on a light picture.
  *
- * Measured from the captured 1440 screenshots on 2026-07-30, sampling the
- * backdrop pixels beside the label text (never the glyphs, which are white and
- * would report 1:1 against themselves) and taking the 10th percentile of the
- * contrast ratio against white:
+ * Measured out of the composited 1440 screenshots on 2026-07-30, reading the
+ * text core against the backdrop it sits on, both from the same pixels:
  *
- *   tile                    live   ours
- *   The Straight Pipes      5.77   5.70
- *   Gears & Gasoline        4.68   4.01   fails 4.5:1
- *   Speed Academy           5.25   5.18
- *   Engineering Explained   5.27   5.13
- *   Dinner With Racers      3.58   3.44   fails 4.5:1, and live fails it too
+ *   tile                    live    before   after
+ *   The Straight Pipes      6.78    2.01     11.31
+ *   Gears & Gasoline       12.71    2.70     13.69
+ *   Speed Academy          15.55    4.81     17.96
+ *   Engineering Explained  16.52    5.09     18.21
+ *   Dinner With Racers     16.51    5.15     17.83
  *
- * So live does NOT read cleanly here: it fails 4.5:1 on its own Dinner With
- * Racers tile. Ours is a little weaker again on every tile. Accessibility is
- * gated everywhere on this site, and a stronger scrim is a difference in our
- * favour, so this variant clears 4.5:1 on all five where live clears four.
+ * Live reads cleanly on all five, worst 6.78. Ours failed 4.5:1 on two tiles and
+ * bottomed at 2.01, because the scrim was painting OVER the name as well as
+ * being too weak. The fix clears live on every tile.
+ *
+ * A first pass measured only the BACKDROP beside the glyphs and reported the gap
+ * as small, with live apparently failing its own Dinner With Racers at 3.58.
+ * That instrument cannot see a scrim painted over the text, which was the actual
+ * defect, so a 2.01 read as 3.44 and live looked worse than it is. Measure the
+ * text against its backdrop, never the backdrop alone.
  *
  * Lighthouse cannot score this: its contrast audit skips text over a
  * background image because it cannot resolve the backdrop. The proof is the
- * pixel measurement in `.mossy/parity/251/contrast-backdrop.py`, not a PSI row.
+ * pixel measurement in `.mossy/parity/251/contrast-glyph.py`, not a PSI row.
  *
- * This test pins the scrim that produced those ratios. The ratios themselves
- * are proved against the rendered page, not here.
+ * This test pins the scrim and the layering that produced those ratios. The
+ * ratios themselves are proved against the rendered page, not here.
  */
 describe('Cards, the members tile scrim', () => {
   let sheet;
@@ -63,5 +66,20 @@ describe('Cards, the members tile scrim', () => {
   it('keeps the name white so the scrim is what carries the contrast', () => {
     const color = declared('.cards.members .cards-card-body a:any-link', 'color');
     expect(color).to.contain('--conti-white');
+  });
+
+  /**
+   * The scrim has to paint UNDER the name, and it was painting over it.
+   * Both the `::after` and the card body sat at `z-index: 1`, and a pseudo
+   * element counts as its originating element's last child, so at equal z-index
+   * the scrim wins on DOM order and washes the white text grey. `pointer-events:
+   * none` on the scrim hid it: the link still worked, it just looked faded.
+   * Darkening the scrim made this worse, not better, so the two go together.
+   */
+  it('paints the scrim under the name, not over it', () => {
+    const scrim = Number(declared('.cards.members > ul > li::after', 'z-index'));
+    const body = Number(declared('.cards.members .cards-card-body', 'z-index'));
+    expect(scrim, 'the scrim is layered').to.be.a('number').and.not.NaN;
+    expect(body, 'the name sits above the scrim').to.be.greaterThan(scrim);
   });
 });
