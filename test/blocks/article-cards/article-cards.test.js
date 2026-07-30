@@ -36,7 +36,7 @@ describe('Article cards block', () => {
     const cards = block.querySelectorAll('.article-card');
     expect(cards).to.have.length(3);
     // newest (highest lastModified = Article 2) comes first
-    expect(cards[0].querySelector('h3').textContent).to.equal('Article 2');
+    expect(cards[0].querySelector('h2').textContent).to.equal('Article 2');
     expect(cards[0].getAttribute('href')).to.equal('/learn/article-2');
     // title suffix is stripped
     expect(cards[0].textContent).to.not.contain('Continental Tire');

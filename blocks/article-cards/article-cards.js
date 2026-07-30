@@ -101,9 +101,14 @@ function buildCard(row) {
 
   const figure = document.createElement('div');
   figure.className = 'article-card-image';
-  figure.append(createOptimizedPicture(row.image, cleanTitle(row.title), false, [{ width: '750' }]));
+  // empty alt: the title below is inside the same link, so an alt carrying it
+  // again makes a screen reader read every card title twice
+  figure.append(createOptimizedPicture(row.image, '', false, [{ width: '750' }]));
 
-  const heading = document.createElement('h3');
+  // h2, which is the level live titles its own category cards at. The grid is
+  // the only content a category page carries under its banner h1, so an h3 here
+  // skips a level. The teaser above stays h3: its bands are authored h2s.
+  const heading = document.createElement('h2');
   heading.textContent = cleanTitle(row.title);
 
   const body = document.createElement('div');

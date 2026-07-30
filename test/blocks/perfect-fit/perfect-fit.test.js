@@ -272,7 +272,7 @@ describe('perfect-fit block', () => {
     setSelect('rim', '17');
     panel.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
-    const heading = panel.querySelector('.perfect-fit-result h4');
+    const heading = panel.querySelector('.perfect-fit-result h3');
     const mark = heading.querySelector('sup');
     expect(mark, 'the result heading carries the mark').to.exist;
     expect(mark.textContent).to.equal('02');
@@ -295,7 +295,7 @@ describe('perfect-fit block', () => {
     setSelect('rim', '17');
     panel.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
-    const heading = panel.querySelector('.perfect-fit-result h4');
+    const heading = panel.querySelector('.perfect-fit-result h3');
     expect(heading.textContent).to.equal('TerrainContact A/T');
     expect(heading.querySelectorAll('sup').length, 'no mark invented').to.equal(0);
   });

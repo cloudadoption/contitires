@@ -201,11 +201,14 @@ function productCard(product) {
   const media = document.createElement('div');
   media.className = 'perfect-fit-result-media';
   if (product.image) {
-    media.append(createOptimizedPicture(product.image, product.name, false, [{ width: '400' }]));
+    // empty alt for the same reason the article card leaves one: the name is
+    // already in the heading below, inside this same link
+    media.append(createOptimizedPicture(product.image, '', false, [{ width: '400' }]));
   }
   const body = document.createElement('div');
   body.className = 'perfect-fit-result-body';
-  const heading = document.createElement('h4');
+  // h3, one level under the h2 question the panel above these results asks.
+  const heading = document.createElement('h3');
   // the name carries a superscript on ten of the 46 products. The sheet holds it
   // in a nameHtml cell beside the plain name, which is what the image alt takes.
   heading.append(renderName(product.nameHtml || product.name));
