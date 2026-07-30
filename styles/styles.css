@@ -170,10 +170,10 @@
 
     /* h1, h2 and h3 do not move here. Live holds h2 and h3 at one size at every
        width and steps h1 up at 1025, not at 900, so the three of them left this
-       block for the base and for the 1025 one below. */
+       block for the base and for the 1025 one below. h6 left too, because it
+       declared the same 18px the base already sets. */
     --heading-font-size-m: 26px;
     --heading-font-size-s: 22px;
-    --heading-font-size-xs: 18px;
   }
 }
 
