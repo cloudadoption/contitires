@@ -842,11 +842,17 @@ Two details of that change are deliberate and are not defects. The fragment's he
 level below the homepage's, because the bar is injected into pages that have their own heading
 hierarchy. Its noindex metadata is untouched.
 
-What remains is in page copy rather than in the bar. `/promotion`, `/promotionended` and
-`/offers` still carry live's rebate offers in their own text, which is what the single rule
-prohibits. Open as [#363](https://github.com/cloudadoption/contitires/issues/363), framed the
-same way: a divergence to MAKE rather than a gap to close, because live carries the same offers
-and matching live is what produces them.
+Three campaign pages keep live's rebate copy. That is a decision, not outstanding work: Ben
+ruled on 2026-07-30 to leave `/promotion`, `/promotionended` and `/offers` alone.
+
+The single rule asks one thing. Does the site read as a real offer, assert Continental's
+copyright, or imply Continental operates it? Site-level disclosure is what answers it. The
+footer's proof-of-concept paragraph is on all 327 pages, and this bar is at the top of every
+page. With those in place, live's offer copy inside a campaign page is reproduced surface. It
+is not an offer this site makes.
+
+That is also why the bar could not keep live's offer while those three pages can. The bar is
+the disclosure, so it cannot advertise the thing it discloses.
 
 **The values inside these zones are not quoted here on purpose.** The copy is Ben's, it
 changes in wording, figures and link targets, and none of it derives from live, so a figure
