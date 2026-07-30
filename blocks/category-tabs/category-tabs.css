@@ -53,6 +53,7 @@
 .category-tabs.compact .category-tabs-list {
   width: fit-content;
   max-width: 100%;
+  min-height: 41px;
   margin-inline: auto;
   border-bottom: 0;
 }
