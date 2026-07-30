@@ -137,7 +137,7 @@ API, a vendor account or an index configuration.
 |  | [Listings behind a service, authored as snapshots](#listings-behind-a-service-authored-as-snapshots) | approximated | ⚙️ live publishes no feed | [#256](https://github.com/cloudadoption/contitires/issues/256), [#257](https://github.com/cloudadoption/contitires/issues/257), [#258](https://github.com/cloudadoption/contitires/issues/258), [#259](https://github.com/cloudadoption/contitires/issues/259) |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ this table is the source | [#362](https://github.com/cloudadoption/contitires/issues/362) |
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
-| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ global scale shipped, block headings queued | [#351](https://github.com/cloudadoption/contitires/issues/351), [#352](https://github.com/cloudadoption/contitires/issues/352), [#353](https://github.com/cloudadoption/contitires/issues/353), [#354](https://github.com/cloudadoption/contitires/issues/354), [#355](https://github.com/cloudadoption/contitires/issues/355), [#356](https://github.com/cloudadoption/contitires/issues/356) |
+| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ global scale and the three product and article headings shipped, four queued | [#354](https://github.com/cloudadoption/contitires/issues/354), [#355](https://github.com/cloudadoption/contitires/issues/355), [#356](https://github.com/cloudadoption/contitires/issues/356), [#368](https://github.com/cloudadoption/contitires/issues/368) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ✅ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
@@ -878,25 +878,40 @@ The deployed `styles/styles.css` now sets xxl 30, xl 30, l 24 at base and xxl 42
 and 42/30/24 from it, which is live's scale and live's breakpoint. Shipped by
 [#350](https://github.com/cloudadoption/contitires/pull/350) on 2026-07-30.
 
-Six block-level divergences remain and are the open work here: the product title takes 42px
-above 1024 where live holds 30 ([#351](https://github.com/cloudadoption/contitires/issues/351)),
-the specs band lacks live's 32 / 30 / 42 ([#352](https://github.com/cloudadoption/contitires/issues/352)),
-article subheads render at weight 300 against live's 400 ([#353](https://github.com/cloudadoption/contitires/issues/353)),
-`/experience/partners` prints a heading live does not have ([#354](https://github.com/cloudadoption/contitires/issues/354)),
-four `/media` headings are authored h3 where live uses h2 ([#356](https://github.com/cloudadoption/contitires/issues/356)),
-and authored heading levels have no owning issue since #117 covers generated DOM only
-([#355](https://github.com/cloudadoption/contitires/issues/355)).
+Three block-level divergences closed on 2026-07-30 in
+[#369](https://github.com/cloudadoption/contitires/pull/369). The product title reads 30px on
+38 at every width the scale has. Its scope is `main:has(.columns.product-hero, .tire-specs) h1`,
+which reaches 46 pages and 46 h1 and no others. The specs band switches at 769 and 1025 the way
+live does, at 32 / 30 / 42. Article body subheads take live's 400 on h2 and live's 700 on h3 and
+h4.
+
+Both product rules were enumerated rather than sampled. 46 of 46 product pages read the new
+values at 1440 and at 375, and 21 of 21 authored article h2 read 400 at both widths.
+
+The h3 and h4 half of that fix is declared and cannot be photographed, because no page here
+authors either level inside an article body. Its basis is live's own computed style, 700 on
+`.news-article__body h3` and on body h4, which is public observation. It lacks a picture rather
+than a source.
+
+Four divergences are open. `/experience/partners` prints a heading live does not have
+([#354](https://github.com/cloudadoption/contitires/issues/354)), four `/media` headings are
+authored h3 where live uses h2 ([#356](https://github.com/cloudadoption/contitires/issues/356)),
+authored heading levels have no owning issue since #117 covers generated DOM only
+([#355](https://github.com/cloudadoption/contitires/issues/355)), and the article subhead
+line-height is 24 at 375 and 36 at 900 and 1440 against live's 38 at each
+([#368](https://github.com/cloudadoption/contitires/issues/368)). The last is fallout from the
+subhead fix: the rule that sets the weight is not the rule that sets the line-height.
 
 The article template runs the other way. `styles/article.css` pins the default-content h2
 and h3 to 20px at every width with no override in its 769 block, so the six h2 on
 `/learn/how-do-i-check-my-tire-pressure` read 20px where live's six read 30px above 769.
 Live pins 20px only under `max-width: 768`.
 
-What it costs a visitor: every heading in default content is the wrong size. At 1440 a
-reader gets 42px where live gives 30 on the product title and on `/forwhatyoudo`'s intro
-sentence, and 20px where live gives 30 on all six subheads of the tire-pressure article.
-Live's page hierarchy inverts on the product page: live heads the page smaller than the band
-below it, we do the reverse.
+What it costs a visitor: headings in default content are still the wrong size in places. At
+1440 a reader gets 42px where live gives 30 on `/forwhatyoudo`'s intro sentence, and 20px
+where live gives 30 on the six subheads of the tire-pressure article. The product page no
+longer inverts live's hierarchy. It heads the page at 30px with the band below it at 42,
+which is live's order.
 
 What would close it: a fix is in progress on a local branch, red test first, not pushed and
 no PR, so nothing is deployed. There is no number for the fixed state. What has to hold is
