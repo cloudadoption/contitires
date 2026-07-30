@@ -139,7 +139,8 @@ API, a vendor account or an index configuration.
 |  | [Listings behind a service, authored as snapshots](#listings-behind-a-service-authored-as-snapshots) | approximated | ⚙️ live publishes no feed | [#256](https://github.com/cloudadoption/contitires/issues/256), [#257](https://github.com/cloudadoption/contitires/issues/257), [#258](https://github.com/cloudadoption/contitires/issues/258), [#259](https://github.com/cloudadoption/contitires/issues/259) |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ this table is the source | [#362](https://github.com/cloudadoption/contitires/issues/362) |
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
-| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ the global h2 line box is live's 38; nine block titles are further from live than before and the article subheads are open | [#368](https://github.com/cloudadoption/contitires/issues/368), [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
+| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ line boxes match live on the 63 headings measured; the article-template h2 SIZE is still 20px where live is 30 above 769 | [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
+|  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | differs | ✅ author the same spacing device in DA, or accept the tighter rhythm | [#384](https://github.com/cloudadoption/contitires/issues/384) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ✅ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
@@ -973,8 +974,13 @@ where live gives 30 on the six subheads of the tire-pressure article. The produc
 longer inverts live's hierarchy. It heads the page at 30px with the band below it at 42,
 which is live's order.
 
-What is still open: the article-template sizes above, and two residues the global fix left
-behind. Both are recorded rather than silent. The pins were set to the value each rule already
+[#368](https://github.com/cloudadoption/contitires/issues/368), the article subheads, closed as
+stale on 2026-07-31 without a line of code. Those rules set font-size and font-weight and no
+line-height, so the global 38 reached them. 63 of 63 readings across the 9 article-template pages
+that author a subhead read 38px on the published host, at all three widths.
+
+What is still open: the article-template SIZES above, a separate defect from the line box, and two
+residues the global fix left behind. Both are recorded rather than silent. The pins were set to the value each rule already
 rendered, not to live's. What was an accident of a ratio is now a decision in the stylesheet.
 
 [#381](https://github.com/cloudadoption/contitires/issues/381) covers five deltas the fix freezes.
@@ -999,6 +1005,32 @@ One correction to the record. [#185](https://github.com/cloudadoption/contitires
 gives h1 then `h3#warranty` and is a real skip; live carries no heading at all there, just a
 plain link. `/events` gives h1 then 32 h2 and no h3, so it no longer skips. Its heading was
 promoted in the DA write that shipped with PR [#342](https://github.com/cloudadoption/contitires/issues/342).
+
+### Live opens headings and paragraphs with a leading break
+
+**differs.** Live authors a literal `<br>` as the first child of a heading or paragraph. It
+renders an empty line box above the text and buys vertical space. This site does not use the
+device, so our article rhythm is tighter than live's.
+
+On `/learn/how-do-i-check-my-tire-pressure` live uses it eleven times: two of its six body h2,
+"Conclusion" and "FAQs", plus nine paragraph openings. The seventh h2 on that page is chrome
+rather than a subhead. On a heading live's box is 76px against our 38, at the same 38px
+line-height on both sides. The line-height matches; the extra box is the empty first line.
+
+**This is not a live error, and that distinction is what guardrail 5's exemption turns on.** A
+spacing device used eleven times on a single page is deliberate, or at minimum arguable, and live
+wins where it is arguable. So it is recorded here rather than fixed against live's markup.
+
+What it costs a visitor: our article reads denser than live's. The text is unaffected and no
+heading is missing.
+
+What would close it: author the same break in DA on the pages that want it. That is a content
+change rather than a code one, under guardrail 6. Deciding against it is also a legitimate
+answer, since the device is live's typography rather than its structure.
+
+**Scope beyond that one page is UNMEASURED.** The count above is one article. Live's use of the
+device on the other 223 article-template pages has not been checked. Do not read eleven on one
+page as a site-wide figure.
 
 ### The content container, 64px wider than live's
 
