@@ -467,8 +467,12 @@ describe('Article cards, a category nobody publishes under', () => {
 describe('selectRows, the pill term inside a listing', () => {
   /** three News rows: one Corporate, one News, one carrying no pill term */
   const rows = () => [
-    { image: '/a.png', category: 'News', subcategory: 'Corporate', lastModified: '3' },
-    { image: '/b.png', category: 'News', subcategory: 'News', lastModified: '2' },
+    {
+      image: '/a.png', category: 'News', subcategory: 'Corporate', lastModified: '3',
+    },
+    {
+      image: '/b.png', category: 'News', subcategory: 'News', lastModified: '2',
+    },
     { image: '/c.png', category: 'News', lastModified: '1' },
     { image: '/d.png', category: 'Tire Tips', lastModified: '0' },
   ];

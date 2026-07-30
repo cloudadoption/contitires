@@ -171,18 +171,24 @@ export function readConfig(block) {
 
 /**
  * Says what an author typed and what the index publishes under, on the page.
- * A category no article carries renders an empty grid, and an empty grid reads
- * as a section nobody has written yet rather than as a typo. The list comes
- * from the index rather than from the vocabulary, so a category an author adds
- * needs no code change to read right. Issue #124.
- * @param {string} category the category as it was authored
+ * A value no article carries renders an empty grid, and an empty grid reads as
+ * a section nobody has written yet rather than as a typo. The list comes from
+ * the index rather than from the vocabulary, so a value an author adds needs no
+ * code change to read right. Issue #124.
+ *
+ * It names the AXIS that emptied the grid. A page can ask for a listing that is
+ * published and a pill term that is not, and naming the listing then sends the
+ * reader to the cell that was right. Issue #246.
+ * @param {string} field the index field that emptied the grid
+ * @param {string} value the value as it was authored
  * @param {Array<Object>} rows every row of the index
  * @returns {HTMLParagraphElement}
  */
-function unknownCategory(category, rows) {
-  const published = [...new Set(rows.map((row) => (row.category || '').trim()).filter(Boolean))];
-  const known = published.length ? published.join(', ') : categoryNames().join(', ');
-  const said = `No article is published under "${category}". The index publishes under ${known}.`;
+function unknownValue(field, value, rows) {
+  const published = [...new Set(rows.map((row) => (row[field] || '').trim()).filter(Boolean))];
+  const fallback = field === 'category' ? categoryNames().join(', ') : 'nothing yet';
+  const known = published.length ? published.join(', ') : fallback;
+  const said = `No article is published under "${value}". The index publishes under ${known}.`;
   // eslint-disable-next-line no-console
   console.error(`article-cards: ${said}`);
   const message = document.createElement('p');
@@ -192,7 +198,9 @@ function unknownCategory(category, rows) {
 }
 
 export default async function decorate(block) {
-  const { source, category, subcategory, limit } = readConfig(block);
+  const {
+    source, category, subcategory, limit,
+  } = readConfig(block);
   // the learn hub bands show teasers rather than thumbnail cards; the feature
   // band also puts a category image beside them
   const feature = block.classList.contains('feature');
@@ -212,11 +220,19 @@ export default async function decorate(block) {
   const indexed = rows;
   rows = selectRows(rows, { category, subcategory });
 
-  // an index that answered, a category asked for, and no article carrying it:
-  // the cell says something the site does not publish under
-  if (category && indexed.length && !rows.length) {
-    block.append(unknownCategory(category, indexed));
-    return;
+  // an index that answered, a value asked for, and no article carrying it: the
+  // cell says something the site does not publish under. Test the listing first,
+  // because a listing nobody publishes empties the grid whatever the pill says.
+  if (indexed.length && !rows.length) {
+    const inListing = selectRows(indexed, { category });
+    if (category && !inListing.length) {
+      block.append(unknownValue('category', category, indexed));
+      return;
+    }
+    if (subcategory) {
+      block.append(unknownValue('subcategory', subcategory, indexed));
+      return;
+    }
   }
 
   const list = document.createElement('ul');
