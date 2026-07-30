@@ -72,9 +72,9 @@ at 375 on [`/tires/contipremiumcontact-2`](https://main--contitires--cloudadopti
 at 375 where live runs a carousel
 ([#341](https://github.com/cloudadoption/contitires/issues/341)). The [newsletter form](https://main--contitires--cloudadoption.aem.live/newsletter-signup) shell
 stands empty about four seconds
-([#230](https://github.com/cloudadoption/contitires/issues/230)). Six headings render 20px
-against live's 30px on the [tire-pressure article](https://main--contitires--cloudadoption.aem.live/learn/how-do-i-check-my-tire-pressure), with a fix in flight
-([#185](https://github.com/cloudadoption/contitires/issues/185)). The DA block picker fetches
+([#230](https://github.com/cloudadoption/contitires/issues/230)). Six headings rendered 20px
+against live's 30px on the [tire-pressure article](https://main--contitires--cloudadoption.aem.live/learn/how-do-i-check-my-tire-pressure). Fixed by
+[#350](https://github.com/cloudadoption/contitires/pull/350): all six now read 30px, measured at 900. The DA block picker fetches
 all 22 samples up front and takes about 3.5s to become usable
 ([#297](https://github.com/cloudadoption/contitires/issues/297)).
 
@@ -105,7 +105,7 @@ API, a vendor account or an index configuration.
 |---|---|---|---|---|
 | Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | ✅ 63 rows to add | [#337](https://github.com/cloudadoption/contitires/issues/337) |
 |  | [Live's sports sub-nav is dead on live](#lives-sports-sub-nav-points-at-two-dead-urls) | diverges | ✅ nothing to do | [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289) |
-|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ✅ queued | [#277](https://github.com/cloudadoption/contitires/issues/277) |
+|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ✅ no owning issue | -- |
 |  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | ✅ queued | [#213](https://github.com/cloudadoption/contitires/issues/213) |
 |  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | ✅ queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
 |  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | ✅ queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
@@ -132,10 +132,10 @@ API, a vendor account or an index configuration.
 |  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
 |  | [The default share image 404s](#the-default-share-image-404s) | differs | ✅ ship live's file | [#178](https://github.com/cloudadoption/contitires/issues/178) |
 | Content and editorial | [The homepage title](#the-homepage-title) | differs | ✅ queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
-|  | [No result count above the pager](#no-result-count-above-the-pager) | absent | ✅ queued | -- |
+|  | [No result count above the pager](#no-result-count-above-the-pager) | absent | ✅ queued | [#348](https://github.com/cloudadoption/contitires/issues/348) |
 |  | [Card teaser text](#card-teaser-text) | approximated | ⚙️ live's teaser field is unpublished | -- |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ README pass | [#235](https://github.com/cloudadoption/contitires/issues/235) |
-| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ in flight | [#185](https://github.com/cloudadoption/contitires/issues/185) |
+| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ global scale shipped, block headings queued | [#351](https://github.com/cloudadoption/contitires/issues/351), [#352](https://github.com/cloudadoption/contitires/issues/352), [#353](https://github.com/cloudadoption/contitires/issues/353), [#354](https://github.com/cloudadoption/contitires/issues/354), [#355](https://github.com/cloudadoption/contitires/issues/355), [#356](https://github.com/cloudadoption/contitires/issues/356) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ✅ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
@@ -763,9 +763,9 @@ disagrees with several of them and the README is the stale one. [#235](https://g
 | Block directories | 29 | `blocks/` |
 | Test files | 71 | `find -name '*.test.js'` |
 | Commits | 122 | `git log`, 2026-07-24 to 2026-07-30 |
-| Closed release issues | 27 | `gh issue list --label release --state closed` |
-| Open release issues | 2 | [#302](https://github.com/cloudadoption/contitires/issues/302), the sequence tracker, and [#185](https://github.com/cloudadoption/contitires/issues/185) |
-| Open post-release issues | 71 | `gh issue list --label post-release --state open` |
+| Closed release issues | 29 | `gh issue list --label release --state closed` |
+| Open release issues | 3 | [#302](https://github.com/cloudadoption/contitires/issues/302), the sequence tracker, [#316](https://github.com/cloudadoption/contitires/issues/316) and [#235](https://github.com/cloudadoption/contitires/issues/235) |
+| Open post-release issues | 78 | `gh issue list --label post-release --state open` |
 
 Three README figures are wrong as of today. It claims 19 blocks against 29 directories, 14 test
 files against 71, and 352 pages published against a query-index total of 327. It also says the
@@ -780,8 +780,8 @@ preview-only pages are invisible to every list view on the site.
 
 ### The heading scale
 
-**differs.** h1, h2 and h3 all render larger than live, and our step is at 900 where live's
-is at 1025.
+**differs.** The global scale now matches live. What still differs is block-prefixed
+headings, which carry their own sizes.
 
 Live declares three sizes and moves one of them. h1 is 42px on 48 at weight 300, with an
 override to 30px on 36 under `max-width: 1024`. h2 is 30px on 38 with no media override. h3
@@ -790,10 +790,19 @@ product title is not an exception to that scale, it is sized by class: live's ru
 `h2, .as-h2, .tire-page__title { font-size: 30px }`, so `/tires/extremecontact-sport-02`
 heads at 30px at 1440 while its specs band h2 reads 42px from a block prefix.
 
-The deployed `styles/styles.css` sets xxl 42, xl 32, l 28 at base and xxl 42, xl 42, l 30
-from 900. h1 maps to xxl, h2 to xl, h3 to l, so we read 42/32/28 below 900 and 42/42/30
-above it. Above 1025 our h1 and h2 are both 42px, which loses the distinction live keeps.
-Our product h1 carries no class, so it takes the 42.
+The deployed `styles/styles.css` now sets xxl 30, xl 30, l 24 at base and xxl 42 from
+1025, read off aem.live. h1 maps to xxl, h2 to xl, h3 to l, so we read 30/30/24 below 1025
+and 42/30/24 from it, which is live's scale and live's breakpoint. Shipped by
+[#350](https://github.com/cloudadoption/contitires/pull/350) on 2026-07-30.
+
+Six block-level divergences remain and are the open work here: the product title takes 42px
+above 1024 where live holds 30 ([#351](https://github.com/cloudadoption/contitires/issues/351)),
+the specs band lacks live's 32 / 30 / 42 ([#352](https://github.com/cloudadoption/contitires/issues/352)),
+article subheads render at weight 300 against live's 400 ([#353](https://github.com/cloudadoption/contitires/issues/353)),
+`/experience/partners` prints a heading live does not have ([#354](https://github.com/cloudadoption/contitires/issues/354)),
+four `/media` headings are authored h3 where live uses h2 ([#356](https://github.com/cloudadoption/contitires/issues/356)),
+and authored heading levels have no owning issue since #117 covers generated DOM only
+([#355](https://github.com/cloudadoption/contitires/issues/355)).
 
 The article template runs the other way. `styles/article.css` pins the default-content h2
 and h3 to 20px at every width with no override in its 769 block, so the six h2 on
