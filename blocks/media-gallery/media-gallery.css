@@ -532,6 +532,8 @@ main .media-gallery.cards .media-gallery-cta {
    the prose rule in styles.css, which underlines any link in a `p` inside a
    `.cards` block and reaches this one because the block carries that class. */
 main .media-gallery.cards .media-gallery-cta a:any-link {
+  display: inline-flex;
+  align-items: center;
   color: var(--conti-black);
   font-family: var(--heading-font-family);
   font-size: 12px;
@@ -541,6 +543,22 @@ main .media-gallery.cards .media-gallery-cta a:any-link {
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
+}
+
+/* Live closes the CTA with its own sprite symbol `arrow-right-outline`:
+   viewBox 0 0 19 13 drawn in currentColor, painted into a 16x16 box 10 after
+   the label, which reads 86 wide against the CTA's 112. Inlined rather than
+   authored for the same reason as the tab chevron. */
+main .media-gallery.cards .media-gallery-cta a:any-link::after {
+  content: '';
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-left: 10px;
+  background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 13"><path d="M12.563 1l6.334 5.5-6.334 5.5M.56 6.5H18.44" fill="none" stroke="%23333" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 11px;
 }
 
 @media (width >= 769px) {
