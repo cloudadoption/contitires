@@ -147,6 +147,7 @@ API, a vendor account or an index configuration.
 |  | [Superscripts](#superscripts) | diverges | ✅ deliberate | [#238](https://github.com/cloudadoption/contitires/issues/238) |
 | Performance and accessibility | [Delivered HTML weight](#delivered-html-weight) | differs | ✅ nothing to do | -- |
 |  | [Authored heading levels do not follow live's](#authored-heading-levels-do-not-follow-lives) | differs | ✅ re-level the authored documents | [#371](https://github.com/cloudadoption/contitires/issues/371), [#372](https://github.com/cloudadoption/contitires/issues/372) |
+|  | [Product labels are static text where live's are a disclosure](#product-labels-are-static-text-where-lives-are-a-disclosure) | differs | ⚙️ live's advantage, no counterpart built | -- |
 |  | [Security headers](#security-headers) | differs | ✅ queued | -- |
 |  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ✅ queued | [#125](https://github.com/cloudadoption/contitires/issues/125), [#317](https://github.com/cloudadoption/contitires/issues/317) |
 |  | [The annotated tire diagram](#the-annotated-tire-diagram) | diverges | ✅ live's version is the defect | [#255](https://github.com/cloudadoption/contitires/issues/255) |
@@ -1166,6 +1167,40 @@ What it costs a visitor: a screen reader hears an outline that jumps a level on 
 
 What would close it: re-level the authored documents in DA. It is content rather than code, which
 is guardrail 6's rule about where a content defect gets fixed.
+
+### Product labels are static text where live's are a disclosure
+
+**differs.** Live wraps each product label in a toggle a keyboard can open. Ours is text on the
+page. This is one where live is ahead.
+
+Live authors `Best for` and `Technology` as `h2.text-cta` inside a
+`<con-details class="tire-page__column-section">`. That toggle swallows the heading: live's
+accessibility tree exposes a **button**, not a heading. Read off `/tires/4x4contact`, line 128 is
+`uid=7_125 button "BEST FOR"` and line 135 is `uid=7_132 button "TECHNOLOGY"`, with no heading
+node for either. The control that gives that meaning is that live's tree does expose 18 heading
+nodes on the same page, including the h1 and the specifications h2, so the tree reports headings
+correctly and these two are specifically not among them.
+
+This site authors the same labels as `p > strong` on 45 of its 46 product pages and as `h2` on
+exactly one, `/vancontact-as-ultra`. Counted on every product page rather than sampled: 45
+paragraphs and 1 h2 for `Best for`, and 33 paragraphs, 1 h2 and 12 absent for `Technology`. Our
+tree reads `StaticText` for both.
+
+**The visible surface matches and the behaviour does not.** A 12px bold uppercase label looks the
+same whether it is a paragraph or a heading, and the label styling now matches live on both
+labels. What live has and this site does not is a focusable disclosure per section, so a keyboard
+or screen-reader user can move between the sections and open them. Here they are static.
+
+**Promoting our paragraphs to headings would not close this and would open something worse.** It
+would give this site's readers a navigable heading that live's readers do not effectively get,
+which is a difference from live rather than a match, however much it reads like an improvement.
+The gap is the disclosure, not the heading level.
+
+What it costs a visitor: a screen-reader user gets no per-section control on a product page and
+reads the sections as continuous text. A sighted visitor sees the same thing on both sites.
+
+What would close it: build the disclosure, which is a block change rather than an authoring one,
+and it has no issue because nobody has asked for it.
 
 ### Security headers
 
