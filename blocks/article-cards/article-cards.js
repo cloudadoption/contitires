@@ -9,6 +9,29 @@ function cleanTitle(title) {
   return (title || '').replace(/\s*\|\s*Continental Tire\s*$/i, '').trim();
 }
 
+// live's card cuts its excerpt at 150 and its /events mini teaser near 95, from
+// the same underlying text: 133 of its 145 teasers end in an ellipsis, the
+// longest reads 153, which is 150 plus the three dots.
+const CARD_CHARS = 150;
+const TEASER_CHARS = 95;
+
+/**
+ * The words a card shows. Live carries an excerpt of its own, separate from the
+ * meta description, so that is what this prefers; description is the fallback
+ * for a row indexed before the field existed. The index joins its selected
+ * elements, which can leave a leading space.
+ * @param {Object} row one index row
+ * @param {number} limit how many characters this surface shows
+ * @returns {string} the text, cut at a word boundary the way live cuts it
+ */
+export function cardText(row, limit = CARD_CHARS) {
+  const text = (row.excerpt || row.description || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= limit) return text;
+  const cut = text.slice(0, limit);
+  const space = cut.lastIndexOf(' ');
+  return `${(space > 0 ? cut.slice(0, space) : cut).replace(/[\s.,;:]+$/, '')}...`;
+}
+
 /** Builds one teaser: an anchor wrapping the title and the excerpt, no image. */
 function buildTeaser(row) {
   const teaser = document.createElement('a');
@@ -19,9 +42,10 @@ function buildTeaser(row) {
   heading.textContent = cleanTitle(row.title);
   teaser.append(heading);
 
-  if (row.description) {
+  const text = cardText(row, TEASER_CHARS);
+  if (text) {
     const desc = document.createElement('p');
-    desc.textContent = row.description;
+    desc.textContent = text;
     teaser.append(desc);
   }
   return teaser;
@@ -85,9 +109,10 @@ function buildCard(row) {
   const body = document.createElement('div');
   body.className = 'article-card-body';
   body.append(heading);
-  if (row.description) {
+  const text = cardText(row);
+  if (text) {
     const desc = document.createElement('p');
-    desc.textContent = row.description;
+    desc.textContent = text;
     body.append(desc);
   }
 
@@ -101,7 +126,13 @@ function buildCard(row) {
  * index path can be authored in the block; it defaults to the learn index.
  * @param {Element} block the article-cards block
  */
-export function selectRows(rows, { category } = {}) {
+export function selectRows(rows, { category, subcategory } = {}) {
+  // `category` is which LISTING a row belongs to; `subcategory` is which pill it
+  // takes inside that listing. Two axes, two fields, and each filters on its
+  // own. Everything is the listing with no pill asked for, so a row carrying no
+  // pill term shows there and under neither pill, the way live shows its 8.
+  const matches = (value, wanted) => !wanted
+    || (value || '').toLowerCase() === wanted.toLowerCase();
   // articles carry an editorial `weight` (their position in the live category
   // listing); sort by it ascending. Rows with no weight fall to the end,
   // newest first, so a not-yet-weighted article never jumps the order.
@@ -113,7 +144,8 @@ export function selectRows(rows, { category } = {}) {
   };
   return rows
     .filter((row) => row.image && !row.image.includes('/default-meta-image'))
-    .filter((row) => !category || (row.category || '').toLowerCase() === category.toLowerCase())
+    .filter((row) => matches(row.category, category))
+    .filter((row) => matches(row.subcategory, subcategory))
     .sort((a, b) => {
       const wa = weightOf(a);
       const wb = weightOf(b);
@@ -122,20 +154,25 @@ export function selectRows(rows, { category } = {}) {
     });
 }
 
-const LABELS = ['source', 'category', 'limit'];
+const LABELS = ['source', 'category', 'subcategory', 'limit'];
 
 /**
  * The block's configuration. An author labels a row and the label says what
- * the value is: Source, Category or Limit. A row that carries one cell is the
- * older shape the learn bands still carry, read by what the value looks like:
- * a leading slash is the index, all digits the limit, anything else the
- * category. That shape cannot tell a category of digits from a limit, which
- * is why the labels are there.
+ * the value is: Source, Category, Subcategory or Limit. A row that carries one
+ * cell is the older shape the learn bands still carry, read by what the value
+ * looks like: a leading slash is the index, all digits the limit, anything else
+ * the category. That shape cannot tell a category of digits from a limit, which
+ * is why the labels are there, and it cannot reach Subcategory at all.
+ *
+ * Category names the LISTING, Subcategory the pill inside it. A page that leaves
+ * Subcategory empty is the Everything view of its listing.
  * @param {Element} block the article-cards block
- * @returns {{source: string, category: string, limit: number}} the config
+ * @returns {{source: string, category: string, subcategory: string, limit: number}} the config
  */
 export function readConfig(block) {
-  const config = { source: DEFAULT_SOURCE, category: '', limit: 0 };
+  const config = {
+    source: DEFAULT_SOURCE, category: '', subcategory: '', limit: 0,
+  };
   const loose = [];
 
   [...block.children].forEach((row) => {
@@ -159,18 +196,24 @@ export function readConfig(block) {
 
 /**
  * Says what an author typed and what the index publishes under, on the page.
- * A category no article carries renders an empty grid, and an empty grid reads
- * as a section nobody has written yet rather than as a typo. The list comes
- * from the index rather than from the vocabulary, so a category an author adds
- * needs no code change to read right. Issue #124.
- * @param {string} category the category as it was authored
+ * A value no article carries renders an empty grid, and an empty grid reads as
+ * a section nobody has written yet rather than as a typo. The list comes from
+ * the index rather than from the vocabulary, so a value an author adds needs no
+ * code change to read right. Issue #124.
+ *
+ * It names the AXIS that emptied the grid. A page can ask for a listing that is
+ * published and a pill term that is not, and naming the listing then sends the
+ * reader to the cell that was right. Issue #246.
+ * @param {string} field the index field that emptied the grid
+ * @param {string} value the value as it was authored
  * @param {Array<Object>} rows every row of the index
  * @returns {HTMLParagraphElement}
  */
-function unknownCategory(category, rows) {
-  const published = [...new Set(rows.map((row) => (row.category || '').trim()).filter(Boolean))];
-  const known = published.length ? published.join(', ') : categoryNames().join(', ');
-  const said = `No article is published under "${category}". The index publishes under ${known}.`;
+function unknownValue(field, value, rows) {
+  const published = [...new Set(rows.map((row) => (row[field] || '').trim()).filter(Boolean))];
+  const fallback = field === 'category' ? categoryNames().join(', ') : 'nothing yet';
+  const known = published.length ? published.join(', ') : fallback;
+  const said = `No article is published under "${value}". The index publishes under ${known}.`;
   // eslint-disable-next-line no-console
   console.error(`article-cards: ${said}`);
   const message = document.createElement('p');
@@ -180,7 +223,9 @@ function unknownCategory(category, rows) {
 }
 
 export default async function decorate(block) {
-  const { source, category, limit } = readConfig(block);
+  const {
+    source, category, subcategory, limit,
+  } = readConfig(block);
   // the learn hub bands show teasers rather than thumbnail cards; the feature
   // band also puts a category image beside them
   const feature = block.classList.contains('feature');
@@ -198,13 +243,21 @@ export default async function decorate(block) {
   }
 
   const indexed = rows;
-  rows = selectRows(rows, { category });
+  rows = selectRows(rows, { category, subcategory });
 
-  // an index that answered, a category asked for, and no article carrying it:
-  // the cell says something the site does not publish under
-  if (category && indexed.length && !rows.length) {
-    block.append(unknownCategory(category, indexed));
-    return;
+  // an index that answered, a value asked for, and no article carrying it: the
+  // cell says something the site does not publish under. Test the listing first,
+  // because a listing nobody publishes empties the grid whatever the pill says.
+  if (indexed.length && !rows.length) {
+    const inListing = selectRows(indexed, { category });
+    if (category && !inListing.length) {
+      block.append(unknownValue('category', category, indexed));
+      return;
+    }
+    if (subcategory) {
+      block.append(unknownValue('subcategory', subcategory, indexed));
+      return;
+    }
   }
 
   const list = document.createElement('ul');

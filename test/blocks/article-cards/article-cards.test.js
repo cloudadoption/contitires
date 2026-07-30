@@ -447,3 +447,183 @@ describe('Article cards, a category nobody publishes under', () => {
     expect(block.querySelectorAll('.article-card')).to.have.length(2);
   });
 });
+
+/**
+ * Live's news-and-events page carries TWO controls. The category tabs pick the
+ * LISTING, /learn/tips against /learn/technology against news-and-events. The
+ * pills below them pick a term INSIDE that listing, Everything against News
+ * against Corporate, and they link to /learn/news and /learn/corporate.
+ *
+ * They are two axes, so they are two fields. `category` keeps saying which
+ * listing a row belongs to and is untouched. `subcategory` says which pill it
+ * takes, and an article is allowed to carry NONE.
+ *
+ * Everything is the UNFILTERED listing, not a union of the pills and not an
+ * exclusion of the other listings. Measured on live: 148 in Everything, 129
+ * News, 11 Corporate, 8 in Everything under neither pill, and no row in a pill
+ * that is not also in Everything. The 8 are correct by construction only while
+ * an empty subcategory stays legal, which is what these pin. Issue #246.
+ */
+describe('selectRows, the pill term inside a listing', () => {
+  /** three News rows: one Corporate, one News, one carrying no pill term */
+  const rows = () => [
+    {
+      image: '/a.png', category: 'News', subcategory: 'Corporate', lastModified: '3',
+    },
+    {
+      image: '/b.png', category: 'News', subcategory: 'News', lastModified: '2',
+    },
+    { image: '/c.png', category: 'News', lastModified: '1' },
+    { image: '/d.png', category: 'Tire Tips', lastModified: '0' },
+  ];
+
+  it('shows a row with no pill term under Everything', () => {
+    const out = selectRows(rows(), { category: 'News' });
+    expect(out.map((r) => r.lastModified)).to.deep.equal(['3', '2', '1']);
+  });
+
+  it('leaves a row with no pill term out of both pills', () => {
+    expect(selectRows(rows(), { category: 'News', subcategory: 'News' })
+      .map((r) => r.lastModified)).to.deep.equal(['2']);
+    expect(selectRows(rows(), { category: 'News', subcategory: 'Corporate' })
+      .map((r) => r.lastModified)).to.deep.equal(['3']);
+  });
+
+  it('does not treat Everything as a union of the pills', () => {
+    const everything = selectRows(rows(), { category: 'News' });
+    const pills = [
+      ...selectRows(rows(), { category: 'News', subcategory: 'News' }),
+      ...selectRows(rows(), { category: 'News', subcategory: 'Corporate' }),
+    ];
+    expect(everything.length).to.be.greaterThan(pills.length);
+  });
+
+  it('keeps the pill term out of the listing axis', () => {
+    // asking for a listing must not be answered by a pill term of the same name
+    expect(selectRows(rows(), { category: 'Tire Tips' })
+      .map((r) => r.lastModified)).to.deep.equal(['0']);
+  });
+});
+
+/**
+ * The empty-grid message names the axis that emptied the grid. Before the pill
+ * term existed there was one axis, so naming the category was naming the cause.
+ * Now a page can ask for a listing that IS published and a pill term that is
+ * not, and saying "no article is published under News" sends the reader to the
+ * wrong cell. /learn/corporate reads exactly that way until its articles carry
+ * the term. Issue #246.
+ */
+describe('Article cards, a pill term nobody publishes under', () => {
+  let fetchStub;
+  let errors;
+
+  const ROWS = [
+    {
+      path: '/learn/a', title: 'A', image: '/a.png', category: 'News', subcategory: 'News',
+    },
+    {
+      path: '/learn/b', title: 'B', image: '/b.png', category: 'News',
+    },
+  ];
+
+  beforeEach(() => {
+    errors = sinon.stub(console, 'error');
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify({
+      total: ROWS.length, offset: 0, limit: ROWS.length, data: ROWS,
+    })));
+  });
+
+  afterEach(() => {
+    fetchStub.restore();
+    errors.restore();
+  });
+
+  it('names the pill term, not the listing, when the term is the empty one', async () => {
+    document.body.innerHTML = `<div class="article-cards block">
+      <div><div>Category</div><div>News</div></div>
+      <div><div>Subcategory</div><div>Corporate</div></div>
+    </div>`;
+    const block = document.querySelector('.article-cards.block');
+    await decorate(block);
+    const message = block.querySelector('.article-cards-error');
+    expect(message, 'an empty grid says why').to.exist;
+    expect(message.textContent).to.contain('Corporate');
+    expect(message.textContent, 'the listing is not the cause').to.not.contain('under "News"');
+  });
+
+  it('still names the listing when the listing is the empty one', async () => {
+    document.body.innerHTML = `<div class="article-cards block">
+      <div><div>Category</div><div>Recipes</div></div>
+    </div>`;
+    const block = document.querySelector('.article-cards.block');
+    await decorate(block);
+    expect(block.querySelector('.article-cards-error').textContent).to.contain('Recipes');
+  });
+});
+
+/**
+ * Live's card carries its OWN excerpt, separate from the meta description, and
+ * truncates it: 133 of its 145 teasers end in an ellipsis, median 150 characters
+ * and max 153, which is 150 plus the ellipsis.
+ *
+ * We rendered the meta description into the card, so 18 cards showed a bare
+ * dateline: VikingContact 8 read "Fort Mill, S.C." where live read 148
+ * characters of the story. The index now carries `excerpt`; description stays
+ * exactly as it is, because live's meta descriptions are cut the same way ours
+ * are and rewriting them would break meta parity on 13 pages. Issue #246.
+ */
+describe('Article cards, the card excerpt', () => {
+  let fetchStub;
+  const LONG = 'Fort Mill, S.C. - August 1, 2025 - Continental Tire proudly introduces the VikingContact 8, our next-generation winter tire engineered to deliver exceptional performance in the harshest winter conditions';
+
+  const serve = (rows) => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify({
+      total: rows.length, offset: 0, limit: rows.length, data: rows,
+    })));
+  };
+
+  afterEach(() => fetchStub && fetchStub.restore());
+
+  async function render(row, variant = '') {
+    serve([{
+      path: '/learn/a', title: 'A', image: '/a.png', ...row,
+    }]);
+    document.body.innerHTML = `<div class="article-cards ${variant} block"></div>`;
+    const block = document.querySelector('.article-cards.block');
+    await decorate(block);
+    return block.querySelector('li p')?.textContent ?? '';
+  }
+
+  it('renders the excerpt rather than the description', async () => {
+    expect(await render({ excerpt: 'The story.', description: 'Fort Mill, S.C.' }))
+      .to.equal('The story.');
+  });
+
+  it('falls back to the description when there is no excerpt', async () => {
+    expect(await render({ description: 'A short tagline.' })).to.equal('A short tagline.');
+  });
+
+  it('trims the leading space the index join leaves', async () => {
+    expect(await render({ excerpt: '  Fort Mill, S.C. - the story.' }))
+      .to.equal('Fort Mill, S.C. - the story.');
+  });
+
+  it('cuts a long excerpt at a word boundary and ends it like live', async () => {
+    const out = await render({ excerpt: LONG });
+    expect(out.length, 'live maxes at 153').to.be.at.most(153);
+    expect(out.endsWith('...'), 'live ends 133 of 145 with an ellipsis').to.equal(true);
+    expect(out.slice(0, -3).endsWith(' '), 'no space before the ellipsis').to.equal(false);
+    expect(LONG.startsWith(out.slice(0, -3)), 'a prefix of the excerpt').to.equal(true);
+  });
+
+  it('leaves a short excerpt whole, with no ellipsis', async () => {
+    expect(await render({ excerpt: 'Celebrating 150 Years of Continental!' }))
+      .to.equal('Celebrating 150 Years of Continental!');
+  });
+
+  it('cuts shorter on the teaser surface, which live cuts near 95', async () => {
+    const out = await render({ excerpt: LONG }, 'columns');
+    expect(out.length, 'the /events mini teaser').to.be.at.most(98);
+    expect(out.endsWith('...')).to.equal(true);
+  });
+});
