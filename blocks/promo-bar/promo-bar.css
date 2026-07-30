@@ -125,6 +125,18 @@ main .section.promo-bar-container {
   font-size: 28px;
 }
 
+/* frozen at what the 28px rendered on the old 1.2 ratio (#373), and bounded to
+   the width where that 28px applies. An unbounded pin leaked past the 900
+   breakpoint and pulled the 30px heading DOWN to 33.6 where it had been 36 and
+   should now be the global 38, which the after sweep caught as a regression on
+   four homepage headings. The promo bar is a divergence zone (guardrail 23), so
+   this holds the zone still rather than moving it toward anything on live. */
+@media (width < 900px) {
+  .promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6) {
+    line-height: 33.6px;
+  }
+}
+
 .promo-bar-panel-content p {
   margin: 0.25em 0;
 }

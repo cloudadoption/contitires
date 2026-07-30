@@ -172,6 +172,11 @@ body.article main .section:has(.share-wrapper) .related-articles-title {
   margin: 0 0 12px;
   font-family: var(--heading-font-family);
   font-size: 12px;
+
+  /* frozen at what it rendered on the old 1.2 ratio, so the flat 38px on the
+     h2 rule does not reach a 12px heading. Live's .panel__title is 12/16, and
+     the 1.6px is recorded rather than closed here (#373) */
+  line-height: 14.4px;
   font-weight: 700;
   letter-spacing: 1.25px;
   text-transform: uppercase;

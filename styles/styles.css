@@ -278,7 +278,22 @@ main:has(.columns.product-hero, .tire-specs) h1 {
   line-height: 38px;
 }
 
-h2 { font-size: var(--heading-font-size-xl); }
+/* Live writes a CONSTANT here where the shared rule above writes a ratio, and
+   that is the difference rather than the 2px. Live's rule is
+   `h2, .as-h2, .tire-page__title { font-size: 30px; line-height: 38px }` under
+   no media query, and its 38 does not follow the font-size: live's own article
+   subhead renders 20px on a 38px line box at 375 and its category card renders
+   24px on the same 38, because both are scoped rules that change only the size.
+   Ours resolved 30px to 36 and dragged the line box along with every scoped
+   size. The number is here and not on the shared rule because that rule sets
+   all six levels together, and live's six line boxes are 48, 38, 32, 24, 22 and
+   20 against sizes 42, 30, 24, 20, 16 and 14, which is six different ratios.
+   h1 is 2.4px loose and h3 3.2px tight against live and both are left alone
+   (#373, and #368 for the article subhead). */
+h2 {
+  font-size: var(--heading-font-size-xl);
+  line-height: 38px;
+}
 h3 { font-size: var(--heading-font-size-l); }
 h4 { font-size: var(--heading-font-size-m); }
 h5 { font-size: var(--heading-font-size-s); }

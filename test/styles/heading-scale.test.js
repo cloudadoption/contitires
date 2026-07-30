@@ -447,3 +447,318 @@ describe('The marquee title', () => {
       .to.equal('var(--heading-font-size-xxl)');
   });
 });
+
+/**
+ * The global h2 line box.
+ *
+ * Live writes a CONSTANT where this site writes a ratio, and that is the whole
+ * of #373. Live's rule is `h2, .as-h2, .tire-page__title { font-size: 30px;
+ * line-height: 38px }` under no media query, and the 38 does not follow the
+ * font-size: live's own article subhead renders 20px on a 38px line box at 375,
+ * and its category card renders 24px on the same 38, because both are scoped
+ * rules that change only the size. Ours derives the line box from
+ * `line-height: 1.2` on the shared h1..h6 rule, so a 30px h2 resolves to 36 and
+ * every scoped size drags the line box with it.
+ *
+ * Measured on 22 pages covering all 32 authored block names, at 375 and 1440,
+ * reading the WINNING line-height declaration per heading rather than the
+ * computed number: 218 headings at 1440 of which 68 take the shared rule, and
+ * 216 at 375 of which 67 do. Artifacts in .mossy/parity/373/.
+ *
+ * The number is on the `h2` rule and not on the shared one because the shared
+ * rule sets all six levels together. Live's six line boxes are 48, 38, 32, 24,
+ * 22 and 20 against sizes 42, 30, 24, 20, 16 and 14, which is six different
+ * ratios, so no single value on the shared rule reproduces them. h1 is 2.4px
+ * loose and h3 3.2px tight against live and both are left alone here.
+ */
+describe('The global h2 line box', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/styles/styles.css')).text());
+  });
+
+  const base = () => [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+  const ruleFor = (selector) => base().find((r) => r.selectorText
+    && r.selectorText.split(',').map((s) => s.trim()).join(',') === selector);
+
+  it('gives h2 live\'s 38px, where the shared 1.2 gives 36', () => {
+    const h2 = ruleFor('h2');
+    expect(h2, 'the h2 rule').to.exist;
+    expect(h2.style.getPropertyValue('line-height').trim()).to.equal('38px');
+  });
+
+  it('leaves the shared rule on 1.2, so h1 and h3 to h6 do not move', () => {
+    const shared = ruleFor('h1,h2,h3,h4,h5,h6');
+    expect(shared, 'the shared heading rule').to.exist;
+    expect(shared.style.getPropertyValue('line-height').trim()).to.equal('1.2');
+  });
+
+  it('sets no line-height on h1, h3, h4, h5 or h6, which keep the ratio', () => {
+    ['h1', 'h3', 'h4', 'h5', 'h6'].forEach((sel) => {
+      const rule = ruleFor(sel);
+      expect(rule, `the ${sel} rule`).to.exist;
+      expect(rule.style.getPropertyValue('line-height'), `${sel} line-height`).to.equal('');
+    });
+  });
+
+  it('sits under no media query, because live\'s h2 rule does not either', () => {
+    const inMedia = [...sheet.cssRules]
+      .filter((r) => r instanceof CSSMediaRule)
+      .flatMap((r) => [...r.cssRules])
+      .filter((r) => r.selectorText === 'h2' && r.style.getPropertyValue('line-height'));
+    expect(inMedia, 'h2 line-height under a media query').to.have.lengthOf(0);
+  });
+});
+
+/**
+ * The blocks that resize an h2 and let the ratio supply the line box.
+ *
+ * A flat 38 on the h2 rule reaches any h2 no other rule pins, which includes
+ * every block that sets a font-size and no line-height. Live does not have this
+ * problem because a live rule that resizes a heading pins both in the same rule
+ * and pins both again in the responsive step:
+ *
+ *   .event-item__name{font-size:20px;line-height:24px}
+ *   .warranty-hero__title{font-size:var(--font-size-42);line-height:var(--line-height-48)}
+ *
+ * These seven do not, and each is pinned here to THE VALUE IT RENDERS TODAY, so
+ * the only headings that move are the ones taking the global 30px. The decimals
+ * are the point: 50.4 is 42 times 1.2 and is a frozen artifact of the old ratio,
+ * not a number read off live. Live's counterparts are 48 for the 42px headings
+ * and 16 for the 12px one, and those deltas are recorded rather than closed
+ * here, because closing them is a block-by-block parity sweep and this slice is
+ * the shared cause.
+ *
+ * `.events-name` is NOT in this list and needs nothing: it declares 20px/24px
+ * and 24px/26px itself, which is 1.2 by coincidence. A ratio-detector called all
+ * 30 events cards free-riders on that coincidence; reading the winning
+ * declaration instead shows them pinned. `.columns.feature h2` also free-rides
+ * and is left alone because no page in the 327-page index builds that variant.
+ */
+describe('The blocks that resize an h2 keep their own line box', () => {
+  const sheets = {};
+
+  before(async () => {
+    const files = [
+      '/blocks/cards/cards.css',
+      '/blocks/article-cards/article-cards.css',
+      '/blocks/tire-rating/tire-rating.css',
+      '/blocks/promo-bar/promo-bar.css',
+      '/blocks/search/search.css',
+      '/styles/article.css',
+    ];
+    await Promise.all(files.map(async (f) => {
+      const s = new CSSStyleSheet();
+      await s.replace(await (await fetch(f)).text());
+      sheets[f] = s;
+    }));
+  });
+
+  /**
+   * Splits a selector list on its top-level commas only. Four of the seven
+   * selectors below end in `:is(h1, h2, h3, h4, h5, h6)`, and a plain
+   * `split(',')` tears that into six fragments so the rule never matches.
+   */
+  function parts(selector) {
+    const out = [];
+    let depth = 0;
+    let cur = '';
+    [...selector].forEach((ch) => {
+      if (ch === '(' || ch === '[') depth += 1;
+      if (ch === ')' || ch === ']') depth -= 1;
+      if (ch === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += ch;
+    });
+    out.push(cur);
+    return out.map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+
+  /** Every declaration of a property for a selector, with the condition it sits under. */
+  function declarations(file, selector, prop) {
+    const norm = (s) => s.replace(/\s+/g, ' ').trim();
+    const walk = (rules, media) => [...rules].flatMap((r) => {
+      if (r instanceof CSSMediaRule) return walk(r.cssRules, r.conditionText);
+      if (!r.selectorText || !r.style.getPropertyValue(prop)) return [];
+      return parts(r.selectorText).includes(norm(selector))
+        ? [{ value: r.style.getPropertyValue(prop).trim(), media }]
+        : [];
+    });
+    return walk(sheets[file].cssRules, null);
+  }
+
+  // file, selector, the condition the size sits under, today's rendered line box
+  const pins = [
+    ['/blocks/cards/cards.css',
+      'main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2',
+      '1025px', '50.4px'],
+    ['/blocks/cards/cards.css',
+      '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
+      'width < 900px', '33.6px'],
+    ['/blocks/article-cards/article-cards.css',
+      'main .article-cards.feature .article-cards-intro h2',
+      '900px', '50.4px'],
+    ['/blocks/tire-rating/tire-rating.css',
+      '.tire-rating h2', '1025px', '50.4px'],
+    ['/blocks/promo-bar/promo-bar.css',
+      '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
+      'width < 900px', '33.6px'],
+    ['/blocks/search/search.css',
+      'main .search .search-no-results h2', '600px', '50.4px'],
+    ['/styles/article.css',
+      'body.article main .section:has(.share-wrapper) .related-articles-title', null, '14.4px'],
+  ];
+
+  pins.forEach(([file, selector, media, expected]) => {
+    const where = media ? `under ${media}` : 'unconditionally';
+    it(`pins ${selector.split(' ').pop()} in ${file.split('/').pop()} ${where}`, () => {
+      const got = declarations(file, selector, 'line-height')
+        .find((d) => (media ? (d.media || '').includes(media) : d.media === null));
+      expect(got, `a line-height for ${selector} ${where}`).to.exist;
+      expect(got.value).to.equal(expected);
+    });
+  });
+
+  /**
+   * The two pins that step at 900 are BOUNDED BELOW IT. Both rules set 28px at
+   * the base and 30px from 900, and 30px is the global size, so above the
+   * breakpoint the heading must take the global 38 like everything else. An
+   * unbounded pin overrides at every width: the first version of this slice
+   * pinned 33.6 on the base rule alone and the after sweep caught four homepage
+   * headings reading 33.6 at 1440 where they had been 36 and should be 38.
+   */
+  [['/blocks/cards/cards.css', '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)'],
+    ['/blocks/promo-bar/promo-bar.css', '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)'],
+  ].forEach(([file, selector]) => {
+    it(`leaves ${file.split('/').pop()} above 900 to the global 38`, () => {
+      const above = declarations(file, selector, 'line-height')
+        .filter((d) => d.media === null || /width\s*>=|min-width/.test(d.media));
+      expect(above, 'a line-height that outlives the 28px it freezes').to.have.lengthOf(0);
+    });
+  });
+
+  /**
+   * The article subhead is the one 20px h2 that MUST NOT be pinned. Live renders
+   * it 20px on a 38px line box at 375, so the flat 38 is what closes #368, and a
+   * pin here would reopen it. Ours reads 24 today on six subheads of
+   * /learn/how-do-i-check-my-tire-pressure.
+   */
+  it('leaves the article subhead unpinned, so it takes live\'s 38', () => {
+    const subhead = 'body.article main .section .default-content-wrapper h2';
+    expect(declarations('/styles/article.css', subhead, 'line-height'))
+      .to.have.lengthOf(0);
+  });
+});
+
+/**
+ * Every pin resolved at each of the three widths, which is the assertion the
+ * seven rules above cannot make one declaration at a time.
+ *
+ * It carries both halves of what this slice got wrong once each.
+ *
+ * THE 36s ARE LIVE'S OWN NUMBER AT THE LOWER BREAKPOINT. Three of the seven
+ * rules resize an h2 only at their upper step and leave the base on the global
+ * 30px, so the flat 38 reached the base and moved those headings AWAY from
+ * live. Live steps its own block titles down to 30/36 under max-width 1024
+ * while its global h2 stays 38, measured on the cover set at 375 and 900:
+ * `.warranty-hero__title` and `.tire-reviews__title` on /vancontact-as-ultra
+ * and /tires/4x4contact, `.news-list-with-image__title` on /learn, all three
+ * 30/36 at 375 and 900 and 42/48 at 1440. So the base pin is live's value and
+ * not a frozen artifact, unlike the 50.4 above it.
+ *
+ * THE NULLS ARE THE BUG THAT ALREADY HAPPENED. `75a2746` had to bound two pins
+ * that sat on a base rule with no upper limit: they overrode at every width and
+ * four homepage headings read 33.6 at 1440 where they had been 36 and should be
+ * the global 38. A pin must die where the size it freezes dies, and only the
+ * resolved value at a width above the breakpoint says whether it did.
+ */
+describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
+  const sheets = {};
+
+  before(async () => {
+    const files = [
+      '/blocks/cards/cards.css',
+      '/blocks/article-cards/article-cards.css',
+      '/blocks/tire-rating/tire-rating.css',
+      '/blocks/promo-bar/promo-bar.css',
+      '/blocks/search/search.css',
+      '/styles/article.css',
+    ];
+    await Promise.all(files.map(async (f) => {
+      const s = new CSSStyleSheet();
+      await s.replace(await (await fetch(f)).text());
+      sheets[f] = s;
+    }));
+  });
+
+  /** Top-level commas only, so `:is(h1, h2, h3)` survives as one selector. */
+  function parts(selector) {
+    const out = [];
+    let depth = 0;
+    let cur = '';
+    [...selector].forEach((ch) => {
+      if (ch === '(' || ch === '[') depth += 1;
+      if (ch === ')' || ch === ']') depth -= 1;
+      if (ch === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += ch;
+    });
+    out.push(cur);
+    return out.map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+
+  /** Whether a media condition holds at a width. Both spellings, both directions. */
+  function holds(condition, width) {
+    const min = condition.match(/width\s*>=\s*(\d+)px|min-width:\s*(\d+)px/);
+    if (min) return width >= +min.slice(1).find(Boolean);
+    const lt = condition.match(/width\s*<\s*(\d+)px/);
+    if (lt) return width < +lt.slice(1).find(Boolean);
+    const max = condition.match(/max-width:\s*(\d+)px/);
+    if (max) return width <= +max.slice(1).find(Boolean);
+    return false;
+  }
+
+  /** The winning line-height for a selector at a width, which is what renders. */
+  function resolved(file, selector, width) {
+    const norm = (s) => s.replace(/\s+/g, ' ').trim();
+    const walk = (rules, applies) => [...rules].flatMap((r) => (r instanceof CSSMediaRule
+      ? walk(r.cssRules, applies && holds(r.conditionText, width))
+      : [{ rule: r, applies }]));
+    return walk(sheets[file].cssRules, true)
+      .filter(({ applies, rule }) => applies && rule.selectorText
+        && parts(rule.selectorText).includes(norm(selector))
+        && rule.style.getPropertyValue('line-height'))
+      .map(({ rule }) => rule.style.getPropertyValue('line-height').trim())
+      .pop() || null;
+  }
+
+  // file, selector, then what it must resolve to at 375, 900 and 1440.
+  // null means no pin applies there and the heading takes the global 38.
+  const pins = [
+    ['/blocks/cards/cards.css',
+      'main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2',
+      ['36px', '36px', '50.4px']],
+    ['/blocks/cards/cards.css',
+      '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
+      ['33.6px', null, null]],
+    ['/blocks/article-cards/article-cards.css',
+      'main .article-cards.feature .article-cards-intro h2',
+      ['36px', '50.4px', '50.4px']],
+    ['/blocks/tire-rating/tire-rating.css',
+      '.tire-rating h2', ['36px', '36px', '50.4px']],
+    ['/blocks/promo-bar/promo-bar.css',
+      '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
+      ['33.6px', null, null]],
+    ['/blocks/search/search.css',
+      'main .search .search-no-results h2', ['1.2', '50.4px', '50.4px']],
+    ['/styles/article.css',
+      'body.article main .section:has(.share-wrapper) .related-articles-title',
+      ['14.4px', '14.4px', '14.4px']],
+  ];
+
+  pins.forEach(([file, selector, expected]) => {
+    it(`resolves ${selector.split(' ').pop()} in ${file.split('/').pop()}`, () => {
+      [375, 900, 1440].forEach((w, i) => {
+        expect(resolved(file, selector, w), `at ${w}`).to.equal(expected[i]);
+      });
+    });
+  });
+});
