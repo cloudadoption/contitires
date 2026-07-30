@@ -486,7 +486,7 @@ main .section .perfect-fit-form .perfect-fit-terms a:any-link {
   object-fit: contain;
 }
 
-.perfect-fit-result-body h4 {
+.perfect-fit-result-body h3 {
   margin: 0;
   font-family: var(--body-font-family);
   font-size: 15px;

@@ -205,7 +205,8 @@ function productCard(product) {
   }
   const body = document.createElement('div');
   body.className = 'perfect-fit-result-body';
-  const heading = document.createElement('h4');
+  // h3, one level under the h2 question the panel above these results asks.
+  const heading = document.createElement('h3');
   // the name carries a superscript on ten of the 46 products. The sheet holds it
   // in a nameHtml cell beside the plain name, which is what the image alt takes.
   heading.append(renderName(product.nameHtml || product.name));
