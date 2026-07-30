@@ -560,3 +560,68 @@ describe('Article cards, a pill term nobody publishes under', () => {
     expect(block.querySelector('.article-cards-error').textContent).to.contain('Recipes');
   });
 });
+
+/**
+ * Live's card carries its OWN excerpt, separate from the meta description, and
+ * truncates it: 133 of its 145 teasers end in an ellipsis, median 150 characters
+ * and max 153, which is 150 plus the ellipsis.
+ *
+ * We rendered the meta description into the card, so 18 cards showed a bare
+ * dateline: VikingContact 8 read "Fort Mill, S.C." where live read 148
+ * characters of the story. The index now carries `excerpt`; description stays
+ * exactly as it is, because live's meta descriptions are cut the same way ours
+ * are and rewriting them would break meta parity on 13 pages. Issue #246.
+ */
+describe('Article cards, the card excerpt', () => {
+  let fetchStub;
+  const LONG = 'Fort Mill, S.C. - August 1, 2025 - Continental Tire proudly introduces the VikingContact 8, our next-generation winter tire engineered to deliver exceptional performance in the harshest winter conditions';
+
+  const serve = (rows) => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify({
+      total: rows.length, offset: 0, limit: rows.length, data: rows,
+    })));
+  };
+
+  afterEach(() => fetchStub && fetchStub.restore());
+
+  async function render(row, variant = '') {
+    serve([{ path: '/learn/a', title: 'A', image: '/a.png', ...row }]);
+    document.body.innerHTML = `<div class="article-cards ${variant} block"></div>`;
+    const block = document.querySelector('.article-cards.block');
+    await decorate(block);
+    return block.querySelector('li p')?.textContent ?? '';
+  }
+
+  it('renders the excerpt rather than the description', async () => {
+    expect(await render({ excerpt: 'The story.', description: 'Fort Mill, S.C.' }))
+      .to.equal('The story.');
+  });
+
+  it('falls back to the description when there is no excerpt', async () => {
+    expect(await render({ description: 'A short tagline.' })).to.equal('A short tagline.');
+  });
+
+  it('trims the leading space the index join leaves', async () => {
+    expect(await render({ excerpt: '  Fort Mill, S.C. - the story.' }))
+      .to.equal('Fort Mill, S.C. - the story.');
+  });
+
+  it('cuts a long excerpt at a word boundary and ends it like live', async () => {
+    const out = await render({ excerpt: LONG });
+    expect(out.length, 'live maxes at 153').to.be.at.most(153);
+    expect(out.endsWith('...'), 'live ends 133 of 145 with an ellipsis').to.equal(true);
+    expect(out.slice(0, -3).endsWith(' '), 'no space before the ellipsis').to.equal(false);
+    expect(LONG.startsWith(out.slice(0, -3)), 'a prefix of the excerpt').to.equal(true);
+  });
+
+  it('leaves a short excerpt whole, with no ellipsis', async () => {
+    expect(await render({ excerpt: 'Celebrating 150 Years of Continental!' }))
+      .to.equal('Celebrating 150 Years of Continental!');
+  });
+
+  it('cuts shorter on the teaser surface, which live cuts near 95', async () => {
+    const out = await render({ excerpt: LONG }, 'columns');
+    expect(out.length, 'the /events mini teaser').to.be.at.most(98);
+    expect(out.endsWith('...')).to.equal(true);
+  });
+});
