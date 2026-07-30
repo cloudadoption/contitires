@@ -307,3 +307,74 @@ describe('Media gallery, what the keyboard gets', () => {
     expect(document.activeElement).to.equal(tile2);
   });
 });
+
+/**
+ * Live's /learn/product-highlights is one grid of video cards: a 16:9 still
+ * that opens the video in a modal, the product name under it, and a link on to
+ * that tire's page. Ours stacked nine full-width players and then repeated the
+ * nine names in a card grid below with no stills, so a reader scrolled past
+ * every player before reaching a name.
+ *
+ * The third cell already carries a card's description on
+ * /cruisingthecontinentalus. It carries a LINK here, and the two are told apart
+ * by what the cell holds rather than by a variant, so an author keeps one shape:
+ * still, video, then a sentence about the card or a link off it. Issue #244.
+ */
+describe('Media gallery, a card that links on', () => {
+  const highlight = (src, video, name, href, cta) => `
+    <div>
+      <div><picture><img src="${src}" alt="${name}"></picture></div>
+      <div><a href="${video}">${name}</a></div>
+      <div>${href ? `<a href="${href}">${cta}</a>` : ''}</div>
+    </div>`;
+
+  /** two of live's nine product highlight cards */
+  const highlights = () => {
+    document.body.innerHTML = `<div class="media-gallery cards block">${[
+      highlight('/media/dws06.jpg', 'https://www.youtube.com/watch?v=D22tEOe9gNY', 'ExtremeContact DWS06 Plus', '/tires/extremecontact-dws06-plus', 'Tire details'),
+      highlight('/media/sport02.jpg', 'https://www.youtube.com/watch?v=ceNl2QunqJI', 'ExtremeContact Sport02', '/tires/extremecontact-sport-02', 'Tire details'),
+    ].join('')}</div>`;
+    return document.querySelector('.media-gallery.block');
+  };
+
+  it('renders the third cell as a link when it holds one', () => {
+    const block = highlights();
+    decorate(block);
+    const links = block.querySelectorAll('.media-gallery-caption a');
+    expect(links.length).to.equal(2);
+    expect(links[0].getAttribute('href')).to.equal('/tires/extremecontact-dws06-plus');
+    expect(links[0].textContent.trim()).to.equal('Tire details');
+  });
+
+  it('keeps the still a video tile beside the card link', () => {
+    const block = highlights();
+    decorate(block);
+    expect(block.querySelectorAll('.media-gallery-tile-video').length).to.equal(2);
+    expect(block.querySelector('.media-gallery-tile').getAttribute('aria-label'))
+      .to.equal('Play ExtremeContact DWS06 Plus');
+  });
+
+  it('names the card from the video link, above the card link', () => {
+    const block = highlights();
+    decorate(block);
+    const caption = block.querySelector('.media-gallery-caption');
+    expect(caption.querySelector('h3').textContent).to.equal('ExtremeContact DWS06 Plus');
+    // the name comes first, the link on is last
+    expect(caption.lastElementChild.querySelector('a')).to.exist;
+  });
+
+  it('still renders a plain third cell as description text, not a link', () => {
+    document.body.innerHTML = `<div class="media-gallery cards block">
+      <div>
+        <div><picture><img src="/media/b.png" alt="bloopers"></picture></div>
+        <div><a href="https://www.youtube.com/watch?v=hH8nclY39fc">Bloopers</a></div>
+        <div>No road trip is complete without a blooper reel.</div>
+      </div></div>`;
+    const block = document.querySelector('.media-gallery.block');
+    decorate(block);
+    const caption = block.querySelector('.media-gallery-caption');
+    expect(caption.querySelector('a')).to.equal(null);
+    expect(caption.querySelector('p').textContent)
+      .to.equal('No road trip is complete without a blooper reel.');
+  });
+});
