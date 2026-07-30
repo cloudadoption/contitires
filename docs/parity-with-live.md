@@ -306,7 +306,7 @@ Read against the deployed `styles.css` lines 144-149, 168-173 and 260-265, and a
 
 One correction to the record. #185 says two pages skip a heading level.
 [`/vancontact-as-ultra`](https://main--contitires--cloudadoption.aem.live/vancontact-as-ultra)
-gives h1 then `h3#warranty` and is a real skip; live carries no heading at all there, just a
+gives h1 then `h3#warranty` and is a real skip. Live has no heading there at all, only a
 plain link. `/events` gives h1 then 32 h2 and no h3, so it no longer skips. Its heading was
 promoted in the DA write that shipped with PR #342.
 
@@ -508,8 +508,8 @@ also copies the article title into the card image alt where the title is already
 link text.
 
 None of this is visible to curl. `/learn/tips`, `/learn/technology` and `/learn/news-and-events`
-each serve exactly one heading, an h1, so the extra headings are built client-side and only a
-browser sees the outline that results.
+each serve one heading, an h1, so the extra headings are built client-side. Only a browser sees
+the outline that results.
 
 What it costs a visitor: `/learn/tips` reads accessibility 98 on both strategies with
 heading-order as the single failure, recorded 2026-07-28 in #117. The same audit against main's
