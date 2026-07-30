@@ -100,6 +100,37 @@
   }
 }
 
+/* The `pills` variant: live's `nav-subtabs`, the SECOND row under the category
+   tabs on the news pages. Its items are paths, /learn/news and /learn/corporate,
+   so it navigates the way the strip above it does; Everything is the listing
+   with no term asked for.
+   Read off continentaltire.com/learn/news-and-events at 1440 on 2026-07-30: the
+   row is centred and 32 tall, its items 12 apart, each a 2px #333 outline at a
+   26px radius on white with 8px 12px of padding. Typography is the base strip's
+   and already matches. Widths came out 110, 65 and 106. Issue #246. */
+.category-tabs.pills .category-tabs-list {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: 12px;
+  border-bottom: 0;
+}
+
+.category-tabs.pills .category-tabs-list a {
+  padding: 8px 12px;
+  border: 2px solid var(--conti-black);
+  border-radius: 26px;
+  background-color: var(--conti-white);
+  line-height: 12px;
+}
+
+/* Live paints NO active state here. Its served HTML puts `is-active` on the
+   current anchor, and the settled DOM carries no class, no aria-current and the
+   same white fill on all three: measured at 1440, Everything, News and
+   Corporate are identical at 110, 65 and 106 wide. So nothing extra is painted.
+   The block still sets aria-current, which live's rendered row lacks; that is
+   assistive-tech only and changes nothing a reader sees. */
+
 /* The `compact` variant: live's OTHER section strip.
    The rules above are live's /learn tab bar, and its five pages match it. The
    /experience pages get something smaller from the same markup, so this is a
