@@ -111,7 +111,7 @@ and should be left alone.
 |  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
 |  | [Ultra product page at the site root](#the-ultra-product-page-is-at-the-site-root) | matches | done | [#207](https://github.com/cloudadoption/contitires/issues/207) |
 |  | [Live's sitemap resolves here](#lives-sitemap-resolves-here) | matches | done | [#254](https://github.com/cloudadoption/contitires/issues/254) |
-| Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | not knowable from outside | no, needs live's backend | [#241](https://github.com/cloudadoption/contitires/issues/241) |
+| Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | approximated | the sheet stays, what live computes per request cannot | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 |  | [Fit by size](#fit-by-size) | differs | queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
 |  | [Star rating and review count](#star-rating-and-review-count) | absent | the number queued, the corpus is not | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | no, needs live's Solr config | -- |
@@ -289,8 +289,7 @@ host, checking the title rather than the status, would confirm it. That was not 
 
 ### Product data is a published workbook, not a request-time backend
 
-**not knowable from outside.** Live computes per request against a system the public site does
-not expose. We publish a sheet.
+**approximated.** A published sheet stands in for live's backend, and the stand-in is visible.
 
 Live's product pages read from a backend. What that backend holds and what it computes at
 request time is not visible from outside, and the only evidence of it is what the rendered page
