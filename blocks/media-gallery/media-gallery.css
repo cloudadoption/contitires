@@ -388,11 +388,32 @@ main .media-gallery.social .media-gallery-list {
 }
 
 main .media-gallery.social .media-gallery-list > li {
+  position: relative;
   flex: none;
   aspect-ratio: 1;
   border-radius: 10px;
   background-color: var(--conti-lightest-grey);
   overflow: hidden;
+}
+
+/* The Instagram glyph live marks every Social tile with. The file is live's
+   own, taken verbatim from the `.media-instagram.media--cta:after` rule in its
+   stylesheet, and the geometry below is that rule's: a 29x29 drawing in a 28x28
+   box at top 8 right 8, centred and not repeated. `pointer-events` is the one
+   departure. Live leaves it at `auto`, so a 28px corner of its tile is not part
+   of the link; nothing a visitor sees changes by making the whole tile
+   clickable. */
+main .media-gallery.social .media-gallery-list > li::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background-image: url('/icons/social-tile-instagram.svg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  pointer-events: none;
 }
 
 main .media-gallery.social .media-gallery-link {
