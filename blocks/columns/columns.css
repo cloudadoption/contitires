@@ -125,7 +125,8 @@ main .columns.bar .button.secondary:focus-visible {
  * not hold, and #234 records the gap. (#241)
  */
 .columns.product-hero .product-hero-plan-link,
-.columns.product-hero .product-hero-best-for-label {
+.columns.product-hero .product-hero-best-for-label,
+.columns.product-hero .product-hero-technology-label {
   margin: 0;
   padding-top: 20px;
   font-size: 12px;
@@ -135,10 +136,13 @@ main .columns.bar .button.secondary:focus-visible {
   text-transform: uppercase;
 }
 
-/* live rules off the rebate row and Best for, and leaves the plan without one.
-   Read on /tires/4x4sportcontact, which has a rebate, and on /tires/procontact-tx,
-   which has none: the plan block has no top border on either. */
-.columns.product-hero .product-hero-best-for-label {
+/* live rules off the rebate row, Best for and Technology, and leaves the plan
+   without one. Read on /tires/4x4sportcontact, which has a rebate, and on
+   /tires/procontact-tx, which has none: the plan block has no top border on
+   either. The two con-details wrappers on /tires/4x4contact both report
+   1px solid rgb(205, 205, 205) with 20px above, at 1440 and at 375. (#367) */
+.columns.product-hero .product-hero-best-for-label,
+.columns.product-hero .product-hero-technology-label {
   border-top: 1px solid var(--conti-grey);
 }
 
