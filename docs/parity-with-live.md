@@ -113,7 +113,10 @@ and should be left alone.
 |  | [Live's sitemap resolves here](#lives-sitemap-resolves-here) | matches | done | [#254](https://github.com/cloudadoption/contitires/issues/254) |
 | Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | not knowable from outside | no, needs live's backend | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 |  | [Fit by size](#fit-by-size) | differs | queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
+|  | [Star rating and review count](#star-rating-and-review-count) | absent | the number queued, the corpus is not | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | no, needs live's Solr config | -- |
+|  | [How many results a query returns](#how-many-results-a-query-returns) | differs | no, live's exclusions are Solr config | -- |
+|  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | no, needs a dealer database and a geocoder | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
 | Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | queued, and a decision | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [What live's tags report into](#what-lives-tags-report-into) | not knowable from outside | no, needs the ad accounts | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [Cookie consent](#cookie-consent) | absent | queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
@@ -140,6 +143,9 @@ and should be left alone.
 |  | [Superscripts](#superscripts) | matches | no, we drop live's inline-block on purpose | [#238](https://github.com/cloudadoption/contitires/issues/238) |
 | Performance and accessibility | [Delivered HTML weight](#delivered-html-weight) | differs, in our favour | done | -- |
 |  | [Generated headings skip levels](#generated-headings-skip-levels) | differs | queued | [#117](https://github.com/cloudadoption/contitires/issues/117) |
+|  | [Security headers](#security-headers) | differs | queued | -- |
+|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | queued | [#125](https://github.com/cloudadoption/contitires/issues/125), [#317](https://github.com/cloudadoption/contitires/issues/317) |
+|  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
 
 ## Navigation and routing
 
@@ -321,6 +327,29 @@ rather than settled, and what would settle it is finding a live page that links 
 result.
 
 
+### Star rating and review count
+
+**absent.** Live shows a rating on every product page. We show none, and we already hold a
+number we do not render.
+
+Live loads Bazaarvoice site-wide. Its product page carries `data-bv-product-id` and its
+structured data reads `ratingValue` 4.60 with `reviewCount` 1043 on
+`/tires/extremecontact-dws06-plus`. That aggregate is server-rendered, so it is readable from
+outside.
+
+Our catalog sheet carries a frozen rating and review count for all 46 rows. The rendered page
+shows neither: a grep for `rating` over the delivered HTML returns zero.
+
+What it costs a visitor: no rating and no review count on a product page, which is a real
+signal on a tire.
+
+What would close it, and what would not. Rendering the sheet's frozen number is a block change
+and nothing stops it, but the number would be stale the day after it was written, because live's
+moves as reviews arrive. The review corpus itself, the moderation state and the Bazaarvoice
+property configuration are in Continental's account and no scrape reaches them. So the visible
+number is unbuilt work and the living number behind it is not.
+
+
 ## Search
 
 ### Search ranking, rebuilt against live's results rather than its index
@@ -353,6 +382,42 @@ field weights and its exclusion list, and those are configuration in an admin, n
 the public site emits. The honest ceiling is what it already does, which is match live's
 totals on a measured query set and say so.
 
+
+### How many results a query returns
+
+**differs.** We return more than live on the same query, including pages live keeps out.
+
+Six queries, live first: `tire` 215 against 300, `dealer` 48 against 89, `all season` 47 against
+69, `winter tires` 35 against 46, `warranty` 20 against 66, and `ev` 0 against 9.
+
+Live excludes pages from its index and the rule is not visible. `/privacy` holds the word
+privacy 22 times and never appears in live's results. On `ev` live returns a "No results" page
+and we answer with 9, `/ev-compatible` first, which is the one case where our answer is the more
+useful of the two.
+
+What would close it: nothing. The exclusion list is Solr index configuration on live's side.
+Live's `ev` behaviour looks like a minimum term length or a stopword rule, and reproducing it
+would mean copying a defect on purpose.
+
+### Store and dealer lookup
+
+**absent.** Live has a store finder. We have a page explaining that we do not.
+
+Live's `/Store-finder` is a real page, 200 at 52,125 bytes. Every "Find a store" button on live
+points at it. The lookup needs a dealer database and a location service, and neither is
+published.
+
+Ours redirects both casings onto `/online-retailers`, two of the 14 rows. That page's Store Near
+You tab reads "Store search is not part of this site" and says why. The Online Retailers tab
+carries the three retailer tiles, which is what live's own `/online-retailers` holds.
+
+What it costs a visitor: they cannot find a nearby dealer, and 46 product pages carry a "Find a
+store" button that leads to that explanation.
+
+What would close it: nothing without a dealer database and a geocoder. The earlier stand-in was
+worse than the gap. It printed a real third-party dealer, with a real street address and phone
+number, as the store 3.29 miles from every reader. That has been removed, and it is the clearest
+case on the site of a plausible stand-in being more harmful than an honest blank.
 
 ## Forms and third parties
 
@@ -940,6 +1005,58 @@ card title twice, once as the link and once as the image alt.
 What would close it: give the generated headings a level that follows the page outline, and set
 the card image alt to empty. The three learn category pages above carry no authored headings at
 all, so they land here rather than in the type scale. #117.
+
+### Security headers
+
+**differs, and each side has something the other does not.**
+
+Live sends `strict-transport-security: max-age=300`, `x-content-type-options: nosniff` and
+`x-frame-options: SAMEORIGIN`. It sends no Content Security Policy at all.
+
+We send a CSP with `script-src 'nonce-…' 'strict-dynamic'`, `base-uri 'self'`,
+`object-src 'none'`, `frame-src 'self' https:` and `require-trusted-types-for 'script'`. It
+comes from `head.html` with `move-to-http-header=true`. Our HSTS is `max-age=31557600` against
+live's 300. We send neither `x-content-type-options` nor `x-frame-options`.
+
+What it costs a visitor: nothing they see. It moves the Lighthouse best-practices CSP audit,
+which is the only place it shows up in a score.
+
+What would close it: adding the two headers we lack would make our set a superset of live's.
+Neither is set today.
+
+### The test suite and repo hygiene
+
+**differs.** None of this is visible from outside, and it is what the next person to change the
+code inherits.
+
+There are 29 block directories and 2 of them ship without a test directory, `fragment` and
+`library-metadata`. `git ls-files` counts 72 tracked test files.
+
+Three things make the suite prove less than it looks. Fixtures are built in the authored shape
+rather than the delivered shape, so a block can pass its suite and still drop content in
+production. An absence assertion whose actual value is a DOM element hangs the runner for 120
+seconds and takes that file's passing results with it. And 25 test files request 67 distinct
+URLs that 404 in every run, printing blocks of yellow that would hide a real 404.
+
+What it costs a visitor: nothing. The cost is a green suite that proves less than it looks, and
+two documents that describe a site which changed underneath them.
+
+What would close it: tests for the two untested blocks with delivered-shape fixtures, a runner
+fix or a lint rule for the hanging assertion, and real fixture files or stubbed requests. [#125](https://github.com/cloudadoption/contitires/issues/125),
+[#222](https://github.com/cloudadoption/contitires/issues/222), [#317](https://github.com/cloudadoption/contitires/issues/317), [#318](https://github.com/cloudadoption/contitires/issues/318), [#126](https://github.com/cloudadoption/contitires/issues/126), [#304](https://github.com/cloudadoption/contitires/issues/304), [#316](https://github.com/cloudadoption/contitires/issues/316), [#345](https://github.com/cloudadoption/contitires/issues/345), [#322](https://github.com/cloudadoption/contitires/issues/322).
+
+### Carousel autoplay and reduced motion
+
+**differs.** The autoplay variant has no visible pause control and ignores `prefers-reduced-motion`.
+
+This is not a live comparison. It is a WCAG defect in our own block.
+
+The opt-in autoplay carousel advances with no visible pause or stop control and does not check
+`prefers-reduced-motion`. Pausing on hover and focus alone fails WCAG 2.2.2 for touch users and
+for anyone who has asked the system for less motion.
+
+What would close it: a pause control and a `prefers-reduced-motion` check in
+`blocks/carousel/carousel.js`. [#116](https://github.com/cloudadoption/contitires/issues/116).
 
 ## What this document does not settle
 
