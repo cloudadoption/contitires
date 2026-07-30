@@ -497,10 +497,60 @@ main .media-gallery.cards .media-gallery-caption p {
   line-height: 22px;
 }
 
+/* Live's product highlight card ends on a ROW rather than a stack: the tire's
+   name on the left and TIRE DETAILS on the right, on one line.
+   Read off continentaltire.com/learn/product-highlights at 1440 and 375 on
+   2026-07-30. At 1440 the card is 365x281 three up, its footer 365x76 at
+   padding 16px 20px on white, the name 18px/400 at 0.25px tracking on a 22px
+   line, and the CTA 12px/700 uppercase at 1.25px. Neither is underlined and
+   both are #333.
+   Everything here is scoped to a caption that HAS a CTA, because
+   /cruisingthecontinentalus is this same block with a description instead and
+   live styles that one differently: its card is 353 wide with a 38 gap against
+   this page's 365 with a 20 gap, in the same 1136 container. Issue #244. */
+main .media-gallery.cards .media-gallery-caption:has(.media-gallery-cta) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+
+main .media-gallery.cards .media-gallery-caption:has(.media-gallery-cta) h3 {
+  font-size: 18px;
+  letter-spacing: 0.25px;
+  line-height: 22px;
+}
+
+main .media-gallery.cards .media-gallery-cta {
+  flex: none;
+  margin: 0;
+}
+
+/* live paints this neither yellow nor underlined: it is the whole footer's
+   label rather than a link standing on its own. `:any-link` is here to outweigh
+   the prose rule in styles.css, which underlines any link in a `p` inside a
+   `.cards` block and reaches this one because the block carries that class. */
+main .media-gallery.cards .media-gallery-cta a:any-link {
+  color: var(--conti-black);
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 @media (width >= 769px) {
   main .media-gallery.cards .media-gallery-list {
     grid-template-columns: repeat(3, 1fr);
     gap: 38px;
+  }
+
+  main .media-gallery.cards .media-gallery-list:has(.media-gallery-cta) {
+    gap: 20px;
   }
 }
 
