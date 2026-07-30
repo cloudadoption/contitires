@@ -428,17 +428,21 @@ describe("Hero, live's logo marquee", () => {
 });
 
 /**
- * The marquee's words wrap differently in the fallback face than in Stag Sans,
- * and the fonts arrive after the page paints. Below 420 the fallback takes a
- * line more for the headline, and below 419 one more for the lead, so the band
- * under the marquee moved 64 when the fonts landed. The boxes hold the
- * fallback's lines now, the way the header holds the ribbon's height.
+ * The marquee's reserved lines, RETIRED by #183 and #227.
  *
- * Read off the branch preview by forcing the fallback at 320, 360, 375, 380,
- * 385, 389, 390, 400, 412, 416, 419, 420, 440, 480, 768, 900 and 1440.
- * Issue #94, the same reservation as #78.
+ * #94 held the headline open at five lines below 385 and four to 419, and the
+ * lead at four, because the fallback face wrapped a line longer than Stag Sans
+ * and the band under the marquee moved 64 when the fonts landed. The
+ * reservation held the taller of the two so nothing moved.
+ *
+ * 'Stag Sans Fallback' removes the cause: both faces now take the same number of
+ * lines at 320, 375, 385 and 419, measured on /warranty. So the reservation has
+ * nothing left to hold, and holding it costs empty space. Measured on
+ * /warranty against live: at 375 our headline stood at 180px where live's is
+ * 144, and at 419 ours stood at 144 and its lead at 112 where live's are 108 and
+ * 84. Removing it puts both boxes on live's numbers at both widths.
  */
-describe("Hero, the logo marquee's reserved lines", () => {
+describe("Hero, the logo marquee's retired reservation", () => {
   let block;
 
   before(async () => {
@@ -476,26 +480,40 @@ describe("Hero, the logo marquee's reserved lines", () => {
   const title = () => block.querySelector('h1');
   const lead = () => block.querySelector('.hero-content > p:not(:first-child)');
 
-  it("reserves the headline's five fallback lines below 385", async () => {
-    await setViewport({ width: 375, height: 900 });
-    expect(getComputedStyle(title()).minHeight).to.equal('180px');
-    expect(getComputedStyle(lead()).minHeight).to.equal('112px');
+  // sequenced with reduce rather than a loop, which the lint config disallows
+  const atEachWidth = (widths, check) => widths.reduce(async (prev, width) => {
+    await prev;
+    await setViewport({ width, height: 900 });
+    check(width);
+  }, Promise.resolve());
+
+  it('reserves nothing at any width', async () => {
+    await atEachWidth([320, 375, 385, 412, 419, 420, 1440], (width) => {
+      expect(getComputedStyle(title()).minHeight, `the headline at ${width}`).to.equal('0px');
+      expect(getComputedStyle(lead()).minHeight, `the lead at ${width}`).to.equal('0px');
+    });
   });
 
-  it('reserves four from 385 to 419', async () => {
-    await setViewport({ width: 412, height: 900 });
-    expect(getComputedStyle(title()).minHeight).to.equal('144px');
-    expect(getComputedStyle(lead()).minHeight).to.equal('112px');
-  });
-
-  // from 420 the two faces wrap alike, so there is nothing to hold open
-  it('reserves nothing from 420', async () => {
-    await setViewport({ width: 420, height: 900 });
-    expect(getComputedStyle(title()).minHeight).to.equal('0px');
-    expect(getComputedStyle(lead()).minHeight).to.equal('0px');
-    await setViewport({ width: 1440, height: 900 });
-    expect(getComputedStyle(title()).minHeight).to.equal('0px');
-    expect(getComputedStyle(lead()).minHeight).to.equal('0px');
+  /**
+   * The reservation is only safe to drop because the two faces agree, so that is
+   * asserted rather than assumed. Both boxes are measured with each family
+   * forced, and a difference in line count is what would bring the shift back.
+   */
+  it('wraps the headline and the lead alike in Stag Sans and in the fallback', async () => {
+    const linesIn = (el, family) => {
+      const had = el.style.fontFamily;
+      el.style.fontFamily = family;
+      const lh = parseFloat(getComputedStyle(el).lineHeight) || 1;
+      const lines = Math.round(el.getBoundingClientRect().height / lh);
+      el.style.fontFamily = had;
+      return lines;
+    };
+    await atEachWidth([320, 375, 385, 419], (width) => {
+      [['headline', title()], ['lead', lead()]].forEach(([name, el]) => {
+        expect(linesIn(el, "'Stag Sans Fallback'"), `${name} at ${width}`)
+          .to.equal(linesIn(el, "'Stag Sans'"));
+      });
+    });
   });
 
   it('holds the marquee open when the words take fewer lines', async () => {
