@@ -115,6 +115,8 @@ API, a vendor account or an index configuration.
 |  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | ✅ drop the link | [#357](https://github.com/cloudadoption/contitires/issues/357) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | ⚙️ live's exclusions are Solr config | -- |
+|  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ✅ build the control | [#162](https://github.com/cloudadoption/contitires/issues/162) |
+| Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ✅ emit Product from the workbook | -- |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
 | Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ✅ queued, and a decision | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [What live's tags report into](#what-lives-tags-report-into) | not knowable from outside | ⚙️ needs the ad accounts | [#234](https://github.com/cloudadoption/contitires/issues/234) |
@@ -391,6 +393,44 @@ useful of the two.
 What would close it: nothing. The exclusion list is Solr index configuration on live's side.
 Live's `ev` behaviour looks like a minimum term length or a stopword rule, and reproducing it
 would mean copying a defect on purpose.
+
+### No sort control on the results page
+
+**absent.** Live offers a sort on its results page. We render results in score order with no
+control to change it.
+
+The ranking sections above are about which rows come back and in what order the scan puts them.
+This is the control on top of that, and it is a separate gap: a reader who wants live's newest
+first has no way to ask for it here. It is tracked as
+[#162](https://github.com/cloudadoption/contitires/issues/162).
+
+Live also renders its result list server-side, so a reader with JavaScript off sees results on
+live and sees none here. `scripts/search.js` fetches `/query-index.json` and builds the list in
+the browser, which is the same trade the rest of this site makes and is called out here because
+search is the one page whose whole content is built that way.
+
+What it costs a visitor: a query that would be better read newest-first has to be read in score
+order, and a no-JS client gets an empty results page.
+
+### Product pages carry no JSON-LD
+
+**absent.** Live's product pages emit a `Product` block with an `AggregateRating`. Ours emit no
+structured data at all.
+
+Checked on 2026-07-30 against the published hosts, both returning 200:
+`continentaltire.com/tires/extremecontact-sport-02` carries one `application/ld+json` script
+holding `"@type":"Product"` and `"@type":"AggregateRating"`.
+`main--contitires--cloudadoption.aem.live/vancontact-as-ultra` carries zero `application/ld+json`
+scripts.
+
+The data is not the obstacle. The rating and the review count are already in the published
+workbook and the listing already renders them, which is the same source a `Product` block would
+read. What is missing is the block.
+
+What it costs a visitor: nothing on the page. It costs the search engines the rich result live
+gets, which is a rebuild fidelity gap rather than a reader-facing one.
+
+What would close it: emit the block from the workbook row the product page already reads.
 
 ### Store and dealer lookup
 
