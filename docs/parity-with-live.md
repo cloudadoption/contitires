@@ -1179,10 +1179,10 @@ accessibility tree exposes a **button**, not a heading. Read off `/tires/4x4cont
 `uid=7_125 button "BEST FOR"` and line 135 is `uid=7_132 button "TECHNOLOGY"`, with no heading
 node for either. The control that gives that meaning is that live's tree does expose 18 heading
 nodes on the same page, including the h1 and the specifications h2, so the tree reports headings
-correctly and these two are specifically not among them.
+and these two are not among them.
 
 This site authors the same labels as `p > strong` on 45 of its 46 product pages and as `h2` on
-exactly one, `/vancontact-as-ultra`. Counted on every product page rather than sampled: 45
+one, `/vancontact-as-ultra`. Counted on each product page rather than sampled: 45
 paragraphs and 1 h2 for `Best for`, and 33 paragraphs, 1 h2 and 12 absent for `Technology`. Our
 tree reads `StaticText` for both.
 
@@ -1192,7 +1192,7 @@ labels. What live has and this site does not is a focusable disclosure per secti
 or screen-reader user can move between the sections and open them. Here they are static.
 
 **Promoting our paragraphs to headings would not close this and would open something worse.** It
-would give this site's readers a navigable heading that live's readers do not effectively get,
+would give this site's readers a navigable heading that live's readers do not get,
 which is a difference from live rather than a match, however much it reads like an improvement.
 The gap is the disclosure, not the heading level.
 
