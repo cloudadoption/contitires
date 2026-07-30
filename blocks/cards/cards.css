@@ -328,12 +328,22 @@ main .section.cards-container:has(.cards.members) > div {
   object-fit: cover;
 }
 
-/* live shades the foot of the photo so the name reads over it */
+/* Live shades the foot of the photo so the name reads over it, and at 60% that
+   is not enough on a light picture.
+   Sampling the backdrop beside the label text in the captured 1440 screenshots
+   on 2026-07-30, never the glyphs (they are white and would score 1:1 against
+   themselves), the 10th-percentile contrast against white was 4.01 on Gears and
+   Gasoline and 3.44 on Dinner With Racers, both under 4.5:1. Live is a little
+   better on every tile and still fails its own Dinner With Racers at 3.58, so
+   this is not inherited-and-therefore-fine: accessibility is gated everywhere
+   here, and a scrim that clears 4.5:1 on all five is a difference in our favour.
+   Lighthouse cannot score text over a background image, so the proof is the
+   pixel measurement in .mossy/parity/251/contrast-backdrop.py, not a PSI row. */
 .cards.members > ul > li::after {
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: linear-gradient(180deg, rgb(0 0 0 / 0%) 51.39%, rgb(0 0 0 / 60%) 100%);
+  background: linear-gradient(180deg, rgb(0 0 0 / 0%) 45%, rgb(0 0 0 / 35%) 72%, rgb(0 0 0 / 88%) 100%);
   content: '';
   pointer-events: none;
 }
