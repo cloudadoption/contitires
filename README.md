@@ -184,7 +184,7 @@ Differs from live: live paginates 10 per page server-side, the POC batches 12 be
 
 ### Video articles
 
-The video block is on 62 learn articles, 66 instances in all. Live builds the player in the browser, so the migration took the page without it and they read as a title, a picture and a blurb. The id live builds from is in its server HTML, on the element that opens the player. Every one was read from there rather than guessed from a thumbnail filename. Thumbnail names carry the id on 39 of the 75.
+The video block is on 62 learn articles, 66 instances in all. Live builds the player in the browser, so the migration took the page without it and they read as a title, a picture and a blurb. The id live builds from is in its server HTML, on the element that opens the player, and every id was read from there at migration time rather than guessed from a thumbnail filename. Posters here are content-hashed on upload, so no filename on this site carries an id.
 
 The id is authored into the page as a link, so it is content: with JavaScript off the block is a picture and a link to the video. The [video](blocks/video/video.js) block turns that into a poster with a play control and builds the iframe when it is clicked. Nothing is requested from YouTube until then, which is what live does. The player comes from the no-cookie host.
 
@@ -237,7 +237,7 @@ Differs from live: where a page was not migrated, the redirect lands on the near
 
 ### Images
 
-The migration copied the pages and left their images on continentaltire.com, so the site depended on the Drupal host staying up and licensable. The corpus is in DA now: 480 files under [/media](https://da.live/#/cloudadoption/contitires/media), each downloaded as live serves it and uploaded unchanged. Nothing was resized or re-encoded. The folders name the Drupal image style each reference used: `og_image`, `marquee`, `original` and the rest.
+The migration copied the pages and left their images on continentaltire.com, so the site depended on the Drupal host staying up and licensable. The corpus is in DA now: 945 files across 260 folders under [/media](https://da.live/#/cloudadoption/contitires/media), walked recursively, each downloaded as live serves it and uploaded unchanged. Nothing was resized or re-encoded. The top-level folders name the Drupal image style each reference used, `og_image`, `marquee`, `original` and the rest, and each nests further, so a one-level listing counts a small fraction of the corpus.
 
 The pipeline pulls a DA image into the media bus when it previews the page, so pages deliver `./media_<hash>.<ext>` from this host as before. The hashes are unchanged, so the delivered bytes are the same.
 
