@@ -847,6 +847,11 @@ main .section.dark.cards-container .default-content-wrapper h2 {
    scale; only the confidence band takes live's own two sizes */
 main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2 {
   font-size: 30px;
+
+  /* live's own number below its 1025 step, not a frozen ratio: live gives this
+     band 30/36 on .warranty-hero__title at 375 and 900 and 42/48 at 1440, so
+     the global 38 must not reach the base here (#373) */
+  line-height: 36px;
 }
 
 main .section.dark.cards-container .default-content-wrapper p {

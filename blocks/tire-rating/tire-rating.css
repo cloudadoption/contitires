@@ -36,6 +36,11 @@
    1440, measured on /vancontact-as-ultra. */
 .tire-rating h2 {
   margin: 0 0 24px;
+
+  /* live's own number below its 1025 step, not a frozen ratio: live gives the
+     reviews heading 30/36 on .tire-reviews__title at 375 and 900 and 42/48 at
+     1440, so the global 38 must not reach the base here (#373) */
+  line-height: 36px;
   letter-spacing: 4px;
   text-transform: uppercase;
 }
