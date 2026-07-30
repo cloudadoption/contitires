@@ -40,6 +40,66 @@
   border-bottom-color: var(--conti-yellow);
 }
 
+/* The `jump` variant: live's `nav-tabs--with-down-arrows`, the row that stands
+   over the two year sections on /cruisingthecontinentalus. It is the base strip
+   with the label and a down chevron stacked, and it marks nothing
+   current, because its items are in-page anchors rather than pages.
+   Read off continentaltire.com/cruisingthecontinentalus at 375, 900 and 1440 on
+   2026-07-30: the row is centred and 51px tall at all three, its anchors are
+   `padding: 10px 0 0` in a column flex, and its items sit 38 apart at 900 and
+   1440 and 21 apart at 375, where the anchors also take 12px of side padding.
+   Typography is the base strip's and already matches: 12px, 700, 1.25px,
+   uppercase, #333. Issue #277. */
+.category-tabs.jump .category-tabs-list {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  border-bottom: 0;
+}
+
+/* 21px is the label's line box on live, the same one the compact strip takes,
+   and it is what makes the row 51 tall: 10 of padding, 21 of label, 20 of
+   chevron. Without it the row reads 49. */
+.category-tabs.jump .category-tabs-list a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 12px 0;
+  line-height: 21px;
+  border-bottom: 0;
+}
+
+/* Live's chevron, from its own sprite symbol `chevron-yellow-down-small`:
+   viewBox 0 0 12 6, stroke #C27E00, painted 12x6 and centred in a 12x20 box.
+   It is inline here rather than an icon file because DA's edit canvas strips an
+   empty authored span (guardrail 9) and this needs no JavaScript to appear.
+   The colour is live's own and stays live's: the chevron is decorative and
+   `aria-hidden` on live, so the contrast token does not apply to it. */
+.category-tabs.jump .category-tabs-list a::after {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 20px;
+  background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6"><path fill="none" stroke="%23C27E00" stroke-linecap="round" stroke-linejoin="round" d="M1 0l5 6 5-6"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 6px;
+}
+
+.category-tabs.jump .category-tabs-list li + li {
+  margin-left: 21px;
+}
+
+@media (width >= 769px) {
+  .category-tabs.jump .category-tabs-list a {
+    padding: 10px 0 0;
+  }
+
+  .category-tabs.jump .category-tabs-list li + li {
+    margin-left: 38px;
+  }
+}
+
 /* The `compact` variant: live's OTHER section strip.
    The rules above are live's /learn tab bar, and its five pages match it. The
    /experience pages get something smaller from the same markup, so this is a
