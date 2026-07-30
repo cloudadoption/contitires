@@ -641,3 +641,93 @@ main .section.full-width > div {
   padding: 0;
 }
 
+/* ---- two-columns: one band holding two things side by side. Live closes
+   /events with the Social gallery on the left and the News list on the right
+   inside one black band, under a SEE ALL NEWS pill.
+
+   Read off continentaltire.com/events at 1440, 900 and 375: `5fr 4fr` columns
+   110px apart, the band padded 80 above and 60 below, one column and 38/20
+   below 769, and the news column held to 350 with 45 above it once stacked.
+   The band keeps the section's own 1200px container, so its edge lines up with
+   the events list above it; live's container is 1168 padded 16 against our 1200
+   padded 24, which is what leaves the tiles 3px off live's 177 and 127.
+
+   The padding overrides `.section.black`, which pads every band 56. Both
+   selectors carry the same weight, so this rule has to stay below it.
+   Issue #340. ---- */
+main .section.two-columns {
+  padding: 38px 0 20px;
+}
+
+main .section.two-columns > .section-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 45px;
+}
+
+/* a grid item's automatic minimum size is its content, so a column holding a
+   wide row would push the band past the viewport */
+main .section.two-columns .section-column {
+  min-width: 0;
+}
+
+/* live sets both band titles 42/48 at weight 300, tracked out 6 and in
+   capitals, dropping to 30/36 at 1024 and centring at 768 */
+main .section.two-columns h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 36px;
+  letter-spacing: 6px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* live leaves 22 between a title and what it names */
+main .section.two-columns .section-column > * + * {
+  margin-top: 22px;
+}
+
+/* live closes the news column with its pill 20 under the last rule, where a
+   button anywhere else on the site carries 12. The pill arrives wrapped in the
+   section's own default content, and that wrapper is what carries the gap */
+main .section.two-columns .section-column > .default-content-wrapper:has(> .button-wrapper) {
+  margin-top: 20px;
+}
+
+/* live runs the control the width of the column while the band is stacked */
+main .section.two-columns .button {
+  width: 100%;
+}
+
+@media (width >= 769px) {
+  main .section.two-columns {
+    padding: 80px 0 60px;
+  }
+
+  main .section.two-columns .button {
+    width: auto;
+  }
+
+  main .section.two-columns > .section-columns {
+    grid-template-columns: 5fr 4fr;
+    column-gap: 110px;
+  }
+
+  main .section.two-columns h2 {
+    text-align: start;
+  }
+
+  /* live caps the news column at 350 and leaves the rest of its track empty */
+  main .section.two-columns .section-column:last-child {
+    max-width: 350px;
+  }
+}
+
+@media (width >= 1025px) {
+  main .section.two-columns h2 {
+    font-size: 42px;
+    line-height: 48px;
+  }
+}
+

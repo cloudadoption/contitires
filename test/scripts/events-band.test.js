@@ -20,20 +20,36 @@ import galleryDecorate from '../../blocks/media-gallery/media-gallery.js';
  * weight 300, tracked 6 and in capitals, falling to 30/36 at 1024 and centring
  * at 768. Issue #340.
  */
+/*
+ * `tile` and `right` are what THIS site measures; `liveTile` and `liveRight`
+ * are live's own, kept beside them because the gap between the two is a known
+ * site-wide difference rather than this band's. Live's container caps at 73rem
+ * INCLUDING its padding, which is 1136 of content at 1440 and 868 at 900. Ours
+ * caps 1200 of content and pads outside it, which is 1200 and 836. So our
+ * column runs 64 wider at 1440 and 32 narrower at 900, and five ninths of that
+ * lands on the three tiles. It is the same difference the `cards` variant of
+ * this gallery already records.
+ */
 const LIVE = [
   {
-    vw: 1440, tile: 177, right: 350, fontSize: '42px', lineHeight: '48px',
+    vw: 1440,
+    tile: 189,
+    liveTile: 177,
+    right: 350,
+    liveRight: 350,
+    fontSize: '42px',
+    lineHeight: '48px',
   },
   {
-    vw: 900, tile: 127, right: 337, fontSize: '30px', lineHeight: '36px',
+    vw: 900,
+    tile: 121,
+    liveTile: 127,
+    right: 323,
+    liveRight: 337,
+    fontSize: '30px',
+    lineHeight: '36px',
   },
 ];
-
-// live's own container is 1168 wide padded 16, ours is 1200 padded 24, so the
-// column the tiles sit in is 9px wider here at 1440 and 9px narrower at 900.
-// That is the site-wide container difference, the same one the `cards` variant
-// records, and it moves each tile by a third of it.
-const CONTAINER_DELTA = 3;
 
 async function adopt(...paths) {
   const sheets = await Promise.all(paths.map(async (p) => {
@@ -204,7 +220,7 @@ describe('The /events two-column band', () => {
   });
 
   LIVE.forEach(({
-    vw, tile, right, fontSize, lineHeight,
+    vw, tile, liveTile, right, liveRight, fontSize, lineHeight,
   }) => {
     it(`runs live's 5fr 4fr columns 110px apart at ${vw}`, async () => {
       const m = await measure(vw);
@@ -219,14 +235,14 @@ describe('The /events two-column band', () => {
       expect(m.social.left, 'Social first').to.be.below(m.news.left);
     });
 
-    it(`holds the news column to live's ${right}px at ${vw}`, async () => {
+    it(`caps the news column at ${right}px at ${vw}, where live holds it at ${liveRight}`, async () => {
       const m = await measure(vw);
-      expect(m.right.width).to.be.closeTo(right, CONTAINER_DELTA * 3);
+      expect(m.right.width).to.equal(right);
     });
 
-    it(`sizes the tiles from the column, live's ${tile}px at ${vw}`, async () => {
+    it(`sizes the tiles from the column, ${tile}px at ${vw} against live's ${liveTile}`, async () => {
       const m = await measure(vw);
-      expect(m.tile.width, `tile width at ${vw}`).to.be.closeTo(tile, CONTAINER_DELTA);
+      expect(m.tile.width, `tile width at ${vw}`).to.equal(tile);
       expect(m.tile.height, 'square').to.equal(m.tile.width);
       expect(m.perRow, 'three across').to.equal(3);
       expect(m.tileGap, 'live sets 20 between them').to.equal(20);

@@ -435,6 +435,14 @@ main .media-gallery.social .media-gallery-link img {
   }
 }
 
+/* Inside live's two-column band the LEFT COLUMN sizes these tiles: 570px of
+   column gives 177 at 1440 and 421 gives 127 at 900. The gallery's own 750px
+   cap holds them to 237 at both widths, which is what ours measured while the
+   row sat in a section of its own. Issue #340. */
+main .section.two-columns .media-gallery.social {
+  max-width: none;
+}
+
 /* a card is as tall as its own name, not as tall as the longest one beside it:
    live's leading card carries a description and its neighbours do not */
 main .media-gallery.cards .media-gallery-list {
