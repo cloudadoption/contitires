@@ -71,10 +71,16 @@ body.article main .section .default-content-wrapper ul li::marker {
   color: var(--conti-yellow);
 }
 
-/* body subheads read smaller than the title, light like the live article */
+/* body subheads read smaller than the title. Live sets no weight rule for h2 or
+   for `.news-article__body h2`, so `h1..h6 { font-weight: inherit }` over
+   `body { font-weight: normal }` puts it at 400, and live DOES set
+   `.news-article__body h3` and body h4 to 700. Ours had all three at 300 (#353).
+   The h2 is measured on live at /learn/how-do-i-check-my-tire-pressure at 375,
+   900 and 1440. The 700 below is measured the same way and is not visible on
+   this site at all: 21 authored h2 across 9 of the 224 article-template pages,
+   zero h3, zero h4. */
 body.article main .section .default-content-wrapper :is(h2, h3, h4) {
   font-family: var(--body-font-family);
-  font-weight: 300;
 }
 
 /* 20px is what live sets on an article subhead, and it sets it only below 769:
@@ -83,9 +89,14 @@ body.article main .section .default-content-wrapper :is(h2, h3, h4) {
    every width. Above 769 live drops the h2 pin and the global 30px comes back.
    Measured on /learn/how-do-i-check-my-tire-pressure, where live's six subheads
    read 20px at 375 and 30px at 900 and 1440 (#185). */
-body.article main .section .default-content-wrapper h2 { font-size: 20px; }
+body.article main .section .default-content-wrapper h2 {
+  font-size: 20px;
+  font-weight: 400;
+}
+
 body.article main .section .default-content-wrapper h3 { font-size: 20px; }
 body.article main .section .default-content-wrapper h4 { font-size: 17px; }
+body.article main .section .default-content-wrapper :is(h3, h4) { font-weight: 700; }
 
 body.article main .section picture {
   display: block;
