@@ -47,3 +47,15 @@
   font-display: swap;
   src: url('https://continentaltire.com/themes/custom/nextcontinental/fonts/StagSans-Book.woff') format('woff');
 }
+
+/*
+ * The metric-matched fallback that goes with these faces is NOT here. It is in
+ * styles.css, which head.html loads render-blocking, because a fallback can only
+ * prevent a shift if it exists at the FIRST paint. This file is loaded lazily by
+ * loadFonts(), so a fallback declared here is an unknown family until it
+ * arrives, the first paint falls through to plain arial, and the swap shifts the
+ * page exactly as it did before. Measured: with the faces in this file,
+ * /accessibility-statement still read CLS 0.2761 with its paragraphs moving 29px
+ * at 81ms, while the same paragraphs measured AFTER the load showed the fallback
+ * holding every line count. The declarations were right and they were too late.
+ */

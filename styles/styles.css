@@ -10,6 +10,92 @@
  * governing permissions and limitations under the License.
  */
 
+/*
+ * The metric-matched fallback behind Stag Sans (#183, #227). It is Arial wearing
+ * Stag Sans's metrics, and it sits in the font stack between the two, so the
+ * pre-swap render takes the space the webfont will take and nothing rewraps when
+ * the webfont arrives.
+ *
+ * WHY IT IS IN THIS FILE and not in fonts.css, which is where the Stag Sans
+ * faces live: head.html loads styles.css render-blocking, and loadFonts() loads
+ * fonts.css lazily. A fallback only prevents a shift if it exists at the first
+ * paint. Declared in fonts.css it was an unknown family until the lazy load, the
+ * first paint fell through to plain arial, and /accessibility-statement still
+ * read CLS 0.2761 with its paragraphs moving 29px at 81ms. These faces are
+ * `src: local()` only, so they cost the critical path no request.
+ *
+ * Arial sets WIDER than Stag Sans, which is what costs the layout: on
+ * /accessibility-statement at 1350 wide a 615-character paragraph is 144px tall
+ * in Arial and 115px in Stag Sans, five lines against four, so everything below
+ * it rose one line.
+ *
+ * The numbers are measured. `size-adjust` is Stag Sans's advance width as a
+ * fraction of Arial's, read over 70041 characters of this site's own running
+ * text across ten pages and weighted by character count: 91.24% at weight 300,
+ * 93.49% at 400, 90.36% at 700, with a per-page spread at 400 of 92.58 to 94.31.
+ *
+ * Weight 400 ships 94% rather than that 93.49% corpus mean, because no single
+ * ratio makes two typefaces wrap alike and the value that matters is the one
+ * that moves the fewest lines. Five candidates were measured against 139 real
+ * paragraphs on eight pages: 94% left 6 paragraphs changing line count and 153px
+ * of movement, 93.49% left 7 and 189px, 94.5% left 7 and 217px. Weights 300 and
+ * 700 keep the corpus value, because those weights carry headings rather than
+ * wrapping paragraphs and there is no wrap evidence to tune them with.
+ *
+ * A first pass took the ratio from one hand-written sample string carrying an
+ * all-caps heading and read 91.92% at weight 400, about 1.4 points low, because
+ * caps are relatively wider in Arial than in Stag Sans.
+ *
+ * The ascent and descent overrides are Stag Sans's own 0.80 and 0.20 divided by
+ * that ratio, because size-adjust scales the metrics too. `line-gap-override` is
+ * not set: canvas cannot report a line gap, so a value would be a guess, and the
+ * site sets line-height explicitly where it matters.
+ *
+ * Liberation Sans and Helvetica are named alongside Arial because `src: local()`
+ * applies NOTHING when no named face exists on the machine, and a Linux CI
+ * runner has no Arial. Liberation Sans is metric-compatible with Arial, so the
+ * ratios hold on whichever one answers.
+ */
+@font-face {
+  font-family: 'Stag Sans Fallback';
+  font-style: normal;
+  font-weight: 300;
+  size-adjust: 91.24%;
+  ascent-override: 87.68%;
+  descent-override: 21.92%;
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+}
+
+@font-face {
+  font-family: 'Stag Sans Fallback';
+  font-style: normal;
+  font-weight: 400;
+  size-adjust: 94%;
+  ascent-override: 85.11%;
+  descent-override: 21.28%;
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+}
+
+@font-face {
+  font-family: 'Stag Sans Fallback';
+  font-style: italic;
+  font-weight: 400;
+  size-adjust: 94%;
+  ascent-override: 85.11%;
+  descent-override: 21.28%;
+  src: local('Arial Italic'), local('Helvetica Oblique'), local('Liberation Sans Italic');
+}
+
+@font-face {
+  font-family: 'Stag Sans Fallback';
+  font-style: normal;
+  font-weight: 700;
+  size-adjust: 90.36%;
+  ascent-override: 88.54%;
+  descent-override: 22.13%;
+  src: local('Arial Bold'), local('Helvetica Bold'), local('Liberation Sans Bold');
+}
+
 :root {
   /* Continental Tire brand palette (ported 1-1 from nextcontinental theme) */
   --conti-yellow: #ffa500;
@@ -42,9 +128,12 @@
   --link-color: var(--conti-yellow-contrast);
   --link-hover-color: var(--conti-dark-yellow);
 
-  /* fonts (Stag Sans with Arial/Helvetica fallback, matching the live theme) */
-  --body-font-family: 'Stag Sans', arial, helvetica, sans-serif;
-  --heading-font-family: 'Stag Sans', arial, helvetica, sans-serif;
+  /* fonts (Stag Sans with Arial/Helvetica fallback, matching the live theme).
+     'Stag Sans Fallback' sits between the two: it is Arial with Stag Sans's
+     metrics, declared at the top of this file, so the pre-swap render takes the
+     space the webfont will take and nothing rewraps when it arrives (#183, #227) */
+  --body-font-family: 'Stag Sans', 'Stag Sans Fallback', arial, helvetica, sans-serif;
+  --heading-font-family: 'Stag Sans', 'Stag Sans Fallback', arial, helvetica, sans-serif;
 
   /* body sizes */
   --body-font-size-m: 18px;
