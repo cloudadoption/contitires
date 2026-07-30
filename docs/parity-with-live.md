@@ -139,7 +139,7 @@ API, a vendor account or an index configuration.
 |  | [Listings behind a service, authored as snapshots](#listings-behind-a-service-authored-as-snapshots) | approximated | ⚙️ live publishes no feed | [#256](https://github.com/cloudadoption/contitires/issues/256), [#257](https://github.com/cloudadoption/contitires/issues/257), [#258](https://github.com/cloudadoption/contitires/issues/258), [#259](https://github.com/cloudadoption/contitires/issues/259) |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ this table is the source | [#362](https://github.com/cloudadoption/contitires/issues/362) |
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
-| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ sizes and levels match live; the h2 line-height is 2px short and is one global cause | [#373](https://github.com/cloudadoption/contitires/issues/373), [#368](https://github.com/cloudadoption/contitires/issues/368) |
+| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ the global h2 line box is live's 38; nine block titles are further from live than before and the article subheads are open | [#368](https://github.com/cloudadoption/contitires/issues/368), [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ✅ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
@@ -942,11 +942,17 @@ shipped in [#374](https://github.com/cloudadoption/contitires/pull/374)). That l
 by `.tabs .tabs-main h2:has(+ .cards)`, which reaches the five panel titles live gives a
 counterpart and leaves alone the two it does not.
 
-What is open is the line-height, and it is one cause rather than two symptoms.
-[#373](https://github.com/cloudadoption/contitires/issues/373) is the global h2: live sets 38
-where we compute 1.2 times 30, so 36, and that is the 2px behind both the article subhead gap
-([#368](https://github.com/cloudadoption/contitires/issues/368)) and the panel-title reading above
-769.
+The line-height was one cause rather than two symptoms. It closed on 2026-07-31 in
+[#383](https://github.com/cloudadoption/contitires/pull/383).
+[#373](https://github.com/cloudadoption/contitires/issues/373) was the global h2: live sets an
+absolute 38 where we computed 1.2 times 30, so 36. That 2px sat behind both the article subhead
+gap ([#368](https://github.com/cloudadoption/contitires/issues/368)) and the panel-title reading
+above 769. The global now takes live's 38 rather than deriving it from the ratio. The seven rules
+that resize an h2 pin their own line box, so the change cannot leak into them.
+
+Counted on live's own stylesheet: line-height is an absolute length 360 times against 63 unitless.
+39 of those unitless are a plain `1` on non-heading elements. Deriving one ratio for the whole
+heading scale was the shape that did not match, not any single value.
 
 **It stayed invisible because it had a wrong owner rather than no owner.** The 2px was measured
 and written down during the `/media` work, then routed to #368, which is scoped to article body
@@ -967,10 +973,23 @@ where live gives 30 on the six subheads of the tire-pressure article. The produc
 longer inverts live's hierarchy. It heads the page at 30px with the band below it at 42,
 which is live's order.
 
-What would close it: a fix is in progress on a local branch, red test first, not pushed and
-no PR, so nothing is deployed. There is no number for the fixed state. What has to hold is
-that a heading can take the level its structure requires without taking a size live does not
-use, in both contexts.
+What is still open: the article-template sizes above, and two residues the global fix left
+behind. Both are recorded rather than silent. The pins were set to the value each rule already
+rendered, not to live's. What was an accident of a ratio is now a decision in the stylesheet.
+
+[#381](https://github.com/cloudadoption/contitires/issues/381) covers five deltas the fix freezes.
+Three block titles keep a 50.4 line box where live gives 48. `.related-articles-title` reads 14.4
+where live reads 16. The category tile reads 33.6 where live reads 38 at a size 4px larger.
+
+[#382](https://github.com/cloudadoption/contitires/issues/382) covers nine block titles now
+further from live than before, in two shapes. Live steps most block titles to 30 or 36 under
+`max-width: 1024` while its global is 38. Our old 1.2 ratio therefore matched live's 36 by
+accident at the lower widths. Six of the nine are that case. The other three are a different
+shape. Live sizes them at 18px and 12px against our 30px, so the size is wrong at both ends and
+the line box follows it.
+
+What has to hold is that a heading can take the level its structure requires without taking a size
+live does not use, in both contexts.
 
 Read against the deployed `styles.css` lines 144-149, 168-173 and 260-265, and against live's
 `themes/custom/nextcontinental/dist/css/styles.css`. [#185](https://github.com/cloudadoption/contitires/issues/185), [#181](https://github.com/cloudadoption/contitires/issues/181), [#184](https://github.com/cloudadoption/contitires/issues/184).
