@@ -14,6 +14,11 @@ import decorate from '../../../blocks/media-gallery/media-gallery.js';
  * is `position: relative`, and its `:after` carries a 29x29 inline SVG as a
  * background, drawn 28 by 28 at `top: 8px; right: 8px`, `no-repeat`, centred.
  * The glyph itself is live's file, taken verbatim from that rule, not redrawn.
+ *
+ * It lives at `/icons/social-tile-instagram.svg` and NOT at
+ * `/icons/instagram.svg`. That second path is the shared network icon `crew.js`
+ * loads by name, and live's badge is a different drawing: 29x29 against 21x21,
+ * a hard-coded fill against `currentColor`, with a baked drop shadow.
  */
 const tile = (src, alt, href) => `
   <div>
@@ -67,7 +72,7 @@ describe('Media gallery social, the Instagram glyph live draws on every tile', (
     expect(cells.length).to.equal(POSTS.length);
     cells.forEach((cell, i) => {
       const badge = getComputedStyle(cell, '::after');
-      expect(badge.backgroundImage, `tile ${i} carries the glyph`).to.match(/instagram\.svg/);
+      expect(badge.backgroundImage, `tile ${i} carries the glyph`).to.match(/social-tile-instagram\.svg/);
       expect(badge.backgroundRepeat, `tile ${i} does not tile it`).to.equal('no-repeat');
     });
   });

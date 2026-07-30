@@ -410,7 +410,7 @@ main .media-gallery.social .media-gallery-list > li::after {
   right: 8px;
   width: 28px;
   height: 28px;
-  background-image: url('/icons/instagram.svg');
+  background-image: url('/icons/social-tile-instagram.svg');
   background-repeat: no-repeat;
   background-position: center center;
   pointer-events: none;
