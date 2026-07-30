@@ -80,78 +80,72 @@ all 22 samples up front and takes about 3.5s to become usable
 
 ## Where each thing stands
 
-Five words carry the state, and the difference between them is the point of the document.
+Rows where the rebuild simply matches live are not here. Most of the site matches, and listing a
+handful of those would say more about what somebody happened to measure than about the site. What
+follows is what is not a plain match.
 
-**matches** means our behaviour is live's behaviour. It includes the places where live's own
-behaviour looks like a bug and we reproduced it anyway.
+**differs** is a real difference a visitor could see, and work would close it.
 
-**differs** means a real difference a visitor could see, and work would close it.
+**diverges** is a difference we chose. Matching live on these would reproduce a defect live
+carries, or fail a bar we are not willing to fail.
 
 **approximated** means we stand in for something we cannot reach, and the stand-in is visible.
-Every one of these says what the approximation rests on.
+Each of these says what the approximation rests on.
 
-**absent** means live has it and we do not have it at all. This is unbuilt work, not a wall.
+**absent** means live has it and we do not have it at all. Unbuilt work, not a wall.
 
-**not knowable from outside** means live resolves it through a system that is not visible from
-the public site, so no amount of work here reproduces it. It is the smallest group on purpose.
-A row only earns it by naming the mechanism that is hidden.
+**not knowable from outside** means live resolves it through a system the public site does not
+expose, so no amount of work here reproduces it. One row earns it.
 
-One row an item, grouped by bucket. **Will it be fixed** says whether it is in the long tail of
-work still to do, or whether something outside our reach stops it, or whether it is deliberate
-and should be left alone.
+In the last column, ✅ is ordinary work: queued, in flight, or already settled and needing
+nothing. ⚙️ needs something from inside live that the public site does not hand out, such as an
+API, a vendor account or an index configuration.
 
 | Bucket | Item | State | Will it be fixed | Issue |
 |---|---|---|---|---|
-| Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | queued | [#337](https://github.com/cloudadoption/contitires/issues/337) |
-|  | [Live's sports sub-nav is dead on live](#lives-sports-sub-nav-points-at-two-dead-urls) | differs | no, ours is the working one | [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289) |
-|  | [The sub-nav strip on /experience/partners](#the-sub-nav-strip-on-experiencepartners) | matches | fixed 2026-07-30, on a corrected premise | [#251](https://github.com/cloudadoption/contitires/issues/251), [#289](https://github.com/cloudadoption/contitires/issues/289) |
-|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | queued | [#277](https://github.com/cloudadoption/contitires/issues/277) |
-|  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | queued | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
-|  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
-|  | [Ultra product page at the site root](#the-ultra-product-page-is-at-the-site-root) | matches | done | [#207](https://github.com/cloudadoption/contitires/issues/207) |
-|  | [Live's sitemap resolves here](#lives-sitemap-resolves-here) | matches | done | [#254](https://github.com/cloudadoption/contitires/issues/254) |
-| Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | not knowable from outside | no, needs live's backend | [#241](https://github.com/cloudadoption/contitires/issues/241) |
-|  | [Fit by size](#fit-by-size) | differs | queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
-|  | [Star rating and review count](#star-rating-and-review-count) | absent | the number queued, the corpus is not | [#241](https://github.com/cloudadoption/contitires/issues/241) |
-|  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | queued, dropping the link is the small fix | [#357](https://github.com/cloudadoption/contitires/issues/357) |
-| Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | no, needs live's Solr config | -- |
-|  | [How many results a query returns](#how-many-results-a-query-returns) | differs | no, live's exclusions are Solr config | -- |
-|  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | no, needs a dealer database and a geocoder | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
-| Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | queued, and a decision | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [What live's tags report into](#what-lives-tags-report-into) | not knowable from outside | no, needs the ad accounts | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [Cookie consent](#cookie-consent) | absent | queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [Bazaarvoice](#bazaarvoice) | absent | queued, reviews need the account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [EmbedSocial](#embedsocial) | absent | queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [The newsletter form](#the-newsletter-form) | differs | no, the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
-|  | [The sponsorship form](#the-sponsorship-form) | absent | UI queued, submission has no receiver | [#101](https://github.com/cloudadoption/contitires/issues/101) |
-|  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | no, waiting on a fitment API | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309) |
-|  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | differs | no, ours by choice | -- |
-| Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | queued, needs a font licence | -- |
-|  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | PDFs queued, zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [The media gallery](#the-media-gallery) | differs | queued | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
-|  | [Product images are live's own bytes](#product-images-come-back-as-lives-own-bytes) | matches | done | [#206](https://github.com/cloudadoption/contitires/issues/206), [#207](https://github.com/cloudadoption/contitires/issues/207) |
-|  | [Leftover originals in DA](#leftover-originals-in-da) | matches | queued, a delete nobody has proved safe | [#330](https://github.com/cloudadoption/contitires/issues/330) |
-|  | [The chevron sprite](#the-chevron-sprite) | approximated | no, DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
-|  | [The default share image 404s](#the-default-share-image-404s) | differs | queued | [#178](https://github.com/cloudadoption/contitires/issues/178) |
-|  | [Instagram tiles are images on both sides](#instagram-tiles-are-images-on-both-sides) | matches | done | [#188](https://github.com/cloudadoption/contitires/issues/188) |
-| Content and editorial | [Page titles](#page-titles-match-live-with-one-exception) | matches | one page queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
-|  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | README pass queued | [#235](https://github.com/cloudadoption/contitires/issues/235) |
-|  | [Product copy](#product-copy-and-where-it-stopped-matching-live) | matches | fixed 2026-07-30 | [#171](https://github.com/cloudadoption/contitires/issues/171), [#93](https://github.com/cloudadoption/contitires/issues/93) |
-|  | [No result count above the pager](#no-result-count-above-the-pager) | absent | queued | -- |
-|  | [Card teaser text](#card-teaser-text) | approximated | no, live's teaser field is unpublished | -- |
-| Layout and type | [The heading scale](#the-heading-scale) | differs | in flight | [#185](https://github.com/cloudadoption/contitires/issues/185) |
-|  | [The content container](#the-content-container-64px-wider-than-lives) | differs | queued, and not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
-|  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
-|  | [The webfont swap](#the-webfont-swap) | matches | done, delivery still differs | [#183](https://github.com/cloudadoption/contitires/issues/183), [#227](https://github.com/cloudadoption/contitires/issues/227) |
-|  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
-|  | [Prose link underlines](#prose-links-carry-an-underline-live-paints-transparent) | differs | no, WCAG beats matching live | [#240](https://github.com/cloudadoption/contitires/issues/240) |
-|  | [Superscripts](#superscripts) | matches | no, we drop live's inline-block on purpose | [#238](https://github.com/cloudadoption/contitires/issues/238) |
-| Performance and accessibility | [Delivered HTML weight](#delivered-html-weight) | differs, in our favour | done | -- |
-|  | [Generated headings skip levels](#generated-headings-skip-levels) | differs | queued | [#117](https://github.com/cloudadoption/contitires/issues/117) |
-|  | [Security headers](#security-headers) | differs | queued | -- |
-|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | queued | [#125](https://github.com/cloudadoption/contitires/issues/125), [#317](https://github.com/cloudadoption/contitires/issues/317) |
-|  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
+| Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | ✅ 63 rows to add | [#337](https://github.com/cloudadoption/contitires/issues/337) |
+|  | [Live's sports sub-nav is dead on live](#lives-sports-sub-nav-points-at-two-dead-urls) | diverges | ✅ nothing to do | [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289) |
+|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ✅ queued | [#277](https://github.com/cloudadoption/contitires/issues/277) |
+|  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | ✅ queued | [#213](https://github.com/cloudadoption/contitires/issues/213) |
+|  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | ✅ queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
+|  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | ✅ queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
+| Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | approximated | ⚙️ live computes per request | [#241](https://github.com/cloudadoption/contitires/issues/241) |
+|  | [Fit by size](#fit-by-size) | differs | ✅ queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
+|  | [Star rating and review count](#star-rating-and-review-count) | absent | ⚙️ the corpus needs the account | [#241](https://github.com/cloudadoption/contitires/issues/241) |
+|  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | ✅ drop the link | [#357](https://github.com/cloudadoption/contitires/issues/357) |
+| Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
+|  | [How many results a query returns](#how-many-results-a-query-returns) | differs | ⚙️ live's exclusions are Solr config | -- |
+|  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
+| Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ✅ queued, and a decision | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [What live's tags report into](#what-lives-tags-report-into) | not knowable from outside | ⚙️ needs the ad accounts | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [Cookie consent](#cookie-consent) | absent | ✅ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [Bazaarvoice](#bazaarvoice) | absent | ⚙️ reviews need the account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [EmbedSocial](#embedsocial) | absent | ✅ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
+|  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ no receiver for a submission | [#101](https://github.com/cloudadoption/contitires/issues/101) |
+|  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ waiting on a fitment API | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309) |
+|  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
+| Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
+|  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
+|  | [The media gallery](#the-media-gallery) | differs | ✅ queued | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
+|  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ a delete nobody has proved safe | [#330](https://github.com/cloudadoption/contitires/issues/330) |
+|  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
+|  | [The default share image 404s](#the-default-share-image-404s) | differs | ✅ ship live's file | [#178](https://github.com/cloudadoption/contitires/issues/178) |
+| Content and editorial | [The homepage title](#the-homepage-title) | differs | ✅ queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
+|  | [No result count above the pager](#no-result-count-above-the-pager) | absent | ✅ queued | -- |
+|  | [Card teaser text](#card-teaser-text) | approximated | ⚙️ live's teaser field is unpublished | -- |
+|  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ README pass | [#235](https://github.com/cloudadoption/contitires/issues/235) |
+| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ in flight | [#185](https://github.com/cloudadoption/contitires/issues/185) |
+|  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
+|  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
+|  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ✅ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
+|  | [Prose link underlines](#prose-links-carry-an-underline-live-paints-transparent) | diverges | ✅ WCAG 1.4.1 | [#240](https://github.com/cloudadoption/contitires/issues/240) |
+|  | [Superscripts](#superscripts) | diverges | ✅ deliberate | [#238](https://github.com/cloudadoption/contitires/issues/238) |
+| Performance and accessibility | [Delivered HTML weight](#delivered-html-weight) | differs | ✅ nothing to do | -- |
+|  | [Generated headings skip levels](#generated-headings-skip-levels) | differs | ✅ queued | [#117](https://github.com/cloudadoption/contitires/issues/117) |
+|  | [Security headers](#security-headers) | differs | ✅ queued | -- |
+|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ✅ queued | [#125](https://github.com/cloudadoption/contitires/issues/125), [#317](https://github.com/cloudadoption/contitires/issues/317) |
+|  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | ✅ queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
 
 ## Navigation and routing
 
@@ -184,7 +178,7 @@ here.
 
 ### Live's sports sub-nav points at two dead URLs
 
-**differs, in our favour.**
+**diverges.** Two of live's three tabs 404. Ours point at the pages they name.
 
 On live's `/experience/sports` the tab strip links Partners to `/taxonomy/term/57` and Conti
 crew to `/taxonomy/term/139`. Both 404 on live: 47,985 and 47,986 bytes, each titled "Page not
@@ -198,28 +192,6 @@ its working tab.
 Nothing should close this. Reproducing live's two dead links would be copying a defect. The row
 exists so nobody re-points our tabs at `/taxonomy/term/*`, which we do not serve either. A link
 diff against live will flag ours as different, and ours is the one that works. [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289).
-
-### The sub-nav strip on `/experience/partners`
-
-**matches, after a correction to the record.**
-
-Live's `/experience/partners` renders
-`<con-horizontal-scrollbar class="nav-tabs animated animated--fadeInUp">` holding a single list
-item, `<a href="/experience/conti-crew">Crew</a>`. Read from the apex on 2026-07-30. Ours now
-carries a `category-tabs (compact)` block with the same single item, published the same day.
-
-The strip was missing until then, and the reason is worth recording.
-[#251](https://github.com/cloudadoption/contitires/issues/251)'s close comment reads "We drew a
-category-tabs row here where live draws none. Guardrail 0 is match live's surface", and the
-strip was removed on that basis. Live does draw one. The guardrail was applied correctly to a
-fact that was wrong, which is a failure mode a pixel diff does not catch: removing a real
-control looks like converging on live.
-
-What it cost a visitor while it was gone: from Partners there was no way across to Conti crew
-without going back through the header menu.
-
-[#289](https://github.com/cloudadoption/contitires/issues/289),
-[#252](https://github.com/cloudadoption/contitires/issues/252).
 
 ### Year tabs land on our heading ids, not live's
 
@@ -280,28 +252,6 @@ where live shows six, because our container caps at 1264 with 32px padding so si
 fit at 1184. That band is a decision rather than a defect. Matching it means letting the footer
 overflow its own container the way live's does, by up to 36px. [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237), [#138](https://github.com/cloudadoption/contitires/issues/138), [#202](https://github.com/cloudadoption/contitires/issues/202).
 
-### The ultra product page is at the site root
-
-**matches, and it catches a URL live drops.**
-
-Live's `/vancontact-as-ultra` is 200 and `/tires/vancontact-as-ultra` is 404. Ours serves the
-same page at the root and 301s the `/tires/` form onto it.
-
-Recorded because it makes the product count wrong for anyone counting by path prefix. 45 product
-pages are under `/tires/` and the 46th is not. [#207](https://github.com/cloudadoption/contitires/issues/207).
-
-### Live's sitemap resolves here
-
-**matches, with the sweep unverified.**
-
-Live's `sitemap.xml` is 200 at 56,536 bytes holding 319 `<loc>` entries. Our query index reports
-327 pages. Two sitemap paths are deliberate redirects decided in [#153](https://github.com/cloudadoption/contitires/issues/153), `/Store-finder` and
-`/tire-search`, both inside the 14-row set.
-
-What is not settled is the sweep itself. Pulling the 319 locs and curling each one against our
-host, checking the title rather than the status, would confirm it. That was not run today.
-[#254](https://github.com/cloudadoption/contitires/issues/254), [#153](https://github.com/cloudadoption/contitires/issues/153).
-
 ## Product pages
 
 ### Product data is a published workbook, not a request-time backend
@@ -343,7 +293,6 @@ either behind a form post or a path shape the public pages do not link. That one
 rather than settled, and what would settle it is finding a live page that links a by-size
 result.
 
-
 ### Star rating and review count
 
 **absent.** Live shows a rating on every product page. We show none, and we already hold a
@@ -368,7 +317,6 @@ and nothing stops it, but the number would be stale the day after it was written
 moves as reviews arrive. The review corpus itself, the moderation state and the Bazaarvoice
 property configuration are in Continental's account and no scrape reaches them. So the visible
 number is unbuilt work and the living number behind it is not.
-
 
 ### The specs link points at a page we 404
 
@@ -424,7 +372,6 @@ What would close it: nothing available from outside. Closing it needs live's Sol
 field weights and its exclusion list, and those are configuration in an admin, not something
 the public site emits. The honest ceiling is what it already does, which is match live's
 totals on a measured query set and say so.
-
 
 ### How many results a query returns
 
@@ -567,7 +514,7 @@ that the feed renders on the vendor's terms, in the vendor's phase, with the ven
 
 ### The newsletter form
 
-**matches on the receiver, differs on the timing.** Both sides embed the same HubSpot form.
+**diverges on the timing.** Both sides embed the same HubSpot form and the same portal.
 
 [#234](https://github.com/cloudadoption/contitires/issues/234)'s seed list says forms here have no receiver. For this one the seed is wrong. Live's
 `/newsletter-signup` carries no `<form>` of its own and loads
@@ -633,7 +580,7 @@ By Plate needs one too. [#308](https://github.com/cloudadoption/contitires/issue
 
 ### Real user monitoring, ours only
 
-**differs, in our favour on the platform side.**
+**diverges.** We sample real user data. Live does not, and measures through GTM instead.
 
 Live has no equivalent. Its measurement all runs through GTM.
 
@@ -704,23 +651,9 @@ What would close it: a modal-only row state in the block, a width tied to the re
 counter and badge below 769, and a carousel for the `/events` Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326),
 [#327](https://github.com/cloudadoption/contitires/issues/327), [#341](https://github.com/cloudadoption/contitires/issues/341), [#199](https://github.com/cloudadoption/contitires/issues/199).
 
-### Product images come back as live's own bytes
-
-**matches.** Checked one tile on both sides: 334,329 bytes, md5 `2e99592a…` on each.
-
-Live's grid serves its `square_medium` derivative. DA returns what it was given when no width
-is asked, so our tile comes back as live's file unchanged.
-
-Two traps in this area are worth keeping, because both produced a reported defect that was not
-one. Comparing our `/media/original/` file against live's 600x600 grid rendition through a
-64x64 normalisation reads as a 22.35 pixel distance, and that number is the aspect ratio rather
-than the photograph. And a `?width=` parameter is a request, not a result: our source is
-752x423, so asking for `?width=2000` returns 752x423, because the pipeline does not serve larger
-than the source. Only the returned bytes say what came back. [#206](https://github.com/cloudadoption/contitires/issues/206), [#207](https://github.com/cloudadoption/contitires/issues/207), [#213](https://github.com/cloudadoption/contitires/issues/213), [#251](https://github.com/cloudadoption/contitires/issues/251).
-
 ### Leftover originals in DA
 
-**matches on what renders, and 509.5MB of storage nobody points at.**
+**differs.** 509.5MB of originals sit in DA that no page points at.
 
 Product viewer stills are in DA and served from our host. A sample of 12 product pages carries 2
 to 6 `<picture>` elements each, 53 in total, all same-origin.
@@ -765,24 +698,11 @@ What would close it: ship live's file unchanged at `/default-meta-image.png`.
 [#178](https://github.com/cloudadoption/contitires/issues/178) already ruled how to decide it:
 we do not choose what the site claims when shared, we copy what live claims.
 
-### Instagram tiles are images on both sides
-
-**matches.** Neither site embeds Instagram. Both host the six tiles themselves.
-
-Live shows six tiles under a Social heading, images served from its own files directory, with
-six distinct `instagram.com/p/` permalinks, zero Instagram CDN references and no embed script.
-Ours has the same six permalinks and the same images authored from live's originals, also with
-no CDN reference and no embed script.
-
-Nothing to close. The row is here so nobody re-opens the question
-[#188](https://github.com/cloudadoption/contitires/issues/188) asked, and because it is the one
-place where copying live also avoids a third-party script.
-
 ## Content and editorial
 
-### Page titles match live, with one exception
+### The homepage title
 
-**matches**, on every page checked but the homepage.
+**differs.** It is the only page found where our `<title>` is not live's.
 
 `/tires`, `/events`, `/learn`, `/dealers`, `/offers` and `/ev-compatible` carry titles identical
 to live's. The homepage does not. Live heads it "Truck Tires, SUV Tires, Commercial Tires & More
@@ -826,32 +746,6 @@ A neighbouring row is deliberate. Thirteen meta descriptions stop at a dateline 
 those pages tell a search engine their content is "Fort Mill, S.C.". Live's are cut the same
 way, so it stays. Cards are unaffected, because a card renders the excerpt rather than the
 description.
-
-### Product copy, and where it stopped matching live
-
-**matches.** All four product descriptions are live's copy now.
-
-Three product descriptions are live's text character for character, on
-`crosscontact-lx-sport`, `controlcontact-tour-m-as` and `procontact-tx10`. Each took one edit,
-deleting a single space. Every other character was already live's. That reversed
-[#93](https://github.com/cloudadoption/contitires/issues/93), which had ruled the other way and
-kept ours, so the row is here to stop the next reader re-opening it.
-
-A fourth page was held out of that pass and is now aligned too.
-`/tires/extremecontact-sport-02` kept "ExtremeContact™ Sport" and "SportPlus™" in its body
-paragraph where live's body carries neither. Both marks were removed on 2026-07-30 and the
-paragraph is now byte-identical to live's, checked by fetching both and comparing.
-
-Live contradicts itself on this page, and we reproduce the contradiction rather than tidy it.
-Live's body copy reads `ExtremeContact Sport<sup>02</sup>` and `SportPlus Technology` with no
-marks. Live's own meta description on the same page reads "The ExtremeContact™ Sport 02 ...
-SportPlus™ Technology" with both marks and a space. Our metadata keeps the marks because live's
-does. The rule on this project is to copy live's copy, including where live disagrees with
-itself.
-
-The reason [#171](https://github.com/cloudadoption/contitires/issues/171) gave for holding this
-page back was that swapping the body copy would contradict our own h1. That is stale: both h1
-elements now read `ExtremeContact Sport<sup>02</sup>`, so there was nothing left to contradict.
 
 ### The scale of what shipped
 
@@ -992,34 +886,6 @@ needs a measured pair either side to prove the move. The boilerplate is what pul
 `AGENTS.md` prescribes `min-width` media queries at 600px, 900px and 1200px, and live uses
 none of those three. [#219](https://github.com/cloudadoption/contitires/issues/219) covers the padding half of it.
 
-### The webfont swap
-
-**matches.** A metric-matched fallback shipped, so line counts hold through the swap. Delivery
-still differs.
-
-Live self-hosts the five Stag Sans faces and declares them in the render-blocking stylesheet
-it loads in the head, so its first paint already has the real typeface and nothing rewraps.
-
-Four `@font-face` blocks named `Stag Sans Fallback` are declared at the top of our
-`styles.css`, which `head.html` loads render-blocking. They are `src: local()` only against
-Arial, Helvetica and Liberation Sans, so they cost no request, and they carry `size-adjust`
-91.24% at weight 300, 94% at 400 normal and italic, and 90.36% at 700, with ascent and descent
-overrides derived from those ratios. The family sits between `Stag Sans` and `arial` in both
-font-family variables. All of it is on the deployed site.
-
-What it costs a visitor: nothing on layout stability. `/accessibility-statement` went from CLS
-0.3375 with a single 29px shift to 0.0017 at 1350 wide. Across 31 pages at 1350, 14 improved,
-16 held, 1 got worse, and nothing sits above 0.25 any more. At 375, 16 improved, 14 held, none
-got worse, nothing above 0.1. Those figures come from PR [#329](https://github.com/cloudadoption/contitires/issues/329)'s body and were not re-measured
-here, because CLS needs a browser.
-
-What is left is delivery. `styles/fonts.css` still hotlinks all five real faces from
-continentaltire.com, `loadFonts()` runs in the lazy phase and only runs eagerly on a repeat
-visit via a sessionStorage flag, and `head.html` preloads nothing. So a cold first paint is in
-the fallback face rather than in Stag Sans, at the same line count, and there is a connection
-to a third origin before the real faces arrive. Self-hosting the five woff files and declaring
-them in the render-blocking sheet closes it. [#183](https://github.com/cloudadoption/contitires/issues/183), [#227](https://github.com/cloudadoption/contitires/issues/227).
-
 ### The article body shifts up 51px after first paint
 
 **differs.** An article's whole body jumps up 51px at 142ms. Live holds its layout. The cause
@@ -1048,7 +914,7 @@ number here is [#197](https://github.com/cloudadoption/contitires/issues/197)'s 
 
 ### Prose links carry an underline live paints transparent
 
-**differs, and kept on purpose.**
+**diverges.** Live paints its underline transparent. We paint ours, and keep it.
 
 Live declares `text-decoration: transparent underline solid` four times. Reading the
 declaration alone says live underlines these links. The paint colour means a reader sees
@@ -1070,7 +936,7 @@ clears. It is recorded so nobody reads it as an oversight. [#240](https://github
 
 ### Superscripts
 
-**matches.** Same size, lift and line box as live. We drop live's `inline-block` on purpose.
+**diverges on one property.** Same size, lift and line box as live. We drop live's `inline-block`.
 
 Live's `sup` takes `font-size: 0.6em`, `top: -0.5em`, `line-height: 0`, `position: relative`,
 `vertical-align: baseline` and `display: inline-block`. Measured on live at all four sizes it
@@ -1089,7 +955,7 @@ live's `display` would reintroduce the split announcement. [#238](https://github
 
 ### Delivered HTML weight
 
-**differs, in our favour.** Live's homepage ships 123,748 bytes of HTML. Ours ships 22,418.
+**differs.** Live's homepage ships 123,748 bytes of HTML. Ours ships 22,418.
 
 Four pages, read with `curl -sL <url> | wc -c` on 2026-07-30, live first.
 
