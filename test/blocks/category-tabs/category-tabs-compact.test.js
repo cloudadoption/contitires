@@ -131,6 +131,14 @@ describe("Category tabs, live's compact experience strip", () => {
     expect(Math.round(a.getBoundingClientRect().height)).to.equal(31);
   });
 
+  // live's row is 41 tall whether it holds one item or three: on conti-crew the
+  // 37x31 anchor sits in a 37x41 ul, so the row keeps its height on its own
+  it('keeps the row 41 tall even when its only anchor is 31', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const ul = buildStrip(ONE).querySelector('ul');
+    expect(Math.round(ul.getBoundingClientRect().height)).to.equal(41);
+  });
+
   it('leaves the base strip alone for the learn family', async () => {
     await setViewport({ width: 1440, height: 900 });
     const block = buildStrip([
