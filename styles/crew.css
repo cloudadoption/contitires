@@ -14,12 +14,24 @@ body.crew main .section.quote {
   padding-inline: 20px;
 }
 
-/* live sets its copy at 14.88 over 22, where the site's body is 18, and runs
-   its paragraphs together with no gap between them */
+/* live sets its copy at 14.88 over 22, where the site's body is 18, and puts
+   its paragraphs 22px apart, one line of that leading.
+   The margin really is 0 on live, so that stays; the gap is a separate 22px
+   between consecutive paragraphs. Measured on
+   continentaltire.com/experience/conti-crew/straight-pipes at 1440 on
+   2026-07-30: the first paragraph ends at 1233 and the second starts at 1255.
+   The comment here used to claim live "runs its paragraphs together with no gap
+   between them", which was wrong and went unchecked because every crew page
+   authored before straight-pipes carries a SINGLE copy paragraph, so nothing
+   ever exercised it. */
 body.crew main .section.copy .default-content-wrapper p {
   margin: 0;
   font-size: 15px;
   line-height: 22px;
+}
+
+body.crew main .section.copy .default-content-wrapper p + p {
+  margin-top: 22px;
 }
 
 body.crew main .section.copy > div,
