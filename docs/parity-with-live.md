@@ -763,10 +763,10 @@ disagrees with several of them and the README is the stale one. [#235](https://g
 | Block library samples | 22 | `/tools/sidekick/library.json`, `total` |
 | Block directories | 29 | `blocks/` |
 | Test files | 72 | `find -name '*.test.js'` |
-| Commits | 128 | `git log origin/main`, 2026-07-24 to 2026-07-30 |
-| Closed release issues | 30 | `gh issue list --label release --state closed` |
-| Open release issues | 3 | [#302](https://github.com/cloudadoption/contitires/issues/302), the sequence tracker, [#235](https://github.com/cloudadoption/contitires/issues/235) and [#360](https://github.com/cloudadoption/contitires/issues/360) |
-| Open post-release issues | 78 | `gh issue list --label post-release --state open` |
+| Commits | 129 | `git log origin/main`, 2026-07-24 to 2026-07-30 |
+| Issues closed | 161 | `gh issue list --state closed` |
+| Issues open | 79 | `gh issue list --state open`, ordered in [#359](https://github.com/cloudadoption/contitires/issues/359) |
+| Shipped for the 2026-07-30 checkpoint | 32 | [#302](https://github.com/cloudadoption/contitires/issues/302), closed, the record of what shipped |
 
 Three README figures are wrong as of today. It claims 19 blocks against 29 directories, 14 test
 files against 72, and 352 pages published against a query-index total of 327. It also says the
