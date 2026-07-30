@@ -68,6 +68,19 @@ main .section.tabs-container {
   margin-top: 0;
 }
 
+/* the title over a band of image cards, which live drops a step below 769 while
+   our global h2 holds 30px at every width. Live gives it .images-section__title
+   and sizes that class alone: 30/38 from the global h2, then --font-size-24 and
+   --line-height-32 under max-width 768. Measured on /media at 375 and 1440.
+   The :has is what keeps this off the two headings live gives no counterpart,
+   `Tire Images` and the /online-retailers store-search note. Issue #356. */
+@media (width < 769px) {
+  .tabs .tabs-main h2:has(+ .cards) {
+    font-size: 24px;
+    line-height: 32px;
+  }
+}
+
 /* the sidebar: each heading opens a panel of its own, under a hairline */
 .tabs .tabs-aside {
   font-size: 15px;
