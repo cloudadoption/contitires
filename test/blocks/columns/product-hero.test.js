@@ -136,6 +136,69 @@ describe('product hero, the Best for icons', () => {
 });
 
 /**
+ * Technology, the second group live rules off in that column, and it gets the
+ * same treatment as Best for. Live sets both as `h2.text-cta` at 12px/700, 1.25px
+ * in caps on a 16px line, each in a `con-details` wrapper with a 1px #cdcdcd
+ * hairline and 20px above it. Read on continentaltire.com/tires/4x4contact at
+ * 1440 and at 375, where both wrappers report the same border and padding.
+ *
+ * Ours had the paragraph unnamed, so it fell through to body copy at 18px with no
+ * hairline. 33 of the 45 product pages carry the group and 12 carry none, so the
+ * block names what is authored and draws nothing where it is absent. (#367)
+ */
+describe('product hero, the Technology label', () => {
+  const withTech = `
+    <h1>4x4 Contact</h1>
+    <p><strong>Best for</strong></p>
+    <ul><li>Crossover</li><li>Touring</li></ul>
+    <p><strong>Technology</strong></p>
+    <ul><li>Self Supporting Runflat*</li></ul>`;
+
+  it('names the label so the group can be ruled off', () => {
+    const block = authored(withTech);
+    decorate(block);
+
+    const label = block.querySelector('.product-hero-technology-label');
+    expect(label, 'the Technology label').to.exist;
+    expect(label.textContent.trim()).to.equal('Technology');
+    expect(label.nextElementSibling.tagName).to.equal('UL');
+    block.remove();
+  });
+
+  // 12 of the 45 product pages carry no Technology group
+  it('draws nothing where no Technology group is authored', () => {
+    const block = authored(cell);
+    decorate(block);
+
+    expect(block.querySelector('.product-hero-technology-label')).to.not.exist;
+    block.remove();
+  });
+
+  it('leaves the Best for group where it was', () => {
+    const block = authored(withTech);
+    decorate(block);
+
+    expect(block.querySelector('.product-hero-best-for-label'), 'the Best for label').to.exist;
+    expect(block.querySelector('.product-hero-best-for'), 'the Best for list').to.exist;
+    const tech = block.querySelector('.product-hero-technology-label');
+    expect(tech.classList.contains('product-hero-best-for-label'), 'not both names').to.be.false;
+    expect(tech.nextElementSibling.classList.contains('product-hero-best-for'), 'no badge list').to.be.false;
+    block.remove();
+  });
+
+  it('touches nothing on a columns block that is not a product hero', () => {
+    const block = document.createElement('div');
+    block.className = 'columns block';
+    block.innerHTML = '<div><div><p><strong>Technology</strong></p><ul><li>Self Supporting Runflat*</li></ul></div></div>';
+    document.body.append(block);
+    decorate(block);
+
+    expect(block.querySelector('.product-hero-technology-label')).to.not.exist;
+    block.remove();
+  });
+});
+
+/**
  * The rebate, on the 19 of 46 live product pages that show one. Campaign copy
  * with an end date, so it is authored and an author takes an expired offer down
  * by deleting two paragraphs.
@@ -240,6 +303,20 @@ describe('product hero, the treatments live gives those groups', () => {
     expect(value('.columns.product-hero .product-hero-best-for-label', 'font-weight')).to.equal('700');
     expect(value('.columns.product-hero .product-hero-best-for-label', 'letter-spacing')).to.equal('1.25px');
     expect(value('.columns.product-hero .product-hero-best-for-label', 'text-transform')).to.equal('uppercase');
+  });
+
+  // live gives Technology the same label and the same hairline as Best for, read
+  // off the two con-details wrappers on /tires/4x4contact: both report
+  // 1px solid rgb(205, 205, 205) with 20px padding-top, at 1440 and at 375
+  it('sets the Technology label and rules it off the same way', () => {
+    expect(value('.columns.product-hero .product-hero-technology-label', 'font-size')).to.equal('12px');
+    expect(value('.columns.product-hero .product-hero-technology-label', 'font-weight')).to.equal('700');
+    expect(value('.columns.product-hero .product-hero-technology-label', 'letter-spacing')).to.equal('1.25px');
+    expect(value('.columns.product-hero .product-hero-technology-label', 'text-transform')).to.equal('uppercase');
+    expect(value('.columns.product-hero .product-hero-technology-label', 'line-height')).to.equal('16px');
+    expect(value('.columns.product-hero .product-hero-technology-label', 'border-top'))
+      .to.equal('1px solid var(--conti-grey)');
+    expect(value('.columns.product-hero .product-hero-technology-label', 'padding-top')).to.equal('20px');
   });
 
   it('draws the badge at live\'s 30px, 8px from its label', () => {

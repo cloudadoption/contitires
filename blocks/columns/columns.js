@@ -12,6 +12,7 @@ const BEST_FOR_BADGES = [
 ].reduce((map, label) => ({ ...map, [label.toLowerCase()]: `badge-${slugify(label)}` }), {});
 
 const BEST_FOR_LABEL = /^best for$/i;
+const TECHNOLOGY_LABEL = /^technology$/i;
 
 /**
  * The rebate, on the 19 of 46 product pages live shows one. Campaign copy with
@@ -45,12 +46,13 @@ function decorateRebate(cell) {
 }
 
 /**
- * Names the two trailing groups of the product hero column so the stylesheet
- * can rule them off, and gives each Best for entry its badge.
+ * Names the trailing groups of the product hero column so the stylesheet can
+ * rule them off, and gives each Best for entry its badge.
  *
- * Both groups are found by what stands above them rather than by position: the
- * plan summary follows the link to /warranty, the Best for list follows the
- * words. An author who writes neither gets neither.
+ * Each group is found by what stands above it rather than by position: the plan
+ * summary follows the link to /warranty, the Best for and Technology lists follow
+ * their words. An author who writes none of them gets none of them, and 12 of the
+ * 45 product pages carry no Technology group. (#367)
  * @param {Element} block The block
  */
 function decorateProductHero(block) {
@@ -64,6 +66,11 @@ function decorateProductHero(block) {
     if (above.querySelector('a[href="/warranty"]')) {
       above.classList.add('product-hero-plan-link');
       list.classList.add('product-hero-plan');
+      return;
+    }
+
+    if (TECHNOLOGY_LABEL.test(above.textContent.trim())) {
+      above.classList.add('product-hero-technology-label');
       return;
     }
 
