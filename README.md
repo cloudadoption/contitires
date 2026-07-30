@@ -1,6 +1,6 @@
 # Continental Tire on AEM Edge Delivery Services
 
-A proof-of-concept migration of [continentaltire.com](https://continentaltire.com/) (Drupal 11) onto [AEM Edge Delivery Services](https://www.aem.live/) with [DA](https://da.live/) as the content source. Built in three days (2026-07-24/26) to show how the existing Drupal implementation carries over: what maps cleanly, what needs real backends, and what authoring looks like afterwards.
+A proof-of-concept migration of [continentaltire.com](https://continentaltire.com/) (Drupal 11) onto [AEM Edge Delivery Services](https://www.aem.live/) with [DA](https://da.live/) as the content source. Built in seven days (2026-07-24 to 2026-07-30) to show how the existing Drupal implementation carries over: what maps cleanly, what needs real backends, and what authoring looks like afterwards.
 
 This is a technical demo, not Continental's site. All content, images, product data, and trademarks belong to Continental and were taken from the public site for migration purposes only.
 
@@ -48,11 +48,13 @@ This is a technical demo, not Continental's site. All content, images, product d
 
 ## The short version
 
-The live site's sitemap lists 319 URLs. The POC publishes 352 pages, counted from the content tree on 2026-07-29: 214 learn articles, their 4 category pages and the learn hub, 20 experience pages, 46 tire product pages, the tire listing and its 11 category pages, 27 standalone pages, 22 block-library pages, the 5 authoring guide pages and 1 fragment. The nav and the footer are documents in the same tree and are not pages, which is why a tree walk reads 354. The remaining live URLs are the data-driven part: the store finder and the standalone tire-search tools.
+The live site's sitemap lists 319 URLs. Two numbers describe this site and they count different things. **327 pages are published**, which is what `/query-index.json` reports and what every list view on the site can see. **The content tree holds 27 more**: the 22 block-library samples and the 5 authoring-guide pages, which carry `Robots: noindex, nofollow` and are therefore absent from the index. That is the 354 a tree walk reads, once the nav and the footer are set aside as documents rather than pages. The published 327 are 214 learn articles and 5 learn listing pages, 20 experience pages, 46 tire product pages, the tire listing and its 11 category pages, and the standalone long tail. The remaining live URLs are the data-driven part: the store finder and the standalone tire-search tools.
 
 The build started with three deliberately simple pages (newsletter signup, online retailers, customer support), then grew into a full 1:1 migration. Day 1: extract the live theme CSS and rebuild the design system, build header, footer, hero, cards, and the article template, rebuild the homepage, then bulk-migrate all 214 learn articles with a scripted extractor (curl + BeautifulSoup against the server-rendered Drupal pages, pushed through the DA admin API, zero failures). Day 2: unit-test harness and CI, a query index for the learn section, the learn hub and category pages, a 13-product catalog with generated product pages, an author-facing block library, and two rounds of visual-fidelity fixes driven by screenshot and computed-style comparison against live (34 issues, 40 merged PRs total). Day 3: the tire listing behind `/tires`, its 11 category pages, and the 33 product pages they link to.
 
-Lighthouse on the homepage: performance 99-100, accessibility 94-96, best practices 100. The repo has 19 blocks (12 built for this site) and 14 unit-test files.
+Lighthouse on the homepage: performance 99-100, accessibility 94-96, best practices 100.
+
+The repo has **29 block directories**. 22 of them have a sample in the author-facing block library, and 20 are used on published pages; `size-list` and `store-locator` are in the picker and on no page. Tests are 72 files under `test/`, mirroring the source tree: 21 for `scripts/`, 44 across 27 of the 29 blocks, 4 for `styles/`, 2 for `widgets/` and 1 for `tools/`. `fragment` and `library-metadata` are the two blocks with no test.
 
 ## How the site is put together
 
@@ -93,7 +95,7 @@ Differs from live: a few menu targets point at pages the POC does not have, `/St
 
 ### Site search
 
-Live runs Drupal Search API over Solr. The POC searches in the browser, over a site-wide query index. The index holds each page's title, description and body text, capped at 500 words a page: 172.5 KB gzip for 320 pages. [blocks/search](blocks/search/search.js) reads `?keywords=` and `&page=`, scores the rows with [scripts/search.js](scripts/search.js), and renders ten results a page with live's markup, paging and copy. Scoring weights a title hit above a description hit above a body hit, folds plurals, and requires every query term. The block builds each excerpt from the body around the matches, and fetches the index on the load event, after the page has painted.
+Live runs Drupal Search API over Solr. The POC searches in the browser, over a site-wide query index. The index holds each page's title, description and body text, capped at 500 words a page, over the 327 published pages. [blocks/search](blocks/search/search.js) reads `?keywords=` and `&page=`, scores the rows with [scripts/search.js](scripts/search.js), and renders ten results a page with live's markup, paging and copy. Scoring weights a title hit above a description hit above a body hit, folds plurals, and requires every query term. The block builds each excerpt from the body around the matches, and fetches the index on the load event, after the page has painted.
 
 - Live: [/search?keywords=warranty](https://continentaltire.com/search?keywords=warranty)
 - POC: [/search?keywords=warranty](https://main--contitires--cloudadoption.aem.live/search?keywords=warranty)
@@ -111,18 +113,22 @@ Differs from live: the ranking is ours. Solr's relevance scores and index exclus
 - Code: [blocks/footer/footer.js](blocks/footer/footer.js), [blocks/footer/footer.css](blocks/footer/footer.css)
 - Author: [footer in DA](https://da.live/edit#/cloudadoption/contitires/footer)
 
-Differs from live: live collapses the columns into accordions on mobile; the POC keeps static columns. Several links target pages the POC does not have.
+Differs from live on purpose, and this is the largest of the three deliberate departures: live's copyright line is gone. Two paragraphs stand in its place on all 327 pages, one attributing Continental's content and trademarks to Continental, the other stating that this is an Adobe engineering proof of concept not operated by or endorsed by Continental. This site may not assert Continental's copyright or imply Continental operates it, so matching live here would be the defect rather than the fix. The wording is not quoted in this README, because it is copy that changes and this file is not re-read; [the parity document](docs/parity-with-live.md) records it as a decision.
+
+Differs from live otherwise: live collapses the columns into accordions on mobile; the POC keeps static columns. Several links target pages the POC does not have.
 
 ### Homepage
 
-One DA document, authored block by block in the live page's order: hero, promo bar (expandable rebate disclosure), tire-finder bar, category tiles, the dark Total Confidence Plan band with its six coverage icons, the stores module, a 7-slide feature carousel, the news strip, and a closing hero. Every section was aligned to live through measured computed-style comparison.
+One DA document, authored block by block in the live page's order: hero, promo bar (a slim ribbon carrying this site's own copy, expandable), tire-finder bar, category tiles, the dark Total Confidence Plan band with its six coverage icons, the stores module, a 7-slide feature carousel, the news strip, and a closing hero. Every section was aligned to live through measured computed-style comparison.
 
 - Live: [continentaltire.com](https://continentaltire.com/)
 - POC: [main--contitires--cloudadoption.aem.live](https://main--contitires--cloudadoption.aem.live/)
 - Code: [blocks/hero](blocks/hero/hero.js), [blocks/promo-bar](blocks/promo-bar/promo-bar.js), [blocks/carousel](blocks/carousel/carousel.js), [blocks/cards/cards.css](blocks/cards/cards.css)
 - Author: [index in DA](https://da.live/edit#/cloudadoption/contitires/index)
 
-Differs from live: the carousel slides use substituted product images, because live renders its slides inside a shadow-DOM component whose images are not reachable statically. The news band shows one static customer quote where live pulls Bazaarvoice data. The EmbedSocial wall and the rebate popup modal are not reproduced.
+Differs from live on purpose, at the top of the page: the hero's eyebrow line is a proof-of-concept statement where live welcomes the reader, and the paragraph under the h1 is a disclaimer where live carries a commercial offer. The h1 itself is unchanged and matches live. The promo bar above it carries this site's own copy rather than live's offer. This site may not make a commercial claim, so reproducing live's wording in either place would be the defect. [The parity document](docs/parity-with-live.md) records both as decisions, and the copy is not quoted here because it changes.
+
+Differs from live otherwise: the carousel slides use substituted product images, because live renders its slides inside a shadow-DOM component whose images are not reachable statically. The news band shows one static customer quote where live pulls Bazaarvoice data. The EmbedSocial wall and the rebate popup modal are not reproduced.
 
 ### Tire finder
 
@@ -133,7 +139,7 @@ The live site's core tool, rebuilt as the [perfect-fit](blocks/perfect-fit/perfe
 - Code: [blocks/perfect-fit/perfect-fit.js](blocks/perfect-fit/perfect-fit.js)
 - Author: [products sheet](https://da.live/sheet#/cloudadoption/contitires/products) (the data), [index in DA](https://da.live/edit#/cloudadoption/contitires/index) (the bar)
 
-Differs from live: By Vehicle runs on a small curated make/model set, By Plate returns a canned recommendation. Both need data the public site does not expose; see [the gap entry](#vehicle-and-plate-lookup-in-the-tire-finder). 5 of 13 products carry representative rather than scraped size lists.
+Differs from live: By Vehicle runs on a small curated make/model set, By Plate returns a canned recommendation. Both need data the public site does not expose; see [the gap entry](#vehicle-and-plate-lookup-in-the-tire-finder). Six of the 46 products carry no size rows at all, so the finder cannot match them by size.
 
 ### Tire listing and category pages
 
@@ -163,7 +169,7 @@ Measured against live at 375, 900 and 1440: the card width, tire image, badge ro
 
 A rated page ends with a [tire-rating](blocks/tire-rating/tire-rating.js) band, which is built rather than authored: it takes no authored input, and the product is the page's own last path segment. That segment is the catalog slug on all 46.
 
-Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. purecontact-ls also renders only its hero, with the page body missing (#93). The rating band carries the aggregate and not the reviews themselves (see [Bazaarvoice reviews](#bazaarvoice-reviews)). No media gallery or fitment checker (see the gaps), and no Product JSON-LD.
+Differs from live: six products have no spec rows (contipremiumcontact-2, contitrac, controlcontact-tour-as-plus, purecontact-ls, truecontact-tour, 4x4sportcontact); live shows empty spec selectors for those as well. The rating band carries the aggregate and not the reviews themselves (see [Bazaarvoice reviews](#bazaarvoice-reviews)). No media gallery or fitment checker (see the gaps), and no Product JSON-LD.
 
 ### Learn hub and articles
 
@@ -178,7 +184,7 @@ Differs from live: live paginates 10 per page server-side, the POC batches 12 be
 
 ### Video articles
 
-63 learn articles carry a video, 75 videos in all. Live builds the player in the browser, so the migration took the page without it and they read as a title, a picture and a blurb. The id live builds from is in its server HTML, on the element that opens the player. Every one was read from there rather than guessed from a thumbnail filename. Thumbnail names carry the id on 39 of the 75.
+The video block is on 62 learn articles, 66 instances in all. Live builds the player in the browser, so the migration took the page without it and they read as a title, a picture and a blurb. The id live builds from is in its server HTML, on the element that opens the player. Every one was read from there rather than guessed from a thumbnail filename. Thumbnail names carry the id on 39 of the 75.
 
 The id is authored into the page as a link, so it is content: with JavaScript off the block is a picture and a link to the video. The [video](blocks/video/video.js) block turns that into a poster with a play control and builds the iframe when it is clicked. Nothing is requested from YouTube until then, which is what live does. The player comes from the no-cookie host.
 
@@ -193,7 +199,7 @@ Differs from live: live opens the video in a modal over the page, ours plays in 
 
 ### Experience section
 
-The partnership and sponsorship section: hub plus 15 subpages (AMG Driving Academy, BMW CCA, GR Cup, MLS, ROUSH, USF Pro and the rest), migrated on the article template. Six pages use the [share](blocks/share/share.js) block, which builds Facebook, X, LinkedIn, and mail share links from the page URL.
+The partnership and sponsorship section: hub plus 19 subpages (AMG Driving Academy, BMW CCA, GR Cup, MLS, ROUSH, USF Pro and the rest), migrated on the article template. Six pages use the [share](blocks/share/share.js) block, which builds Facebook, X, LinkedIn, and mail share links from the page URL.
 
 Live prints a related-articles panel on 79 of the 237 learn and experience pages, and four of them arrived without it. The nine links are back, live's own text against our own paths, and this site prints the panel on the same 79. The BMW CCA page had carried its list as a heading and a plain list instead, and two of its three links pointed at continentaltire.com. It carries the block now, and every link is a path on this site. Live's soccer page is a landing page rather than an article, and it has [its own entry](#the-sports-landing-page).
 
@@ -210,17 +216,19 @@ Differs from live: the Conti Crew member pages use live's own template, and they
 
 ### Simple content pages
 
-The long tail, all migrated as authored documents over existing blocks: the three original POC targets ([online retailers](https://main--contitires--cloudadoption.aem.live/online-retailers), [customer support](https://main--contitires--cloudadoption.aem.live/customer-support), [newsletter signup](https://main--contitires--cloudadoption.aem.live/newsletter-signup) with the same public HubSpot form as live, embedded through the [widget block](blocks/widget/widget.js)), the [warranty page](https://main--contitires--cloudadoption.aem.live/warranty) with live's shield marquee, its six benefits on a dark band with the marks taken from the live markup, and its two closing bands, the [brand assets page](https://main--contitires--cloudadoption.aem.live/media) with its logos and its tire images behind live's two tabs, the [online retailers page](https://main--contitires--cloudadoption.aem.live/online-retailers) with live's black band, its store finder and its retailers behind one bar, and a financing link in each tile, [offers](https://main--contitires--cloudadoption.aem.live/offers) and the rebate [promotion](https://main--contitires--cloudadoption.aem.live/promotion) pages, campaign landings like [all-new-securecontact-aw](https://main--contitires--cloudadoption.aem.live/all-new-securecontact-aw) and [ev-compatible](https://main--contitires--cloudadoption.aem.live/ev-compatible), and the [legal](https://main--contitires--cloudadoption.aem.live/legal) and privacy pages.
+The long tail, all migrated as authored documents over existing blocks. The three original POC targets came first: online retailers, [customer support](https://main--contitires--cloudadoption.aem.live/customer-support), and [newsletter signup](https://main--contitires--cloudadoption.aem.live/newsletter-signup) with the same public HubSpot form as live, embedded through the [widget block](blocks/widget/widget.js).
+
+The rest followed: the [warranty page](https://main--contitires--cloudadoption.aem.live/warranty) with live's shield marquee, its six benefits on a dark band with the marks taken from the live markup, and its two closing bands; the [brand assets page](https://main--contitires--cloudadoption.aem.live/media) with its logos and its tire images behind live's two tabs; the [online retailers page](https://main--contitires--cloudadoption.aem.live/online-retailers) with live's black band, its store finder and its retailers behind one bar, and a financing link in each tile; [offers](https://main--contitires--cloudadoption.aem.live/offers) and the rebate [promotion](https://main--contitires--cloudadoption.aem.live/promotion) pages; campaign landings like [all-new-securecontact-aw](https://main--contitires--cloudadoption.aem.live/all-new-securecontact-aw) and [ev-compatible](https://main--contitires--cloudadoption.aem.live/ev-compatible); and the [legal](https://main--contitires--cloudadoption.aem.live/legal) and privacy pages.
 
 - Live: [/online-retailers](https://continentaltire.com/online-retailers), [/customer-support](https://continentaltire.com/customer-support), [/newsletter-signup](https://continentaltire.com/newsletter-signup), [/warranty](https://continentaltire.com/warranty), [/promotion](https://continentaltire.com/promotion)
 - Code: mostly [blocks/cards](blocks/cards/cards.js) and default content; [widgets/hubspot](widgets/hubspot/newsletter.html) for the form, [blocks/events](blocks/events/events.js) for the events page, [blocks/tabs](blocks/tabs/tabs.js) for the brand assets and online retailers pages, [blocks/retailers](blocks/retailers/retailers.js) for the retailer tiles, [blocks/hero](blocks/hero/hero.js) for the warranty marquee
 - Author: for example [online-retailers in DA](https://da.live/edit#/cloudadoption/contitires/online-retailers), [warranty in DA](https://da.live/edit#/cloudadoption/contitires/warranty)
 
-Differs from live: rebate submission, credit-card application, tire registration, and support chat are outbound links here, but they are outbound links on live too. The [events page](https://main--contitires--cloudadoption.aem.live/events) has its own entry under [the events calendar](#the-events-calendar), because live reads it from a database this site does not hold. On the brand assets page live's tires tab also filters by category; all four groups stand on the page here, unfiltered. Live's store finder and its online retailers are two pages behind one bar; both land on /online-retailers here, so the bar holds two panels on one page and opens the retailers, as the URL says. What stands behind its first tab is the [store finder mock](#store-finder). On the warranty page a benefit title carries its disclosure marker as text where live sets a superscript link, so the longest of the six wraps a line early at 1440. Live sets a band heading at 30px and this site's scale takes an h2 to 42, which is what the two closing bands read. The marquee holds the line count the fallback face needs below 420, so the band under it stays put when Stag Sans lands; with the fonts in place that leaves 36 of empty space at 375 and 64 from 400 to 418. Live loads the newsletter form's HubSpot embed with the page; here it loads in the delayed phase, and the widget holds open the height the form settles at, so the footer stays put: 2051 below 480, 1340 from there, 1176 from 768. Live's own form leaves the lower third of that height empty and the reserved box keeps that empty space, so the form appears later here and in a box a little taller than itself.
+Differs from live: rebate submission, credit-card application, tire registration, and support chat are outbound links here, but they are outbound links on live too. The [events page](https://main--contitires--cloudadoption.aem.live/events) has its own entry under [the events calendar](#the-events-calendar), because live reads it from a database this site does not hold. On the brand assets page live's tires tab also filters by category; all four groups stand on the page here, unfiltered. Live's store finder and its online retailers are two pages behind one bar; both land on /online-retailers here, so the bar holds two panels on one page and opens the retailers, as the URL says. What stands behind its first tab is the [store finder mock](#store-finder). On the warranty page a benefit title carries its disclosure marker as text where live sets a superscript link, so the longest of the six wraps a line early at 1440. The marquee holds the line count the fallback face needs below 420, so the band under it stays put when Stag Sans lands; with the fonts in place that leaves 36 of empty space at 375 and 64 from 400 to 418. Live loads the newsletter form's HubSpot embed with the page; here it loads in the delayed phase, and the widget holds open the height the form settles at, so the footer stays put: 2051 below 480, 1340 from there, 1176 from 768. Live's own form leaves the lower third of that height empty and the reserved box keeps that empty space, so the form appears later here and in a box a little taller than itself.
 
 ### URL aliases
 
-Drupal answers a set of old paths with a 301. The migration copied the links that use them, but not the aliases behind them. A [redirects sheet](https://da.live/sheet#/cloudadoption/contitires/redirects) holds them now: 13 rows of `Source` and `Destination`, read by the pipeline before any page is served. It covers live's own aliases (`/partners`, `/conti-crew`, `/experience/bmw-cca`, `/store-finder`), the paths whose pages the POC does not have (`/tire-search`, `/perfect-fit`, `/tires/fleet`), the Conti Crew show whose page sits under a different slug (`/experience/conti-crew/straight-pipes`), and two documents that stayed on live. The sheet is content, so an author adds a redirect without a deploy, and it applies to every branch preview at once.
+Drupal answers a set of old paths with a 301. The migration copied the links that use them, but not the aliases behind them. A [redirects sheet](https://da.live/sheet#/cloudadoption/contitires/redirects) holds them now: 14 rows of `Source` and `Destination`, read by the pipeline before any page is served. It covers live's own aliases (`/partners`, `/conti-crew`, `/experience/bmw-cca`, `/store-finder`), the paths whose pages the POC does not have (`/tire-search`, `/perfect-fit`, `/tires/fleet`), the Conti Crew show whose page sits under a different slug (`/experience/conti-crew/straight-pipes`), and two documents that stayed on live. The sheet is content, so an author adds a redirect without a deploy, and it applies to every branch preview at once.
 
 - Sheet: [redirects in DA](https://da.live/sheet#/cloudadoption/contitires/redirects), served at [/redirects.json](https://main--contitires--cloudadoption.aem.live/redirects.json)
 - Docs: [aem.live redirects](https://www.aem.live/docs/redirects)
@@ -244,19 +252,19 @@ Differs from live: no image reference is left on continentaltire.com. The last o
 
 ### Author tooling
 
-Content owners get an [authoring guide](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide) under `/tools/authoring-guide` (#158). Five pages: the hub with the traps and the five common tasks, then [pages](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide/pages) for sections, settings and templates, [blocks](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide/blocks) for all 20 an author writes, [products](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide/products) for the workbook, and [site-wide pieces](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide/site-wide) for the menu, the footer, the ribbon, redirects and search. It is authored in DA and published like any other page, so it is an example of what it describes.
+Content owners get an [authoring guide](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide) under `/tools/authoring-guide` (#158). Five pages: the hub with the traps and the five common tasks, then [pages](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide/pages) for sections, settings and templates, [blocks](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide/blocks) for the blocks an author writes, [products](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide/products) for the workbook, and [site-wide pieces](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide/site-wide) for the menu, the footer, the ribbon, redirects and search. It is authored in DA and published like any other page, so it is an example of what it describes.
 
-It covers all 20 blocks rather than the 10 with a picker sample, links the sample where there is one, and says plainly which 10 have none. A guide to half the blocks is worth less than one that covers them all and names the gap.
+It covers the blocks an author writes and links each one's sample. The guide still describes the picker as holding eleven samples and sends an author to hand-author ten of them, which stopped being true on 2026-07-29 when the library reached 22; that and fourteen other stale instructions are tracked in #360.
 
 The guide states the wiring an author can break without being told: the finder links in the menu and the footer are matched by their heading and their own words, so renaming `Search for Tire` or `By Vehicle` turns them back into ordinary links. Same for the button rule, where a link alone in its paragraph is a button only when it is bold or italic. That rule is why /customer-support/technical-documents has ten yellow pills where live has ten text links (#262): all ten are bold.
 
 Authors get a block library: a picker of 22 blocks, each one a sample document under [/tools/sidekick/blocks/](https://main--contitires--cloudadoption.aem.live/tools/sidekick/blocks/perfect-fit), wired into the DA editor through a `library` sheet in the DA site config, so blocks are inserted from a picker instead of being typed from memory. DA's Experience Workspace is switched on for the site. The [library app](tools/sidekick/library.html) and both indexes live in the repo. [library.json](tools/sidekick/library.json) is what the app reads. [library-da.json](tools/sidekick/library-da.json) is the bytes that go to DA at `/library/blocks.json`, which the DA site config names. DA serves that one from `content.da.live` with the author's own token, so it answers 404 on both hosts. A test reads both and fails when they disagree on count, names or paths (#290). The samples themselves are authored in DA. Both indexes list the same 22 in the same order.
 
-Each sample is one page: the block as an author would insert it, and a `library-metadata` block giving the picker its name, its description and its search terms. The last two are [search](https://main--contitires--cloudadoption.aem.live/tools/sidekick/blocks/search) and the [store locator](https://main--contitires--cloudadoption.aem.live/tools/sidekick/blocks/store-locator) (#123). Pages author 20 blocks at the top of a section and the picker lists all 20. Size list and the store locator are the other two entries, and neither is on a page.
+Each sample is one page: the block as an author would insert it, and a `library-metadata` block giving the picker its name, its description and its search terms. The last two are [search](https://main--contitires--cloudadoption.aem.live/tools/sidekick/blocks/search) and the [store locator](https://main--contitires--cloudadoption.aem.live/tools/sidekick/blocks/store-locator) (#123). The picker holds 22: the 20 blocks that pages author, plus size list and the store locator, which are in the picker and on no page.
 
 The picker reads `library-metadata` per section. A sample keeps its name and its search terms only where the metadata shares a section with the block. Six were in other shapes until 2026-07-29. All twenty-two share one section, so the picker names every one. It searches names and search terms, not descriptions. The block ships [its own stylesheet](blocks/library-metadata/library-metadata.css) and a script that does nothing. The loader fetches both for every block it decorates. Without them, every sample page logged two 404s and a failed import (#285).
 
-The video sample named a poster that is not in the media corpus, so the published page carried `src="about:error"` and an author opening it saw a black frame. It uses the poster and the video id that [/learn/tony-stewart-talks-tire-size](https://main--contitires--cloudadoption.aem.live/learn/tony-stewart-talks-tire-size) uses now. The 63 pages that author the block have no broken image.
+The video sample named a poster that is not in the media corpus, so the published page carried `src="about:error"` and an author opening it saw a black frame. It uses the poster and the video id that [/learn/tony-stewart-talks-tire-size](https://main--contitires--cloudadoption.aem.live/learn/tony-stewart-talks-tire-size) uses now. The 62 pages that author the block have no broken image.
 
 A second sample tree under `/samples` was deleted (#127). It was five day-1 pages, unpublished and linked from nothing, and an author looking for a sample could find it first.
 
@@ -284,7 +292,7 @@ The filter is not a data problem, so it is built. The [events block](blocks/even
 - Code: [blocks/events](blocks/events/events.js)
 - Author: [events in DA](https://da.live/edit#/cloudadoption/contitires/events)
 
-Differs from live: live narrows its own Event type list to the type already checked, so a second type cannot be reached from the panel, only from the URL. All four boxes stay here. Live's Apply posts its form; here the calendar has already moved when a box changes, so the button only closes the panel it opened. Live prints the details URL as text at the end of two descriptions and again as their More details button, and the sentence goes. The calendar column runs 885 at 1440 where live's runs 789, because a section on this site holds 1200 of content where live's container holds 1136. Live closes the page with a black band holding its Social gallery beside its News list; the News half is here on the learn hub's band treatment, and the Social half is a decision of its own about an Instagram feed.
+Differs from live: live narrows its own Event type list to the type already checked, so a second type cannot be reached from the panel, only from the URL. All four boxes stay here. Live's Apply posts its form; here the calendar has already moved when a box changes, so the button only closes the panel it opened. Live prints the details URL as text at the end of two descriptions and again as their More details button, and the sentence goes. The calendar column runs 885 at 1440, because a section on this site holds 1200 of content where live's container holds 1136. Live closes the page with a black band holding its Social gallery beside its News list; the News half is here on the learn hub's band treatment, and the Social half is a decision of its own about an Instagram feed.
 
 ### The sports landing page
 
@@ -379,20 +387,21 @@ An article carries one `Category` value, and a listing filters the index by the 
 | `Technology` | [/learn/technology](https://main--contitires--cloudadoption.aem.live/learn/technology) | 16 |
 | `News` | [/learn/news-and-events](https://main--contitires--cloudadoption.aem.live/learn/news-and-events) | 150 |
 
-Those three are the vocabulary, and [`scripts/categories.js`](scripts/categories.js) is where they are written down. The three listing pages are indexed themselves and carry no category of their own, which is right. [`/learn/product-highlights`](https://main--contitires--cloudadoption.aem.live/learn/product-highlights) is a hand-built page rather than a category, so nothing is filed under it.
+Those three are the vocabulary, and [`scripts/categories.js`](scripts/categories.js) is where they are written down. Five listing pages are indexed themselves and carry no category of their own, which is right: the three above, plus `/learn/news` and `/learn/corporate`, the two filter pills inside the News listing. Those two carry a `Subcategory` rather than a `Category`. [`/learn/product-highlights`](https://main--contitires--cloudadoption.aem.live/learn/product-highlights) is a hand-built page rather than a category, so nothing is filed under it.
 
 An [article-cards](blocks/article-cards/article-cards.js) block asking for a category no article carries now says so on the page, and names what the index does publish under. It reads that list off the index rather than off the vocabulary, so a category an author adds needs no code change. The checker reads the other end: every indexed article's category against the vocabulary, every vocabulary term against the articles, and each listing page against the block that fills it.
 
 ## Global caveats
 
+- Three places deliberately do not match live, and a diff against live flags all three correctly: the footer on every page, the homepage hero's eyebrow and the paragraph under its h1, and the promo bar. This site may not make a commercial claim, assert Continental's copyright, or imply Continental operates it, so matching live in those places would be the defect rather than the fix. They are recorded as decisions in [the parity document](docs/parity-with-live.md), which is also where the wording lives; this file names the departure and not the copy. One rule violation is still open as #361, where the shared promo-bar fragment carries live's offer on every page but the homepage.
 - Fonts are hotlinked from the live site. A production build licenses and self-hosts them.
-- Links into unbuilt territory land on the nearest page that exists, through the [redirects sheet](#url-aliases). Two dead links remain, both on `/customer-support/technical-documents`, and live answers both targets with "Access denied".
+- Links into unbuilt territory land on the nearest page that exists, through the [redirects sheet](#url-aliases). Two dead links remain on `/customer-support/technical-documents`, and live answers both targets with "Access denied". A third class is open as #357: the specs band builds a "View all sizes & specs" control on 45 product pages, pointing at a `/specs` path this site answers with 404.
 - Images live in DA and are served from this host. One reference stayed on continentaltire.com because live answers it with 404 (see [Images](#images)).
 - Both `.aem.page` and `.aem.live` send `x-robots-tag: noindex` until a production domain exists. Right for a demo, and it caps Lighthouse SEO crawlability scores on these hosts.
 - The remaining parity, code, and authoring findings from the 2026-07-26 audit are tracked as issues #75 to #127.
 - Article ordering rests on scraped editorial order, not real publish dates; live does not expose any. The same holds for the tire listing, where the order is scraped per category.
-- The learn index has 217 rows for the 218 pages under `/learn/`: 214 articles and the 3 category pages. Every article carries a category.
-- A section takes its band treatment from a Section Metadata block with a `Style` row, which the pipeline turns into a class on the section. A class written on the section div itself is stripped. `dark`, `black`, `light`, `cta` and `full-width` are the styles the stylesheet reads; pages carry a few more that name a template.
+- The learn index has 219 rows: 214 articles, each carrying a category, and 5 listing pages that carry none.
+- A section takes its band treatment from a Section Metadata block with a `Style` row, which the pipeline turns into a class on the section. A class written on the section div itself is stripped. `black`, `cta`, `dark`, `full-width`, `highlight`, `light` and `two-columns` are the styles the global stylesheet reads. A template stylesheet adds its own, so `terms` and `steps` work on a page whose `Template` is `promo` and nowhere else.
 
 ## Working on this repo
 
@@ -409,7 +418,7 @@ Before pushing:
 
 ```sh
 npm run lint
-npm test        # @web/test-runner; 11 test suites cover the blocks with JS logic
+npm test        # @web/test-runner over the 72 files under test/
 ```
 
 After a content edit, read the site against the [authoring contracts](#authoring-contracts):
