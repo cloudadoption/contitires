@@ -290,6 +290,43 @@ describe('The article body subhead', () => {
   it('returns to live\'s 30px above 769, where live drops its own pin', () => {
     expect(value(subhead, 'font-size', '769px')).to.equal('30px');
   });
+
+  /**
+   * Weight, which #185 left alone deliberately because that slice was scoped to
+   * the scale. Live has no weight rule for h2 or for `.news-article__body h2`,
+   * so `h1..h6 { font-weight: inherit }` over `body { font-weight: normal }`
+   * puts it at 400. Live DOES set `.news-article__body h3` to 700 and body h4
+   * to 700. Ours had all three at 300. Issue #353.
+   *
+   * The h2 half is photographed: six subheads on
+   * /learn/how-do-i-check-my-tire-pressure, live against ours at 375, 900 and
+   * 1440. The h3 and h4 half is NOT, and cannot be, because no article page on
+   * this site authors either level: 21 authored h2 across 9 of the 224
+   * article-template pages, zero h3, zero h4. Its basis is live's own computed
+   * style, which is public observation and is evidence; what it lacks is a
+   * picture, not a source.
+   */
+  function weightOf(selector) {
+    const rule = [...sheet.cssRules]
+      .filter((r) => !(r instanceof CSSMediaRule))
+      .reverse()
+      .find((r) => r.selectorText === selector && r.style.getPropertyValue('font-weight'));
+    return rule ? rule.style.getPropertyValue('font-weight').trim() : null;
+  }
+
+  const scope = 'body.article main .section .default-content-wrapper';
+
+  it('inherits live\'s 400 on h2, where live sets no weight rule at all', () => {
+    expect(weightOf(`${scope} h2`)).to.equal('400');
+  });
+
+  it('takes live\'s bold on h3 and h4, which live does set', () => {
+    expect(weightOf(`${scope} :is(h3, h4)`)).to.equal('700');
+  });
+
+  it('leaves no 300 behind on the three levels together', () => {
+    expect(weightOf(`${scope} :is(h2, h3, h4)`), 'the shared subhead rule').to.be.null;
+  });
 });
 
 /**
