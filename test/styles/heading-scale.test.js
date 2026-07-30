@@ -195,6 +195,63 @@ describe('The specs band title', () => {
 });
 
 /**
+ * The product page title, which live keeps off the h1 step. Live renders it as
+ * `<h1 class="tire-page__title">` and then sizes it with the h2 rule,
+ * `h2, .as-h2, .tire-page__title { font-size: 30px; line-height: 38px }`, under
+ * no media query at all. So live's product title is 30px at every width, and it
+ * is the one place live deliberately refuses the h1 size for a page title.
+ *
+ * Ours authored it as a default-content h1, so it took the global h1 token and
+ * stepped to 42px from 1025. Measured on /vancontact-as-ultra against live at
+ * 375, 800, 900, 1025 and 1440: the two agree at the first three and read 30
+ * against 42 at the last two. Issue #351.
+ *
+ * Line-height comes with it. Ours read 36 at every width, from the global 1.2 on
+ * headings, where live reads 38 at every width, so the title matched live at
+ * three widths and now matches at five.
+ *
+ * The selector is measured, not assumed: all 46 product pages carry both
+ * `.columns.product-hero` and `.tire-specs` in the delivered markup, each has
+ * exactly one h1, and no other page in the 327-page index carries either block.
+ */
+describe('The product page title', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/styles/styles.css')).text());
+  });
+
+  const title = 'main:has(.columns.product-hero, .tire-specs) h1';
+
+  /** Every declaration of a property for a selector, base rules and media alike. */
+  function declarations(selector, prop) {
+    const walk = (rules) => [...rules].flatMap((r) => (r instanceof CSSMediaRule
+      ? walk(r.cssRules).map((d) => ({ ...d, media: r.conditionText }))
+      : []).concat(
+      r.selectorText === selector && r.style.getPropertyValue(prop)
+        ? [{ value: r.style.getPropertyValue(prop).trim(), media: null }]
+        : [],
+    ));
+    return walk(sheet.cssRules);
+  }
+
+  it('holds live\'s 30px, the h2 size, on an element that is an h1', () => {
+    expect(declarations(title, 'font-size').map((d) => d.value)).to.deep.equal(['30px']);
+  });
+
+  it('takes live\'s 38px line height, not the 36 the global 1.2 gives', () => {
+    expect(declarations(title, 'line-height').map((d) => d.value)).to.deep.equal(['38px']);
+  });
+
+  it('sits under no media query, because live\'s rule does not either', () => {
+    const sizes = declarations(title, 'font-size');
+    expect(sizes, 'the title size rule').to.have.lengthOf(1);
+    expect(sizes[0].media, 'the condition it sits under').to.be.null;
+  });
+});
+
+/**
  * The article body, which live sizes separately from the global scale.
  *
  *   .news-article__body h2   20px under max-width 768
