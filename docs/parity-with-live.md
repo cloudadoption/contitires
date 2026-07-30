@@ -830,20 +830,23 @@ Ours carries its own copy instead, and that copy is deliberately not live's.
 **Any place a commercial claim was removed.** Several pages still carry live's rebate copy,
 and if they change, that change belongs here.
 
-#### The promo bar replacement has reached one page
+#### The promo bar carries its own copy on every page
 
-Measured on the rendered page on 2026-07-30, at 1440, because a block builds this bar at
-runtime and a curl of the page does not show it.
+The shared fragment was rewritten and published on 2026-07-30, so the bar at the top of every
+page now carries this site's own copy rather than live's offer. The homepage had already been
+done inline and the fragment was brought into line with it. Checked against the single rule on
+the published host: no commercial claim, no assertion of Continental's copyright, no implication
+Continental operates the site.
 
-The homepage renders its own copy and does not use the shared fragment. Every other page
-still renders live's rebate promise, and the shared source,
-`/fragments/promo-bar.plain.html`, still carries live's wording.
+Two details of that change are deliberate and are not defects. The fragment's heading stays one
+level below the homepage's, because the bar is injected into pages that have their own heading
+hierarchy. Its noindex metadata is untouched.
 
-So the decision above is taken and its implementation reached the homepage. The remaining
-pages still carry live's claim, which is what the single rule prohibits. Open as
-[#361](https://github.com/cloudadoption/contitires/issues/361), framed as a divergence to
-MAKE rather than a gap to close, because live carries the same offer and matching live is
-what produces it.
+What remains is in page copy rather than in the bar. `/promotion`, `/promotionended` and
+`/offers` still carry live's rebate offers in their own text, which is what the single rule
+prohibits. Open as [#363](https://github.com/cloudadoption/contitires/issues/363), framed the
+same way: a divergence to MAKE rather than a gap to close, because live carries the same offers
+and matching live is what produces them.
 
 **The values inside these zones are not quoted here on purpose.** The copy is Ben's, it
 changes in wording, figures and link targets, and none of it derives from live, so a figure
