@@ -496,6 +496,20 @@ main .section.hero-container {
     background-color: var(--conti-dark-black);
   }
 
+  /* live's section-hub marquee is 400 tall, not 560. Measured at 1440 on
+     2026-07-30: live's <section class="marquee marquee--dark marquee--left
+     marquee--has-breadcrumbs"> is 1440x400 at y=109 where our
+     <div class="hero left stacked slim block"> was 1440x560 at the same y.
+     An earlier reading of "160 against 400" compared our inner <img>, which is
+     1440x160, against live's whole marquee section, and had the delta pointing
+     the wrong way. Name the box on both sides before trusting a number.
+     `stacked slim` is authored on /experience alone, checked across all 325
+     indexed paths. Issue #250. */
+  .hero.stacked.slim {
+    min-height: 400px;
+  }
+
+
   .hero.stacked .hero-image {
     position: absolute;
     inset: 0;
@@ -509,6 +523,14 @@ main .section.hero-container {
   .hero.stacked .hero-content {
     padding: 96px 32px;
     text-align: left;
+  }
+
+  /* the trail adds 40 to the copy column, which pushed the band 8 past live's
+     400 once /experience carried one. Live fits its own 62px trail inside the
+     400 by sitting it at the top of the marquee rather than inside the centred
+     copy; trimming this variant's padding reaches the same height. */
+  .hero.stacked.slim .hero-content {
+    padding-block: 88px;
   }
 
   .hero.stacked .hero-content h1 {

@@ -1,5 +1,5 @@
 import { getMetadata } from '../../scripts/aem.js';
-import { buildBreadcrumb } from '../banner/banner.js';
+import { buildBreadcrumb, buildHubBreadcrumb } from '../banner/banner.js';
 
 // the width at which the hero stops stacking, so the desktop art starts here
 const DESKTOP_MEDIA = '(min-width: 1025px)';
@@ -94,7 +94,11 @@ export default function decorate(block) {
     // ROLLING WITH THE BEST and reads Partners in the trail.
     const label = getMetadata('breadcrumb')
       || (document.title || '').replace(/\s*\|\s*Continental Tire\s*$/i, '').trim();
-    const trail = buildBreadcrumb(window.location.pathname, label);
+    // a section hub has no section above it, so the two-step trail gives
+    // nothing there. Live paints one step on /experience naming the hub itself,
+    // which is what the hub builder draws. #250
+    const trail = buildBreadcrumb(window.location.pathname, label)
+      || buildHubBreadcrumb(label);
     if (trail) {
       trail.className = 'hero-breadcrumb';
       content.prepend(trail);

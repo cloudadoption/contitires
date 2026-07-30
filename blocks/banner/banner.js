@@ -52,6 +52,35 @@ export function buildBreadcrumb(path, label) {
   return nav;
 }
 
+/**
+ * The trail on a SECTION HUB, which is one step naming the hub itself.
+ * `/experience` is the only hub where live paints a trail: /learn, /tires,
+ * /warranty and /offers carry no breadcrumb nav at all, so `buildBreadcrumb`
+ * keeps giving a one-segment path nothing and this is the opt-in exception.
+ * Live's own markup there is a self-link plus an empty current item, which is
+ * Drupal residue; the surface it paints is the word, so this paints the word
+ * once and marks it as the page you are on.
+ * @param {string} label the hub's name
+ * @returns {Element|null} the trail, or nothing where there is no name to show
+ */
+export function buildHubBreadcrumb(label) {
+  if (!label) return null;
+
+  const nav = document.createElement('nav');
+  nav.className = 'banner-breadcrumb';
+  nav.setAttribute('aria-label', 'Breadcrumb');
+
+  const ol = document.createElement('ol');
+  const current = document.createElement('li');
+  const span = document.createElement('span');
+  span.setAttribute('aria-current', 'page');
+  span.textContent = label;
+  current.append(span);
+  ol.append(current);
+  nav.append(ol);
+  return nav;
+}
+
 const HEADING = 'h1, h2, h3, h4, h5, h6';
 
 /**
