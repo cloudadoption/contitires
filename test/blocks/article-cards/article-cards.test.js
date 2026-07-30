@@ -585,7 +585,9 @@ describe('Article cards, the card excerpt', () => {
   afterEach(() => fetchStub && fetchStub.restore());
 
   async function render(row, variant = '') {
-    serve([{ path: '/learn/a', title: 'A', image: '/a.png', ...row }]);
+    serve([{
+      path: '/learn/a', title: 'A', image: '/a.png', ...row,
+    }]);
     document.body.innerHTML = `<div class="article-cards ${variant} block"></div>`;
     const block = document.querySelector('.article-cards.block');
     await decorate(block);

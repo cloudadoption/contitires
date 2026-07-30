@@ -9,6 +9,29 @@ function cleanTitle(title) {
   return (title || '').replace(/\s*\|\s*Continental Tire\s*$/i, '').trim();
 }
 
+// live's card cuts its excerpt at 150 and its /events mini teaser near 95, from
+// the same underlying text: 133 of its 145 teasers end in an ellipsis, the
+// longest reads 153, which is 150 plus the three dots.
+const CARD_CHARS = 150;
+const TEASER_CHARS = 95;
+
+/**
+ * The words a card shows. Live carries an excerpt of its own, separate from the
+ * meta description, so that is what this prefers; description is the fallback
+ * for a row indexed before the field existed. The index joins its selected
+ * elements, which can leave a leading space.
+ * @param {Object} row one index row
+ * @param {number} limit how many characters this surface shows
+ * @returns {string} the text, cut at a word boundary the way live cuts it
+ */
+export function cardText(row, limit = CARD_CHARS) {
+  const text = (row.excerpt || row.description || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= limit) return text;
+  const cut = text.slice(0, limit);
+  const space = cut.lastIndexOf(' ');
+  return `${(space > 0 ? cut.slice(0, space) : cut).replace(/[\s.,;:]+$/, '')}...`;
+}
+
 /** Builds one teaser: an anchor wrapping the title and the excerpt, no image. */
 function buildTeaser(row) {
   const teaser = document.createElement('a');
@@ -19,9 +42,10 @@ function buildTeaser(row) {
   heading.textContent = cleanTitle(row.title);
   teaser.append(heading);
 
-  if (row.description) {
+  const text = cardText(row, TEASER_CHARS);
+  if (text) {
     const desc = document.createElement('p');
-    desc.textContent = row.description;
+    desc.textContent = text;
     teaser.append(desc);
   }
   return teaser;
@@ -85,9 +109,10 @@ function buildCard(row) {
   const body = document.createElement('div');
   body.className = 'article-card-body';
   body.append(heading);
-  if (row.description) {
+  const text = cardText(row);
+  if (text) {
     const desc = document.createElement('p');
-    desc.textContent = row.description;
+    desc.textContent = text;
     body.append(desc);
   }
 
