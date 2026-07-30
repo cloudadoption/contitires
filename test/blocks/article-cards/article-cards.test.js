@@ -500,3 +500,59 @@ describe('selectRows, the pill term inside a listing', () => {
       .map((r) => r.lastModified)).to.deep.equal(['0']);
   });
 });
+
+/**
+ * The empty-grid message names the axis that emptied the grid. Before the pill
+ * term existed there was one axis, so naming the category was naming the cause.
+ * Now a page can ask for a listing that IS published and a pill term that is
+ * not, and saying "no article is published under News" sends the reader to the
+ * wrong cell. /learn/corporate reads exactly that way until its articles carry
+ * the term. Issue #246.
+ */
+describe('Article cards, a pill term nobody publishes under', () => {
+  let fetchStub;
+  let errors;
+
+  const ROWS = [
+    {
+      path: '/learn/a', title: 'A', image: '/a.png', category: 'News', subcategory: 'News',
+    },
+    {
+      path: '/learn/b', title: 'B', image: '/b.png', category: 'News',
+    },
+  ];
+
+  beforeEach(() => {
+    errors = sinon.stub(console, 'error');
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify({
+      total: ROWS.length, offset: 0, limit: ROWS.length, data: ROWS,
+    })));
+  });
+
+  afterEach(() => {
+    fetchStub.restore();
+    errors.restore();
+  });
+
+  it('names the pill term, not the listing, when the term is the empty one', async () => {
+    document.body.innerHTML = `<div class="article-cards block">
+      <div><div>Category</div><div>News</div></div>
+      <div><div>Subcategory</div><div>Corporate</div></div>
+    </div>`;
+    const block = document.querySelector('.article-cards.block');
+    await decorate(block);
+    const message = block.querySelector('.article-cards-error');
+    expect(message, 'an empty grid says why').to.exist;
+    expect(message.textContent).to.contain('Corporate');
+    expect(message.textContent, 'the listing is not the cause').to.not.contain('under "News"');
+  });
+
+  it('still names the listing when the listing is the empty one', async () => {
+    document.body.innerHTML = `<div class="article-cards block">
+      <div><div>Category</div><div>Recipes</div></div>
+    </div>`;
+    const block = document.querySelector('.article-cards.block');
+    await decorate(block);
+    expect(block.querySelector('.article-cards-error').textContent).to.contain('Recipes');
+  });
+});
