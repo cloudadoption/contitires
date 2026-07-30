@@ -293,6 +293,45 @@ function buildPartnerSidebar(main) {
 }
 
 /**
+ * Splits a two-column band into its two columns. Live pairs the /events Social
+ * gallery and its News list inside one black band, gallery left and list right.
+ *
+ * The authored contract: a `two-columns` section holds two blocks. The first
+ * block and the content above it stand in the left column; the second block,
+ * the heading directly above it and anything after it stand in the right.
+ *
+ * Each column is ONE element, which is what holds it to a single grid row. Grid
+ * items spanning the gallery's rows share its height out between them instead,
+ * which is what put the partner sharebar a third of the way down the page.
+ *
+ * Runs after decorateBlocks, so a wrapper already names the block it holds.
+ * loadSection finds a block anywhere under the section, so the extra level
+ * costs it nothing.
+ * @param {Element} main The container element
+ */
+function buildTwoColumnBands(main) {
+  main.querySelectorAll('.section.two-columns').forEach((section) => {
+    if (section.querySelector(':scope > .section-columns')) return;
+    const children = [...section.children];
+    const blocks = children.filter((el) => el.querySelector(':scope > .block'));
+    if (blocks.length < 2) return;
+
+    let split = children.indexOf(blocks[1]);
+    if (split > 1 && children[split - 1].classList.contains('default-content-wrapper')) split -= 1;
+
+    const columns = document.createElement('div');
+    columns.className = 'section-columns';
+    [children.slice(0, split), children.slice(split)].forEach((part) => {
+      const column = document.createElement('div');
+      column.className = 'section-column';
+      part.forEach((el) => column.append(el));
+      columns.append(column);
+    });
+    section.append(columns);
+  });
+}
+
+/**
  * Ends a product page with the rating band, the way live ends one with its
  * reviews section. A product page is one carrying the product hero or the
  * specs band: 44 of the 46 carry both, /tires/purecontact-ls and
@@ -424,6 +463,7 @@ export function decorateMain(main) {
   buildArticleSidebar(main);
   decorateBlocks(main);
   buildPartnerSidebar(main);
+  buildTwoColumnBands(main);
   buildProductViewer(main);
   buildTabs(main);
   decorateNestedBlocks(main);

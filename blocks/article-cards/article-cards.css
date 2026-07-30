@@ -307,18 +307,38 @@ main .article-cards.columns .article-cards-list {
   }
 }
 
-/* ---- the learn hub bands run to live's own vertical rhythm ---- */
+/* ---- the learn hub bands run to live's own vertical rhythm. The /events band
+   is a different band on live, `news-list-vertical` against the hub's
+   `news-list-horizontal`, and it carries its own padding and its own title
+   scale, so the two exclusions below hand it back to `.section.two-columns`
+   rather than raising every rule there past these. Issue #340. ---- */
 main .section.article-cards-container:has(.article-cards.feature) {
   padding: 38px 0;
 }
 
-main .section.article-cards-container:has(.article-cards.columns) {
+main .section.article-cards-container:not(.two-columns):has(.article-cards.columns) {
   padding: 38px 0;
 }
 
-main .section.article-cards-container:has(.article-cards.columns) h2 {
+main .section.article-cards-container:not(.two-columns):has(.article-cards.columns) h2 {
   font-size: 30px;
   font-weight: 400;
+}
+
+/* ---- the news list inside live's two-column band. The column is 350 wide, so
+   the three text columns the learn hub runs stack here, each ruled off in
+   live's own #cdcdcd with 20 above the next. Issue #340. ---- */
+main .section.two-columns .article-cards.columns .article-cards-list {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+main .section.two-columns .article-cards .article-teaser {
+  border-bottom-color: var(--conti-grey);
+}
+
+main .section.two-columns .article-cards.columns .article-cards-list li + li .article-teaser {
+  padding-top: 20px;
 }
 
 @media (width >= 900px) {
