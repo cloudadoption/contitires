@@ -201,7 +201,9 @@ function productCard(product) {
   const media = document.createElement('div');
   media.className = 'perfect-fit-result-media';
   if (product.image) {
-    media.append(createOptimizedPicture(product.image, product.name, false, [{ width: '400' }]));
+    // empty alt for the same reason the article card leaves one: the name is
+    // already in the heading below, inside this same link
+    media.append(createOptimizedPicture(product.image, '', false, [{ width: '400' }]));
   }
   const body = document.createElement('div');
   body.className = 'perfect-fit-result-body';
