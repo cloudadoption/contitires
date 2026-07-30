@@ -403,6 +403,8 @@ main .section.cards-container:has(.cards.members) > div {
   }
 }
 
+
+
 /* ---- teaser: the tiles live gives a section hub. One 16:9 photo per row,
    with the destination's name as a pill over the middle of it, on the black
    band the section rules at the foot of this sheet draw. Read off
@@ -945,4 +947,88 @@ main .section.cards-container:has(.cards.benefits) .cards-wrapper + .default-con
     font-size: 24px;
     line-height: 32px;
   }
+}
+
+/* ---- row: the `members` tile in live's scrolling hub carousel.
+   Live's /experience runs its Conti Crew row as a flex list that overflows and
+   scrolls, with a Previous and a Next control. Measured at 1440 on 2026-07-30:
+   the list is display flex with a scrollWidth of 1588 inside a clientWidth of
+   1192, and its tiles are 380x325.
+   The row reaches FOUR shows on live, not five: its splide reports four slides
+   with no clones and its arrows count "1 of 4" to "4 of 4". Dinner With Racers
+   is on /experience/conti-crew only. So the scroll is live's shape rather than a
+   way to reach a fifth show.
+   The tile is the `members` variant built for #252 and is not redefined here.
+   Issue #250. ---- */
+
+.cards.members.row > ul {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.cards.members.row > ul::-webkit-scrollbar {
+  display: none;
+}
+
+/* the `> ul > li` tail is shared with variants this can never match at once,
+   news and category among them, so their order carries no cascade meaning here */
+/* stylelint-disable-next-line no-descending-specificity */
+.cards.members.row > ul > li {
+  flex: 0 0 380px;
+  aspect-ratio: 380 / 325;
+  scroll-snap-align: start;
+}
+
+/* live's controls sit at the row's top right, above the tiles */
+.cards.members.row {
+  position: relative;
+}
+
+.cards-scroll-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.cards-scroll-controls button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--conti-white);
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--conti-white);
+  cursor: pointer;
+}
+
+.cards-scroll-controls button::before {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+  content: '\2039';
+}
+
+.cards-scroll-controls .cards-scroll-next::before {
+  content: '\203a';
+}
+
+.cards-scroll-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.cards-scroll-controls button:focus-visible,
+.cards-scroll-controls button:hover:not(:disabled) {
+  background-color: var(--conti-white);
+  color: var(--conti-black);
+}
+
+/* live sets this band's heading at 30px uppercase, where the Sports band below
+   it takes 42px with 6px of tracking. Ours ran both at 42px untransformed. */
+main .section.cards-container:has(.cards.members.row) .default-content-wrapper h2 {
+  font-size: 30px;
+  text-transform: uppercase;
 }
