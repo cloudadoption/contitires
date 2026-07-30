@@ -114,6 +114,7 @@ and should be left alone.
 | Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | not knowable from outside | no, needs live's backend | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 |  | [Fit by size](#fit-by-size) | differs | queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
 |  | [Star rating and review count](#star-rating-and-review-count) | absent | the number queued, the corpus is not | [#241](https://github.com/cloudadoption/contitires/issues/241) |
+|  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | queued, dropping the link is the small fix | [#242](https://github.com/cloudadoption/contitires/issues/242) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | no, needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | no, live's exclusions are Solr config | -- |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | no, needs a dealer database and a geocoder | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
@@ -137,6 +138,8 @@ and should be left alone.
 | Content and editorial | [Page titles](#page-titles-match-live-with-one-exception) | matches | one page queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | README pass queued | [#235](https://github.com/cloudadoption/contitires/issues/235) |
 |  | [Product copy](#product-copy-and-where-it-stopped-matching-live) | differs on one page | a decision to re-make | [#171](https://github.com/cloudadoption/contitires/issues/171), [#93](https://github.com/cloudadoption/contitires/issues/93) |
+|  | [No result count above the pager](#no-result-count-above-the-pager) | absent | queued | -- |
+|  | [Card teaser text](#card-teaser-text) | approximated | no, live's teaser field is unpublished | -- |
 | Layout and type | [The heading scale](#the-heading-scale) | differs | in flight | [#185](https://github.com/cloudadoption/contitires/issues/185) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | queued, and not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
@@ -354,8 +357,11 @@ structured data reads `ratingValue` 4.60 with `reviewCount` 1043 on
 `/tires/extremecontact-dws06-plus`. That aggregate is server-rendered, so it is readable from
 outside.
 
-Our catalog sheet carries a frozen rating and review count for all 46 rows. The rendered page
-shows neither: a grep for `rating` over the delivered HTML returns zero.
+Our catalog sheet carries a frozen rating and review count for all 46 rows, and
+`blocks/tire-rating` exists to render one. The delivered HTML carries no rating markup, so
+whether a visitor sees a band depends on what that block builds in the browser, and curl cannot
+settle it. What is settled is that any number we print is a snapshot of the sheet. It was
+already one review behind live on 2026-07-29.
 
 What it costs a visitor: no rating and no review count on a product page, which is a real
 signal on a tire.
@@ -366,6 +372,28 @@ moves as reviews arrive. The review corpus itself, the moderation state and the 
 property configuration are in Continental's account and no scrape reaches them. So the visible
 number is unbuilt work and the living number behind it is not.
 
+
+### The specs link points at a page we 404
+
+**absent.** Live gives each product its own specs page. We render specs inline and still link
+to the page.
+
+Live serves 42 per-product specs pages. `/tires/extremecontact-dws06-plus/specs` answers 200 on
+live and 404 here, checked on 2026-07-30.
+
+Our product pages render the size specs inside the page, read from the workbook, which is a
+reasonable choice on its own. The problem is the link. The specs band ends with a "View all
+sizes and specs" control that `blocks/tire-specs` builds in the browser, pointing at the path we
+do not serve.
+
+What it costs a visitor: a dead link at the foot of the specs band on 45 product pages, and it
+is the only dead link our own pages emit. A bookmark or a search result on a live specs URL
+lands on our 404 too.
+
+What would close it: either drop the link, since the specs are already on the page, or add 42
+redirect rows onto the product pages. Dropping it is the smaller change and loses nothing,
+because the content the link promises is already above it.
+[#242](https://github.com/cloudadoption/contitires/issues/242).
 
 ## Search
 
@@ -770,6 +798,36 @@ rather than improve it.
 Live truncates some of its own descriptions and we reproduce that too. Live's description on
 `/learn/150-years-sustainability` ends "...and has since.." with the stray pair of dots.
 `/newsletter-signup` carries zero meta description tags on live, and zero here.
+
+### No result count above the pager
+
+**absent.** Live prints "1-10 of 148 results". We print nothing.
+
+Live's learn listing prints a count line above its pager. Ours has no count at all, so a reader
+cannot see how many articles exist or how far through the list they are.
+
+A related surplus sits next to it. Our Everything view shows 150 articles against live's 148,
+because our News listing holds two live does not list. Nothing is missing, there is surplus, and
+a reader can reach two articles from the listing here that live does not offer.
+
+Live also swaps its three filter pills for a select below its breakpoint. We keep three pills at
+375. Both reach the same three destinations.
+
+### Card teaser text
+
+**approximated.** Live's teaser is a field we cannot read. Our derived excerpt matches it on 141
+of 145 articles.
+
+Live stores a teaser as its own field. We derive an excerpt from the article body. On 145
+articles the two agree on 141 and read differently on 4.
+
+What would close it: nothing from outside, since the field is not published anywhere the public
+site exposes. Four cards reading differently out of 145 is the measured cost.
+
+A neighbouring row is deliberate. Thirteen meta descriptions stop at a dateline abbreviation, so
+those pages tell a search engine their content is "Fort Mill, S.C.". Live's are cut the same
+way, so it stays. Cards are unaffected, because a card renders the excerpt rather than the
+description.
 
 ### Product copy, and where it stopped matching live
 
