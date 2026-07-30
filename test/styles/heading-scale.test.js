@@ -119,6 +119,82 @@ describe('The heading type scale', () => {
 });
 
 /**
+ * The specs band title, which live sizes on its own class rather than on the
+ * scale. Its three rules, read off live's CSSOM on /vancontact-as-ultra at
+ * 1440 and confirmed against computed sizes at 375, 800, 900, 1025 and 1440:
+ *
+ *   .tire-specs__title                 --font-size-42, --line-height-48
+ *   under max-width 1024               --font-size-30, --line-height-36
+ *   under max-width 768                --font-size-32, --line-height-36
+ *
+ * The 768 rule follows the 1024 one in live's source, so the narrow band takes
+ * 32 and not 30. Live's weight is 300 at every width, which ours already sets.
+ *
+ * Ours read 28px to 899 and 30px above it, so the band was wrong at four of
+ * the five widths and right only between 900 and 1024. Issue #352.
+ */
+describe('The specs band title', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/tire-specs/tire-specs.css')).text());
+  });
+
+  /**
+   * What a selector's property resolves to at a width. Walks the base rules and
+   * every min-width block the sheet carries, keeps those the viewport has
+   * reached, and takes the last declaration, which is what the cascade does.
+   */
+  function resolved(selector, prop, width) {
+    const base = [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+    const blocks = [{ min: 0, rules: base }].concat(
+      [...sheet.cssRules]
+        .filter((r) => r instanceof CSSMediaRule)
+        .map((r) => ({
+          min: +(r.conditionText.match(/width\s*>=\s*(\d+)px|min-width:\s*(\d+)px/) || [])
+            .slice(1).find(Boolean),
+          rules: [...r.cssRules],
+        }))
+        .filter((b) => !Number.isNaN(b.min)),
+    );
+    const matches = (r) => r.selectorText
+      && r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    return blocks
+      .filter((b) => b.min <= width)
+      .sort((a, c) => a.min - c.min)
+      .reduce((found, b) => {
+        const rule = [...b.rules].reverse().find((r) => matches(r)
+          && r.style.getPropertyValue(prop));
+        return rule ? rule.style.getPropertyValue(prop).trim() : found;
+      }, null);
+  }
+
+  const title = '.tire-specs h2';
+
+  it('carries live\'s 32 / 30 / 42 across live\'s two breakpoints', () => {
+    const at = (w) => resolved(title, 'font-size', w);
+    expect(at(375), 'below 769').to.equal('32px');
+    expect(at(800), 'between 769 and 1024').to.equal('30px');
+    expect(at(900), 'still between 769 and 1024').to.equal('30px');
+    expect(at(1025), 'at live\'s breakpoint').to.equal('42px');
+    expect(at(1440), 'above it').to.equal('42px');
+  });
+
+  it('takes live\'s line height with the size, 36 then 48', () => {
+    const at = (w) => resolved(title, 'line-height', w);
+    expect(at(375), 'below 769').to.equal('36px');
+    expect(at(900), 'between 769 and 1024').to.equal('36px');
+    expect(at(1440), 'above 1025').to.equal('48px');
+  });
+
+  it('switches where live switches, not at 900', () => {
+    expect(resolved(title, 'font-size', 899), 'at 899')
+      .to.equal(resolved(title, 'font-size', 900));
+  });
+});
+
+/**
  * The article body, which live sizes separately from the global scale.
  *
  *   .news-article__body h2   20px under max-width 768
