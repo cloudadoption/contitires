@@ -762,14 +762,14 @@ disagrees with several of them and the README is the stale one. [#235](https://g
 | Redirect rows | 14 | the redirects sheet |
 | Block library samples | 22 | `/tools/sidekick/library.json`, `total` |
 | Block directories | 29 | `blocks/` |
-| Test files | 71 | `find -name '*.test.js'` |
-| Commits | 122 | `git log`, 2026-07-24 to 2026-07-30 |
-| Closed release issues | 29 | `gh issue list --label release --state closed` |
-| Open release issues | 3 | [#302](https://github.com/cloudadoption/contitires/issues/302), the sequence tracker, [#316](https://github.com/cloudadoption/contitires/issues/316) and [#235](https://github.com/cloudadoption/contitires/issues/235) |
+| Test files | 72 | `find -name '*.test.js'` |
+| Commits | 128 | `git log origin/main`, 2026-07-24 to 2026-07-30 |
+| Closed release issues | 30 | `gh issue list --label release --state closed` |
+| Open release issues | 3 | [#302](https://github.com/cloudadoption/contitires/issues/302), the sequence tracker, [#235](https://github.com/cloudadoption/contitires/issues/235) and [#360](https://github.com/cloudadoption/contitires/issues/360) |
 | Open post-release issues | 78 | `gh issue list --label post-release --state open` |
 
 Three README figures are wrong as of today. It claims 19 blocks against 29 directories, 14 test
-files against 71, and 352 pages published against a query-index total of 327. It also says the
+files against 72, and 352 pages published against a query-index total of 327. It also says the
 build took three days. It took seven, 2026-07-24 to 2026-07-30, and [#234](https://github.com/cloudadoption/contitires/issues/234)'s own brief says four,
 which is also wrong.
 
