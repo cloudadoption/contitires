@@ -240,10 +240,13 @@ main .search .search-no-results {
   text-align: center;
 }
 
+/* the empty-result heading keeps the numbers it rendered before #185 moved the
+   h3 and h1 tokens to live's scale. The 600 rule below wins from 600 up, so
+   this one is what shows on a phone. */
 main .search .search-no-results h2 {
   max-width: 11em;
   margin: 0 auto 32px;
-  font-size: var(--heading-font-size-l);
+  font-size: 28px;
   line-height: 1.2;
   color: var(--conti-white);
 }
@@ -324,6 +327,6 @@ main .search .search-no-results .button:hover {
   }
 
   main .search .search-no-results h2 {
-    font-size: var(--heading-font-size-xxl);
+    font-size: 42px;
   }
 }

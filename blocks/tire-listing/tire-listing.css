@@ -62,11 +62,14 @@
 
 /* ---------- filter form ---------- */
 
+/* the filter heading keeps the numbers it rendered before #185 moved the h3
+   token to live's 24px. A block treatment is measured against live on its own
+   surface, not carried along by the global scale. */
 .tire-listing .tire-listing-filters h2 {
   margin: 0;
   border-bottom: 1px solid var(--conti-grey);
   padding-bottom: 20px;
-  font-size: var(--heading-font-size-l);
+  font-size: 28px;
   font-weight: 400;
   line-height: 1.27;
   text-align: center;
@@ -557,7 +560,7 @@
   }
 
   .tire-listing .tire-listing-count {
-    font-size: var(--heading-font-size-l);
+    font-size: 28px;
     text-align: left;
   }
 
@@ -586,6 +589,12 @@
 @media (width >= 900px) {
   .tire-listing {
     padding: 80px 16px;
+  }
+
+  /* the pair the h3 token used to carry, now written out (#185) */
+  .tire-listing .tire-listing-filters h2,
+  .tire-listing .tire-listing-count {
+    font-size: 30px;
   }
 
   /* live's grid: a 250px track holding a 230px form, then the results track

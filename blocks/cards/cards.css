@@ -547,9 +547,11 @@ main .section.cards-container:has(.cards.category) > div {
   margin: 20px 160px 20px 24px;
 }
 
+/* the category tile keeps the numbers it rendered before #185 moved the h3
+   token to live's 24px */
 .cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
   display: inline;
-  font-size: var(--heading-font-size-l);
+  font-size: 28px;
   font-weight: 400;
   letter-spacing: 0.25px;
   background-color: var(--conti-white);
@@ -568,6 +570,10 @@ main .section.cards-container:has(.cards.category) > div {
 }
 
 @media (width >= 900px) {
+  .cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 30px;
+  }
+
   /* live's fixed-height row: a 166px tile with a thin vertical divider
      between adjacent tiles (no bottom rule), so all three images align
      regardless of how the title wraps */
