@@ -131,21 +131,82 @@ describe('Cards, the hub row scroll controls', () => {
     expect(block.querySelector('.cards-scroll-next').disabled).to.be.false;
   });
 
-  it('scrolls one tile on when next is pressed', async () => {
+  /**
+   * The control asks for one tile plus the row's gap, with a smooth behaviour.
+   * The ARGUMENTS are asserted rather than the resulting scrollLeft, because
+   * `behavior: 'smooth'` never animates in this headless runner: setting
+   * scrollLeft directly reads back 0 under `scroll-snap-type: x mandatory`,
+   * while `scrollBy` with `behavior: 'auto'` lands exactly on 400. The real
+   * scroll is proved on the rendered page instead, in .mossy/parity/250/.
+   */
+  it('asks to scroll one tile plus the gap, smoothly', async () => {
     await setViewport({ width: 1440, height: 900 });
     const block = buildRow();
     addScrollControls(block);
     const list = block.querySelector('ul');
-    const step = list.firstElementChild.getBoundingClientRect().width;
+    const tileWidth = list.firstElementChild.getBoundingClientRect().width;
+    const gap = parseFloat(getComputedStyle(list).columnGap);
+    const calls = [];
+    list.scrollBy = (opts) => calls.push(opts);
+
     block.querySelector('.cards-scroll-next').click();
-    await new Promise((r) => setTimeout(r, 50));
-    expect(list.scrollLeft, 'moved about one tile').to.be.closeTo(step + 20, 24);
+    expect(calls, 'next scrolls once').to.have.length(1);
+    expect(calls[0].behavior).to.equal('smooth');
+    expect(calls[0].left).to.equal(tileWidth + gap);
   });
 
-  it('adds no controls when the row does not scroll', async () => {
+  it('scrolls back the other way once there is somewhere to go back to', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const block = buildRow();
+    addScrollControls(block);
+    const list = block.querySelector('ul');
+    const step = list.firstElementChild.getBoundingClientRect().width
+      + parseFloat(getComputedStyle(list).columnGap);
+    // move off the start so the control enables itself, the way a reader would
+    list.scrollBy({ left: step, behavior: 'auto' });
+    list.dispatchEvent(new Event('scroll'));
+    const prev = block.querySelector('.cards-scroll-prev');
+    expect(prev.disabled, 'enabled once scrolled').to.be.false;
+    const calls = [];
+    list.scrollBy = (opts) => calls.push(opts);
+    prev.click();
+    expect(calls).to.have.length(1);
+    expect(calls[0].left, 'the other way').to.equal(-step);
+  });
+
+  it('really scrolls the row when the behaviour is not animated', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const block = buildRow();
+    const list = block.querySelector('ul');
+    const step = list.firstElementChild.getBoundingClientRect().width
+      + parseFloat(getComputedStyle(list).columnGap);
+    list.scrollBy({ left: step, behavior: 'auto' });
+    expect(list.scrollLeft, 'the row is genuinely scrollable').to.equal(step);
+  });
+
+  /**
+   * The controls are built whatever the row measures, and hidden when there is
+   * nothing to scroll to. They used to be gated on measuring an overflow inside
+   * `decorate`, and that measurement cannot be trusted: a block's CSS and its JS
+   * load in parallel, so `decorate` can run while the row is still an unstyled
+   * grid whose scrollWidth equals its clientWidth. Every unit test passed and the
+   * rendered page had no controls at all.
+   */
+  it('hides the controls when the row does not scroll', async () => {
     await setViewport({ width: 1440, height: 900 });
     const block = buildRow(2);
     addScrollControls(block);
-    expect(block.querySelector('.cards-scroll-next'), 'nothing to scroll to').to.not.exist;
+    const controls = block.querySelector('.cards-scroll-controls');
+    expect(controls, 'still built').to.exist;
+    expect(controls.hidden, 'but out of reach').to.be.true;
+    expect(block.querySelector('.cards-scroll-next').disabled).to.be.true;
+  });
+
+  it('shows them when the row does overflow', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const block = buildRow(4);
+    addScrollControls(block);
+    const controls = block.querySelector('.cards-scroll-controls');
+    expect(controls.hidden, 'reachable').to.be.false;
   });
 });

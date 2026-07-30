@@ -2,7 +2,7 @@
 /* global describe it before after afterEach */
 
 import { expect } from '@esm-bundle/chai';
-import decorate, { buildBreadcrumb } from '../../../blocks/banner/banner.js';
+import decorate, { buildBreadcrumb, buildHubBreadcrumb } from '../../../blocks/banner/banner.js';
 
 /** A banner block with the given cells authored in it. */
 function bannerBlock(...cells) {
@@ -53,6 +53,44 @@ describe('Banner block, the trail', () => {
   it('shows no trail for a page at the root', () => {
     expect(buildBreadcrumb('/legal', 'Terms Of Use Agreement') === null, '/legal').to.be.true;
     expect(buildBreadcrumb('/', 'Home') === null, 'the home page').to.be.true;
+  });
+});
+
+/**
+ * `/experience` is the one section hub where live paints a trail, and it paints
+ * a single word. Checked on 2026-07-30: /learn, /tires, /warranty and /offers
+ * carry no breadcrumb nav at all, so the rule above stays as the general case.
+ *
+ * Live's own markup there is two `<li>`: a SELF-LINK "Experience" pointing at
+ * /experience, and an empty current item. That is Drupal residue. The surface it
+ * paints is the word, so ours paints the word in one item marked as the current
+ * page, with no link back to the page you are already on.
+ *
+ * This is a separate builder rather than a change to `buildBreadcrumb`, because
+ * a one-segment path getting a trail is the exception live makes for this page
+ * and not the rule. No page opts into it today: checked every one-segment path
+ * in the index for a breadcrumb variant, and none carries one. Issue #250.
+ */
+describe('Banner block, the section hub trail', () => {
+  it('names the hub in one item, marked as the current page', () => {
+    const nav = buildHubBreadcrumb('Experience');
+    expect(nav, 'a trail').to.exist;
+    expect(nav.tagName).to.equal('NAV');
+    expect(nav.getAttribute('aria-label')).to.equal('Breadcrumb');
+    const items = nav.querySelectorAll('li');
+    expect(items, 'one step only').to.have.length(1);
+    expect(items[0].textContent.trim()).to.equal('Experience');
+    expect(items[0].querySelector('[aria-current="page"]'), 'marked current').to.exist;
+  });
+
+  it('does not link the page back to itself, the way live does', () => {
+    const nav = buildHubBreadcrumb('Experience');
+    expect(nav.querySelector('a'), 'no self-link').to.not.exist;
+  });
+
+  it('gives nothing without a label to name', () => {
+    expect(buildHubBreadcrumb('') === null, 'empty label').to.be.true;
+    expect(buildHubBreadcrumb() === null, 'no label').to.be.true;
   });
 });
 
