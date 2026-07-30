@@ -330,6 +330,95 @@ describe('The article body subhead', () => {
 });
 
 /**
+ * The images-section title, which live drops a step on narrow screens while our
+ * global h2 holds one size at every width.
+ *
+ *   .images-section__title   the global h2, 30px / 38px
+ *   under max-width 768      --font-size-24, --line-height-32
+ *
+ * Measured on live's /media at 375 and 1440: 24/32 then 30/38, on all five of
+ * the headings that carry the class. Ours authored the four tire-image bands as
+ * h3, which #356 promoted to h2 so the level matches live. That promotion closed
+ * the 6px gap at 900 and 1440 and OPENED one at 375, because our global h2 is
+ * 30px at every width. This rule is the other half of #356.
+ *
+ * The selector is measured, not assumed. Two pages in the 327-page index build a
+ * tabs block, /media and /online-retailers, and `.tabs .tabs-main h2` reaches
+ * seven headings across them. Only five have a live counterpart: the six on
+ * /media less `Tire Images`, which live does not have at all. `:has(+ .cards)`
+ * is what separates them, because live gives the class to the title of a band of
+ * image cards and to nothing else. It reaches those five and no other h2 on the
+ * site. `Store search is not part of this site` on /online-retailers is our own
+ * copy in place of live's store search, live has no h2 there at any width, and
+ * the selector must not reach it.
+ *
+ * Line-height comes with the size. Our headings take `line-height: 1.2` from the
+ * global rule, so a bare 24px would resolve to 28.8px where live reads 32px.
+ * Issue #356.
+ */
+describe('The images-section title', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/tabs/tabs.css')).text());
+  });
+
+  /**
+   * What a selector's property resolves to at a width. Unlike the min-width
+   * helpers above this one reads `width < N` as well, because live switches this
+   * title on a max-width condition and the repo spells that `(width < 769px)`.
+   */
+  function resolved(selector, prop, width) {
+    const holds = (condition) => {
+      const min = condition.match(/width\s*>=\s*(\d+)px|min-width:\s*(\d+)px/);
+      if (min) return width >= +min.slice(1).find(Boolean);
+      const max = condition.match(/width\s*<\s*(\d+)px/);
+      if (max) return width < +max.slice(1).find(Boolean);
+      const inc = condition.match(/max-width:\s*(\d+)px/);
+      if (inc) return width <= +inc.slice(1).find(Boolean);
+      return false;
+    };
+    const walk = (rules, applies) => [...rules].flatMap((r) => (r instanceof CSSMediaRule
+      ? walk(r.cssRules, applies && holds(r.conditionText))
+      : [{ rule: r, applies }]));
+    return walk(sheet.cssRules, true)
+      .filter(({ applies, rule }) => applies && rule.selectorText
+        && rule.selectorText.split(',').map((s) => s.trim()).includes(selector)
+        && rule.style.getPropertyValue(prop))
+      .map(({ rule }) => rule.style.getPropertyValue(prop).trim())
+      .pop() || null;
+  }
+
+  const title = '.tabs .tabs-main h2:has(+ .cards)';
+
+  it('drops to live\'s 24px below 769, where our global h2 holds 30', () => {
+    expect(resolved(title, 'font-size', 375), 'at 375').to.equal('24px');
+    expect(resolved(title, 'font-size', 768), 'at 768, live\'s last narrow px').to.equal('24px');
+  });
+
+  it('takes live\'s 32px line height, not the 28.8 the global 1.2 gives', () => {
+    expect(resolved(title, 'line-height', 375), 'at 375').to.equal('32px');
+  });
+
+  it('leaves 769 and up to the global h2, which is live\'s 30px there', () => {
+    expect(resolved(title, 'font-size', 769), 'at 769').to.be.null;
+    expect(resolved(title, 'font-size', 1440), 'at 1440').to.be.null;
+  });
+
+  /**
+   * The two headings the selector must not reach: `Tire Images` on /media, which
+   * live does not have, and the /online-retailers store-search note, which is our
+   * own copy. Both are h2 in `.tabs-main` and neither is followed by a `.cards`
+   * block, so an unqualified rule would size them off a number live never gives.
+   */
+  it('sizes no h2 in tabs-main that heads something other than cards', () => {
+    expect(resolved('.tabs .tabs-main h2', 'font-size', 375)).to.be.null;
+    expect(resolved('.tabs .tabs-main :is(h1, h2, h3, h4, h5, h6)', 'font-size', 375)).to.be.null;
+  });
+});
+
+/**
  * The marquee title. Live's marquee heading is its global h1: 30px at 375 and
  * 900, 42px at 1440, measured in .marquee__texts on /events and
  * /experience/partners. Ours pinned it to the h2 token, which read 32px at 375
