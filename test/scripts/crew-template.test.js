@@ -69,6 +69,25 @@ describe("Crew template, live's copy column", () => {
     expect(Math.round(copy.getBoundingClientRect().width)).to.equal(335);
     expect(getComputedStyle(copy).padding).to.equal('40px 0px');
   });
+
+  /**
+   * Live separates consecutive copy paragraphs by 22px, one line of its own
+   * 22px leading. Measured on continentaltire.com/experience/conti-crew/
+   * straight-pipes at 1440 on 2026-07-30: both paragraphs report `margin: 0`
+   * and sit 22px apart, the first ending at 1233 and the second starting at
+   * 1255.
+   *
+   * The zero margin is live's own, so it stays. The gap is what was missing.
+   * It went unnoticed because every crew page authored before this one carries
+   * a SINGLE copy paragraph, so the rule was never exercised with two.
+   */
+  it('separates consecutive copy paragraphs by 22px', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const paras = main.querySelectorAll('.section.copy .default-content-wrapper p');
+    expect(paras.length, 'the fixture needs two paragraphs').to.equal(2);
+    const gap = paras[1].getBoundingClientRect().top - paras[0].getBoundingClientRect().bottom;
+    expect(Math.round(gap)).to.equal(22);
+  });
 });
 
 describe("Crew template, live's pull quote", () => {

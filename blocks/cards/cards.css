@@ -328,21 +328,45 @@ main .section.cards-container:has(.cards.members) > div {
   object-fit: cover;
 }
 
-/* live shades the foot of the photo so the name reads over it */
+/* Live shades the foot of the photo so the name reads over it, and ours was
+   both too weak AND painted over the name (see the z-index note below).
+   Measured out of the composited 1440 screenshots on 2026-07-30, reading the
+   text core against the backdrop it sits on, both from the same pixels:
+
+     tile                    live    before   after
+     The Straight Pipes      6.78    2.01     11.31
+     Gears & Gasoline       12.71    2.70     13.69
+     Speed Academy          15.55    4.81     17.96
+     Engineering Explained  16.52    5.09     18.21
+     Dinner With Racers     16.51    5.15     17.83
+
+   Live reads cleanly on all five, worst 6.78. Ours failed 4.5:1 on two tiles
+   and bottomed at 2.01. The fix clears live on every tile.
+   An earlier pass measured only the BACKDROP beside the glyphs and reported the
+   gap as small, with live apparently failing its own Dinner With Racers at 3.58.
+   That instrument cannot see a scrim painted over the text, which was the actual
+   defect, so it made a 2.01 look like a 3.44. Measure the text against its
+   backdrop, never the backdrop alone.
+   Lighthouse cannot score text over a background image, so the proof is the
+   pixel measurement in .mossy/parity/251/contrast-glyph.py, not a PSI row. */
 .cards.members > ul > li::after {
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: linear-gradient(180deg, rgb(0 0 0 / 0%) 51.39%, rgb(0 0 0 / 60%) 100%);
+  background: linear-gradient(180deg, rgb(0 0 0 / 0%) 45%, rgb(0 0 0 / 35%) 72%, rgb(0 0 0 / 88%) 100%);
   content: '';
   pointer-events: none;
 }
 
+/* z-index 2, above the scrim's 1: a pseudo element counts as its originating
+   element's last child, so at an equal z-index the scrim painted OVER the name
+   and washed the white text grey. `pointer-events: none` on the scrim hid it,
+   because the link still worked and only looked faded. */
 .cards.members .cards-card-body {
   position: absolute;
   bottom: 0;
   left: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 10px;

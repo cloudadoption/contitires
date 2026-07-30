@@ -39,3 +39,54 @@
 .category-tabs-list a.category-tab-active {
   border-bottom-color: var(--conti-yellow);
 }
+
+/* The `compact` variant: live's OTHER section strip.
+   The rules above are live's /learn tab bar, and its five pages match it. The
+   /experience pages get something smaller from the same markup, so this is a
+   variant rather than an edit to the base: changing the base to suit these
+   pages would regress /learn.
+   Read off continentaltire.com/experience/sports and /experience/conti-crew at
+   1440 and 375 on 2026-07-30. The row shrinks to its content and centres in a
+   1136 container (273x41 at x=584), carries no rule, and its items sit 38 apart
+   at 1440 and 20 at 375. Typography is unchanged; the base already matches it.
+   Issues #213, #251, #252. */
+.category-tabs.compact .category-tabs-list {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 41px;
+  margin-inline: auto;
+  border-bottom: 0;
+}
+
+/* Live's anchor is 41px tall from `padding: 10px 0` over a 21px content box,
+   even though its own line-height reports 16px. 21px is what reproduces the
+   box, so it is what this sets. */
+.category-tabs.compact .category-tabs-list a {
+  padding: 10px 0;
+  line-height: 21px;
+  border-bottom: 0;
+}
+
+/* live marks its current item for assistive tech and draws nothing over it, so
+   the aria-current the block sets stays and the underline goes */
+.category-tabs.compact .category-tabs-list a:hover,
+.category-tabs.compact .category-tabs-list a:focus-visible,
+.category-tabs.compact .category-tabs-list a.category-tab-active {
+  border-bottom-color: transparent;
+}
+
+.category-tabs.compact .category-tabs-list li + li {
+  margin-left: 20px;
+}
+
+/* the one-item strip on /experience/conti-crew drops its bottom padding: its
+   anchor reads 37x31 inside the same 41px row */
+.category-tabs.compact .category-tabs-list:has(li:only-child) a {
+  padding-bottom: 0;
+}
+
+@media (width >= 769px) {
+  .category-tabs.compact .category-tabs-list li + li {
+    margin-left: 38px;
+  }
+}

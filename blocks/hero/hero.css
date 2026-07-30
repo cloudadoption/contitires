@@ -569,3 +569,18 @@ main .section.hero-container {
   letter-spacing: 0.6px;
   text-decoration: underline;
 }
+
+/* `title-left`: the marquee title pinned left, and nothing else.
+   Live pins it left on /experience/conti-crew and centres it on
+   /experience/partners, and both pages carry the same breadcrumb marquee, so
+   the alignment is a variant rather than the shape of the block. Live also
+   centres it again below its desktop breakpoint: conti-crew reads `start` at
+   1440 and `center` at 375, measured 2026-07-30.
+   This cannot reuse the `left` variant, which also caps the copy at 640 and
+   drops its centring margin. That is the homepage overlay's shape; here it
+   would take the title from 776 wide to 640 where live's is 736. Issue #252. */
+@media (width >= 1025px) {
+  .hero.title-left .hero-content {
+    text-align: left;
+  }
+}
