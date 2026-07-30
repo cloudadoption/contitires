@@ -77,9 +77,12 @@ body.article main .section .default-content-wrapper :is(h2, h3, h4) {
   font-weight: 300;
 }
 
-/* 20px is what live sets on the subhead under an article title, whichever
-   level it authored there: h3 on the news articles, h4 on the campaign ones.
-   Ours are all h2 now, so h2 carries that size. */
+/* 20px is what live sets on an article subhead, and it sets it only below 769:
+   `.news-article__body h2` and `.article-content h2` both sit under
+   `screen and (max-width: 768px)`, while `.news-article__body h3` takes 20px at
+   every width. Above 769 live drops the h2 pin and the global 30px comes back.
+   Measured on /learn/how-do-i-check-my-tire-pressure, where live's six subheads
+   read 20px at 375 and 30px at 900 and 1440 (#185). */
 body.article main .section .default-content-wrapper h2 { font-size: 20px; }
 body.article main .section .default-content-wrapper h3 { font-size: 20px; }
 body.article main .section .default-content-wrapper h4 { font-size: 17px; }
@@ -195,6 +198,9 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
 }
 
 @media (width >= 769px) {
+  /* live drops its own 20px pin here and the subhead returns to the global h2 */
+  body.article main .section .default-content-wrapper h2 { font-size: 30px; }
+
   /* 755px is the widest the body column gets, not a width it always takes.
      Live draws it inside a 1168px container with 16px padding, so the grid
      measures min(1136, viewport - 32) and the column takes what the 300px
