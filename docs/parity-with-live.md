@@ -796,26 +796,31 @@ or endorsed by Continental.
 reads `Welcome to`, and the paragraph under the h1 is a disclaimer where live carries a
 rebate offer. The h1 itself is unchanged and still matches live.
 
-**The promo bar, at the top of every page.** Live promises a $110 rebate on a set of four
-tires. The intended replacement promises a rebate on a PageSpeed score and points its
-`See Full Details` at this document rather than at `/offers`.
+**The promo bar, at the top of every page.** Live promises a rebate on a set of tires.
+Ours carries its own copy instead, and that copy is deliberately not live's.
 
-**Any future removal of a commercial claim.** `/promotion`, `/promotionended` and `/offers`
-still carry live's rebate copy up to $200, and if they change, that change belongs here.
+**Any place a commercial claim was removed.** Several pages still carry live's rebate copy,
+and if they change, that change belongs here.
 
 #### The promo bar replacement has reached one page
 
 Measured on the rendered page on 2026-07-30, at 1440, because a block builds this bar at
 runtime and a curl of the page does not show it.
 
-`/` renders `See how we got a 50-point PSI rebate`. `/tires` and `/learn` both render
-`Get a $110 Rebate when you purchase a set of 4 qualifying Continental Tires!` with
-`See Full Details` pointing at `/offers`. The site-wide source,
+The homepage renders its own copy and does not use the shared fragment. Every other page
+still renders live's rebate promise, and the shared source,
 `/fragments/promo-bar.plain.html`, still carries live's wording.
 
 So the decision above is taken and its implementation reached the homepage. The remaining
-326 pages still carry live's claim. That is unfinished work in this category rather than a
-parity gap, and it is not filed as one.
+pages still carry live's claim, which is what the single rule prohibits. Open as
+[#361](https://github.com/cloudadoption/contitires/issues/361), framed as a divergence to
+MAKE rather than a gap to close, because live carries the same offer and matching live is
+what produces it.
+
+**The values inside these zones are not quoted here on purpose.** The copy is Ben's, it
+changes in wording, figures and link targets, and none of it derives from live, so a figure
+recorded here would be stale by the time it was read. Check a zone against the single rule
+and nothing else.
 
 ## Layout and type
 
