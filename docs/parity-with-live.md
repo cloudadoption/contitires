@@ -146,7 +146,7 @@ API, a vendor account or an index configuration.
 |  | [Prose link underlines](#prose-links-carry-an-underline-live-paints-transparent) | diverges | ✅ WCAG 1.4.1 | [#240](https://github.com/cloudadoption/contitires/issues/240) |
 |  | [Superscripts](#superscripts) | diverges | ✅ deliberate | [#238](https://github.com/cloudadoption/contitires/issues/238) |
 | Performance and accessibility | [Delivered HTML weight](#delivered-html-weight) | differs | ✅ nothing to do | -- |
-|  | [Generated headings skip levels](#generated-headings-skip-levels) | differs | ✅ queued | [#117](https://github.com/cloudadoption/contitires/issues/117) |
+|  | [Authored heading levels do not follow live's](#authored-heading-levels-do-not-follow-lives) | differs | ✅ re-level the authored documents | [#371](https://github.com/cloudadoption/contitires/issues/371), [#372](https://github.com/cloudadoption/contitires/issues/372) |
 |  | [Security headers](#security-headers) | differs | ✅ queued | -- |
 |  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ✅ queued | [#125](https://github.com/cloudadoption/contitires/issues/125), [#317](https://github.com/cloudadoption/contitires/issues/317) |
 |  | [The annotated tire diagram](#the-annotated-tire-diagram) | diverges | ✅ live's version is the defect | [#255](https://github.com/cloudadoption/contitires/issues/255) |
@@ -1135,32 +1135,37 @@ The honest caveat is that HTML weight is not page weight. It says nothing about 
 CSS or the JavaScript that follow, and it is not a Lighthouse score. It is the one number in
 this bucket that can be read the same way on both sides without a browser.
 
-### Generated headings skip levels
+### Authored heading levels do not follow live's
 
-**differs.** Blocks build an h3 and an h4 with no h2 above them, so the accessibility audit
-caps at 98.
+**differs.** The generated headings now follow the page outline. What is left is authored: pages
+open at a level live does not use.
 
-Live's learn category pages and its tire pages do not put an h3 straight under the page h1.
+**The generated half closed on 2026-07-30 in [#376](https://github.com/cloudadoption/contitires/pull/376).**
+`blocks/article-cards/article-cards.js` had built an h3 with nothing between it and the page h1,
+and `blocks/perfect-fit/perfect-fit.js` had built an h4 two levels under the modal heading. The
+card title now takes h2 under the banner h1 and the result title takes h3 under the dialog's
+question. The same block had copied the article title into the card image alt where the title is
+already the visible link text; that alt is now empty, enumerated across 52 of 52 instances.
+Measured on the branch preview before the merge, `/learn/tips` read accessibility 100 on both
+strategies against 98 before, with heading-order the single failure it had.
 
-`blocks/article-cards/article-cards.js` creates an h3 in two places, at line 41 for a teaser and
-106 for a card. The learn category pages serve only an h1 in their markup, so the h3 arrives
-with nothing between it and the h1. `blocks/perfect-fit/perfect-fit.js` creates an h2 at line
-182 and an h4 at 208, so a result card is two levels under the modal heading. `article-cards`
-also copies the article title into the card image alt where the title is already the visible
-link text.
+**The authored half is open.** Nine headings on the homepage are authored h3 where live uses h2
+([#371](https://github.com/cloudadoption/contitires/issues/371)), and eight learn articles author
+their subheads as h2 where live uses h3 or h4
+([#372](https://github.com/cloudadoption/contitires/issues/372)). Both were found by the sweep
+that #355 asked for, which paired all 327 pages against live with status and title gated on each
+side.
 
-None of this is visible to curl. `/learn/tips`, `/learn/technology` and `/learn/news-and-events`
-each serve exactly one heading, an h1, so the extra headings are built client-side and only a
-browser sees the outline that results.
+None of the generated part was ever visible to curl. `/learn/tips`, `/learn/technology` and
+`/learn/news-and-events` each serve exactly one heading in their markup, an h1, so the rest is
+built client-side and only a browser sees the outline. The authored part is the opposite: it is
+in the document and a curl reads it.
 
-What it costs a visitor: `/learn/tips` reads accessibility 98 on both strategies with
-heading-order as the single failure, recorded 2026-07-28 in [#117](https://github.com/cloudadoption/contitires/issues/117). The same audit against main's
-preview also returns 98, so it predates the slice that found it. A screen reader announces each
-card title twice, once as the link and once as the image alt.
+What it costs a visitor: a screen reader hears an outline that jumps a level on the pages in
+#371 and #372. It no longer hears each card title twice.
 
-What would close it: give the generated headings a level that follows the page outline, and set
-the card image alt to empty. The three learn category pages above carry no authored headings at
-all, so they land here rather than in the type scale. [#117](https://github.com/cloudadoption/contitires/issues/117).
+What would close it: re-level the authored documents in DA. It is content rather than code, which
+is guardrail 6's rule about where a content defect gets fixed.
 
 ### Security headers
 
