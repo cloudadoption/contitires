@@ -265,14 +265,15 @@ main .section.hero-container {
   margin: 0;
 }
 
-/* The words wrap differently in the fallback face than in Stag Sans, and the
-   fonts arrive after the page paints. Below 420 the fallback takes a line more
-   for the headline, and below 419 one more for the lead, so the band under the
-   marquee moved 64 when the fonts landed. Each box holds the fallback's lines
-   instead, the way the header holds the ribbon's height. Read off the page by
-   forcing the fallback at 16 widths from 320 to 1440. */
+/* #94 held these two boxes open below 420, because the fallback face wrapped a
+   line longer than Stag Sans and the band under the marquee moved 64 when the
+   fonts landed. #183 and #227 gave the fallback Stag Sans's metrics, so both
+   faces now take the same number of lines at 320, 375, 385 and 419, and the
+   reservation had nothing left to hold. Holding it cost empty space: at 375 the
+   headline stood at 180px against live's 144, and at 419 the headline stood at
+   144 and the lead at 112 against live's 108 and 84. Both boxes are on live's
+   numbers now. */
 .hero.logo .hero-content h1 {
-  min-height: 5lh;
   margin-top: 16px;
   font-size: 30px;
   line-height: 36px;
@@ -287,24 +288,8 @@ main .section.hero-container {
 }
 
 .hero.logo .hero-content > p:not(:first-child) {
-  min-height: 4lh;
   font-size: 20px;
   line-height: 28px;
-}
-
-/* the headline drops to four of them at 385, and both faces wrap alike from
-   420, where the reservation ends */
-@media (width >= 385px) {
-  .hero.logo .hero-content h1 {
-    min-height: 4lh;
-  }
-}
-
-@media (width >= 420px) {
-  .hero.logo .hero-content h1,
-  .hero.logo .hero-content > p:not(:first-child) {
-    min-height: 0;
-  }
 }
 
 .hero.logo .hero-content .hero-ctas {
