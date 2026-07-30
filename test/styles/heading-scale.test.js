@@ -594,14 +594,15 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       '1025px', '50.4px'],
     ['/blocks/cards/cards.css',
       '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
-      null, '33.6px'],
+      'width < 900px', '33.6px'],
     ['/blocks/article-cards/article-cards.css',
       'main .article-cards.feature .article-cards-intro h2',
       '900px', '50.4px'],
     ['/blocks/tire-rating/tire-rating.css',
       '.tire-rating h2', '1025px', '50.4px'],
     ['/blocks/promo-bar/promo-bar.css',
-      '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)', null, '33.6px'],
+      '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
+      'width < 900px', '33.6px'],
     ['/blocks/search/search.css',
       'main .search .search-no-results h2', '600px', '50.4px'],
     ['/styles/article.css',
@@ -615,6 +616,24 @@ describe('The blocks that resize an h2 keep their own line box', () => {
         .find((d) => (media ? (d.media || '').includes(media) : d.media === null));
       expect(got, `a line-height for ${selector} ${where}`).to.exist;
       expect(got.value).to.equal(expected);
+    });
+  });
+
+  /**
+   * The two pins that step at 900 are BOUNDED BELOW IT. Both rules set 28px at
+   * the base and 30px from 900, and 30px is the global size, so above the
+   * breakpoint the heading must take the global 38 like everything else. An
+   * unbounded pin overrides at every width: the first version of this slice
+   * pinned 33.6 on the base rule alone and the after sweep caught four homepage
+   * headings reading 33.6 at 1440 where they had been 36 and should be 38.
+   */
+  [['/blocks/cards/cards.css', '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)'],
+    ['/blocks/promo-bar/promo-bar.css', '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)'],
+  ].forEach(([file, selector]) => {
+    it(`leaves ${file.split('/').pop()} above 900 to the global 38`, () => {
+      const above = declarations(file, selector, 'line-height')
+        .filter((d) => d.media === null || /width\s*>=|min-width/.test(d.media));
+      expect(above, 'a line-height that outlives the 28px it freezes').to.have.lengthOf(0);
     });
   });
 

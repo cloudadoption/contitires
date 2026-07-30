@@ -552,15 +552,20 @@ main .section.cards-container:has(.cards.category) > div {
 .cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
   display: inline;
   font-size: 28px;
-
-  /* frozen at what it rendered on the old 1.2 ratio (#373). Live's tile is
-     24px on its global 38 here, so both numbers differ and neither moves in
-     this slice */
-  line-height: 33.6px;
   font-weight: 400;
   letter-spacing: 0.25px;
   background-color: var(--conti-white);
   box-decoration-break: clone;
+}
+
+/* frozen at what the 28px rendered on the old 1.2 ratio (#373), and bounded to
+   the width where that 28px applies. Above 900 the tile is the global 30px, so
+   it takes the global 38 with everything else; live's own tile is 30/38 there.
+   An unbounded pin leaked past the breakpoint and read 33.6 at 1440. */
+@media (width < 900px) {
+  .cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+    line-height: 33.6px;
+  }
 }
 
 .cards.category .cards-card-body a::after {
