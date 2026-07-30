@@ -54,7 +54,7 @@ The build started with three deliberately simple pages (newsletter signup, onlin
 
 Lighthouse on the homepage: performance 99-100, accessibility 94-96, best practices 100.
 
-The repo has **29 block directories**. 22 of them have a sample in the author-facing block library, and 20 are used on published pages; `size-list` and `store-locator` are in the picker and on no page. Tests are 72 files under `test/`, mirroring the source tree: 21 for `scripts/`, 44 across 27 of the 29 blocks, 4 for `styles/`, 2 for `widgets/` and 1 for `tools/`. `fragment` and `library-metadata` are the two blocks with no test.
+The repo has **29 block directories**: 20 authored into pages, 3 built at runtime rather than authored, 2 that sit in the block library's picker and on no page (`size-list` and `store-locator`), and 4 the pipeline uses rather than anyone inserting (`header`, `footer`, `fragment`, `library-metadata`). The runtime three are the newsletter widget, the product rating band and the tab strip, each built by [scripts/scripts.js](scripts/scripts.js) from something already on the page rather than from a table an author wrote. 22 of the 29 have a sample in the picker. Tests are 72 files under `test/`, mirroring the source tree: 21 for `scripts/`, 44 across 27 of the 29 blocks, 4 for `styles/`, 2 for `widgets/` and 1 for `tools/`. `fragment` and `library-metadata` are the two blocks with no test.
 
 ## How the site is put together
 
