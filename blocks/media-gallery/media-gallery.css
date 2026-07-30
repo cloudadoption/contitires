@@ -373,6 +373,47 @@ main .media-gallery.cards {
   max-width: none;
 }
 
+/* social: live's /events Social row. Six square tiles, each the whole of a link
+   out to an Instagram post, three across from 769 and one below. Live's own rule
+   is `grid-template-columns: repeat(3, 1fr)` with a `1.25rem` gap, dropping to
+   `1fr` at 768 and under, so the variant undoes the base row's mobile scroller
+   rather than inheriting it. Measured on live at 1440: 177x177 tiles, 20px gap,
+   10px radius, #f3f3f3 bed, no shadow. Issue #188. */
+main .media-gallery.social .media-gallery-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-inline: 0;
+  padding-inline: 0;
+  overflow-x: visible;
+}
+
+main .media-gallery.social .media-gallery-list > li {
+  flex: none;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background-color: var(--conti-lightest-grey);
+  overflow: hidden;
+}
+
+main .media-gallery.social .media-gallery-link {
+  display: block;
+  height: 100%;
+}
+
+main .media-gallery.social .media-gallery-link picture,
+main .media-gallery.social .media-gallery-link img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (width >= 769px) {
+  main .media-gallery.social .media-gallery-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* a card is as tall as its own name, not as tall as the longest one beside it:
    live's leading card carries a description and its neighbours do not */
 main .media-gallery.cards .media-gallery-list {

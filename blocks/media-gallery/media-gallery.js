@@ -47,6 +47,30 @@ function buildCaption(item) {
 }
 
 /**
+ * Live's Social tile: the still is the whole of a link out to the post. The
+ * authored cell holds the URL as its own link text, which is an address rather
+ * than a name, so the anchor takes the picture alone and the still's alt text
+ * names it.
+ *
+ * Live opens a new tab with `rel="nofollow"` and no `noopener`, which hands the
+ * opened page a handle on ours. We keep live's target and add `noopener`: it
+ * changes nothing a visitor sees.
+ * @param {{picture: Element, link: Element}} item one item
+ * @returns {Element} the anchor
+ */
+function buildLinkTile({ picture, link }) {
+  const href = link.getAttribute('href');
+  const anchor = document.createElement('a');
+  anchor.className = 'media-gallery-link';
+  anchor.href = href;
+  anchor.target = '_blank';
+  anchor.rel = 'nofollow noopener';
+  anchor.title = `Go to ${href}`;
+  if (picture) anchor.append(picture.cloneNode(true));
+  return anchor;
+}
+
+/**
  * What opening an item does, for whoever cannot see the still.
  * @param {{picture: Element, link: Element}} item one item
  * @returns {string} the label
@@ -92,6 +116,22 @@ function buildButton(item, kind) {
 export default function decorate(block) {
   const items = [...block.children].map(readRow).filter(Boolean);
   if (!items.length) return;
+
+  // The `social` variant is the one place a linked row is NOT a video. Live's
+  // /events Social row links out to Instagram, so the tile is an anchor and
+  // there is no player, no modal and nothing to page through.
+  if (block.classList.contains('social')) {
+    const links = document.createElement('ul');
+    links.className = 'media-gallery-list';
+    items.filter((item) => item.link).forEach((item) => {
+      const cell = document.createElement('li');
+      cell.append(buildLinkTile(item));
+      links.append(cell);
+    });
+    block.replaceChildren(links);
+    return;
+  }
+
   const captions = block.classList.contains('cards');
 
   const modal = document.createElement('dialog');
