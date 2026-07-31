@@ -110,6 +110,7 @@ API, a vendor account or an index configuration.
 |  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | ✅ queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
 |  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | ✅ queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
 | Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | approximated | ⚙️ live computes per request | [#241](https://github.com/cloudadoption/contitires/issues/241) |
+|  | [One technology description differs on three pages](#one-technology-description-differs-on-three-pages-because-a-sheet-holds-one-row-per-technology) | diverges | ✅ decided, not outstanding: the sheet holds one row, so the alternative differs from 11 pages instead of 3 | [#380](https://github.com/cloudadoption/contitires/issues/380) |
 |  | [Fit by size](#fit-by-size) | differs | ✅ queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
 |  | [Star rating and review count](#star-rating-and-review-count) | absent | ⚙️ the corpus needs the account | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 |  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | ✅ drop the link | [#357](https://github.com/cloudadoption/contitires/issues/357) |
@@ -286,6 +287,34 @@ current in the way a request-time lookup is.
 What would close it: nothing from outside, and that is the point of the row. The workbook is
 the honest substitute, not a temporary one. What it does buy is that an author edits the
 catalogue directly and republishes, with no deployment.
+
+### One technology description differs on three pages, because a sheet holds one row per technology
+
+**diverges.** Live's own text for `Self Supporting Runflat*` is inconsistent between its pages. On
+11 product pages the description ends `when the tires are deflated.\`, carrying a stray backslash,
+and on 3 it ends `when the tires are deflated.` without one. The backslash is live's, not ours.
+
+Our `technology` sheet holds ONE ROW PER TECHNOLOGY, so it cannot carry both endings. The row takes
+the majority wording, with the backslash, which matches live on 11 pages and differs from it on
+`/tires/4x4contact`, `/tires/crosscontact-rx` and `/tires/sportcontact-6`. Those three now show a
+character live does not show there.
+
+**The content model forces a divergence and only its size was chosen.** The alternative row diverges
+from 11 pages instead of 3. Normalising to neither ending is not available, because one row is what
+the sheet has. Three is the smaller number and that is the whole reason it is three.
+
+**The eleven pages are a different thing and are not recorded here.** There, live's backslash is
+reproduced verbatim, which is an inherited oddity under the parity gate rather than something this
+site introduced. It is only the three that this site's model creates, and a difference we make is
+what this document exists to hold.
+
+Verified 2026-07-31 on both sides: live's three named pages end without the backslash,
+`/tires/contisportcontact-5` ends with it, and the sheet's `description` field ends
+`tires are deflated.\` before its `*Select tire sizes` line. The page side is not curl-readable on
+this site, because the description arrives from the sheet at runtime rather than in the delivered
+document, so the sheet is where the value is read.
+
+What it costs a visitor: one backslash on three product pages.
 
 ### Fit by size
 
