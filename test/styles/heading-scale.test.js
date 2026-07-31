@@ -648,6 +648,12 @@ describe('The blocks that resize an h2 keep their own line box', () => {
     // live's `:root` sets to 1.5 (#422).
     ['/blocks/tire-listing/tire-listing.css',
       '.tire-listing .tire-listing-card-title', '1025px', '1.5'],
+    ['/blocks/search/search.css',
+      'main .search .search-result-title', null, '20px'],
+    // live's own ratio again, the same `var(--line-height-24)` as the card
+    // title above (#420).
+    ['/blocks/search/search.css',
+      'main .search .search-result-title', '1025px', '1.5'],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title', null, '14.4px'],
   ];
@@ -827,6 +833,8 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
       '.tire-listing .tire-listing-count', ['32px', '38px', '38px']],
     ['/blocks/tire-listing/tire-listing.css',
       '.tire-listing .tire-listing-card-title', ['20px', '20px', '1.5']],
+    ['/blocks/search/search.css',
+      'main .search .search-result-title', ['20px', '20px', '1.5']],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title',
       ['14.4px', '14.4px', '14.4px']],
