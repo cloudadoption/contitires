@@ -867,6 +867,9 @@ main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper
      band 30/36 on .warranty-hero__title at 375 and 900 and 42/48 at 1440, so
      the global 38 must not reach the base here (#373) */
   line-height: 36px;
+
+  /* live's --space-8 on .warranty-hero__title. #393 */
+  margin-bottom: 8px;
 }
 
 main .section.dark.cards-container .default-content-wrapper p {
@@ -1071,4 +1074,20 @@ main .section.cards-container:has(.cards.benefits) .cards-wrapper + .default-con
 main .section.cards-container:has(.cards.members.row) .default-content-wrapper h2 {
   font-size: 30px;
   text-transform: uppercase;
+}
+
+/* THE CONFIDENCE BAND PARAGRAPH, and it is what produced #393's gap rather
+   than the title's margin. The two margins COLLAPSE rather than add, so the
+   gap is the larger of them: the title's 0.25em is 7.5px at 30px and 10.5px at
+   42px, the paragraph's 0.8em is 14.4px at 18px and 19.2px at 24px, and 14 and
+   19 are the numbers #393 measured. Pinning the title alone leaves the gap
+   exactly where it is. Live opens no box above this paragraph and leaves its
+   own 8px at 375, 900 and 1440.
+
+   It sits at the foot of the file rather than beside the title rule it belongs
+   to, because four looser paragraph rules stand between the two and a more
+   specific rule above them is what no-descending-specificity refuses. The
+   title half of the pair is on the h2 rule further up. */
+main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2 + p {
+  margin-top: 0;
 }
