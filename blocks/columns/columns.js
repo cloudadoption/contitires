@@ -1,4 +1,5 @@
 import { decorateIcons } from '../../scripts/aem.js';
+import { TECHNOLOGY_COLUMNS, missingColumns, sheetRows } from '../../scripts/products.js';
 
 // The Best for entries a product page can carry, and the badge each one draws.
 // Live gives every entry a 30px line icon; the same drawings are in /icons as
@@ -10,6 +11,28 @@ const BEST_FOR_BADGES = [
   'Light Truck/SUV', 'Original Equipment', 'Passenger', 'Summer', 'Touring',
   'Ultra-High Performance', 'Winter',
 ].reduce((map, label) => ({ ...map, [label.toLowerCase()]: `badge-${slugify(label)}` }), {});
+
+// The Technology entries and the drawing each one takes, the same shape as
+// Best for above. These are live's own SVG files, downloaded from
+// /sites/default/files/images/tire_feature/field_svg/ rather than redrawn
+// (guardrail 8). Live serves 15 URLs across the 34 product pages that carry the
+// group, and three pairs are byte-identical, so 12 files cover 14 names.
+//
+// This map is a NAME TO ASSET binding rather than copy, which is why it is here
+// and the descriptions are in the sheet: an author never edits it and cannot
+// use it. (#380)
+const TECHNOLOGY_ICONS = [
+  '3-Peak Mountain Snowflake', 'ContiSeal*', 'ContiSilent*', 'EcoPlus',
+  'Ice Grip Certified', 'PolarPlus', 'QuickView Indicators',
+  'Self Supporting Runflat*', 'SportPlus', 'TractionPlus', 'Treadwear Indicators',
+].reduce((map, name) => ({ ...map, [name.toLowerCase()]: `tech-${slugify(name)}` }), {
+  // one drawing, which live serves at three URLs, one per variant
+  'tuned performance indicators (dw)': 'tech-tuned-performance-indicators',
+  'tuned performance indicators (dws)': 'tech-tuned-performance-indicators',
+  'tuned performance indicators (srs)': 'tech-tuned-performance-indicators',
+});
+
+const TECHNOLOGY_SHEET_URL = '/products.json?sheet=technology&limit=100';
 
 const BEST_FOR_LABEL = /^best for$/i;
 const TECHNOLOGY_LABEL = /^technology$/i;
@@ -71,6 +94,14 @@ function decorateProductHero(block) {
 
     if (TECHNOLOGY_LABEL.test(above.textContent.trim())) {
       above.classList.add('product-hero-technology-label');
+      list.classList.add('product-hero-technology');
+      list.querySelectorAll(':scope > li').forEach((item) => {
+        const drawing = TECHNOLOGY_ICONS[item.textContent.trim().toLowerCase()];
+        if (!drawing) return;
+        const icon = document.createElement('span');
+        icon.className = `icon icon-${drawing}`;
+        item.prepend(icon);
+      });
       return;
     }
 
@@ -88,10 +119,108 @@ function decorateProductHero(block) {
   decorateIcons(block);
 }
 
-// The surface the red tests call. Built in the next commit.
-/* eslint-disable no-unused-vars, no-empty-function */
-export async function addTechnologyTooltips(block) {}
-/* eslint-enable no-unused-vars, no-empty-function */
+let tips = 0;
+
+/** Resolves once the page has loaded, so a tooltip never races LCP. */
+function whenLoaded() {
+  if (document.readyState === 'complete') return Promise.resolve();
+  return new Promise((resolve) => {
+    window.addEventListener('load', resolve, { once: true });
+  });
+}
+
+/**
+ * Hangs live's question mark off each Technology row, opening the item's
+ * description.
+ *
+ * Live wraps the row in a `con-tooltip` custom element with a click handler on
+ * it, so a keyboard reaches none of them. This is a button with aria-expanded,
+ * the same divergence tire-features made on live's rings.
+ *
+ * An item the sheet has no row for keeps its drawing and gets no question mark,
+ * because there is nothing to open.
+ * @param {Element} list the Technology list
+ * @returns {Promise<void>} once the sheet has been read and the rows built
+ */
+async function buildTips(list) {
+  let rows;
+  try {
+    const resp = await fetch(TECHNOLOGY_SHEET_URL);
+    if (!resp.ok) return;
+    rows = sheetRows(await resp.json(), 'technology');
+  } catch (e) {
+    return;
+  }
+  if (missingColumns(rows, TECHNOLOGY_COLUMNS).length) return;
+
+  const byName = new Map(rows
+    .filter((row) => row.name)
+    .map((row) => [String(row.name).trim().toLowerCase(), String(row.description || '')]));
+
+  list.querySelectorAll(':scope > li').forEach((item) => {
+    const name = item.textContent.trim();
+    const text = byName.get(name.toLowerCase());
+    if (!text) return;
+    tips += 1;
+    const id = `product-hero-tip-${tips}`;
+
+    const tip = document.createElement('div');
+    tip.className = 'product-hero-technology-tip';
+    tip.id = id;
+    tip.hidden = true;
+    // live sets the description as separate paragraphs, the qualifier its own
+    text.split('\n').map((line) => line.trim()).filter(Boolean).forEach((line) => {
+      const p = document.createElement('p');
+      p.textContent = line;
+      tip.append(p);
+    });
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'product-hero-technology-help';
+    button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-controls', id);
+    const glyph = document.createElement('span');
+    glyph.className = 'icon icon-tech-question';
+    const said = document.createElement('span');
+    said.className = 'sr-only';
+    // textContent, not innerHTML: the name is authored and an author can type a <
+    said.textContent = `About ${name}`;
+    button.append(glyph, said);
+    button.addEventListener('click', () => {
+      const open = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', open ? 'false' : 'true');
+      tip.hidden = open;
+    });
+
+    item.append(button, tip);
+  });
+  decorateIcons(list);
+}
+
+const started = new WeakMap();
+
+/**
+ * The tooltip half of the Technology group, which loads in the LAZY phase.
+ *
+ * No reader of the products workbook fetches it whole, every one asks for a
+ * single sheet by name, so there is no request in flight to ride along on. A
+ * tooltip is not LCP content, so it waits for the load event instead.
+ *
+ * Called twice it returns the first call's promise rather than fetching again,
+ * so the deferred call and a direct one are the same piece of work.
+ * @param {Element} block the product hero block
+ * @returns {Promise<void>} once the rows carry their tooltips
+ */
+export async function addTechnologyTooltips(block) {
+  // the call is deferred to the load event, and a block taken out of the
+  // document before then has nothing left to fill
+  if (!block.isConnected) return undefined;
+  const list = block.querySelector('.product-hero-technology');
+  if (!list) return undefined;
+  if (!started.has(list)) started.set(list, buildTips(list));
+  return started.get(list);
+}
 
 export default function decorate(block) {
   const cols = [...block.firstElementChild.children];
@@ -111,5 +240,10 @@ export default function decorate(block) {
     });
   });
 
-  if (block.classList.contains('product-hero')) decorateProductHero(block);
+  if (block.classList.contains('product-hero')) {
+    decorateProductHero(block);
+    // not awaited: the hero is the first section, so awaiting a fetch here
+    // would put the tooltip in front of LCP
+    whenLoaded().then(() => addTechnologyTooltips(block));
+  }
 }

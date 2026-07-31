@@ -499,8 +499,9 @@ describe('product hero, the Technology tooltips', () => {
     decorate(block);
     await addTechnologyTooltips(block);
 
-    expect(fetched.calledOnce, 'one request').to.be.true;
-    expect(fetched.firstCall.args[0]).to.contain('sheet=technology');
+    const urls = fetched.getCalls().map((call) => String(call.args[0]));
+    expect(urls.filter((u) => u.includes('sheet=technology')), 'one request for it').to.have.length(1);
+    expect(urls.filter((u) => u.includes('products.json') && !u.includes('sheet=')), 'never the whole workbook').to.have.length(0);
     block.remove();
   });
 
@@ -558,13 +559,17 @@ describe('product hero, the Technology tooltips', () => {
   it('leaves an item the sheet has no row for without a question mark', async () => {
     sinon.stub(window, 'fetch')
       .callsFake(() => Promise.resolve(new Response(JSON.stringify(SHEET))));
-    const block = withTech(['ContiSeal*', 'Something An Author Typed']);
+    // EcoPlus has a drawing and no row in this sheet, which is the case that
+    // separates the two halves: no description is not no icon
+    const block = withTech(['ContiSeal*', 'EcoPlus', 'Something An Author Typed']);
     decorate(block);
     await addTechnologyTooltips(block);
 
     const items = block.querySelectorAll('.product-hero-technology li');
     expect(items[0].querySelector('button'), 'the one with a row').to.exist;
-    expect(!!items[1].querySelector('button'), 'the one without').to.be.false;
+    expect(!!items[1].querySelector('button'), 'the one with a drawing and no row').to.be.false;
+    expect(items[1].querySelector('span.icon'), 'and it keeps that drawing').to.exist;
+    expect(!!items[2].querySelector('button'), 'the one with neither').to.be.false;
     block.remove();
   });
 

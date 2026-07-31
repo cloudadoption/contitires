@@ -175,13 +175,17 @@ main .columns.bar .button.secondary:focus-visible {
   transform: rotate(45deg);
 }
 
-.columns.product-hero .product-hero-best-for {
+/* Technology takes the same row live gives Best for, the same 30px drawing and
+   the same 8px gap, read off the item-list markup both groups share. (#380) */
+.columns.product-hero .product-hero-best-for,
+.columns.product-hero .product-hero-technology {
   margin: 20px 0 0;
   padding: 0;
   list-style: none;
 }
 
-.columns.product-hero .product-hero-best-for li {
+.columns.product-hero .product-hero-best-for li,
+.columns.product-hero .product-hero-technology li {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -192,15 +196,72 @@ main .columns.bar .button.secondary:focus-visible {
   line-height: 22px;
 }
 
-.columns.product-hero .product-hero-best-for .icon {
+/* the row wraps only when a tip is open under it, so the tip takes the width */
+.columns.product-hero .product-hero-technology li {
+  flex-wrap: wrap;
+}
+
+/* Live's question mark is a 12px circle stroked in orange with a #333 glyph,
+   the #question symbol out of its own sprite. Live hangs the handler on a
+   custom element, so no keyboard reaches it; this is a button, and it takes a
+   24px target around the 14px drawing so a finger can hit it. (#380) */
+.columns.product-hero .product-hero-technology-help {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+
+.columns.product-hero .product-hero-technology-help:focus-visible {
+  outline: 2px solid var(--conti-yellow-contrast);
+  outline-offset: 2px;
+}
+
+.columns.product-hero .product-hero-technology-help .icon,
+.columns.product-hero .product-hero-technology-help .icon img {
+  width: 14px;
+  height: 14px;
+}
+
+.columns.product-hero .product-hero-best-for .icon,
+.columns.product-hero .product-hero-technology > li > .icon {
   flex: 0 0 30px;
   width: 30px;
   height: 30px;
 }
 
-.columns.product-hero .product-hero-best-for .icon img {
+.columns.product-hero .product-hero-best-for .icon img,
+.columns.product-hero .product-hero-technology > li > .icon img {
   width: 30px;
   height: 30px;
+}
+
+.columns.product-hero .product-hero-technology-tip {
+  flex: 1 0 100%;
+  margin: 4px 0 8px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.columns.product-hero .product-hero-technology-tip p {
+  margin: 0 0 4px;
+}
+
+.columns.product-hero .sr-only {
+  position: absolute;
+  overflow: hidden;
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  white-space: nowrap;
 }
 
 /* The rebate. Live's flag above the title reads 132 by 20: 11px at weight 700
