@@ -857,3 +857,130 @@ describe('The carousel slide title', () => {
     expect(rule.style.getPropertyValue('font-weight').trim()).to.equal('300');
   });
 });
+
+/**
+ * The global h1 line box.
+ *
+ * Live's h1 is 30px on a 36px box below 1025 and 42px on a 48px box above it.
+ * Read off live's rendered pages on the 22-page cover set at 375, 900 and 1440:
+ * every h1 taking live's own bare rule reads 30/36 at the two lower widths and
+ * 42/48 at 1440, `.mossy/parity/373/live-cover-*.tsv`. Live's two exceptions
+ * are already ours, `tire-page__title` at 30/38 through the product-title rule
+ * and the 80/80 crew marquee.
+ *
+ * Ours derives the box from `line-height: 1.2` on the shared h1..h6 rule. Below
+ * 1025 that resolves 30px to 36 and already matches live. Above it, 42 times
+ * 1.2 is 50.4 against live's 48, so the box is 2.4px loose on 227 of the 327
+ * indexed pages. Issue #388.
+ *
+ * THIS IS A FIX AND NOT A PIN, and the two are identical in a diff. The 48 is
+ * LIVE'S value, not the 50.4 we render. #373 froze each pin at its own rendered
+ * value because live's counterpart was not knowable on those rules; it is
+ * knowable on this one, at every width. Nothing is written below 1025 for the
+ * same reason in reverse: ours already renders live's 36 there, so a
+ * declaration would freeze a match rather than close a gap.
+ *
+ * THE DECLARATION MUST FOLLOW THE SHARED RULE IN SOURCE ORDER. A media query
+ * adds no specificity, so an `h1 { line-height: 48px }` placed in the existing
+ * 1025 block at the top of the file loses to `line-height: 1.2` on the shared
+ * h1..h6 rule further down, and renders 50.4 with the declaration present.
+ * `box()` below resolves in document order, which is what catches it.
+ *
+ * The hazard #383 left one level down does not reproduce here. Seven other
+ * rules match an h1, pin a font-size and declare no line-height, so each takes
+ * the absolute 48 above 1025 instead of 1.2 times its own size. A census of the
+ * 327 authored pages finds no h1 inside any of their containers, and neither
+ * #371 nor #372 promotes a heading into one. Audit and census in
+ * `.mossy/parity/388/`.
+ */
+describe('The global h1 line box', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/styles/styles.css')).text());
+  });
+
+  /** Top-level commas only, so `:is(h1, h2, h3)` survives as one selector. */
+  function parts(selector) {
+    const out = [];
+    let depth = 0;
+    let cur = '';
+    [...selector].forEach((ch) => {
+      if (ch === '(' || ch === '[') depth += 1;
+      if (ch === ')' || ch === ']') depth -= 1;
+      if (ch === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += ch;
+    });
+    out.push(cur);
+    return out.map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+
+  /** Whether a media condition holds at a width. Both spellings, both directions. */
+  function holds(condition, width) {
+    const min = condition.match(/width\s*>=\s*(\d+)px|min-width:\s*(\d+)px/);
+    if (min) return width >= +min.slice(1).find(Boolean);
+    const lt = condition.match(/width\s*<\s*(\d+)px/);
+    if (lt) return width < +lt.slice(1).find(Boolean);
+    const max = condition.match(/max-width:\s*(\d+)px/);
+    if (max) return width <= +max.slice(1).find(Boolean);
+    return false;
+  }
+
+  /**
+   * Every rule the sheet carries, flattened in DOCUMENT ORDER with the media
+   * conditions each one sits under already evaluated at a width. Order is the
+   * point: these rules all have the same specificity, so the last one wins.
+   */
+  function flat(width) {
+    const walk = (rules, applies) => [...rules].flatMap((r) => (r instanceof CSSMediaRule
+      ? walk(r.cssRules, applies && holds(r.conditionText, width))
+      : [{ rule: r, applies }]));
+    return walk(sheet.cssRules, true).filter(({ applies }) => applies);
+  }
+
+  /** The winning declaration of a property on a bare element selector. */
+  function winning(selector, prop, width) {
+    return flat(width)
+      .filter(({ rule }) => rule.selectorText
+        && parts(rule.selectorText).includes(selector)
+        && rule.style.getPropertyValue(prop))
+      .map(({ rule }) => rule.style.getPropertyValue(prop).trim())
+      .pop() || null;
+  }
+
+  /** The winning value of a custom property on :root. */
+  function token(name, width) {
+    return flat(width)
+      .filter(({ rule }) => rule.selectorText === ':root'
+        && rule.style.getPropertyValue(name))
+      .map(({ rule }) => rule.style.getPropertyValue(name).trim())
+      .pop() || null;
+  }
+
+  /** The line box an h1 renders at a width, ratio resolved against the size. */
+  function box(width) {
+    const lh = winning('h1', 'line-height', width);
+    if (!lh) return null;
+    if (lh.endsWith('px')) return lh;
+    return `${parseFloat(lh) * parseFloat(token('--heading-font-size-xxl', width))}px`;
+  }
+
+  it('takes live\'s 48px above 1025, where 42 times 1.2 renders 50.4', () => {
+    expect(box(1440), 'the h1 line box at 1440').to.equal('48px');
+  });
+
+  it('leaves the box on the shared ratio below 1025, which is already live\'s 36', () => {
+    expect(winning('h1', 'line-height', 375), 'any h1 line-height at 375').to.equal('1.2');
+    expect(winning('h1', 'line-height', 900), 'any h1 line-height at 900').to.equal('1.2');
+  });
+
+  it('resolves to live\'s 36 / 36 / 48 at 375, 900 and 1440', () => {
+    expect([box(375), box(900), box(1440)].join(' / '))
+      .to.equal('36px / 36px / 48px');
+  });
+
+  it('steps at live\'s breakpoint and not at 900', () => {
+    expect(box(1024), 'below live\'s breakpoint').to.equal('36px');
+    expect(box(1025), 'at live\'s breakpoint').to.equal('48px');
+  });
+});
