@@ -88,8 +88,13 @@ main .section.cards-container {
   aspect-ratio: 3 / 2;
 }
 
+/* #383's rule: a block that resizes an h2 pins its own line box, or the global
+   38px reaches it. This one resizes to 14px, and #371 makes its heading an h2,
+   so it needs the pin. The 20px is live's own number on the three news titles
+   at 375, 900 and 1440, not today's 16.8, which is 14 times the old 1.2. */
 .cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
   font-size: var(--body-font-size-xs);
+  line-height: 20px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
