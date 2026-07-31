@@ -141,6 +141,7 @@ API, a vendor account or an index configuration.
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
 | Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ line boxes match live on the 63 headings measured; the article-template h2 SIZE is still 20px where live is 30 above 769 | [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
 |  | [Heading line boxes we are leaving different from live](#heading-line-boxes-we-are-leaving-different-from-live) | diverges | ✅ decided, not outstanding: nine inherited from live, two below the threshold a rule earns | [#382](https://github.com/cloudadoption/contitires/issues/382), [#381](https://github.com/cloudadoption/contitires/issues/381) |
+|  | [Two heading margins we are leaving proportional](#two-heading-margins-we-are-leaving-proportional) | diverges | ✅ decided, not outstanding: one does not reach the page, the other has no single absolute that fits both directions | [#395](https://github.com/cloudadoption/contitires/issues/395) |
 |  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | differs | ✅ author the same spacing device in DA, or accept the tighter rhythm | [#384](https://github.com/cloudadoption/contitires/issues/384) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
@@ -1067,6 +1068,33 @@ inside a commercial-claim zone under guardrail 23, where a diff against live is 
 
 What it costs a visitor: on the nine, headings run a 38px line box at 900 and 375 where live runs
 30/36. Those blocks are slightly airier than live's. On the two, 1.6px and 4.4px on single titles.
+
+### Two heading margins we are leaving proportional
+
+**diverges.** Live resets heading margins to zero globally and then sets an absolute value per
+context. Ours sets `margin-top: 0.8em` and `margin-bottom: 0.25em` on the shared heading rule, and
+both are staying. Each was measured and each came back document rather than fix, for a different
+reason. The third declaration in that same rule, the line box, was made absolute in #401 and is
+covered above.
+
+**The bottom margin does not reach the page.** Adjacent vertical margins collapse, so the gap under
+a heading is the larger of the two touching margins rather than their sum. On the one instance
+measured, the confidence band, the title's own `margin-bottom` is 7.5px at a 30px size and 10.5px
+at 42px, while the paragraph below it asks for 14.4px and 19.2px. What rendered was 14px at 375 and
+19px at 900 and 1440, which are the paragraph's numbers. Their sum, 21.9px, rendered at no width.
+The band was closed in #401 by pinning live's 8px on the title and opening no box above the
+paragraph. Changing the global declaration would not have moved that gap.
+
+**The top margin is wrong in both directions at once.** It survives the cascade on 57 of the 171
+headings read here, and on 27 of those it also follows content, which is the case the declaration
+is about. Nine of those sit on two pages at three widths. On `/legal` live reads 45px against our
+24px, so ours is 21px tight. On `/vancontact-as-ultra` live reads 16px against our 24px, so ours is
+8px loose. No single absolute replaces the ratio while the error points both ways, and live's own
+`margin: 0` would take `/legal` from 21px out to 45px out.
+
+**What it costs a visitor:** on the bottom margin, nothing, because it does not render. On the top
+margin, 21px of missing space on `/legal` and 8px of extra on `/vancontact-as-ultra`, and adopting
+live's rule would make the first of those worse.
 
 ### Live opens headings and paragraphs with a leading break
 
