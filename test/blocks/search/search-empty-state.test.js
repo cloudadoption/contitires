@@ -4,15 +4,21 @@
 import { expect } from '@esm-bundle/chai';
 
 /**
- * The empty state exactly as blocks/search/search.js buildNoResults() leaves it:
- * a centred div holding one h2 and one .button anchor, inside the search block.
+ * The empty state exactly as blocks/search/search.js leaves it: a centred div
+ * holding one h2 and one .button anchor. It sits inside
+ * `.search-results-wrapper.search-band`, because `decorate` adds `search-band`
+ * as soon as there is a query and `fillResults` then replaces the wrapper's
+ * children with this. The band carries side padding, so leaving it out would
+ * measure the heading against a wider containing block than the page gives it.
  */
 const EMPTY_STATE = `
   <main><div class="section search-container"><div>
     <div class="search block">
-      <div class="search-no-results">
-        <h2>You have stumped us. No results.</h2>
-        <a class="button" href="/search">Search again</a>
+      <div class="search-results-wrapper search-band">
+        <div class="search-no-results">
+          <h2>You have stumped us. No results.</h2>
+          <a class="button" href="/search">Search again</a>
+        </div>
       </div>
     </div>
   </div></div></main>`;
