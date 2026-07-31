@@ -140,3 +140,30 @@ describe('Search empty state, the gap under the heading (#416)', () => {
     });
   });
 });
+
+/**
+ * Live pads this container 20px small and 60px large, stepping at its own 768.
+ * Ours padded 48px and 72px and stepped at the site's 600, so the small delta
+ * was 28px at the width where horizontal and vertical space is scarcest, and
+ * across 600 to 768 we padded 72px where live pads 20px (#417).
+ *
+ * 768 and 769 are in the sweep because the step moving is the change, not only
+ * the two endpoints. The boundary is the one #405 established on this same
+ * element: `max-width: N` and `min-width: N` both match at N, so live's small
+ * pair includes 768 and ours starts at 769.
+ */
+describe('Search empty state, the container padding (#417)', () => {
+  const PAD = {
+    375: 20, 768: 20, 769: 60, 900: 60, 1440: 60,
+  };
+
+  atWidths([375, 768, 769, 900, 1440], (docOf, width) => {
+    it(`pads live's ${PAD[width]}px top and bottom`, () => {
+      const doc = docOf();
+      const box = doc.querySelector('.search-no-results');
+      const style = doc.defaultView.getComputedStyle(box);
+      expect(parseFloat(style.paddingTop), 'padding-top').to.equal(PAD[width]);
+      expect(parseFloat(style.paddingBottom), 'padding-bottom').to.equal(PAD[width]);
+    });
+  });
+});
