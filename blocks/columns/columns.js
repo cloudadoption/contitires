@@ -88,6 +88,11 @@ function decorateProductHero(block) {
   decorateIcons(block);
 }
 
+// The surface the red tests call. Built in the next commit.
+/* eslint-disable no-unused-vars, no-empty-function */
+export async function addTechnologyTooltips(block) {}
+/* eslint-enable no-unused-vars, no-empty-function */
+
 export default function decorate(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
