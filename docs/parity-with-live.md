@@ -1457,7 +1457,7 @@ What would close it: a pause control and a `prefers-reduced-motion` check in
 
 ## What this document does not settle
 
-Four things are open, and each one names what would close it. They are here rather than
+Five things are open, and each one names what would close it. They are here rather than
 smoothed over, because a parity document that reads as complete when it is not is worse than
 no document.
 
@@ -1482,3 +1482,16 @@ live and can be run on the day.
 **Live's by-size tire URL.** `/tire-search/by-size/235-40-18` 404s and live's `/tire-search`
 page links only by-vehicle paths, so the by-size entry point could not be reconstructed. What
 would close it: find a live page that links a by-size result.
+
+**A band none of our readings sample, which is a fact about the measurements rather than about
+any one page.** Every width in this document is 375, 900 or 1440. Live's tire card steps from
+column to row at `max-width: 768` where ours steps to a grid at 600, so the two agree below 600
+and above 768 and differ only between them. No sampled width falls in that band, so that
+difference is invisible to every reading taken here, including the readings that closed issues.
+It was found by measuring the stylesheets rather than by looking. The card itself is
+[#423](https://github.com/cloudadoption/contitires/issues/423). The same band caught a second thing
+within the hour: live's small heading pair includes 768, so a step at 768 renders our large size at
+the one width live is still small. That is the `769` boundary in
+[#405](https://github.com/cloudadoption/contitires/issues/405). What would close it: a reading at a
+width between 600 and 768. **This is true after both are fixed, because it describes what three
+sampled widths can and cannot see.**
