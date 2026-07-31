@@ -266,6 +266,22 @@ sup {
 
 h1 { font-size: var(--heading-font-size-xxl); }
 
+/* live's h1 box is 36 below 1025 and 48 above, measured on the cover set at
+   375, 900 and 1440. Ours resolves 30px against the shared 1.2 to live's own 36
+   below the breakpoint, so nothing is written there. Above it the ratio gives
+   42 times 1.2, which is 50.4 against live's 48, on 226 of the 327 indexed
+   pages. Live's number, not the one we render, which is what makes this a fix
+   rather than one of #373's pins: live's counterpart was not knowable on those
+   rules and it is knowable on this one at every width (#388).
+
+   It sits here and not in the 1025 block at the top of the file because a media
+   query adds no specificity. Up there the shared h1..h6 rule follows it and its
+   1.2 wins, so the declaration would be present and the box would still be
+   50.4. */
+@media (width >= 1025px) {
+  h1 { line-height: 48px; }
+}
+
 /* the one place live refuses the h1 size for a page title: it renders the
    product name as <h1 class="tire-page__title"> and then sizes it with the h2
    rule, `h2, .as-h2, .tire-page__title { font-size: 30px; line-height: 38px }`,
@@ -288,8 +304,9 @@ main:has(.columns.product-hero, .tire-specs) h1 {
    size. The number is here and not on the shared rule because that rule sets
    all six levels together, and live's six line boxes are 48, 38, 32, 24, 22 and
    20 against sizes 42, 30, 24, 20, 16 and 14, which is six different ratios.
-   h1 is 2.4px loose and h3 3.2px tight against live and both are left alone
-   (#373, and #368 for the article subhead). */
+   h3 is 3.2px tight against live and is left alone (#373, and #368 for the
+   article subhead). h1 was 2.4px loose and #388 closed it, in the 1025 block
+   further up this file. */
 h2 {
   font-size: var(--heading-font-size-xl);
   line-height: 38px;

@@ -495,6 +495,9 @@ describe('The global h2 line box', () => {
     expect(shared.style.getPropertyValue('line-height').trim()).to.equal('1.2');
   });
 
+  // h1 is on this list for its BASE rule only. #388 gives it live's 48px above
+  // 1025 in a block further down the file, so it keeps the ratio below the
+  // breakpoint and not above it.
   it('sets no line-height on h1, h3, h4, h5 or h6, which keep the ratio', () => {
     ['h1', 'h3', 'h4', 'h5', 'h6'].forEach((sel) => {
       const rule = ruleFor(sel);
