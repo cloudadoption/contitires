@@ -54,9 +54,12 @@ main .section.carousel-container {
 }
 
 /* live renders the slide title as an h2 and #371 authors it as one, so this
-   reaches whatever level the slide carries rather than the one it started on */
+   reaches whatever level the slide carries rather than the one it started on.
+   the weight is live's 400 against our global 300, which is per-block because
+   live keeps 300 on the marquee h1 and two other headings we already match. */
 .carousel-content :is(h1, h2, h3, h4, h5, h6) {
   margin-top: 0;
+  font-weight: 400;
 }
 
 .carousel-content p {
