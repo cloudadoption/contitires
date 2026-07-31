@@ -570,6 +570,7 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       '/blocks/tire-rating/tire-rating.css',
       '/blocks/promo-bar/promo-bar.css',
       '/blocks/search/search.css',
+      '/blocks/tire-listing/tire-listing.css',
       '/styles/article.css',
     ];
     await Promise.all(files.map(async (f) => {
@@ -725,6 +726,7 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
       '/blocks/tire-rating/tire-rating.css',
       '/blocks/promo-bar/promo-bar.css',
       '/blocks/search/search.css',
+      '/blocks/tire-listing/tire-listing.css',
       '/styles/article.css',
     ];
     await Promise.all(files.map(async (f) => {
@@ -799,6 +801,12 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
       ['33.6px', null, null]],
     ['/blocks/search/search.css',
       'main .search .search-no-results h2', ['1.2', '50.4px', '50.4px']],
+    // #414: live writes NO size and NO box on `.tires-filter-form h2`, only a
+    // text-align at 768 and below, so this block writes none either and the
+    // heading takes the global h2's 38 at every width. Three nulls is the
+    // assertion that it wrote none.
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-filters h2', [null, null, null]],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title',
       ['14.4px', '14.4px', '14.4px']],
