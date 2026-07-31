@@ -638,6 +638,16 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       '.tire-listing .tire-listing-count', null, '32px'],
     ['/blocks/tire-listing/tire-listing.css',
       '.tire-listing .tire-listing-count', '769px', '38px'],
+    // live steps the card title at its own `max-width: 1024`, so ours steps one
+    // pixel above that cap rather than at 600, where only the LAYOUT changes.
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-card-title', null, '20px'],
+    // THE 1.5 IS LIVE'S OWN AND IS NOT THE #395 SHAPE RETURNING. Live declares
+    // `line-height: var(--line-height-24)` on `.tire-teaser__title`, and that
+    // token alone in live's scale of fifteen resolves to `var(--ratio)`, which
+    // live's `:root` sets to 1.5 (#422).
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-card-title', '1025px', '1.5'],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title', null, '14.4px'],
   ];
@@ -815,6 +825,8 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
       '.tire-listing .tire-listing-filters h2', [null, null, null]],
     ['/blocks/tire-listing/tire-listing.css',
       '.tire-listing .tire-listing-count', ['32px', '38px', '38px']],
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-card-title', ['20px', '20px', '1.5']],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title',
       ['14.4px', '14.4px', '14.4px']],
