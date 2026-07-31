@@ -236,7 +236,7 @@ main .search .search-pager-hidden {
 main .search .search-no-results {
   max-width: var(--search-width);
   margin: 0 auto;
-  padding: 48px 0;
+  padding: 20px 0;
   text-align: center;
 }
 
@@ -327,10 +327,6 @@ main .search .search-no-results .button:hover {
   main .search .search-pager-summary {
     padding: 0;
   }
-
-  main .search .search-no-results {
-    padding: 72px 0;
-  }
 }
 
 /* 769 is LIVE'S breakpoint for this heading and not the site's 600 or 900, on
@@ -344,6 +340,14 @@ main .search .search-no-results .button:hover {
    large size at that one width where live is still small. 768 is an iPad in
    portrait, so it is a device rather than a rounding. */
 @media (width >= 769px) {
+  /* the container steps here rather than at the site's 600, because live steps
+     it under the same `max-width: 768` as the heading. Across 600 to 768 ours
+     padded 72px where live pads 20px, which is the band neither endpoint in
+     #417 names. */
+  main .search .search-no-results {
+    padding: 60px 0;
+  }
+
   main .search .search-no-results h2 {
     font-size: 50px;
     line-height: 60px;
