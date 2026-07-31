@@ -158,6 +158,7 @@ async function buildTips(list) {
     .map((row) => [String(row.name).trim().toLowerCase(), {
       text: String(row.description || ''),
       logo: String(row.logo || '').trim(),
+      list: String(row.shape || '').trim().toLowerCase() === 'list',
     }]));
 
   list.querySelectorAll(':scope > li').forEach((item) => {
@@ -183,12 +184,26 @@ async function buildTips(list) {
       logo.alt = '';
       tip.append(logo);
     }
-    // live sets the description as separate paragraphs, the qualifier its own
-    row.text.split('\n').map((line) => line.trim()).filter(Boolean).forEach((line) => {
-      const p = document.createElement('p');
-      p.textContent = line;
-      tip.append(p);
-    });
+    const lines = row.text.split('\n').map((line) => line.trim()).filter(Boolean);
+    // four of the 14 are a bulleted list on live and the rest are paragraphs,
+    // the qualifier its own. The sheet says which, in a column rather than a
+    // marker inside the words: the content bus is one bus for every branch, so
+    // a marker in the description would render on main too.
+    if (row.list) {
+      const items = document.createElement('ul');
+      lines.forEach((line) => {
+        const li = document.createElement('li');
+        li.textContent = line;
+        items.append(li);
+      });
+      tip.append(items);
+    } else {
+      lines.forEach((line) => {
+        const p = document.createElement('p');
+        p.textContent = line;
+        tip.append(p);
+      });
+    }
 
     const button = document.createElement('button');
     button.type = 'button';

@@ -255,6 +255,16 @@ main .columns.bar .button.secondary:focus-visible {
   margin: 0 0 4px;
 }
 
+/* four of the 14 are a list. Only the margin is set, to the 4px this tip already
+   puts under a paragraph, because the global rule above would give it 0.8em and
+   break that rhythm. THE INDENT IS LEFT TO THE BROWSER ON PURPOSE: live's
+   stylesheet carries no rule for a list inside its tooltip, so a number here
+   would be ours rather than live's. What it renders at is unmeasured until the
+   screenshot pairs run. (#412) */
+.columns.product-hero .product-hero-technology-tip ul {
+  margin: 0 0 4px;
+}
+
 /* the six logos are intrinsically 215px wide, which is the width live declares
    on each of them, so no size is set here and the file carries it. The cap is
    for the narrow column at 375, where 215px would otherwise overflow. The 4px
