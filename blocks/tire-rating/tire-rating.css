@@ -46,11 +46,12 @@
 }
 
 @media (width >= 1025px) {
-  /* frozen at what it rendered on the old 1.2 ratio, so the flat 38px on the
-     h2 rule does not reach it. Live's reviews heading is 42/48 (#373) */
+  /* live's own 48, read off `.tire-reviews__title` in live's stylesheet rather
+     than off our ratio, which renders 42 times 1.2 as 50.4. #373 froze the 50.4
+     here because live's counterpart was not knowable then; #381 closes it */
   .tire-rating h2 {
     font-size: 42px;
-    line-height: 50.4px;
+    line-height: 48px;
   }
 }
 

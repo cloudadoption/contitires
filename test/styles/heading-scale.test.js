@@ -526,13 +526,17 @@ describe('The global h2 line box', () => {
  *   .event-item__name{font-size:20px;line-height:24px}
  *   .warranty-hero__title{font-size:var(--font-size-42);line-height:var(--line-height-48)}
  *
- * These seven do not, and each is pinned here to THE VALUE IT RENDERS TODAY, so
- * the only headings that move are the ones taking the global 30px. The decimals
- * are the point: 50.4 is 42 times 1.2 and is a frozen artifact of the old ratio,
- * not a number read off live. Live's counterparts are 48 for the 42px headings
- * and 16 for the 12px one, and those deltas are recorded rather than closed
- * here, because closing them is a block-by-block parity sweep and this slice is
- * the shared cause.
+ * These seven do not, and #373 pinned each to THE VALUE IT RENDERS TODAY, so the
+ * only headings that moved there are the ones taking the global 30px. The
+ * decimals were the point: 50.4 is 42 times 1.2 and is a frozen artifact of the
+ * old ratio, not a number read off live.
+ *
+ * THREE OF THE SEVEN NOW CARRY LIVE'S 48 INSTEAD, which is #381 and is a FIX
+ * rather than a pin. The coverage band, the article-cards feature intro and the
+ * tire-rating heading are one artifact: a 42px h2 taking the old 1.2 to 50.4
+ * where live sets an absolute 48. Live's counterpart is knowable on all three,
+ * so the 50.4 is gone from this table. The describe below holds the widths.
+ * The remaining pins keep their rendered value and their recorded delta.
  *
  * THE EIGHTH PIN, `.cards.news`, TAKES LIVE'S NUMBER AND NOT TODAY'S, which is
  * the opposite of the seven above and is deliberate. #371 promotes the three
@@ -603,7 +607,7 @@ describe('The blocks that resize an h2 keep their own line box', () => {
   const pins = [
     ['/blocks/cards/cards.css',
       'main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2',
-      '1025px', '50.4px'],
+      '1025px', '48px'],
     ['/blocks/cards/cards.css',
       '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
       'width < 900px', '33.6px'],
@@ -612,9 +616,9 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       null, '20px'],
     ['/blocks/article-cards/article-cards.css',
       'main .article-cards.feature .article-cards-intro h2',
-      '900px', '50.4px'],
+      '1025px', '48px'],
     ['/blocks/tire-rating/tire-rating.css',
-      '.tire-rating h2', '1025px', '50.4px'],
+      '.tire-rating h2', '1025px', '48px'],
     ['/blocks/promo-bar/promo-bar.css',
       '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
       'width < 900px', '33.6px'],
@@ -679,7 +683,14 @@ describe('The blocks that resize an h2 keep their own line box', () => {
  * `.warranty-hero__title` and `.tire-reviews__title` on /vancontact-as-ultra
  * and /tires/4x4contact, `.news-list-with-image__title` on /learn, all three
  * 30/36 at 375 and 900 and 42/48 at 1440. So the base pin is live's value and
- * not a frozen artifact, unlike the 50.4 above it.
+ * not a frozen artifact. #381 puts the upper half on live's number too, so all
+ * six values on those three rows are now live's.
+ *
+ * THE ARTICLE-CARDS ROW READS 36 AT 900 BECAUSE ITS BREAKPOINT MOVED, which is
+ * a different repair from the other two. Live steps `.news-list-with-image__title`
+ * at `max-width: 1024px` and our rule stepped at 900, so between 900 and 1024 we
+ * rendered 42 where live renders 30. A line box written at 900 would have looked
+ * fixed at 1440 and stayed wrong at 900.
  *
  * THE NULLS ARE THE BUG THAT ALREADY HAPPENED. `75a2746` had to bound two pins
  * that sat on a base rule with no upper limit: they overrode at every width and
@@ -750,7 +761,7 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
   const pins = [
     ['/blocks/cards/cards.css',
       'main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2',
-      ['36px', '36px', '50.4px']],
+      ['36px', '36px', '48px']],
     ['/blocks/cards/cards.css',
       '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
       ['33.6px', null, null]],
@@ -759,9 +770,9 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
       ['20px', '20px', '20px']],
     ['/blocks/article-cards/article-cards.css',
       'main .article-cards.feature .article-cards-intro h2',
-      ['36px', '50.4px', '50.4px']],
+      ['36px', '36px', '48px']],
     ['/blocks/tire-rating/tire-rating.css',
-      '.tire-rating h2', ['36px', '36px', '50.4px']],
+      '.tire-rating h2', ['36px', '36px', '48px']],
     ['/blocks/promo-bar/promo-bar.css',
       '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
       ['33.6px', null, null]],
@@ -985,5 +996,138 @@ describe('The global h1 line box', () => {
   it('steps at live\'s breakpoint and not at 900', () => {
     expect(box(1024), 'below live\'s breakpoint').to.equal('36px');
     expect(box(1025), 'at live\'s breakpoint').to.equal('48px');
+  });
+});
+
+/**
+ * The three block h2s #373 froze at 50.4, moved to live's 48. Issue #381.
+ *
+ * One artifact on three rules: a 42px h2 taking the old 1.2 ratio to 50.4 where
+ * live sets an absolute 48. It is the same artifact #373 closed globally on the
+ * h2 and #388 closed globally on the h1, so this finishes it rather than opening
+ * a block-by-block sweep.
+ *
+ * THESE ARE FIXES AND NOT PINS, and the two are identical in a diff. The 48 is
+ * LIVE'S value. #373 froze each of its pins at that rule's own rendered value
+ * because live's counterpart was not knowable then; it is knowable now, read
+ * straight off live's own stylesheet rather than off a rendered page:
+ *
+ *   .warranty-hero__title{font-size:var(--font-size-42);line-height:var(--line-height-48)}
+ *   @media screen and (max-width:1024px){.warranty-hero__title{
+ *     font-size:var(--font-size-30);line-height:var(--line-height-36)}}
+ *
+ * `.tire-reviews__title` and `.news-list-with-image__title` carry the same pair
+ * of declarations under the same query, and the four tokens resolve once on
+ * `:root` with no media override: 42, 48, 30, 36 at a 16px root.
+ * Extracted in `.mossy/parity/381/live-rules.txt`.
+ *
+ * THE ARTICLE-CARDS ROW IS A BREAKPOINT MISMATCH AND NOT A LINE BOX. It was
+ * exact at 1440 and wrong at 900, because live steps at 1024 and our rule
+ * stepped at 900. At 900 live reads 30/36 and we read 42/50.4, so the fix moves
+ * the whole step to 1025 rather than writing a value at 900. Pinning 48 there
+ * would have read as fixed at 1440 and stayed wrong at 900.
+ *
+ * The hazard #383 left one level down does not reproduce. 84 rules match an h2
+ * and 16 of them pin a font-size with no line-height, so each would inherit
+ * whatever box its h2 ends up with. A census of the 327 published pages finds
+ * these three headings carry text and no element children at all, so no rule
+ * inherits from them. Audit and census in `.mossy/parity/381/`.
+ */
+describe("The three block h2 line boxes moved to live's 48", () => {
+  const sheets = {};
+
+  // the third flag is whether the rule declares its OWN 30px below the step.
+  // `.tire-rating h2` does not and takes the global h2's 30px, which #185 moved
+  // there off live; adding a declaration would duplicate a value we already match.
+  const RULES = [
+    ['/blocks/cards/cards.css',
+      'main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2', true],
+    ['/blocks/article-cards/article-cards.css',
+      'main .article-cards.feature .article-cards-intro h2', true],
+    ['/blocks/tire-rating/tire-rating.css', '.tire-rating h2', false],
+  ];
+
+  before(async () => {
+    await Promise.all([...new Set(RULES.map(([f]) => f))].map(async (f) => {
+      const s = new CSSStyleSheet();
+      await s.replace(await (await fetch(f)).text());
+      sheets[f] = s;
+    }));
+  });
+
+  /** Top-level commas only, so `:is(h1, h2, h3)` survives as one selector. */
+  function parts(selector) {
+    const out = [];
+    let depth = 0;
+    let cur = '';
+    [...selector].forEach((ch) => {
+      if (ch === '(' || ch === '[') depth += 1;
+      if (ch === ')' || ch === ']') depth -= 1;
+      if (ch === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += ch;
+    });
+    out.push(cur);
+    return out.map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+
+  /** Whether a media condition holds at a width. Both spellings, both directions. */
+  function holds(condition, width) {
+    const min = condition.match(/width\s*>=\s*(\d+)px|min-width:\s*(\d+)px/);
+    if (min) return width >= +min.slice(1).find(Boolean);
+    const lt = condition.match(/width\s*<\s*(\d+)px/);
+    if (lt) return width < +lt.slice(1).find(Boolean);
+    const max = condition.match(/max-width:\s*(\d+)px/);
+    if (max) return width <= +max.slice(1).find(Boolean);
+    return false;
+  }
+
+  /**
+   * The winning declaration at a width, resolved in DOCUMENT ORDER. These rules
+   * share a specificity, so the last one that applies is the one that renders,
+   * and a media query adds nothing to specificity.
+   */
+  function winning(file, selector, prop, width) {
+    const norm = (s) => s.replace(/\s+/g, ' ').trim();
+    const walk = (rules, applies) => [...rules].flatMap((r) => (r instanceof CSSMediaRule
+      ? walk(r.cssRules, applies && holds(r.conditionText, width))
+      : [{ rule: r, applies }]));
+    return walk(sheets[file].cssRules, true)
+      .filter(({ applies, rule }) => applies && rule.selectorText
+        && parts(rule.selectorText).includes(norm(selector))
+        && rule.style.getPropertyValue(prop))
+      .map(({ rule }) => rule.style.getPropertyValue(prop).trim())
+      .pop() || null;
+  }
+
+  RULES.forEach(([file, selector, ownsBaseSize]) => {
+    const name = `${selector.split(' ').pop()} in ${file.split('/').pop()}`;
+
+    it(`takes live's 48px above 1025 on ${name}`, () => {
+      expect(winning(file, selector, 'line-height', 1440)).to.equal('48px');
+    });
+
+    it(`keeps live's 36px box below 1025 on ${name}`, () => {
+      [375, 900, 1024].forEach((w) => {
+        expect(winning(file, selector, 'line-height', w), `at ${w}`).to.equal('36px');
+      });
+    });
+
+    it(`steps its line box at live's 1025 and not at 900 on ${name}`, () => {
+      expect(winning(file, selector, 'line-height', 1024), 'at 1024').to.equal('36px');
+      expect(winning(file, selector, 'line-height', 1025), 'at 1025').to.equal('48px');
+    });
+
+    it(`steps its size at live's 1025 and not at 900 on ${name}`, () => {
+      [375, 900, 1024].forEach((w) => {
+        expect(winning(file, selector, 'font-size', w), `at ${w}`)
+          .to.equal(ownsBaseSize ? '30px' : null);
+      });
+      expect(winning(file, selector, 'font-size', 1025), 'at 1025').to.equal('42px');
+    });
+
+    it(`leaves no 50.4 on ${name}`, () => {
+      [375, 900, 1024, 1025, 1440].forEach((w) => {
+        expect(winning(file, selector, 'line-height', w), `at ${w}`).to.not.equal('50.4px');
+      });
+    });
   });
 });

@@ -63,9 +63,13 @@ describe('Confidence band, live\'s responsive layout', () => {
     expect(value(`${BAND} .icon`, 'height', '769px')).to.equal('148px');
   });
 
+  // 30/36 below 1025 and 42/48 above, the same pair the teaser band takes, read
+  // off live's own `.warranty-hero__title` rule rather than off our ratio (#381)
   it('holds the heading to live\'s 30px below the 1025 breakpoint', () => {
     expect(value(HEADING, 'font-size')).to.equal('30px');
+    expect(value(HEADING, 'line-height')).to.equal('36px');
     expect(value(HEADING, 'font-size', '1025px')).to.equal('42px');
+    expect(value(HEADING, 'line-height', '1025px')).to.equal('48px');
   });
 
   it('holds the copy to live\'s 18px on a narrow screen', () => {

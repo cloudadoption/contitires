@@ -280,13 +280,6 @@ main .article-cards.feature > p:last-child {
     text-align: left;
   }
 
-  /* frozen at what it rendered on the old 1.2 ratio, so the flat 38px on the
-     h2 rule does not reach it (#373) */
-  main .article-cards.feature .article-cards-intro h2 {
-    font-size: 42px;
-    line-height: 50.4px;
-  }
-
   main .article-cards.feature.image-right .article-cards-media {
     grid-column: 2;
   }
@@ -299,6 +292,19 @@ main .article-cards.feature > p:last-child {
   main .article-cards.feature.image-right .article-cards-list,
   main .article-cards.feature.image-right > p:last-child {
     grid-column: 1;
+  }
+}
+
+/* the heading steps at LIVE'S breakpoint, not at the layout's 900. Live holds
+   `.news-list-with-image__title` to 30/36 under `max-width: 1024px` and 42/48
+   above it, so our old 900 step read 42 where live reads 30 from 900 to 1024.
+   The 48 is live's own number and not our 42 times 1.2, which renders 50.4.
+   #373 froze that 50.4 because live's counterpart was not knowable then;
+   #381 closes it and moves the step in the same breath */
+@media (width >= 1025px) {
+  main .article-cards.feature .article-cards-intro h2 {
+    font-size: 42px;
+    line-height: 48px;
   }
 }
 

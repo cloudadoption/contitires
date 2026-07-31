@@ -92,9 +92,12 @@ describe('Learn hub band treatments', () => {
         .to.equal('none');
     });
 
+    // the heading steps at live's 1025 and not at the layout's 900: live holds
+    // `.news-list-with-image__title` to 30 under `max-width: 1024px` (#381)
     it("holds the band heading to live's two sizes", () => {
       expect(feature('main .article-cards.feature .article-cards-intro h2', 'font-size')).to.equal('30px');
-      expect(feature('main .article-cards.feature .article-cards-intro h2', 'font-size', '900px')).to.equal('42px');
+      expect(feature('main .article-cards.feature .article-cards-intro h2', 'font-size', '900px')).to.equal(null);
+      expect(feature('main .article-cards.feature .article-cards-intro h2', 'font-size', '1025px')).to.equal('42px');
       expect(feature('main .article-cards.feature .article-cards-intro h2', 'text-transform')).to.equal('uppercase');
       expect(feature('main .article-cards.feature .article-cards-intro h2', 'letter-spacing')).to.equal('6px');
       expect(feature('main .article-cards.feature .article-cards-intro h2', 'font-weight')).to.equal('300');
