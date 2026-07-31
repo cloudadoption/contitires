@@ -1,4 +1,6 @@
-/* eslint-env mocha */
+/* eslint-disable no-unused-expressions */
+/* global describe it */
+
 import { expect } from '@esm-bundle/chai';
 import { sampleRUM } from '../../scripts/aem.js';
 
