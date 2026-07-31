@@ -531,6 +531,15 @@ describe('The global h2 line box', () => {
  * here, because closing them is a block-by-block parity sweep and this slice is
  * the shared cause.
  *
+ * THE EIGHTH PIN, `.cards.news`, TAKES LIVE'S NUMBER AND NOT TODAY'S, which is
+ * the opposite of the seven above and is deliberate. #371 promotes the three
+ * news card headings from h3 to h2, so the global 38px reaches them and they
+ * must be pinned either way. The 20px is LIVE'S OWN number at 375, 900 and 1440
+ * rather than today's rendered 16.8, and the reason for the difference is that
+ * live's value is KNOWABLE on this rule and was NOT knowable on the rules #373
+ * pinned. 16.8 is 14 times the old 1.2, the same frozen artifact as the 50.4.
+ * Measured on live's homepage: all three read 14px on a 20px box at every width.
+ *
  * `.events-name` is NOT in this list and needs nothing: it declares 20px/24px
  * and 24px/26px itself, which is 1.2 by coincidence. A ratio-detector called all
  * 30 events cards free-riders on that coincidence; reading the winning
@@ -595,6 +604,9 @@ describe('The blocks that resize an h2 keep their own line box', () => {
     ['/blocks/cards/cards.css',
       '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
       'width < 900px', '33.6px'],
+    ['/blocks/cards/cards.css',
+      '.cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
+      null, '20px'],
     ['/blocks/article-cards/article-cards.css',
       'main .article-cards.feature .article-cards-intro h2',
       '900px', '50.4px'],
@@ -739,6 +751,9 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
     ['/blocks/cards/cards.css',
       '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
       ['33.6px', null, null]],
+    ['/blocks/cards/cards.css',
+      '.cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
+      ['20px', '20px', '20px']],
     ['/blocks/article-cards/article-cards.css',
       'main .article-cards.feature .article-cards-intro h2',
       ['36px', '50.4px', '50.4px']],
@@ -760,5 +775,52 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
         expect(resolved(file, selector, w), `at ${w}`).to.equal(expected[i]);
       });
     });
+  });
+});
+
+/**
+ * The carousel slide title, which #371 promotes from h3 to h2 because live
+ * renders it `<h2 class="content-slider__slide-title">`. Live holds it at 30px
+ * on a 38px box at 375, 900 and 1440, which is our global h2 exactly, so the
+ * promoted heading needs no size rule of its own.
+ *
+ * What it does need is a margin rule that survives the level change.
+ * `.carousel-content h3 { margin-top: 0 }` stops matching the moment the heading
+ * becomes an h2, and the global `margin-top: 0.8em` then opens 24px above all
+ * seven slide titles at all three widths. Measured on http://localhost:3000 by
+ * swapping the elements in the DOM and re-reading the computed style:
+ * .mossy/parity/371/promote-before-css-fix.txt.
+ *
+ * Weight is NOT addressed here. Live's slide title is 400 and ours is 300, from
+ * the global `font-weight: 300` on all six levels, so the h3 was 300 and the
+ * promoted h2 is 300. The gap is unchanged by the promotion.
+ */
+describe('The carousel slide title', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/carousel/carousel.css')).text());
+  });
+
+  const base = () => [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
+
+  it('kills the top margin on whatever level the slide authors', () => {
+    const rule = base().find((r) => r.selectorText === '.carousel-content :is(h1, h2, h3, h4, h5, h6)');
+    expect(rule, 'the slide heading rule').to.exist;
+    expect(rule.style.getPropertyValue('margin-top').trim()).to.equal('0px');
+  });
+
+  it('keys on no single level, so the h3 to h2 promotion moves nothing', () => {
+    const levelled = base().filter((r) => r.selectorText
+      && /^\.carousel-content h[1-6]$/.test(r.selectorText));
+    expect(levelled, 'a rule keyed on one heading level').to.have.lengthOf(0);
+  });
+
+  it('sets no font-size, because live\'s 30 on a 38px box is our global h2', () => {
+    const sized = base().filter((r) => r.selectorText
+      && r.selectorText.startsWith('.carousel-content')
+      && r.style.getPropertyValue('font-size'));
+    expect(sized.map((r) => r.selectorText)).to.deep.equal(['.carousel-content p']);
   });
 });
