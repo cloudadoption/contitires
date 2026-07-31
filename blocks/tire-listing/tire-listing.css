@@ -306,11 +306,14 @@
   padding-top: 16px;
 }
 
+/* live's `.tire-teaser__title` at 1024 and below: 14px on a 20px box, which is
+   the size this rule already had. The 1.43 it replaces was 20 over 14 rounded,
+   so the box moves 0.02px. #422 */
 .tire-listing .tire-listing-card-title {
   margin: 0;
   font-size: var(--body-font-size-xs);
   font-weight: 700;
-  line-height: 1.43;
+  line-height: 20px;
   letter-spacing: 0.5px;
   text-align: center;
 }
@@ -511,11 +514,10 @@
     padding-top: 8px;
   }
 
+  /* the LAYOUT half stays at 600 with the rest of the card grid. The type half
+     moved to live's own 1025 step, in the block further down. #422 */
   .tire-listing .tire-listing-card-title {
     grid-area: title;
-    font-size: 20px;
-    line-height: 1.5;
-    letter-spacing: normal;
     text-align: left;
   }
 
@@ -639,6 +641,21 @@
 
   .tire-listing .tire-listing-filters h2 {
     text-align: left;
+  }
+}
+
+/* 1025 is LIVE'S step for the card title: it writes 14px on 20px under its own
+   `max-width: 1024`, so the large pair starts one pixel above that cap. The
+   line-height here is UNITLESS ON PURPOSE and is not the #395 shape returning.
+   Live declares `line-height: var(--line-height-24)` on `.tire-teaser__title`,
+   and that token alone in live's scale of fifteen resolves to `var(--ratio)`,
+   which live's `:root` sets to 1.5. So the ratio IS live's own declaration and
+   the 30px box it draws at 20px is live's own box. #422 */
+@media (width >= 1025px) {
+  .tire-listing .tire-listing-card-title {
+    font-size: 20px;
+    line-height: 1.5;
+    letter-spacing: normal;
   }
 }
 
