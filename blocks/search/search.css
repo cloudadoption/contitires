@@ -253,7 +253,7 @@ main .search .search-no-results {
    to touch the size and the line box. */
 main .search .search-no-results h2 {
   max-width: 16ch;
-  margin: 0 auto 32px;
+  margin: 0 auto 20px;
   color: var(--conti-white);
 }
 
@@ -347,5 +347,12 @@ main .search .search-no-results .button:hover {
   main .search .search-no-results h2 {
     font-size: 50px;
     line-height: 60px;
+
+    /* live steps the gap here too, 20px to 28px, on
+       `.site-search__no-results > * + *` as a margin-top. Ours renders it as the
+       heading's margin-bottom instead: the `.button` anchor is an atomic inline
+       with margin 0, so the gap that shows is the larger of the two adjacent
+       margins and live's own number comes out either way (#416). */
+    margin-bottom: 28px;
   }
 }
