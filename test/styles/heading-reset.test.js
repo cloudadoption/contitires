@@ -194,10 +194,18 @@ describe('The block rules that resize a heading keep their own box', () => {
       '.cards .cards-card-body :is(h1, h2, h3, h4, h5, h6)', null, '21.6px'],
     ['/blocks/cards/cards.css',
       '.cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6)', null, '19.2px'],
+    // THESE TWO CARRIED FROZEN NUMBERS AND NOW CARRY LIVE'S. #395 pinned them at
+    // 1.2 times a size nothing rendered, because no article page authored either
+    // level and live's counterpart had not been measured; the comment beside the
+    // rule said exactly that. #372 measured live on all eight documents it names
+    // and both breakpoints were bisected on live, so 24 gives way to 30 and 20.4
+    // to 20. What the gate asks of them is unchanged: a rule that resizes a
+    // heading declares its own box, so the level's absolute cannot reach it.
+    // The widths and the steps are asserted in promoted-headings.test.js.
     ['/styles/article.css',
-      'body.article main .section .default-content-wrapper h3', null, '24px'],
+      'body.article main .section .default-content-wrapper h3', null, '30px'],
     ['/styles/article.css',
-      'body.article main .section .default-content-wrapper h4', null, '20.4px'],
+      'body.article main .section .default-content-wrapper h4', null, '20px'],
   ];
 
   /**
