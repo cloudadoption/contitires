@@ -1021,6 +1021,30 @@ wins on the nine.** The step is a deliberate block treatment and no external sta
 live's side. Reproducing it would mean writing nine block rules to match a choice rather than to
 correct an error. #382 closed as documented on that reading, not as fixed.
 
+**FOUR BLOCK RULES WERE FROZEN AT WHAT WE RENDERED RATHER THAN AT LIVE'S VALUE, on 2026-07-31 in
+#401, and that is a decision rather than an oversight.** Removing `line-height: 1.2` from the shared
+heading rule meant every block that pinned a font-size and declared no box would have inherited the
+new per-level absolute. Four rules were given an explicit box equal to what the ratio had already
+produced, so the reset could not reach them:
+
+| rule | box | headings |
+|---|---|---|
+| `.cards .cards-card-body :is(h1..h6)` | 21.6px | 11 |
+| `.cards.highlights .cards-card-body :is(h1..h6)` | 19.2px | 29, on four pages |
+| `.cards.category` above 900 | 38px | 3, the homepage tiles |
+| `h4`, `h5`, `h6` globally | 28.8 / 24 / 21.6px | h4 8, h5 and h6 zero instances |
+
+**What is decided here is preservation over parity, and live was not measured for these.** The
+values are ours, not live's. Each was chosen so the slice changed nothing it did not intend to
+change, which is what let the proof state that 16 headings moved out of 516 at risk. Closing the
+distance to live on any of them is open work rather than settled, and nobody has taken the
+measurement that would say whether a distance exists.
+
+**The `.cards.category` row is a fixed regression rather than a preserved value.** Its base pin took
+those three tiles from live's 38 down to 21.6 above 900 mid-slice, and the 38 restores what both
+live and this site already rendered. It is listed here because the rule is now explicit where it
+used to be inherited, not because anything diverged.
+
 **Two more are below the threshold at which a rule earns its own existence.**
 `.related-articles-title` renders a 14.4px line box against live's 16, which is 1.6px tight on one
 title.
