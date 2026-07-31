@@ -140,6 +140,7 @@ API, a vendor account or an index configuration.
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ this table is the source | [#362](https://github.com/cloudadoption/contitires/issues/362) |
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
 | Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ line boxes match live on the 63 headings measured; the article-template h2 SIZE is still 20px where live is 30 above 769 | [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
+|  | [Heading line boxes we are leaving different from live](#heading-line-boxes-we-are-leaving-different-from-live) | diverges | ✅ decided, not outstanding: nine inherited from live, two below the threshold a rule earns | [#382](https://github.com/cloudadoption/contitires/issues/382), [#381](https://github.com/cloudadoption/contitires/issues/381) |
 |  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | differs | ✅ author the same spacing device in DA, or accept the tighter rhythm | [#384](https://github.com/cloudadoption/contitires/issues/384) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
@@ -1005,6 +1006,41 @@ One correction to the record. [#185](https://github.com/cloudadoption/contitires
 gives h1 then `h3#warranty` and is a real skip; live carries no heading at all there, just a
 plain link. `/events` gives h1 then 32 h2 and no h3, so it no longer skips. Its heading was
 promoted in the DA write that shipped with PR [#342](https://github.com/cloudadoption/contitires/issues/342).
+
+### Heading line boxes we are leaving different from live
+
+**diverges.** Eleven heading line boxes differ from live's and are left that way on purpose. They
+are recorded here rather than left open. A difference nobody decided about looks identical to one
+nobody noticed.
+
+**Nine are live's own block treatment and we inherit it.** Live steps most block titles to 30/36
+under `max-width: 1024` while its global is 38, across four classes on four pages. Our global 38
+therefore reads further from live at 900 and 375 than the old 1.2 ratio did, which had matched
+live's 36 by accident. Measured against guardrail 5's clear-error exemption on 2026-07-31: **live
+wins on the nine.** The step is a deliberate block treatment and no external standard fails on
+live's side. Reproducing it would mean writing nine block rules to match a choice rather than to
+correct an error. #382 closed as documented on that reading, not as fixed.
+
+**Two more are below the threshold at which a rule earns its own existence.**
+`.related-articles-title` renders a 14.4px line box against live's 16, which is 1.6px tight on one
+title.
+`.cards.category` card body renders 4.4px tight under 900, **and its font size is four pixels
+larger than live's.** That second one is left for a stated reason rather than an inferred one:
+**the line box is not the only delta.** Matching the box alone would not match live, and closing it
+needs a size decision that has not been measured.
+
+**Three further rows in the same family are NOT here, because they are being fixed** rather than
+documented. `cards.coverage h2` at 1025, `article-cards.feature` intro h2 at 900, and
+`tire-rating h2` at 1025. The three are one artifact: a 42px h2 taking the old 1.2 ratio to 50.4
+where live sets an absolute 48. Live's value is the same 48 on each. That artifact was already
+closed twice at global level, h2 to 38px in #373 and h1 to 48px in #388.
+
+**Two rows are excluded from the comparison and are not gaps.** `.promo-bar-panel-content` is
+inside a commercial-claim zone under guardrail 23, where a diff against live is not a finding.
+`.search-no-results h2` has no reachable live counterpart, so there is no value to close toward.
+
+What it costs a visitor: on the nine, headings run a 38px line box at 900 and 375 where live runs
+30/36. Those blocks are slightly airier than live's. On the two, 1.6px and 4.4px on single titles.
 
 ### Live opens headings and paragraphs with a leading break
 
