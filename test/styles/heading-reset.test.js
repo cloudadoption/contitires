@@ -194,16 +194,33 @@ describe('The block rules that resize a heading keep their own box', () => {
       '.cards .cards-card-body :is(h1, h2, h3, h4, h5, h6)', null, '21.6px'],
     ['/blocks/cards/cards.css',
       '.cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6)', null, '19.2px'],
-    ['/blocks/store-locator/store-locator.css',
-      '.store-locator-search h3', null, '36px'],
     ['/styles/article.css',
       'body.article main .section .default-content-wrapper h3', null, '24px'],
     ['/styles/article.css',
       'body.article main .section .default-content-wrapper h4', null, '20.4px'],
   ];
 
+  /**
+   * The one rule the gate names and does not pin: `.store-locator-search`
+   * sizes all six levels at 30px and declares no box. NO PAGE IN THE 327-PATH
+   * INDEX BUILDS THE BLOCK, censused by fetching every path's `.plain.html`
+   * and looking for the class, `.mossy/parity/395/block-census.txt`, so
+   * nothing renders through it and a pin would freeze a number no reader sees.
+   * It is named here rather than dropped, because a gate that quietly omits a
+   * candidate reads exactly like a gate with nothing to report. `.cards.highlights`
+   * came through the same census with three pages, /ev-compatible, /learn and
+   * /smart-choice, which is why it IS pinned.
+   *
+   * `.columns.feature h2` is the same shape and the same reason (#373), and it
+   * needs nothing either way because h2 has carried an absolute since then.
+   */
+  const EXEMPT = [
+    ['/blocks/store-locator/store-locator.css', '.store-locator-search h3'],
+  ];
+
   before(async () => {
-    await Promise.all([...new Set(PINS.map(([f]) => f))].map(async (f) => {
+    const files = [...new Set(PINS.concat(EXEMPT).map(([f]) => f))];
+    await Promise.all(files.map(async (f) => {
       const s = new CSSStyleSheet();
       await s.replace(await (await fetch(f)).text());
       sheets[f] = s;
@@ -248,17 +265,13 @@ describe('The block rules that resize a heading keep their own box', () => {
     });
   });
 
-  /**
-   * The store-locator search heading must NOT take a blanket box. Its rule
-   * names all six levels at 30px, and an h2 there renders live's global 38
-   * today where the other five render 36. One value for all six moves the h2.
-   */
-  it('leaves the store-locator h2 on the global 38, which it renders today', () => {
-    expect(declarations(
-      '/blocks/store-locator/store-locator.css',
-      '.store-locator-search h2',
-      'line-height',
-    ), 'a box on the h2').to.have.lengthOf(0);
+  EXEMPT.forEach(([file, selector]) => {
+    it(`names ${selector} in ${file.split('/').pop()} and pins nothing`, () => {
+      expect(
+        declarations(file, selector, 'line-height'),
+        'a box on a block no page builds',
+      ).to.have.lengthOf(0);
+    });
   });
 });
 
