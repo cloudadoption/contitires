@@ -791,16 +791,26 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
  * swapping the elements in the DOM and re-reading the computed style:
  * .mossy/parity/371/promote-before-css-fix.txt.
  *
- * Weight is NOT addressed here. Live's slide title is 400 and ours is 300, from
- * the global `font-weight: 300` on all six levels, so the h3 was 300 and the
- * promoted h2 is 300. The gap is unchanged by the promotion.
+ * WEIGHT IS #385 AND IT IS ADDRESSED BELOW. Live's slide title is 400 and ours
+ * is 300, from the global `font-weight: 300` on all six levels, so the h3 is 300
+ * and the promoted h2 would be 300 too. The promotion does not touch it, which
+ * is why it is its own issue and not part of #371.
+ *
+ * The fix is PER-BLOCK, and the reason is that live is not uniformly 400 on this
+ * page. Live reads 300 on its marquee h1, on `.warranty-hero__title` and on
+ * `.stores-near-block__title`, and we match live on all three today, so moving
+ * the global 300 would break three headings to fix seven. Measured on the
+ * published host at 375, 900 and 1440: .mossy/parity/385/reproduce-published.txt.
  */
 describe('The carousel slide title', () => {
   let sheet;
+  let global;
 
   before(async () => {
     sheet = new CSSStyleSheet();
     await sheet.replace(await (await fetch('/blocks/carousel/carousel.css')).text());
+    global = new CSSStyleSheet();
+    await global.replace(await (await fetch('/styles/styles.css')).text());
   });
 
   const base = () => [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
@@ -822,5 +832,28 @@ describe('The carousel slide title', () => {
       && r.selectorText.startsWith('.carousel-content')
       && r.style.getPropertyValue('font-size'));
     expect(sized.map((r) => r.selectorText)).to.deep.equal(['.carousel-content p']);
+  });
+
+  it('takes live\'s 400 on whatever level the slide authors', () => {
+    const weighted = base().filter((r) => r.selectorText
+      && r.selectorText.startsWith('.carousel-content')
+      && r.style.getPropertyValue('font-weight'));
+    expect(weighted.map((r) => r.selectorText), 'the rule carrying the weight')
+      .to.deep.equal(['.carousel-content :is(h1, h2, h3, h4, h5, h6)']);
+    expect(weighted[0].style.getPropertyValue('font-weight').trim()).to.equal('400');
+  });
+
+  /**
+   * The guard, not the fix. It fails if someone closes this by moving the global
+   * weight, which would take the marquee h1, `.warranty-hero__title` and
+   * `.stores-near-block__title` off live's own 300.
+   */
+  it('leaves the global 300 alone, which three other headings match live on', () => {
+    const rule = [...global.cssRules]
+      .filter((r) => !(r instanceof CSSMediaRule))
+      .find((r) => r.selectorText === 'h1, h2, h3, h4, h5, h6'
+        && r.style.getPropertyValue('font-weight'));
+    expect(rule, 'the global heading rule').to.exist;
+    expect(rule.style.getPropertyValue('font-weight').trim()).to.equal('300');
   });
 });
