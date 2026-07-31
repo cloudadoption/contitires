@@ -706,3 +706,99 @@ describe('product hero, the Technology tooltip logo (#411)', () => {
     block.remove();
   });
 });
+
+/**
+ * Four of the 14 tooltips are a bulleted list on live and render here as
+ * run-together lines. The four are EcoPlus, PolarPlus, SportPlus and
+ * TractionPlus, derived from the captured live HTML rather than read off by eye
+ * (`.mossy/parity/380/tooltips.json`, the entries carrying a `<ul>`).
+ *
+ * The shape is a `shape` column beside the description, NOT a marker inside it.
+ * A marker such as a leading `- ` would be IN BAND: the content bus is one bus
+ * for every branch, so main would read those same cells with code that knows
+ * nothing about the marker and render `- Saves fuel` on 34 product pages. A
+ * column is out of band, and main has no reader of this sheet at all, so it is
+ * inert (`.mossy/parity/410/step1-inert-sheet-served.txt`).
+ *
+ * The four are a strict SUBSET of the six that carry a logo, so neither column
+ * can be derived from the other and both are needed. (#412)
+ */
+describe('product hero, the Technology tooltip list (#412)', () => {
+  const SHEET = {
+    total: 2,
+    offset: 0,
+    limit: 2,
+    data: [
+      {
+        name: 'EcoPlus',
+        description: 'Saves fuel & optimizes range\nStops shorter on wet roads\nExtends tread life',
+        logo: '/media/technology_logo/ct-ecoplus-logo-black-rd.png',
+        shape: 'list',
+      },
+      {
+        name: 'ContiSeal*',
+        description: 'A proprietary sealant compound.\n*Select tire sizes',
+        logo: '',
+        shape: '',
+      },
+    ],
+  };
+
+  const withTech = (items) => authored(`
+    <h1>ProContact TX10</h1>
+    <p><strong>Technology</strong></p>
+    <ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`);
+
+  afterEach(() => {
+    if (window.fetch.restore) window.fetch.restore();
+  });
+
+  it('draws a list row as live\'s ul, one li per line', async () => {
+    sinon.stub(window, 'fetch')
+      .callsFake(() => Promise.resolve(new Response(JSON.stringify(SHEET))));
+    const block = withTech(['EcoPlus']);
+    decorate(block);
+    await addTechnologyTooltips(block);
+
+    const tip = block.querySelector('.product-hero-technology-tip');
+    const list = tip.querySelector('ul');
+    expect(list, 'the list live draws').to.exist;
+    expect([...list.querySelectorAll('li')].map((li) => li.textContent)).to.deep.equal([
+      'Saves fuel & optimizes range',
+      'Stops shorter on wet roads',
+      'Extends tread life',
+    ]);
+    expect(tip.querySelectorAll('p'), 'and no run-together paragraphs').to.have.length(0);
+    block.remove();
+  });
+
+  it('leaves a row without the marker as paragraphs', async () => {
+    sinon.stub(window, 'fetch')
+      .callsFake(() => Promise.resolve(new Response(JSON.stringify(SHEET))));
+    const block = withTech(['ContiSeal*']);
+    decorate(block);
+    await addTechnologyTooltips(block);
+
+    const tip = block.querySelector('.product-hero-technology-tip');
+    expect(!!tip.querySelector('ul'), 'no list here').to.be.false;
+    expect([...tip.querySelectorAll('p')].map((p) => p.textContent)).to.deep.equal([
+      'A proprietary sealant compound.',
+      '*Select tire sizes',
+    ]);
+    block.remove();
+  });
+
+  it('keeps the logo above the list on a row that has both', async () => {
+    sinon.stub(window, 'fetch')
+      .callsFake(() => Promise.resolve(new Response(JSON.stringify(SHEET))));
+    const block = withTech(['EcoPlus']);
+    decorate(block);
+    await addTechnologyTooltips(block);
+
+    const tip = block.querySelector('.product-hero-technology-tip');
+    expect(tip.children[0].tagName, 'logo first').to.equal('IMG');
+    expect(tip.children[1].tagName, 'then the list').to.equal('UL');
+    expect(tip.children, 'and nothing else').to.have.length(2);
+    block.remove();
+  });
+});
