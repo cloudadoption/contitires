@@ -37,9 +37,14 @@ main .section.cards-container {
   color: var(--conti-black);
 }
 
+/* the box is frozen at 1.2 times the 18px above it, which is what it rendered
+   while the global heading rule carried the ratio. With an absolute per level
+   an unpinned card heading takes h3's 32 on an 18px font (#395). 11 headings
+   at 375 read 21.6 through this rule. */
 .cards .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--heading-font-family);
   font-size: var(--heading-font-size-xs);
+  line-height: 21.6px;
   margin: 0 0 8px;
 }
 
@@ -152,10 +157,15 @@ main .section.cards-container {
   }
 }
 
+/* same freeze as the base card, at 1.2 times its own 16px. The variant is on
+   /ev-compatible, /learn and /smart-choice, censused across all 327 indexed
+   paths in `.mossy/parity/395/block-census.txt`, and 29 headings at 375 read
+   19.2 through it. */
 .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
   margin: 0;
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-s);
+  line-height: 19.2px;
   font-weight: bold;
 }
 

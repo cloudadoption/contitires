@@ -229,6 +229,23 @@ footer .footer[data-block-status="loaded"] {
   visibility: visible;
 }
 
+/* No line-height here, which is live's own shape: it resets all six levels to
+   `line-height: inherit` and then writes an ABSOLUTE box per level. The six
+   rules below carry them.
+
+   The ratio was not a rounding difference, it was a leak. `line-height: 1.2`
+   on this rule reaches any heading no other rule pins, so every block that
+   resized a heading and declared no box dragged its line box along with the
+   size. #373 took h2 off it and #388 took the h1 above 1025, which left h1's
+   base and h3 to h6 on the ratio, and the leak with them (#395).
+
+   The two margins stay proportional. #393 measured the one instance row 1 had,
+   the confidence band, and the heading's own margin-bottom is not what renders
+   there: the two margins COLLAPSE, so the gap is the paragraph's 0.8em rather
+   than the sum. Changing this declaration would not have moved it. Row 2's
+   margin-top survives the cascade on 57 of 171 heading reads and produces a
+   measured delta on two pages, in opposite directions, so no single absolute
+   replaces it. Both are recorded on #395 rather than closed. */
 h1,
 h2,
 h3,
@@ -239,7 +256,6 @@ h6 {
   margin-bottom: 0.25em;
   font-family: var(--body-font-family);
   font-weight: 300;
-  line-height: 1.2;
   scroll-margin: 40px;
 }
 
@@ -264,7 +280,14 @@ sup {
   vertical-align: baseline;
 }
 
-h1 { font-size: var(--heading-font-size-xxl); }
+/* live's own 36 below 1025, the value the old ratio already produced on a 30px
+   h1. It is written out rather than left implied, because the ratio is what
+   leaked into every rule that resized an h1 (#395). The 48 above 1025 is #388
+   and sits in the block below. */
+h1 {
+  font-size: var(--heading-font-size-xxl);
+  line-height: 36px;
+}
 
 /* live's h1 box is 36 below 1025 and 48 above, measured on the cover set at
    375, 900 and 1440. Ours resolves 30px against the shared 1.2 to live's own 36
@@ -311,10 +334,51 @@ h2 {
   font-size: var(--heading-font-size-xl);
   line-height: 38px;
 }
-h3 { font-size: var(--heading-font-size-l); }
-h4 { font-size: var(--heading-font-size-m); }
-h5 { font-size: var(--heading-font-size-s); }
-h6 { font-size: var(--heading-font-size-xs); }
+
+/* h3 takes LIVE'S 32, which is a fix and not a pin. Our h3 size is live's own
+   24px under no media query, so live's box for it transfers: 24 times the old
+   1.2 gave 28.8 and live gives 32. #373 measured the 3.2px and left it because
+   that slice was scoped to h2; it closes here, and it is the only heading this
+   rule set moves. 16 headings at 375 take it.
+
+   h4, h5 and h6 are PINS at what they render today, and the reason is that
+   live's numbers do NOT transfer to them. Live runs 20, 16 and 14 against our
+   24, 20 and 18, so live's 24, 22 and 20 belong to different type and copying
+   them would be inventing. The decimals are 1.2 times the size above each,
+   frozen so the ratio stops leaking. No page in the 327-path index renders an
+   h5 or an h6, and every h4 that renders is sized by its own block rule, so
+   these three move nothing today and exist to stop a promotion moving it
+   later. Their delta against live is not knowable while the sizes differ. */
+h3 {
+  font-size: var(--heading-font-size-l);
+  line-height: 32px;
+}
+
+h4 {
+  font-size: var(--heading-font-size-m);
+  line-height: 28.8px;
+}
+
+h5 {
+  font-size: var(--heading-font-size-s);
+  line-height: 24px;
+}
+
+h6 {
+  font-size: var(--heading-font-size-xs);
+  line-height: 21.6px;
+}
+
+/* h4 and h5 are the only levels whose SIZE steps at 900, so their pinned boxes
+   step with it or they stop being the value they froze. This block sits AFTER
+   the four rules above because a media query adds no specificity: written into
+   the :root block near the top of the file it would lose to them, the same way
+   #388's first h1 attempt lost to the shared rule and rendered 50.4 with the
+   declaration present. */
+@media (width >= 900px) {
+  h4 { line-height: 31.2px; }
+  h5 { line-height: 26.4px; }
+}
 
 p,
 dl,
