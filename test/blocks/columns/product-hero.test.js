@@ -596,3 +596,113 @@ describe('product hero, the Technology tooltips', () => {
     block.remove();
   });
 });
+
+/**
+ * Six of the 14 technology names carry a tooltip LOGO on live, a second asset
+ * class distinct from the 30px row drawing #380 sourced. Live writes it as the
+ * first child of the tooltip body, above the description:
+ *
+ *     <div slot="tooltip">
+ *       <img loading="lazy" src="..." width="215" height="50" alt=""/>
+ *       <ul><li>Saves fuel &amp; optimizes range</li>...</ul>
+ *     </div>
+ *
+ * The path is a `logo` column in the same `technology` sheet, because which
+ * logo belongs to which technology is content an author reaches in DA. The six
+ * PNGs are live's own files, uploaded to `media/technology_logo/` per guardrail
+ * 19 and published: each serves 200 `image/png` on both hosts at its live byte
+ * count (`.mossy/parity/410/step18-media-live.txt`).
+ *
+ * No width or height is written. All six PNGs are intrinsically 215px wide at
+ * exactly the height live declares, so the browser reaches live's size from the
+ * file (`.mossy/parity/410/step21-logo-dimensions.txt`), and the tip is `hidden`
+ * until the button is pressed so nothing shifts on load.
+ *
+ * The alt is EMPTY on all six where live writes a filename on two of them,
+ * `QuickViewIndicators_Logo-long` and `TunedPerformanceIndicators_Logo-long`.
+ * The technology name is already in the row beside it, so the logo is
+ * decorative and a filename read aloud is noise. Live's other four are empty
+ * too. (#411)
+ */
+describe('product hero, the Technology tooltip logo (#411)', () => {
+  const SHEET = {
+    total: 3,
+    offset: 0,
+    limit: 3,
+    data: [
+      {
+        name: 'EcoPlus',
+        description: 'Saves fuel & optimizes range\nStops shorter on wet roads',
+        logo: '/media/technology_logo/ct-ecoplus-logo-black-rd.png',
+        shape: 'list',
+      },
+      {
+        name: 'QuickView Indicators',
+        description: 'Indicators in the tread that visually inform drivers.',
+        logo: '/media/technology_logo/qvi-logo-long.png',
+        shape: '',
+      },
+      {
+        name: 'ContiSeal*',
+        description: 'A proprietary sealant compound.',
+        logo: '',
+        shape: '',
+      },
+    ],
+  };
+
+  const withTech = (items) => authored(`
+    <h1>ProContact TX10</h1>
+    <p><strong>Technology</strong></p>
+    <ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`);
+
+  afterEach(() => {
+    if (window.fetch.restore) window.fetch.restore();
+  });
+
+  it('puts live\'s logo at the top of the tip, above the description', async () => {
+    sinon.stub(window, 'fetch')
+      .callsFake(() => Promise.resolve(new Response(JSON.stringify(SHEET))));
+    const block = withTech(['EcoPlus']);
+    decorate(block);
+    await addTechnologyTooltips(block);
+
+    const tip = block.querySelector('.product-hero-technology-tip');
+    const img = tip.querySelector('img');
+    expect(img, 'the logo').to.exist;
+    expect(img.getAttribute('src')).to.equal('/media/technology_logo/ct-ecoplus-logo-black-rd.png');
+    expect(img.getAttribute('alt'), 'decorative beside the name').to.equal('');
+    expect(img.getAttribute('loading')).to.equal('lazy');
+    expect(tip.firstElementChild, 'above the description, as live has it').to.equal(img);
+    block.remove();
+  });
+
+  it('gives a logo to a row that has one and none to a row that does not', async () => {
+    sinon.stub(window, 'fetch')
+      .callsFake(() => Promise.resolve(new Response(JSON.stringify(SHEET))));
+    const block = withTech(['EcoPlus', 'QuickView Indicators', 'ContiSeal*']);
+    decorate(block);
+    await addTechnologyTooltips(block);
+
+    const tips = [...block.querySelectorAll('.product-hero-technology-tip')];
+    expect(tips, 'one tip per row').to.have.length(3);
+    expect(tips[0].querySelector('img'), 'EcoPlus has one').to.exist;
+    expect(tips[1].querySelector('img'), 'QuickView has one').to.exist;
+    expect(!!tips[2].querySelector('img'), 'ContiSeal has none').to.be.false;
+    expect(tips[2].textContent, 'and still carries its words').to.contain('proprietary sealant');
+    block.remove();
+  });
+
+  it('keeps the description when the logo cell is empty', async () => {
+    sinon.stub(window, 'fetch')
+      .callsFake(() => Promise.resolve(new Response(JSON.stringify(SHEET))));
+    const block = withTech(['ContiSeal*']);
+    decorate(block);
+    await addTechnologyTooltips(block);
+
+    const tip = block.querySelector('.product-hero-technology-tip');
+    expect(tip.querySelectorAll('img'), 'no empty img element').to.have.length(0);
+    expect(tip.querySelector('p').textContent).to.equal('A proprietary sealant compound.');
+    block.remove();
+  });
+});
