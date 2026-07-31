@@ -155,12 +155,15 @@ async function buildTips(list) {
 
   const byName = new Map(rows
     .filter((row) => row.name)
-    .map((row) => [String(row.name).trim().toLowerCase(), String(row.description || '')]));
+    .map((row) => [String(row.name).trim().toLowerCase(), {
+      text: String(row.description || ''),
+      logo: String(row.logo || '').trim(),
+    }]));
 
   list.querySelectorAll(':scope > li').forEach((item) => {
     const name = item.textContent.trim();
-    const text = byName.get(name.toLowerCase());
-    if (!text) return;
+    const row = byName.get(name.toLowerCase());
+    if (!row) return;
     tips += 1;
     const id = `product-hero-tip-${tips}`;
 
@@ -168,8 +171,20 @@ async function buildTips(list) {
     tip.className = 'product-hero-technology-tip';
     tip.id = id;
     tip.hidden = true;
+    // six of the 14 open with a logo above the words. No width or height: each
+    // file is intrinsically 215px wide at live's own height, and the tip is
+    // hidden until the button is pressed, so nothing shifts on load.
+    if (row.logo) {
+      const logo = document.createElement('img');
+      logo.className = 'product-hero-technology-logo';
+      logo.src = row.logo;
+      logo.loading = 'lazy';
+      // decorative: the technology name is in the row beside it
+      logo.alt = '';
+      tip.append(logo);
+    }
     // live sets the description as separate paragraphs, the qualifier its own
-    text.split('\n').map((line) => line.trim()).filter(Boolean).forEach((line) => {
+    row.text.split('\n').map((line) => line.trim()).filter(Boolean).forEach((line) => {
       const p = document.createElement('p');
       p.textContent = line;
       tip.append(p);

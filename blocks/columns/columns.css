@@ -255,6 +255,18 @@ main .columns.bar .button.secondary:focus-visible {
   margin: 0 0 4px;
 }
 
+/* the six logos are intrinsically 215px wide, which is the width live declares
+   on each of them, so no size is set here and the file carries it. The cap is
+   for the narrow column at 375, where 215px would otherwise overflow. The 4px
+   below is the gap this tip already puts under a paragraph rather than a
+   number measured off live. (#411) */
+.columns.product-hero .product-hero-technology-logo {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 0 4px;
+}
+
 .columns.product-hero .sr-only {
   position: absolute;
   overflow: hidden;
