@@ -151,7 +151,7 @@ API, a vendor account or an index configuration.
 |  | [Authored heading levels do not follow live's](#authored-heading-levels-do-not-follow-lives) | differs | ✅ re-level the authored documents | [#371](https://github.com/cloudadoption/contitires/issues/371), [#372](https://github.com/cloudadoption/contitires/issues/372) |
 |  | [Product labels are static text where live's are a disclosure](#product-labels-are-static-text-where-lives-are-a-disclosure) | differs | ⚙️ live's advantage, no counterpart built | -- |
 |  | [Security headers](#security-headers) | differs | ✅ queued | -- |
-|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ✅ queued | [#125](https://github.com/cloudadoption/contitires/issues/125), [#317](https://github.com/cloudadoption/contitires/issues/317) |
+|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ✅ the runner hang and the 404 noise are fixed; fixture shape is open | [#125](https://github.com/cloudadoption/contitires/issues/125) |
 |  | [The annotated tire diagram](#the-annotated-tire-diagram) | diverges | ✅ live's version is the defect | [#255](https://github.com/cloudadoption/contitires/issues/255) |
 |  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | ✅ queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
 
@@ -1029,11 +1029,13 @@ larger than live's.** That second one is left for a stated reason rather than an
 **the line box is not the only delta.** Matching the box alone would not match live, and closing it
 needs a size decision that has not been measured.
 
-**Three further rows in the same family are NOT here, because they are being fixed** rather than
-documented. `cards.coverage h2` at 1025, `article-cards.feature` intro h2 at 900, and
-`tire-rating h2` at 1025. The three are one artifact: a 42px h2 taking the old 1.2 ratio to 50.4
-where live sets an absolute 48. Live's value is the same 48 on each. That artifact was already
-closed twice at global level, h2 to 38px in #373 and h1 to 48px in #388.
+**Three further rows in the same family were fixed rather than documented, and they are closed.**
+`cards.coverage h2`, `article-cards.feature` intro h2 and `tire-rating h2` each took a 42px h2
+through the old 1.2 ratio to 50.4 where live sets an absolute 48, the same 48 on each. #381 closed
+them in PR #394, merged 2026-07-31, and the same change moved the `article-cards.feature` step off
+our 900 onto live's own 1025, because live holds that title to 30/36 under `max-width: 1024`. That
+artifact had already been closed twice at global level, h2 to 38px in #373 and h1 to 48px in
+#388.
 
 **Two rows are excluded from the comparison and are not gaps.** `.promo-bar-panel-content` is
 inside a commercial-claim zone under guardrail 23, where a diff against live is not a finding.
@@ -1315,11 +1317,14 @@ code inherits.
 There are 29 block directories and 2 of them ship without a test directory, `fragment` and
 `library-metadata`. `git ls-files` counts 72 tracked test files.
 
-Three things make the suite prove less than it looks. Fixtures are built in the authored shape
-rather than the delivered shape, so a block can pass its suite and still drop content in
-production. An absence assertion whose actual value is a DOM element hangs the runner for 120
-seconds and takes that file's passing results with it. And 25 test files request 67 distinct
-URLs that 404 in every run, printing blocks of yellow that would hide a real 404.
+Two of the three things that made the suite prove less than it looks are fixed. #317 and #318
+closed in PR #392 on 2026-07-31: an absence assertion whose actual value is a DOM element no
+longer hangs the runner for 120 seconds, and the 25 test files that requested 67 distinct 404ing
+URLs on every run no longer do, so a real 404 is no longer buried in yellow.
+
+**The third is open and it is the one that can hide a production defect.** Fixtures are built in
+the authored shape rather than the delivered shape, so a block can pass its suite and still drop
+content in production.
 
 What it costs a visitor: nothing. The cost is a green suite that proves less than it looks, and
 two documents that describe a site which changed underneath them.
