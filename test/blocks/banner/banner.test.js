@@ -85,7 +85,7 @@ describe('Banner block, the section hub trail', () => {
 
   it('does not link the page back to itself, the way live does', () => {
     const nav = buildHubBreadcrumb('Experience');
-    expect(nav.querySelector('a'), 'no self-link').to.not.exist;
+    expect(!!nav.querySelector('a'), 'no self-link').to.be.false;
   });
 
   it('gives nothing without a label to name', () => {

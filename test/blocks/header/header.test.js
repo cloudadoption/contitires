@@ -481,7 +481,7 @@ describe('Header search form', () => {
     expect(form.getAttribute('action')).to.equal('/search');
     expect(form.getAttribute('method')).to.equal('get');
     expect(form.querySelector('input[name="keywords"]'), 'input named keywords').to.exist;
-    expect(form.querySelector('input[name="q"]'), 'no input named q').to.not.exist;
+    expect(!!form.querySelector('input[name="q"]'), 'no input named q').to.be.false;
   });
 
   it('returns nothing when authors leave the search icon out', () => {

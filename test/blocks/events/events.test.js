@@ -104,7 +104,7 @@ describe('Events block, the card', () => {
     decorate(block);
     const description = block.querySelector('.events-description');
     expect(description.textContent).to.contain('will be on-site');
-    expect(description.querySelector('h2'), 'no heading in the description').to.not.exist;
+    expect(!!description.querySelector('h2'), 'no heading in the description').to.be.false;
   });
 
   it('puts the category in the card\'s footer', () => {
@@ -131,8 +131,8 @@ describe('Events block, what an author leaves out', () => {
       '',
     ]]);
     decorate(block);
-    expect(block.querySelector('.events-category')).to.not.exist;
-    expect(block.querySelector('.events-footer')).to.not.exist;
+    expect(!!block.querySelector('.events-category')).to.be.false;
+    expect(!!block.querySelector('.events-footer')).to.be.false;
     expect(block.querySelector('.events-name'), 'the card still builds').to.exist;
   });
 
@@ -144,8 +144,8 @@ describe('Events block, what an author leaves out', () => {
     ]]);
     decorate(block);
     expect(block.querySelector('.events-range').textContent).to.equal('Jul 29–29');
-    expect(block.querySelector('.events-day')).to.not.exist;
-    expect(block.querySelector('.events-year')).to.not.exist;
+    expect(!!block.querySelector('.events-day')).to.be.false;
+    expect(!!block.querySelector('.events-year')).to.be.false;
     expect(block.querySelector('.events-location').textContent).to.contain('Cincinnati, OH');
   });
 
@@ -166,7 +166,7 @@ describe('Events block, what an author leaves out', () => {
     decorate(block);
     expect(block.querySelectorAll('.events-list > li')).to.have.length(1);
     expect(block.querySelector('.events-name').textContent).to.equal('MLS Activation');
-    expect(block.querySelector('.events-location')).to.not.exist;
+    expect(!!block.querySelector('.events-location')).to.be.false;
   });
 });
 

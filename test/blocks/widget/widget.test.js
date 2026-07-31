@@ -71,7 +71,7 @@ describe('The widget block', () => {
   it('holds the widget script back', async () => {
     const block = build();
     await decorate(block);
-    expect(document.head.querySelector(EMBED), 'the third-party embed').to.not.exist;
+    expect(!!document.head.querySelector(EMBED), 'the third-party embed').to.be.false;
   });
 
   it('loads it when the delayed phase runs', async () => {
@@ -84,6 +84,6 @@ describe('The widget block', () => {
   // the delayed phase runs on every page, and all but three carry no widget
   it('loads nothing when the page carries no widget', async () => {
     await loadWidgetScripts();
-    expect(document.head.querySelector(EMBED)).to.not.exist;
+    expect(!!document.head.querySelector(EMBED)).to.be.false;
   });
 });

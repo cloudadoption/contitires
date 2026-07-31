@@ -134,8 +134,8 @@ describe('tire-rating', () => {
     const block = build('scontact');
     await decorate(block);
 
-    expect(document.querySelector('.tire-rating'), 'the block').to.not.exist;
-    expect(document.querySelector('.tire-rating-container'), 'and its section').to.not.exist;
+    expect(!!document.querySelector('.tire-rating'), 'the block').to.be.false;
+    expect(!!document.querySelector('.tire-rating-container'), 'and its section').to.be.false;
   });
 
   it('takes the band away for a slug the sheet does not carry', async () => {
@@ -143,7 +143,7 @@ describe('tire-rating', () => {
     const block = build('not-a-tire');
     await decorate(block);
 
-    expect(document.querySelector('.tire-rating')).to.not.exist;
+    expect(!!document.querySelector('.tire-rating')).to.be.false;
   });
 
   it('takes the band away when the sheet cannot be read', async () => {
@@ -151,7 +151,7 @@ describe('tire-rating', () => {
     const block = build('4x4contact');
     await decorate(block);
 
-    expect(document.querySelector('.tire-rating')).to.not.exist;
+    expect(!!document.querySelector('.tire-rating')).to.be.false;
   });
 
   it('reads the slug off the path when no cell is authored', async () => {

@@ -30,7 +30,7 @@ describe('Video block', () => {
   it('shows the authored poster and no iframe', () => {
     decorate(authored());
     expect(block.querySelector('img')?.getAttribute('src')).to.equal('/media/poster.jpg');
-    expect(block.querySelector('iframe')).to.be.null;
+    expect(!!block.querySelector('iframe')).to.be.false;
   });
 
   it('gives the play control the video title', () => {
@@ -71,7 +71,7 @@ describe('Video block', () => {
   it('keeps the poster out of the flow once the player is in', () => {
     decorate(authored());
     block.querySelector('button').click();
-    expect(block.querySelector('img'), 'poster').to.be.null;
+    expect(!!block.querySelector('img'), 'poster').to.be.false;
   });
 
   // two of these videos have no poster on live, so the block still has to offer
@@ -93,7 +93,7 @@ describe('Video block', () => {
     document.body.innerHTML = '<div class="video block"><div><div><p>No link here</p></div></div></div>';
     block = document.querySelector('.video.block');
     decorate(block);
-    expect(block.querySelector('button')).to.be.null;
+    expect(!!block.querySelector('button')).to.be.false;
     expect(block.textContent).to.contain('No link here');
   });
 

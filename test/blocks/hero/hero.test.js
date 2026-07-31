@@ -681,6 +681,6 @@ describe('Hero block, the breadcrumb variant', () => {
     const block = buildHub('left');
     await decorate(block);
 
-    expect(block.querySelector('nav[aria-label="Breadcrumb"]')).to.not.exist;
+    expect(!!block.querySelector('nav[aria-label="Breadcrumb"]')).to.be.false;
   });
 });

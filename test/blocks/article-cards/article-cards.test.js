@@ -55,7 +55,7 @@ describe('Article cards block', () => {
 
     more.click();
     expect(block.querySelectorAll('.article-card')).to.have.length(15);
-    expect(block.querySelector('.article-cards-more')).to.not.exist;
+    expect(!!block.querySelector('.article-cards-more')).to.be.false;
   });
 
   it('skips rows that have no image', async () => {
@@ -89,7 +89,7 @@ describe('Article cards block', () => {
     await decorate(block);
 
     expect(block.querySelectorAll('.article-card')).to.have.length(3);
-    expect(block.querySelector('.article-cards-more')).to.not.exist;
+    expect(!!block.querySelector('.article-cards-more')).to.be.false;
   });
 });
 
@@ -169,7 +169,7 @@ describe('Article cards, learn hub band variants', () => {
 
     const teasers = block.querySelectorAll('.article-teaser');
     expect(teasers).to.have.length(2);
-    expect(block.querySelector('.article-card-image')).to.not.exist;
+    expect(!!block.querySelector('.article-card-image')).to.be.false;
     expect(block.querySelector('picture img').getAttribute('src')).to.equal('/learn/tips.png');
     expect(teasers[0].querySelector('h3').textContent).to.equal('Article 4');
     expect(teasers[0].querySelector('p').textContent).to.equal('Description 4.');
@@ -226,11 +226,11 @@ describe('Article cards, learn hub band variants', () => {
     await decorate(block);
 
     expect(block.querySelectorAll('.article-teaser')).to.have.length(3);
-    expect(block.querySelector('.article-card-image')).to.not.exist;
+    expect(!!block.querySelector('.article-card-image')).to.be.false;
     // News has no category image on live, so the columns band keeps the plain
     // section layout rather than building a media column
-    expect(block.querySelector('.article-cards-media')).to.not.exist;
-    expect(block.querySelector('.article-cards-intro')).to.not.exist;
+    expect(!!block.querySelector('.article-cards-media')).to.be.false;
+    expect(!!block.querySelector('.article-cards-intro')).to.be.false;
   });
 
   it('leaves the plain card grid on the category listing pages', async () => {
@@ -240,7 +240,7 @@ describe('Article cards, learn hub band variants', () => {
 
     expect(block.querySelectorAll('.article-card')).to.have.length(3);
     expect(block.querySelector('.article-card-image picture img')).to.exist;
-    expect(block.querySelector('.article-teaser')).to.not.exist;
+    expect(!!block.querySelector('.article-teaser')).to.be.false;
   });
 });
 
@@ -434,7 +434,7 @@ describe('Article cards, a category nobody publishes under', () => {
     stub();
     const block = build(['Category', 'Tire Tips']);
     await decorate(block);
-    expect(block.querySelector('.article-cards-error')).to.not.exist;
+    expect(!!block.querySelector('.article-cards-error')).to.be.false;
     expect(block.querySelectorAll('.article-card')).to.have.length(1);
     expect(errors.called, 'console.error').to.be.false;
   });
@@ -443,7 +443,7 @@ describe('Article cards, a category nobody publishes under', () => {
     stub();
     const block = build(['/learn/query-index.json']);
     await decorate(block);
-    expect(block.querySelector('.article-cards-error')).to.not.exist;
+    expect(!!block.querySelector('.article-cards-error')).to.be.false;
     expect(block.querySelectorAll('.article-card')).to.have.length(2);
   });
 });

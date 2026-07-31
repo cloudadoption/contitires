@@ -148,7 +148,7 @@ describe('Tabs block, what a row holds', () => {
     const panels = block.querySelectorAll('[role="tabpanel"]');
     expect(panels[0].querySelector('.tabs-aside'), 'the logos panel has one').to.exist;
     expect(panels[0].querySelector('.tabs-aside h2').textContent).to.equal('Usage guidelines');
-    expect(panels[1].querySelector('.tabs-aside'), 'the tires panel has none').to.not.exist;
+    expect(!!panels[1].querySelector('.tabs-aside'), 'the tires panel has none').to.be.false;
   });
 
   it('keeps the panel content it was given', () => {

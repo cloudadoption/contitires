@@ -100,7 +100,7 @@ describe('The promo template offers the finder', () => {
     const main = promoPage();
     decorateMain(main);
 
-    expect(main.querySelector('[data-tire-finder]')).to.not.exist;
+    expect(!!main.querySelector('[data-tire-finder]')).to.be.false;
     expect(main.querySelectorAll('a[href="/perfect-fit"]')).to.have.length(2);
   });
 });

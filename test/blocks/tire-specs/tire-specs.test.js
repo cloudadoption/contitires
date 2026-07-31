@@ -215,7 +215,7 @@ describe('Tire specs block, legacy product-specs.json', () => {
     await when(() => block.querySelector('.tire-specs-status'));
 
     expect(document.querySelector('.tire-specs-wrapper')).to.exist;
-    expect(block.querySelector('.tire-specs-grid'), 'a spec table').to.not.exist;
+    expect(!!block.querySelector('.tire-specs-grid'), 'a spec table').to.be.false;
   });
 });
 
@@ -385,7 +385,7 @@ describe("Tire specs, live's empty state", () => {
     decorate(block);
     await empty(block);
 
-    expect(block.querySelector('.tire-specs-grid')).to.not.exist;
+    expect(!!block.querySelector('.tire-specs-grid')).to.be.false;
   });
 });
 
@@ -413,7 +413,7 @@ describe("Tire specs, live's band on a product with sizes", () => {
     expect(block.querySelector('.tire-specs-status').textContent)
       .to.equal('Make a selection below to view tire specifications.');
     expect(block.textContent).to.not.contain('sizes available');
-    expect(block.querySelector('.tire-specs-count')).to.not.exist;
+    expect(!!block.querySelector('.tire-specs-count')).to.be.false;
   });
 
   it('waits for the reader, showing no size nobody chose', async () => {
@@ -425,7 +425,7 @@ describe("Tire specs, live's band on a product with sizes", () => {
     const select = block.querySelector('.tire-specs-select');
     expect(select.options[0].textContent, 'what the picker reads').to.equal('Select a size');
     expect(select.value, 'nothing chosen').to.equal('');
-    expect(block.querySelector('.tire-specs-grid'), 'a spec table').to.not.exist;
+    expect(!!block.querySelector('.tire-specs-grid'), 'a spec table').to.be.false;
   });
 
   it('carries live\'s hint and link here too', async () => {
@@ -700,7 +700,7 @@ describe('Tire specs, a sheet that does not carry its columns', () => {
     decorate(block);
 
     await when(() => block.querySelector('.tire-specs-status'));
-    expect(document.querySelector('.tire-specs-error'), 'no authoring error').to.not.exist;
+    expect(!!document.querySelector('.tire-specs-error'), 'no authoring error').to.be.false;
     expect(errors.called, 'console.error').to.be.false;
   });
 });

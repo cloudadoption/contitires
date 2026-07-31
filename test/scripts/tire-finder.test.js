@@ -135,7 +135,7 @@ describe('product hero finder card', () => {
     const card = main.querySelector('.perfect-fit.card');
     expect(card).to.exist;
     expect(card.closest('.columns.product-hero')).to.exist;
-    expect(main.querySelector('a[href="/perfect-fit"]')).to.not.exist;
+    expect(!!main.querySelector('a[href="/perfect-fit"]')).to.be.false;
   });
 
   it('decorates the card, which sits too deep for decorateBlocks to reach', () => {
@@ -157,7 +157,7 @@ describe('product hero finder card', () => {
     const wrapper = main.querySelector('.perfect-fit-wrapper');
     expect(wrapper).to.exist;
     expect(wrapper.closest('.columns.product-hero')).to.exist;
-    expect(main.querySelector('.section > .perfect-fit-wrapper')).to.not.exist;
+    expect(!!main.querySelector('.section > .perfect-fit-wrapper')).to.be.false;
   });
 
   it('carries the card question live asks into the block', () => {
@@ -173,7 +173,7 @@ describe('product hero finder card', () => {
     main.innerHTML = '<div><p><a href="/perfect-fit">Find your size</a></p></div>';
     decorateMain(main);
 
-    expect(main.querySelector('.perfect-fit')).to.not.exist;
+    expect(!!main.querySelector('.perfect-fit')).to.be.false;
     expect(main.querySelector('a').getAttribute('href')).to.equal('/perfect-fit');
   });
 });
