@@ -632,6 +632,12 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       'width < 900px', '33.6px'],
     ['/blocks/search/search.css',
       'main .search .search-no-results h2', '600px', '50.4px'],
+    // live steps the count at its own `max-width: 768`, so ours steps one pixel
+    // above that cap rather than at the site's 600 or 900 (#421).
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-count', null, '32px'],
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-count', '769px', '38px'],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title', null, '14.4px'],
   ];
@@ -807,6 +813,8 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
     // assertion that it wrote none.
     ['/blocks/tire-listing/tire-listing.css',
       '.tire-listing .tire-listing-filters h2', [null, null, null]],
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-count', ['32px', '38px', '38px']],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title',
       ['14.4px', '14.4px', '14.4px']],
