@@ -630,7 +630,7 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
       'width < 900px', '33.6px'],
     ['/blocks/search/search.css',
-      'main .search .search-no-results h2', '600px', '50.4px'],
+      'main .search .search-no-results h2', '768px', '60px'],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title', null, '14.4px'],
   ];
@@ -797,8 +797,10 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
     ['/blocks/promo-bar/promo-bar.css',
       '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
       ['33.6px', null, null]],
+    // the empty-state heading takes the global 38 below live's 768 breakpoint
+    // and live's own 60 above it
     ['/blocks/search/search.css',
-      'main .search .search-no-results h2', ['1.2', '50.4px', '50.4px']],
+      'main .search .search-no-results h2', [null, '60px', '60px']],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title',
       ['14.4px', '14.4px', '14.4px']],
