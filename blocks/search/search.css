@@ -240,14 +240,12 @@ main .search .search-no-results {
   text-align: center;
 }
 
-/* the empty-result heading keeps the numbers it rendered before #185 moved the
-   h3 and h1 tokens to live's scale. The 600 rule below wins from 600 up, so
-   this one is what shows on a phone. */
+/* the heading takes the global h2, 30px on a 38px box, which is live's own
+   value below its breakpoint. The 768 rule at the foot of this file wins from
+   there up. */
 main .search .search-no-results h2 {
   max-width: 11em;
   margin: 0 auto 32px;
-  font-size: 28px;
-  line-height: 1.2;
   color: var(--conti-white);
 }
 
@@ -325,11 +323,16 @@ main .search .search-no-results .button:hover {
   main .search .search-no-results {
     padding: 72px 0;
   }
+}
 
-  /* frozen at what it rendered on the old 1.2 ratio, so the flat 38px on the
-     h2 rule does not reach it. Live has no counterpart for this state (#373) */
+/* 768 is LIVE'S breakpoint for this heading and not the site's 600 or 900, on
+   purpose: live sets 50px on a 60px box on .site-search__no-results h2 above
+   its own max-width 768, and stepping at 600 would render the large size across
+   600 to 768 where live is still 30px on 38px. Do not tidy this back into the
+   scale (#405). */
+@media (width >= 768px) {
   main .search .search-no-results h2 {
-    font-size: 42px;
-    line-height: 50.4px;
+    font-size: 50px;
+    line-height: 60px;
   }
 }
