@@ -242,9 +242,17 @@ main .search .search-no-results {
 
 /* the heading takes the global h2, 30px on a 38px box, which is live's own
    value below its breakpoint. The 768 rule at the foot of this file wins from
-   there up. */
+   there up.
+
+   THE CAP IS LIVE'S OWN `16ch` AND THE UNIT IS THE POINT (#415). `ch` is the
+   advance of the font's zero, 639/1000 in Stag Sans Thin, so live's cap is
+   306.7px at 30px and 511.2px at 50px. Our h2 resolves to the same weight 300
+   and the same font file, so the two render alike. The `11em` this replaces
+   re-derived itself from whatever the size became: #405 moved the size and the
+   large cap went 462px to 550px as a side effect of a slice that was only meant
+   to touch the size and the line box. */
 main .search .search-no-results h2 {
-  max-width: 11em;
+  max-width: 16ch;
   margin: 0 auto 32px;
   color: var(--conti-white);
 }
