@@ -62,16 +62,19 @@
 
 /* ---------- filter form ---------- */
 
-/* the filter heading keeps the numbers it rendered before #185 moved the h3
-   token to live's 24px. A block treatment is measured against live on its own
-   surface, not carried along by the global scale. */
+/* live writes NO size and NO box on `.tires-filter-form h2`, only a
+   text-align at 768 and below, so its filter heading takes live's own bare h2:
+   30px on a 38px box at every width, which our global h2 already sets. So both
+   declarations go rather than being restated.
+
+   The 1.27 they replace was 38 over 30 rounded to two places, which is why the
+   box was live's to within 0.1px from 900 up and 2.44px short below it, where
+   the size was 28 rather than live's 30. #414 */
 .tire-listing .tire-listing-filters h2 {
   margin: 0;
   border-bottom: 1px solid var(--conti-grey);
   padding-bottom: 20px;
-  font-size: 28px;
   font-weight: 400;
-  line-height: 1.27;
   text-align: center;
 }
 
@@ -591,8 +594,9 @@
     padding: 80px 16px;
   }
 
-  /* the pair the h3 token used to carry, now written out (#185) */
-  .tire-listing .tire-listing-filters h2,
+  /* the size the h3 token used to carry, now written out (#185). The filter
+     heading left this rule with #414: live holds it at 30px at every width, so
+     it takes the global h2 and needs no step here. */
   .tire-listing .tire-listing-count {
     font-size: 30px;
   }
