@@ -888,12 +888,12 @@ main .section.dark.cards-container .cards-wrapper {
 }
 
 @media (width >= 1025px) {
-  /* frozen at what it rendered on the old 1.2 ratio, so the flat 38px on the
-     h2 rule does not reach it. Live gives this band 48 on .warranty-hero__title;
-     the 2.4px is recorded rather than closed here (#373) */
+  /* live's own 48, read off `.warranty-hero__title` in live's stylesheet rather
+     than off our ratio, which renders 42 times 1.2 as 50.4. #373 froze the 50.4
+     here because live's counterpart was not knowable then; #381 closes it */
   main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2 {
     font-size: 42px;
-    line-height: 50.4px;
+    line-height: 48px;
   }
 }
 
