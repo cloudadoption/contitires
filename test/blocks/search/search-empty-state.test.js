@@ -105,3 +105,38 @@ describe('Search empty state, the heading cap (#415)', () => {
     });
   });
 });
+
+/**
+ * Live steps the gap under this heading 20px to 28px at its own 768, on
+ * `.site-search__no-results > * + *` as a `margin-top`. Ours was 32px at every
+ * width with no step at all, so the delta is 12px small and 4px large, and
+ * across 600 to 768 there was no step where live has one (#416).
+ *
+ * MEASURED AS THE RENDERED GAP RATHER THAN AS A DECLARATION, which guardrail 5
+ * asks for: what renders under a heading is the LARGER of the two adjacent
+ * margins and not their sum. Here the `.button` anchor is `display: inline-flex`
+ * with `margin: 0`, so it is an atomic inline in an anonymous block that has no
+ * margin of its own, and no line-box leading shows above it either. That makes
+ * the rendered gap the heading's own margin-bottom. Live reaches the same number
+ * from the other side, `margin: 0 auto` on the heading and the gap as a
+ * margin-top on the anchor, because vertical margins on an atomic inline size
+ * the line box. Both mechanisms render alike, which is why this stays on the
+ * heading rather than importing live's `> * + *` for a container our own JS
+ * gives exactly two children.
+ */
+describe('Search empty state, the gap under the heading (#416)', () => {
+  const GAP = {
+    375: 20, 768: 20, 769: 28, 900: 28, 1440: 28,
+  };
+
+  atWidths([375, 768, 769, 900, 1440], (docOf, width) => {
+    it(`leaves live's ${GAP[width]}px under the heading, as rendered`, () => {
+      const doc = docOf();
+      const h2 = doc.querySelector('.search-no-results h2');
+      const again = doc.querySelector('.search-no-results a.button');
+      const gap = again.getBoundingClientRect().top - h2.getBoundingClientRect().bottom;
+      expect(gap, 'rendered gap, heading bottom to button top')
+        .to.be.closeTo(GAP[width], 0.01);
+    });
+  });
+});
