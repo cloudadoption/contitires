@@ -595,8 +595,16 @@ main .section.cards-container:has(.cards.category) > div {
 }
 
 @media (width >= 900px) {
+  /* THE BOX TRAVELS WITH THE SIZE, and this half of the rule had none. Below
+     900 the size and its 33.6 sit together; above it the size stepped alone
+     and the box came from the global `h2`, which read live's 38 by luck of the
+     level authored. The base `.cards .cards-card-body` pin #395 adds is more
+     specific than a bare `h2`, so it took these three homepage tiles to 21.6
+     at 900 and 1440. Live's own tile is 30/38 at both, read on the homepage,
+     so this is live's number as well as the one they rendered. */
   .cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
     font-size: 30px;
+    line-height: 38px;
   }
 
   /* live's fixed-height row: a 166px tile with a thin vertical divider
