@@ -489,20 +489,27 @@ describe('The global h2 line box', () => {
     expect(h2.style.getPropertyValue('line-height').trim()).to.equal('38px');
   });
 
-  it('leaves the shared rule on 1.2, so h1 and h3 to h6 do not move', () => {
+  // The shared rule carried `line-height: 1.2` when #373 wrote the 38, so the
+  // h2 was the one level lifted off the ratio and the other five rode it. #395
+  // took the ratio off this rule entirely and gave all six an absolute, which
+  // is live's own shape. So the 38 no longer competes with anything: it is one
+  // of six absolutes rather than the exception to a ratio.
+  it('leaves no line-height on the shared rule, which the 38 used to override', () => {
     const shared = ruleFor('h1,h2,h3,h4,h5,h6');
     expect(shared, 'the shared heading rule').to.exist;
-    expect(shared.style.getPropertyValue('line-height').trim()).to.equal('1.2');
+    expect(shared.style.getPropertyValue('line-height'), 'a ratio on the shared rule').to.equal('');
   });
 
-  // h1 is on this list for its BASE rule only. #388 gives it live's 48px above
-  // 1025 in a block further down the file, so it keeps the ratio below the
-  // breakpoint and not above it.
-  it('sets no line-height on h1, h3, h4, h5 or h6, which keep the ratio', () => {
+  // h1 is on this list for its BASE rule, live's 36 below 1025; #388's 48 above
+  // it sits in a block further down the file. h3 is live's 32. h4, h5 and h6
+  // are pins at what the old ratio rendered, because our sizes at those three
+  // levels are not live's and live's boxes do not transfer. Values and widths
+  // are asserted in heading-reset.test.js; this is the presence check.
+  it('gives h1, h3, h4, h5 and h6 a line box of their own', () => {
     ['h1', 'h3', 'h4', 'h5', 'h6'].forEach((sel) => {
       const rule = ruleFor(sel);
       expect(rule, `the ${sel} rule`).to.exist;
-      expect(rule.style.getPropertyValue('line-height'), `${sel} line-height`).to.equal('');
+      expect(rule.style.getPropertyValue('line-height'), `${sel} line-height`).to.not.equal('');
     });
   });
 
@@ -646,13 +653,23 @@ describe('The blocks that resize an h2 keep their own line box', () => {
    * pinned 33.6 on the base rule alone and the after sweep caught four homepage
    * headings reading 33.6 at 1440 where they had been 36 and should be 38.
    */
+  /**
+   * The assertion is that the 33.6 DIES at the breakpoint, not that nothing is
+   * written above it. Those were the same sentence until #395, because the 38
+   * above 900 arrived from the global `h2` and needed no declaration. It does
+   * now: #395 pins the base `.cards .cards-card-body` box, which is more
+   * specific than a bare `h2`, so the category tile has to spell its own 38 out
+   * or take the base pin's 21.6. The homepage tiles read 21.6 at 900 and 1440
+   * for exactly as long as it took to compare them against live.
+   */
   [['/blocks/cards/cards.css', '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)'],
     ['/blocks/promo-bar/promo-bar.css', '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)'],
   ].forEach(([file, selector]) => {
-    it(`leaves ${file.split('/').pop()} above 900 to the global 38`, () => {
+    it(`kills the 33.6 above 900 in ${file.split('/').pop()}`, () => {
       const above = declarations(file, selector, 'line-height')
-        .filter((d) => d.media === null || /width\s*>=|min-width/.test(d.media));
-      expect(above, 'a line-height that outlives the 28px it freezes').to.have.lengthOf(0);
+        .filter((d) => d.media === null || /width\s*>=|min-width/.test(d.media))
+        .map((d) => d.value);
+      expect(above, 'the 28px box outliving the 28px').to.not.include('33.6px');
     });
   });
 
@@ -762,9 +779,13 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
     ['/blocks/cards/cards.css',
       'main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2',
       ['36px', '36px', '48px']],
+    // the 38 above 900 was the global h2's until #395 pinned the base
+    // `.cards .cards-card-body` box, which outranks a bare `h2`. Same rendered
+    // number, now written where the size it belongs to is written, and it is
+    // live's own value on the homepage tile at 900 and 1440.
     ['/blocks/cards/cards.css',
       '.cards.category .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
-      ['33.6px', null, null]],
+      ['33.6px', '38px', '38px']],
     ['/blocks/cards/cards.css',
       '.cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6)',
       ['20px', '20px', '20px']],
@@ -983,9 +1004,14 @@ describe('The global h1 line box', () => {
     expect(box(1440), 'the h1 line box at 1440').to.equal('48px');
   });
 
-  it('leaves the box on the shared ratio below 1025, which is already live\'s 36', () => {
-    expect(winning('h1', 'line-height', 375), 'any h1 line-height at 375').to.equal('1.2');
-    expect(winning('h1', 'line-height', 900), 'any h1 line-height at 900').to.equal('1.2');
+  // #388 wrote nothing below 1025, because the shared 1.2 already produced
+  // live's 36 there and a declaration would have frozen a match rather than
+  // closed a gap. #395 wrote it anyway, and for a different reason: the unit,
+  // not the value. The ratio is what reached every rule that resized an h1, so
+  // the 36 is now spelled out and the rendered box is the same 36 it was.
+  it('spells live\'s 36 out below 1025, where the ratio used to produce it', () => {
+    expect(winning('h1', 'line-height', 375), 'the h1 line-height at 375').to.equal('36px');
+    expect(winning('h1', 'line-height', 900), 'the h1 line-height at 900').to.equal('36px');
   });
 
   it('resolves to live\'s 36 / 36 / 48 at 375, 900 and 1440', () => {

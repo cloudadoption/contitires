@@ -94,8 +94,20 @@ body.article main .section .default-content-wrapper h2 {
   font-weight: 400;
 }
 
-body.article main .section .default-content-wrapper h3 { font-size: 20px; }
-body.article main .section .default-content-wrapper h4 { font-size: 17px; }
+/* both boxes frozen at 1.2 times their own size, which is what they rendered
+   while the global heading rule carried the ratio. No article page authors an
+   h3 or an h4 today, so neither moves; they are here because #371 and #372
+   promote heading levels next and an unpinned h3 would take the global 32 on a
+   20px font (#395). */
+body.article main .section .default-content-wrapper h3 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+body.article main .section .default-content-wrapper h4 {
+  font-size: 17px;
+  line-height: 20.4px;
+}
 body.article main .section .default-content-wrapper :is(h3, h4) { font-weight: 700; }
 
 body.article main .section picture {
