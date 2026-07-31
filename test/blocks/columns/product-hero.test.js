@@ -104,8 +104,8 @@ describe('product hero, the Best for icons', () => {
 
     const none = authored('<p><strong>Best for</strong></p><ul><li>Crossover</li></ul>');
     decorate(none);
-    expect(none.querySelector('.product-hero-plan')).to.not.exist;
-    expect(none.querySelector('.product-hero-plan-link')).to.not.exist;
+    expect(!!none.querySelector('.product-hero-plan')).to.be.false;
+    expect(!!none.querySelector('.product-hero-plan-link')).to.be.false;
     none.remove();
   });
 
@@ -117,7 +117,7 @@ describe('product hero, the Best for icons', () => {
 
     const items = block.querySelectorAll('.product-hero-best-for li');
     expect(items[0].querySelector('span.icon'), 'the one with a badge').to.exist;
-    expect(items[1].querySelector('span.icon'), 'the one without').to.not.exist;
+    expect(!!items[1].querySelector('span.icon'), 'the one without').to.be.false;
     expect(items[1].textContent.trim()).to.equal('Sunday drives');
     block.remove();
   });
@@ -129,8 +129,8 @@ describe('product hero, the Best for icons', () => {
     document.body.append(block);
     decorate(block);
 
-    expect(block.querySelector('.product-hero-best-for')).to.not.exist;
-    expect(block.querySelector('span.icon')).to.not.exist;
+    expect(!!block.querySelector('.product-hero-best-for')).to.be.false;
+    expect(!!block.querySelector('span.icon')).to.be.false;
     block.remove();
   });
 });
@@ -170,7 +170,7 @@ describe('product hero, the Technology label', () => {
     const block = authored(cell);
     decorate(block);
 
-    expect(block.querySelector('.product-hero-technology-label')).to.not.exist;
+    expect(!!block.querySelector('.product-hero-technology-label')).to.be.false;
     block.remove();
   });
 
@@ -193,7 +193,7 @@ describe('product hero, the Technology label', () => {
     document.body.append(block);
     decorate(block);
 
-    expect(block.querySelector('.product-hero-technology-label')).to.not.exist;
+    expect(!!block.querySelector('.product-hero-technology-label')).to.be.false;
     block.remove();
   });
 });
@@ -262,8 +262,8 @@ describe('product hero, the rebate', () => {
     const block = authored(cell);
     decorate(block);
 
-    expect(block.querySelector('.product-hero-rebate')).to.not.exist;
-    expect(block.querySelector('.product-hero-offer')).to.not.exist;
+    expect(!!block.querySelector('.product-hero-rebate')).to.be.false;
+    expect(!!block.querySelector('.product-hero-offer')).to.be.false;
     block.remove();
   });
 });

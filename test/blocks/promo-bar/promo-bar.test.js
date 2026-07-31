@@ -94,7 +94,7 @@ describe('Promo bar affordance', () => {
   it('puts the plus in front of the label', () => {
     const toggle = block.querySelector('.promo-bar-toggle');
     expect(toggle.firstElementChild.classList.contains('promo-bar-plus')).to.be.true;
-    expect(toggle.querySelector('.promo-bar-chevron'), 'the chevron is gone').to.not.exist;
+    expect(!!toggle.querySelector('.promo-bar-chevron'), 'the chevron is gone').to.be.false;
   });
 
   it('hides the plus from assistive tech, which reads the toggle state', () => {

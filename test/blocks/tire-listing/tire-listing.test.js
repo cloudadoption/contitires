@@ -364,8 +364,8 @@ describe('renderName', () => {
   it('drops any other markup rather than trusting the sheet', () => {
     const el = document.createElement('span');
     el.append(renderName('<img src=x onerror=alert(1)>Bad<b>Tire</b>'));
-    expect(el.querySelector('img')).to.not.exist;
-    expect(el.querySelector('b')).to.not.exist;
+    expect(!!el.querySelector('img')).to.be.false;
+    expect(!!el.querySelector('b')).to.be.false;
     expect(el.textContent).to.equal('BadTire');
   });
 });
@@ -528,7 +528,7 @@ describe('Tire listing block', () => {
     expect(block.querySelector('.tire-listing-count').textContent).to.equal('0 Results');
     expect(block.querySelector('.tire-listing-empty').textContent).to.contain('No match found.');
     expect(block.querySelector('.tire-listing-empty a[href^="tel:"]')).to.exist;
-    expect(block.querySelector('.tire-listing-pages')).to.not.exist;
+    expect(!!block.querySelector('.tire-listing-pages')).to.be.false;
   });
 
   it('announces the result count politely', async () => {

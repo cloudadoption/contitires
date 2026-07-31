@@ -58,7 +58,7 @@ describe('Media gallery block', () => {
   // the whole point of the slice: five videos on one page cost nothing until asked
   it('asks nothing of YouTube before a tile is clicked', () => {
     decorate(block = science());
-    expect(block.querySelector('iframe')).to.be.null;
+    expect(!!block.querySelector('iframe')).to.be.false;
     const srcs = [...block.querySelectorAll('[src]')].map((e) => e.getAttribute('src'));
     expect(srcs.some((s) => /youtube|ytimg|googlevideo/i.test(s)), 'no youtube host in any src').to.be.false;
   });
@@ -81,7 +81,7 @@ describe('Media gallery block', () => {
     const modal = block.querySelector('dialog');
     expect(modal.open).to.be.true;
     expect(modal.querySelector('.media-gallery-stage img').getAttribute('src')).to.equal('/media/duo-car.png');
-    expect(modal.querySelector('iframe'), 'no player for a still').to.be.null;
+    expect(!!modal.querySelector('iframe'), 'no player for a still').to.be.false;
   });
 
   // count rather than the element itself: a failing assertion on a live
@@ -274,8 +274,8 @@ describe('Media gallery, paging the modal', () => {
   it('leaves a single item without paging controls', () => {
     decorate(block = authored([tile('/media/only.png', 'the only one', '', '')]));
     const modal = block.querySelector('dialog');
-    expect(modal.querySelector('.media-gallery-next'), 'nothing to page to').to.be.null;
-    expect(modal.querySelector('.media-gallery-thumbs'), 'nothing to strip').to.be.null;
+    expect(!!modal.querySelector('.media-gallery-next'), 'nothing to page to').to.be.false;
+    expect(!!modal.querySelector('.media-gallery-thumbs'), 'nothing to strip').to.be.false;
   });
 });
 
@@ -373,7 +373,7 @@ describe('Media gallery, a card that links on', () => {
     const block = document.querySelector('.media-gallery.block');
     decorate(block);
     const caption = block.querySelector('.media-gallery-caption');
-    expect(caption.querySelector('a')).to.equal(null);
+    expect(!!caption.querySelector('a')).to.be.false;
     expect(caption.querySelector('p').textContent)
       .to.equal('No road trip is complete without a blooper reel.');
   });

@@ -162,7 +162,7 @@ describe('perfect-fit bar, the catalogue it does not read', () => {
 
   it('builds no modal while decorating', async () => {
     await decorate(buildBar());
-    expect(document.querySelector('.perfect-fit-overlay')).to.not.exist;
+    expect(!!document.querySelector('.perfect-fit-overlay')).to.be.false;
   });
 
   it('reads the catalogue on the first click', async () => {
@@ -446,7 +446,7 @@ describe('perfect-fit modal, rebuilt against live', () => {
     await decorate(block);
     const items = block.querySelectorAll('.perfect-fit-item');
     expect(items).to.have.length(1);
-    expect(block.querySelector('.perfect-fit-label')).to.not.exist;
+    expect(!!block.querySelector('.perfect-fit-label')).to.be.false;
     await openFrom(block, 0);
     expect(panelOf('vehicle').hidden).to.be.false;
   });
@@ -685,7 +685,7 @@ describe('perfect-fit card, the product hero variant', () => {
     const block = build();
     await decorate(block);
     expect(fetchStub.called).to.be.false;
-    expect(block.querySelector('.perfect-fit-overlay')).to.not.exist;
+    expect(!!block.querySelector('.perfect-fit-overlay')).to.be.false;
   });
 });
 

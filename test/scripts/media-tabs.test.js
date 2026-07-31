@@ -81,7 +81,7 @@ describe('Tabbed sections', () => {
 
   it('leaves a page with no tabbed section as it is', () => {
     const main = buildPage('<div><h1>Plain</h1><p>Nothing tabbed here.</p></div>');
-    expect(main.querySelector('.tabs')).to.not.exist;
+    expect(!!main.querySelector('.tabs')).to.be.false;
     expect(main.querySelectorAll('.section')).to.have.length(1);
   });
 });

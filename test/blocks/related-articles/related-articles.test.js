@@ -42,7 +42,7 @@ describe('Related articles block', () => {
   it('drops the authoring wrappers', () => {
     decorate(block);
     expect(block.children).to.have.length(2);
-    expect(block.querySelector('div div')).to.not.exist;
+    expect(!!block.querySelector('div div')).to.be.false;
   });
 
   it('renders nothing at all when no links are authored', () => {

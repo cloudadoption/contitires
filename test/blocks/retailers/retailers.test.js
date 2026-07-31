@@ -199,7 +199,7 @@ describe('Retailers block, the financing disclosure', () => {
     block = buildRetailers([['<a href="/x"><picture><img src="/a.png" alt="A"></picture></a>']]);
     decorate(block);
     expect(tiles(block)).to.have.length(1);
-    expect(block.querySelector('button.retailers-financing')).to.not.exist;
+    expect(!!block.querySelector('button.retailers-financing')).to.be.false;
   });
 });
 

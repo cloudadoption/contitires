@@ -92,7 +92,7 @@ describe('the rating band on a product page', () => {
     const main = articlePage();
     decorateMain(main);
 
-    expect(main.querySelector('.tire-rating')).to.not.exist;
+    expect(!!main.querySelector('.tire-rating')).to.be.false;
   });
 
   it('does not add a second band to a page that already has one', () => {

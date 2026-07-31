@@ -18,7 +18,7 @@ describe('Template styles', () => {
 
   it('loads nothing for a page that is not an article', async () => {
     await loadTemplateStyles();
-    expect(document.head.querySelector(LINK)).to.not.exist;
+    expect(!!document.head.querySelector(LINK)).to.be.false;
   });
 
   it('loads the article stylesheet for an article', async () => {
@@ -102,6 +102,6 @@ describe('Page reveal', () => {
     const revealing = revealPage(loadTemplateStyles());
     await revealing;
     expect(document.body.classList.contains('appear')).to.be.true;
-    expect(document.head.querySelector(LINK)).to.not.exist;
+    expect(!!document.head.querySelector(LINK)).to.be.false;
   });
 });

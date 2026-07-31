@@ -75,7 +75,7 @@ describe('Media gallery cards, the name live puts under the still', () => {
   it('leaves the caption outside the control the click opens', () => {
     decorate(block = mls());
     const caption = block.querySelector('.media-gallery-caption');
-    expect(caption.closest('.media-gallery-tile'), 'not inside the tile').to.be.null;
+    expect(!!caption.closest('.media-gallery-tile'), 'not inside the tile').to.be.false;
     expect(caption.previousElementSibling.classList.contains('media-gallery-tile')).to.be.true;
   });
 
@@ -83,8 +83,8 @@ describe('Media gallery cards, the name live puts under the still', () => {
     decorate(block = mls());
     const captions = [...block.querySelectorAll('.media-gallery-caption')];
     expect(captions[0].querySelector('p').textContent).to.contain('From the pitch to the stands');
-    expect(captions[1].querySelector('p'), 'live shows none here').to.be.null;
-    expect(captions[2].querySelector('p')).to.be.null;
+    expect(!!captions[1].querySelector('p'), 'live shows none here').to.be.false;
+    expect(!!captions[2].querySelector('p')).to.be.false;
   });
 
   it('names a still from its alt text when no video is authored', () => {
@@ -95,7 +95,7 @@ describe('Media gallery cards, the name live puts under the still', () => {
 
   it('leaves the square-tile gallery without captions', () => {
     decorate(block = mls(''));
-    expect(block.querySelector('.media-gallery-caption'), 'no caption off the variant').to.be.null;
+    expect(!!block.querySelector('.media-gallery-caption'), 'no caption off the variant').to.be.false;
     expect(block.querySelectorAll('.media-gallery-tile').length).to.equal(3);
   });
 

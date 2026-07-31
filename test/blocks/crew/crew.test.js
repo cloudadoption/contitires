@@ -138,7 +138,7 @@ describe('Crew block, the bar', () => {
     const summary = block.querySelector('.crew-summary');
     expect(summary, 'summary built').to.exist;
     expect(summary.textContent).to.contain('YouTube channel');
-    expect(summary.querySelector('h2'), 'no person in the summary').to.not.exist;
+    expect(!!summary.querySelector('h2'), 'no person in the summary').to.be.false;
   });
 });
 
@@ -176,21 +176,21 @@ describe('Crew block, what an author leaves out', () => {
   it('builds without a logo', () => {
     const block = buildCrew({ logo: false });
     decorate(block);
-    expect(block.querySelector('.crew-logo')).to.not.exist;
+    expect(!!block.querySelector('.crew-logo')).to.be.false;
     expect(block.querySelectorAll('.crew-person')).to.have.length(2);
   });
 
   it('builds without social links', () => {
     const block = buildCrew({ socials: false });
     decorate(block);
-    expect(block.querySelector('.crew-socials')).to.not.exist;
+    expect(!!block.querySelector('.crew-socials')).to.be.false;
     expect(block.querySelector('.crew-summary')).to.exist;
   });
 
   it('builds with one person and no summary', () => {
     const block = buildCrew({ summary: false });
     decorate(block);
-    expect(block.querySelector('.crew-summary')).to.not.exist;
+    expect(!!block.querySelector('.crew-summary')).to.be.false;
     expect(block.querySelector('.crew-socials')).to.exist;
   });
 });

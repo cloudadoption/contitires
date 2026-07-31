@@ -91,7 +91,7 @@ describe('product hero image viewer', () => {
     const wrapper = main.querySelector('.media-gallery-wrapper');
     expect(wrapper).to.exist;
     expect(wrapper.closest('.columns.product-hero')).to.exist;
-    expect(main.querySelector('.section > .media-gallery-wrapper')).to.not.exist;
+    expect(!!main.querySelector('.section > .media-gallery-wrapper')).to.be.false;
   });
 
   // 30 of the 46 product pages still ship the single image they were migrated
@@ -109,7 +109,7 @@ describe('product hero image viewer', () => {
       </div>`;
     decorateMain(main);
 
-    expect(main.querySelector('.media-gallery')).to.not.exist;
+    expect(!!main.querySelector('.media-gallery')).to.be.false;
     expect(main.querySelector('.columns.product-hero picture')).to.exist;
   });
 
@@ -120,7 +120,7 @@ describe('product hero image viewer', () => {
     decorateMain(main);
 
     const cells = [...main.querySelector('.columns.product-hero > div').children];
-    expect(cells[1].querySelector('.media-gallery')).to.not.exist;
+    expect(!!cells[1].querySelector('.media-gallery')).to.be.false;
     expect(cells[1].querySelector('h1')).to.exist;
   });
 

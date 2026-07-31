@@ -35,8 +35,7 @@ describe('Footer content structure', () => {
     expect(social, 'a social bar exists').to.exist;
     expect(social.parentElement, 'social bar is a direct child of .footer-content')
       .to.equal(content);
-    expect(social.closest('.footer-links'), 'social bar is not nested in .footer-links')
-      .to.be.null;
+    expect(!!social.closest('.footer-links'), 'social bar is not nested in .footer-links').to.be.false;
   });
 
   // A page carries one h1 and the footer follows it, so an h3 here skips a
@@ -256,7 +255,7 @@ describe('Footer disclosures', () => {
     setFooterDisclosures(links, true);
     const [search, tires] = links.querySelectorAll('.footer-links-group');
     expect(tires.querySelector('.footer-links-toggle'), 'the plain columns did collapse').to.exist;
-    expect(search.querySelector('.footer-links-toggle'), 'the search column has no toggle').to.be.null;
+    expect(!!search.querySelector('.footer-links-toggle'), 'the search column has no toggle').to.be.false;
     expect(search.querySelector('ul').hidden, 'the search column stays open').to.be.false;
   });
 
@@ -283,7 +282,7 @@ describe('Footer disclosures', () => {
     expect(group.querySelector('button'), 'collapsed first').to.exist;
 
     setFooterDisclosures(links, false);
-    expect(group.querySelector('button'), 'no toggle left').to.be.null;
+    expect(!!group.querySelector('button'), 'no toggle left').to.be.false;
     expect(group.querySelector('h2').textContent.trim(), 'heading text kept').to.equal('Our Tires');
     expect(group.querySelector('ul').hidden, 'list shown').to.be.false;
   });

@@ -187,7 +187,7 @@ describe('Search block: results', () => {
     expect(pages[1].getAttribute('href')).to.equal('?keywords=tires&page=1');
     expect(block.querySelector('.search-pager-nav a[rel="next"]').getAttribute('href'))
       .to.equal('?keywords=tires&page=1');
-    expect(block.querySelector('.search-pager-nav a[rel="prev"]'), 'no previous on page 1').to.not.exist;
+    expect(!!block.querySelector('.search-pager-nav a[rel="prev"]'), 'no previous on page 1').to.be.false;
   });
 
   it('renders a later page from the URL', async () => {
@@ -198,7 +198,7 @@ describe('Search block: results', () => {
       .to.equal('21-24 of 24 results');
     expect(block.querySelector('.search-pager-nav a[rel="prev"]').getAttribute('href'))
       .to.equal('?keywords=tires&page=1');
-    expect(block.querySelector('.search-pager-nav a[rel="next"]'), 'no next on the last page').to.not.exist;
+    expect(!!block.querySelector('.search-pager-nav a[rel="next"]'), 'no next on the last page').to.be.false;
   });
 
   it('shows nine numbered pages at a time, centred on the current one', async () => {
@@ -224,7 +224,7 @@ describe('Search block: results', () => {
   it('drops the pager when everything fits on one page', async () => {
     const { block } = await decorateWith('?keywords=tires', indexResponse(4));
     await waitFor(() => block.querySelector('.search-result'), 'results');
-    expect(block.querySelector('.search-pager-nav'), 'no pager nav').to.not.exist;
+    expect(!!block.querySelector('.search-pager-nav'), 'no pager nav').to.be.false;
     expect(block.querySelector('.search-pager-summary').textContent.replace(/\s+/g, ' ').trim())
       .to.equal('1-4 of 4 results');
   });
@@ -237,14 +237,14 @@ describe('Search block: results', () => {
     const again = block.querySelector('.search-no-results a');
     expect(again.getAttribute('href')).to.equal('/search');
     expect(again.textContent).to.equal('Search again');
-    expect(block.querySelector('.search-results'), 'no empty result list').to.not.exist;
+    expect(!!block.querySelector('.search-results'), 'no empty result list').to.be.false;
   });
 
   it('shows the form alone when no query was given', async () => {
     const { block, stub: fetchStub } = await decorateWith('', indexResponse(3));
     expect(block.querySelector('.search-form')).to.exist;
-    expect(block.querySelector('.search-no-results'), 'live shows no message here').to.not.exist;
-    expect(block.querySelector('.search-results')).to.not.exist;
+    expect(!!block.querySelector('.search-no-results'), 'live shows no message here').to.be.false;
+    expect(!!block.querySelector('.search-results')).to.be.false;
     expect(block.querySelector('.search-status').textContent.trim()).to.equal('');
     expect(fetchStub.called, 'no index fetch without a query').to.be.false;
     const band = block.querySelector('.search-results-wrapper').classList;
@@ -264,7 +264,7 @@ describe('Search block: results', () => {
     const nasty = row(7, { body: 'Fitting <script>alert(1)</script> tires safely.' });
     const { block } = await decorateWith('?keywords=tires', indexResponse(0, [nasty]));
     await waitFor(() => block.querySelector('.search-result'), 'results');
-    expect(block.querySelector('script'), 'no script element').to.not.exist;
+    expect(!!block.querySelector('script'), 'no script element').to.be.false;
     expect(block.querySelector('.search-result-excerpt').textContent).to.contain('<script>');
   });
 
@@ -320,7 +320,7 @@ describe('Search block: results', () => {
     const noImage = row(9, { image: '' });
     const { block } = await decorateWith('?keywords=tires', indexResponse(0, [noImage]));
     await waitFor(() => block.querySelector('.search-result'), 'results');
-    expect(block.querySelector('.search-result-image')).to.not.exist;
+    expect(!!block.querySelector('.search-result-image')).to.be.false;
     expect(block.querySelector('.search-result-title a')).to.exist;
   });
 });

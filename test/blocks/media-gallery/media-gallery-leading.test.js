@@ -85,8 +85,8 @@ describe('Media gallery leading, the episode live features', () => {
   it('carries the description on the feature alone', () => {
     const captions = [...block.querySelectorAll('.media-gallery-caption')];
     expect(captions[0].querySelector('p').textContent).to.contain('wrenching on cars');
-    expect(captions[1].querySelector('p'), 'live shows none here').to.be.null;
-    expect(captions[3].querySelector('p')).to.be.null;
+    expect(!!captions[1].querySelector('p'), 'live shows none here').to.be.false;
+    expect(!!captions[3].querySelector('p')).to.be.false;
   });
 
   it('opens the feature on the same modal as any other card', () => {

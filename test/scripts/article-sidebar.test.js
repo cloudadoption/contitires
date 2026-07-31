@@ -45,7 +45,7 @@ describe('Article sidebar', () => {
     const main = buildArticle();
     decorateMain(main);
 
-    expect(main.querySelector('.share')).to.not.exist;
+    expect(!!main.querySelector('.share')).to.be.false;
   });
 
   it('adds one share block, however often the page is decorated', () => {
@@ -67,8 +67,8 @@ describe('Article sidebar', () => {
       <div><p>Menu</p></div>`;
     decorateMain(fragment);
 
-    expect(fragment.querySelector('.share')).to.not.exist;
-    expect(page.querySelector('.share')).to.not.exist;
+    expect(!!fragment.querySelector('.share')).to.be.false;
+    expect(!!page.querySelector('.share')).to.be.false;
   });
 
   it('keeps an authored related list in the same section as the share block', () => {
