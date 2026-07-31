@@ -206,6 +206,18 @@ describe('The block rules that resize a heading keep their own box', () => {
       'body.article main .section .default-content-wrapper h3', null, '30px'],
     ['/styles/article.css',
       'body.article main .section .default-content-wrapper h4', null, '20px'],
+    // THE MARQUEE TITLE, #400, and live's own numbers rather than a frozen
+    // render. The rule sizes all six levels off the h1 token, 30px below 1025
+    // and 42px above, and carried `line-height: 1.14` there, which resolves to
+    // 34.2 and 47.88. Live's marquee title reads 30px/36px at 375 and 1024 and
+    // 42px/48px at 1025 and 1440, bisected on continentaltire.com/ev-compatible
+    // at all four widths: `.mossy/parity/400/400-live-bisect-1024-1025.txt`.
+    // It steps where the size steps, and the three hero variants that resize
+    // the title already spell out the same pair.
+    ['/blocks/hero/hero.css',
+      '.hero-content :is(h1, h2, h3, h4, h5, h6)', null, '36px'],
+    ['/blocks/hero/hero.css',
+      '.hero-content :is(h1, h2, h3, h4, h5, h6)', '1025px', '48px'],
   ];
 
   /**

@@ -60,12 +60,19 @@ main .section.hero-container {
    above 1024. Two pages author this heading below h1 (/learn at h3,
    /all-new-securecontact-aw at h2), so the pin is what lets #117 promote them
    later without resizing the page. It points at the h1 token so all of them
-   render live's 30/30/42. */
+   render live's 30/30/42.
+
+   The box is live's own and steps where the size steps. `.marquee__title` is
+   42px on a 48px box, with 30 on 36 under `screen and (max-width: 1024px)`, read
+   off live's stylesheet and off a rendered /ev-compatible at 375, 1024, 1025 and
+   1440. It carried `line-height: 1.14` until #400, which gave 34.2 on a 30px
+   title and 47.88 on a 42px one, and is the unit #395 named and #401 took off
+   the global rule. */
 .hero-content :is(h1, h2, h3, h4, h5, h6) {
   margin: 0;
   color: inherit;
   font-size: var(--heading-font-size-xxl);
-  line-height: 1.14;
+  line-height: 36px;
 }
 
 .hero a:any-link {
@@ -452,6 +459,15 @@ main .section.hero-container {
 
   .hero.left .hero-content p:has(> a:only-child) {
     font-size: var(--body-font-size-xs);
+  }
+}
+
+/* the marquee title steps with its size, at live's own 1025. The promo, logo
+   and stacked variants already spell out this pair; the base rule was the one
+   place left deriving the box from the size (#400). */
+@media (width >= 1025px) {
+  .hero-content :is(h1, h2, h3, h4, h5, h6) {
+    line-height: 48px;
   }
 }
 
