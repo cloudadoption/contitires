@@ -182,11 +182,15 @@
   align-self: flex-end;
 }
 
+/* live's own numbers, off `.tire-listing-page__results-header-left`: 24px on a
+   32px box at 768 and below, and no rule of its own above that, so live's count
+   takes live's bare h2 at 30px on 38px. The 769 rule below writes that pair out.
+   The 1.33 this replaces was 32 over 24 rounded. #421 */
 .tire-listing .tire-listing-count {
   margin: 0;
-  font-size: var(--heading-font-size-m);
+  font-size: var(--heading-font-size-l);
   font-weight: 400;
-  line-height: 1.33;
+  line-height: 32px;
   text-align: right;
 }
 
@@ -563,7 +567,6 @@
   }
 
   .tire-listing .tire-listing-count {
-    font-size: 28px;
     text-align: left;
   }
 
@@ -589,16 +592,20 @@
 
 /* ---------- desktop: the filter panel becomes a column ---------- */
 
+/* 769 is LIVE'S step for the count and not the site's 600 or 900, on purpose:
+   live writes 24px on 32px under its own `max-width: 768`, so the large pair
+   starts one pixel above that cap. Stepping at 900 would render 24px across 769
+   to 900 where live is already at 30px. Do not tidy this into the scale. #421 */
+@media (width >= 769px) {
+  .tire-listing .tire-listing-count {
+    font-size: var(--heading-font-size-xl);
+    line-height: 38px;
+  }
+}
+
 @media (width >= 900px) {
   .tire-listing {
     padding: 80px 16px;
-  }
-
-  /* the size the h3 token used to carry, now written out (#185). The filter
-     heading left this rule with #414: live holds it at 30px at every width, so
-     it takes the global h2 and needs no step here. */
-  .tire-listing .tire-listing-count {
-    font-size: 30px;
   }
 
   /* live's grid: a 250px track holding a 230px form, then the results track
