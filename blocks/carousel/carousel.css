@@ -56,9 +56,17 @@ main .section.carousel-container {
 /* live renders the slide title as an h2 and #371 authors it as one, so this
    reaches whatever level the slide carries rather than the one it started on.
    the weight is live's 400 against our global 300, which is per-block because
-   live keeps 300 on the marquee h1 and two other headings we already match. */
+   live keeps 300 on the marquee h1 and two other headings we already match.
+
+   The bottom margin is live's 0 as well, and it is here because #371's
+   promotion moves it the wrong way. The global heading rule leaves
+   `margin-bottom: 0.25em`, which #395 kept proportional on purpose, so the
+   title leaves 6px on a 24px h3 and would leave 7.5px on a 30px h2. Live leaves
+   0 under all seven slide titles at 375, 900 and 1440. Keyed on all six levels
+   like the top margin, so the promotion cannot lose it. */
 .carousel-content :is(h1, h2, h3, h4, h5, h6) {
   margin-top: 0;
+  margin-bottom: 0;
   font-weight: 400;
 }
 
