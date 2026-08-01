@@ -86,8 +86,8 @@ describe('Tire listing page chrome, live steps it at 769', () => {
       // did not apply
       it('renders into a laid-out document at the width asked for', () => {
         expect(win.innerWidth, 'iframe viewport').to.equal(width);
-        expect(doc.querySelector('.tire-listing-header').getBoundingClientRect().height,
-          'a laid-out header has a height').to.be.above(0);
+        const header = doc.querySelector('.tire-listing-header');
+        expect(header.getBoundingClientRect().height, 'a laid-out header').to.be.above(0);
       });
 
       const stepped = width >= 769;
@@ -104,7 +104,7 @@ describe('Tire listing page chrome, live steps it at 769', () => {
 
       it('draws the one-page pager the same way, where there is nothing to page', () => {
         const pager = doc.querySelector('#one-page .tire-listing-pager');
-        expect(pager.querySelector('.tire-listing-pages'), 'no nav on a single page').to.equal(null);
+        expect(!!pager.querySelector('.tire-listing-pages'), 'no nav on a single page').to.be.false;
         expect(win.getComputedStyle(pager).display).to.equal(stepped ? 'flex' : 'block');
       });
     });
