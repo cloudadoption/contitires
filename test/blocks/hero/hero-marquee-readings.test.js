@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before */
+/* global describe it before after */
 
 import { expect } from '@esm-bundle/chai';
+import { setViewport } from '@web/test-runner-commands';
 
 /**
  * The three readings taken off live's marquee on 2026-08-01, across the 13
@@ -88,5 +89,56 @@ describe('Hero marquee, the readings off live', () => {
   it('leaves the stacked variant where it was, on source order', () => {
     expect(value('.hero.stacked .hero-content', 'text-align')).to.equal('center');
     expect(value('.hero.stacked .hero-content', 'text-align', '1025px')).to.equal('left');
+  });
+});
+
+/**
+ * The same two tracking steps read off a RENDERED element rather than out of the
+ * CSSOM. The `value()` helper above cannot see this: given a media argument it
+ * filters to rules inside that query and without one to rules outside any query,
+ * and it never compares across the two, so a declaration that is present and then
+ * beaten by source order reads as correct. That is exactly what happened here,
+ * and the line counts could not see it either because 5px against 6px changes no
+ * wrap. This assertion is the one that can go red on it. (#407)
+ */
+describe('Hero marquee tracking, as it renders', () => {
+  let sheet;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/hero/hero.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    document.body.innerHTML = `
+      <main><div class="section">
+        <div class="hero left short block">
+          <div><div><h1 id="our-engineeringyour-confidence">OUR ENGINEERING.</h1></div></div>
+        </div>
+      </div></main>`;
+    // the block ships its copy cell as `.hero-content`; the decorator is not
+    // under test here, so the class is set directly
+    document.querySelector('.hero.left > div > div').className = 'hero-content';
+  });
+
+  after(async () => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
+    document.body.innerHTML = '';
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  const tracking = () => getComputedStyle(document.querySelector('.hero.left .hero-content h1')).letterSpacing;
+
+  it("renders live's 5px below the step", async () => {
+    await setViewport({ width: 1024, height: 900 });
+    expect(tracking()).to.equal('5px');
+  });
+
+  it("renders live's 6px above the step", async () => {
+    await setViewport({ width: 1025, height: 900 });
+    expect(tracking()).to.equal('6px');
+  });
+
+  it("still renders 6px at the width the parity pairs were taken at", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    expect(tracking()).to.equal('6px');
   });
 });
