@@ -304,11 +304,23 @@ function sizeHelp() {
   const icon = document.createElement('span');
   icon.className = 'icon icon-help-circle';
   button.append(label, icon);
-  button.addEventListener('click', () => {
-    const shown = button.getAttribute('aria-expanded') === 'true';
-    button.setAttribute('aria-expanded', String(!shown));
-    tip.hidden = shown;
+  const show = (open) => {
+    button.setAttribute('aria-expanded', String(open));
+    tip.hidden = !open;
+  };
+  button.addEventListener('click', () => show(button.getAttribute('aria-expanded') !== 'true'));
+
+  // live's bubble closes from a control of its own, top right
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'perfect-fit-help-close';
+  close.setAttribute('aria-label', 'Close');
+  close.textContent = '×';
+  close.addEventListener('click', () => {
+    show(false);
+    button.focus();
   });
+  tip.prepend(close);
 
   help.append(button, tip);
   decorateIcons(help);

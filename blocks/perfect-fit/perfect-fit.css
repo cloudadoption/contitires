@@ -286,14 +286,19 @@ body.perfect-fit-modal-open {
   margin-bottom: 12px;
 }
 
+/* line-height 0 on the row so it is exactly the control it holds, and 24px on
+   the control because that is live's row and the bubble hangs 11px off it */
 .perfect-fit-help {
+  position: relative;
   margin-bottom: 28px;
+  line-height: 0;
   text-align: center;
 }
 
 .perfect-fit-help-toggle {
   display: inline-flex;
   align-items: center;
+  height: 24px;
   gap: 8px;
   padding: 0;
   border: 0;
@@ -319,13 +324,41 @@ body.perfect-fit-modal-open {
   height: 20px;
 }
 
+/* live's bubble, measured off its own shadow root at 1440: 400px wide, white,
+   10px radius, that shadow, and 11px under the row it hangs from. The white is
+   load-bearing rather than decoration, because the diagram is black lettering
+   on transparency and reads as a tire and nothing else on the dark panel. */
 .perfect-fit-help-tip {
-  margin-top: 12px;
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 11px);
+  left: 50%;
+  box-sizing: border-box;
+  width: min(400px, calc(100vw - 40px));
+  padding: 24px 20px 20px;
+  border-radius: 10px;
+  background: var(--conti-white);
+  box-shadow: 0 0 40px rgb(0 0 0 / 10%);
+  transform: translateX(-50%);
+}
+
+.perfect-fit-help-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--conti-black);
+  font-size: 16px;
+  line-height: 16px;
 }
 
 .perfect-fit-help-diagram {
+  display: block;
   width: 100%;
-  max-width: 460px;
   height: auto;
 }
 

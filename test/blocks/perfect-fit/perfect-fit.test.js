@@ -630,8 +630,11 @@ describe('perfect-fit, where to find the sizes', () => {
     close.click();
     expect(toggle.getAttribute('aria-expanded'), 'shut again').to.equal('false');
     expect(help.querySelector('[role="tooltip"]').hidden).to.be.true;
-    expect(document.activeElement, 'focus goes back to the control that opened it')
-      .to.equal(toggle);
+    // compared as a boolean for the reason given above: two DOM nodes either
+    // side of an equality hang the runner on the one run that matters, the
+    // failing one
+    expect(document.activeElement === toggle, 'focus goes back to the control that opened it')
+      .to.be.true;
   });
 });
 
