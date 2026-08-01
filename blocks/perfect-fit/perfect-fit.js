@@ -1,6 +1,6 @@
 import { createOptimizedPicture, decorateIcons, loadCSS } from '../../scripts/aem.js';
 import {
-  SPECS_COLUMNS, missingColumns, sizesBySlug, sheetRows,
+  SPECS_COLUMNS, missingColumns, sizesBySlug, sheetRows, workbookSheet,
 } from '../../scripts/products.js';
 import { renderName } from '../../scripts/product-name.js';
 
@@ -476,8 +476,12 @@ function listCell(value) {
 async function loadSpecSizes() {
   try {
     const resp = await fetch(SPECS_URL);
-    if (!resp.ok) return null;
-    const rows = sheetRows(await resp.json(), 'specs');
+    if (!resp.ok) {
+      // eslint-disable-next-line no-console
+      console.error(`perfect-fit: the specs sheet could not be read (HTTP ${resp.status}), so the finder is reading the products.sizes cell instead`);
+      return null;
+    }
+    const rows = sheetRows(await resp.json());
     const missing = missingColumns(rows, SPECS_COLUMNS);
     if (missing.length) {
       // eslint-disable-next-line no-console
@@ -486,6 +490,8 @@ async function loadSpecSizes() {
     }
     return sizesBySlug(rows);
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(`perfect-fit: the specs sheet could not be read (${e.message}), so the finder is reading the products.sizes cell instead`);
     return null;
   }
 }
@@ -494,14 +500,20 @@ async function loadSpecSizes() {
 async function loadProducts() {
   try {
     const [resp, specSizes] = await Promise.all([fetch(PRODUCTS_URL), loadSpecSizes()]);
-    if (!resp.ok) return [];
+    if (!resp.ok) {
+      // eslint-disable-next-line no-console
+      console.error(`perfect-fit: the products sheet could not be read (HTTP ${resp.status}), so the finder has no tires to search`);
+      return [];
+    }
     const json = await resp.json();
     // support all three shapes: a single-sheet response (data), the whole
     // multi-sheet workbook (products.data), and the legacy single-object
-    // file ({ products: [...] }).
-    const rows = sheetRows(json, 'products').length
-      ? sheetRows(json, 'products')
-      : (json.products || []);
+    // file ({ products: [...] }). The name belongs to the second and third,
+    // where the response says which sheet it is, and to neither the first nor
+    // the reader of it (#435).
+    const rows = sheetRows(json).length
+      ? sheetRows(json)
+      : workbookSheet(json, 'products');
     const products = rows.map((product) => ({
       ...product,
       sizes: specSizes ? (specSizes.get(product.slug) || []) : listCell(product.sizes),
@@ -516,6 +528,8 @@ async function loadProducts() {
     }
     return products;
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(`perfect-fit: the products sheet could not be read (${e.message}), so the finder has no tires to search`);
     return [];
   }
 }

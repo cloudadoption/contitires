@@ -694,13 +694,195 @@ describe('Tire specs, a sheet that does not carry its columns', () => {
 
   // a sheet that carries its columns and no row for this product is the
   // ordinary case for the six products live has no sizes for either
+  // waits for the picker rather than for the status line: band() writes the
+  // status synchronously, before the sheet has landed, so a wait on it read the
+  // console before the block could have written to it and the assertion below
+  // passed whatever the block did. Found by #434's connection check.
   it('draws the empty state, not an error, when the sheet is whole and the product has no rows', async () => {
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
     const block = buildInSection('purecontact-ls');
     decorate(block);
 
-    await when(() => block.querySelector('.tire-specs-status'));
+    await when(() => block.querySelector('.tire-specs-select option[disabled]'));
     expect(!!document.querySelector('.tire-specs-error'), 'no authoring error').to.be.false;
+    expect(errors.called, 'console.error').to.be.false;
+  });
+});
+
+/*
+ * #434, the same defect on this block's two failure paths. The specs sheet and
+ * the legacy file both failing rendered as a product with no sizes, and six
+ * real products look precisely like that. The empty picker is the right thing
+ * for a reader in either case; the console is what tells the two apart.
+ */
+describe('Tire specs, an outage told apart from a product with no sizes', () => {
+  let fetchStub;
+  let errors;
+
+  beforeEach(() => {
+    errors = sinon.stub(console, 'error');
+  });
+  afterEach(() => {
+    fetchStub?.restore();
+    errors.restore();
+  });
+
+  /**
+   * Waits for whichever answer the block reaches, so a run that renders the
+   * authoring message fails on its assertion rather than timing out.
+   */
+  const settled = (block) => when(() => block.querySelector('.tire-specs-select option[disabled]')
+    || block.querySelector('.tire-specs-error'));
+
+  it('says so when neither the sheet nor the legacy file can be read', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response('', { status: 404 }));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await settled(block);
+
+    expect(errors.called, 'console.error').to.be.true;
+    // read across the calls rather than the first: #475 added a line in
+    // loadRows for the sheet's own failure, which now lands ahead of this one
+    const said = errors.getCalls().map((call) => String(call.args[0]));
+    expect(said.some((line) => line.includes('tire-specs')), 'names the block').to.be.true;
+    expect(
+      said.some((line) => line.includes('specs sheet') && line.includes('/product-specs.json')),
+      'one line names both sources',
+    ).to.be.true;
+  });
+
+  it('leaves the reader the same empty picker, and no message on the page', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response('', { status: 404 }));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await settled(block);
+
+    const none = block.querySelector('.tire-specs-select option[disabled]');
+    expect(none, 'the empty state').to.exist;
+    expect(none.textContent).to.equal('No results found');
+    expect(!!block.querySelector('.tire-specs-error'), 'nothing said to the reader').to.be.false;
+    expect(document.querySelector('.tire-specs-wrapper'), 'the band').to.exist;
+  });
+
+  it('says so when the read throws', async () => {
+    fetchStub = sinon.stub(window, 'fetch').rejects(new TypeError('Failed to fetch'));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await settled(block);
+
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0])).to.contain('could not be read');
+  });
+
+  it('still says nothing for a product the whole sheet has no rows for', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+    const block = buildInSection('purecontact-ls');
+    decorate(block);
+    await settled(block);
+
+    expect(errors.called, 'console.error').to.be.false;
+  });
+
+  it('answers a failed read and a product with no sizes differently', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response('', { status: 404 }));
+    const outage = buildInSection('vikingcontact-7');
+    decorate(outage);
+    await settled(outage);
+    const onOutage = errors.callCount;
+
+    fetchStub.restore();
+    errors.resetHistory();
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+    const empty = buildInSection('purecontact-ls');
+    decorate(empty);
+    await settled(empty);
+    const onEmpty = errors.callCount;
+
+    expect(onOutage, 'a failed read').to.be.greaterThan(0);
+    expect(onEmpty, 'a product with no sizes').to.equal(0);
+  });
+});
+
+/*
+ * #475's third site. loadRows returns null both for a specs sheet it could not
+ * read and for one that has no rows, and the legacy file is tried in either
+ * case. That chain is the design and it is not changed here.
+ *
+ * It hides something in one case: the legacy file answers, holds no entry for
+ * the slug, and the picker shows its empty state. A specs-sheet outage and a
+ * product with no sizes are then the same page and the same silence. Only the
+ * console is added; the chain still tries the legacy file and still returns
+ * what it returned.
+ */
+describe('Tire specs, an outage behind a successful fallback', () => {
+  let fetchStub;
+  let errors;
+
+  beforeEach(() => {
+    errors = sinon.stub(console, 'error');
+  });
+  afterEach(() => {
+    fetchStub?.restore();
+    errors.restore();
+  });
+
+  /** A fetch stub that gives the sheet and the legacy file separate outcomes. */
+  function stubChain(sheet, legacy) {
+    return sinon.stub(window, 'fetch').callsFake((url) => {
+      const target = String(url).startsWith('/product-specs.json') ? legacy : sheet;
+      if (target.status) return Promise.resolve(new Response('', { status: target.status }));
+      return Promise.resolve(new Response(JSON.stringify(target.body)));
+    });
+  }
+
+  const empty = (block) => when(() => block.querySelector('.tire-specs-select option[disabled]')
+    || block.querySelector('.tire-specs-error'));
+
+  it('says so when the sheet cannot be read and the legacy file has no entry', async () => {
+    fetchStub = stubChain({ status: 503 }, { body: {} });
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await empty(block);
+
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0]), 'names the block and the sheet')
+      .to.contain('tire-specs').and.to.contain('specs sheet');
+  });
+
+  it('leaves the chain doing what it did: legacy tried, empty picker, no message', async () => {
+    fetchStub = stubChain({ status: 503 }, { body: {} });
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await empty(block);
+
+    const legacyRead = fetchStub.getCalls()
+      .filter((call) => String(call.args[0]).startsWith('/product-specs.json'));
+    expect(legacyRead, 'the legacy file was still tried').to.have.lengthOf(1);
+    expect(block.querySelector('.tire-specs-select option[disabled]').textContent)
+      .to.equal('No results found');
+    expect(!!block.querySelector('.tire-specs-error'), 'nothing said to the reader').to.be.false;
+  });
+
+  it('still reads the legacy file for a slug it does hold', async () => {
+    fetchStub = stubChain({ status: 503 }, { body: SPECS });
+    const block = buildInSection('my-tire');
+    decorate(block);
+    await when(() => block.querySelector('.tire-specs-select option[value="0"]'));
+
+    expect(block.querySelectorAll('.tire-specs-select option[value="0"], .tire-specs-select option[value="1"]'))
+      .to.have.lengthOf(2);
+  });
+
+  // the pair: a sheet that reads and holds no rows takes the same fallback and
+  // reaches the same empty picker, and nothing failed
+  it('says nothing when the sheet reads with no rows and the legacy file has no entry', async () => {
+    fetchStub = stubChain({ body: { data: [] } }, { body: {} });
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await empty(block);
+
+    expect(block.querySelector('.tire-specs-select option[disabled]').textContent)
+      .to.equal('No results found');
     expect(errors.called, 'console.error').to.be.false;
   });
 });

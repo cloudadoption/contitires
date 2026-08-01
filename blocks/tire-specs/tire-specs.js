@@ -21,7 +21,15 @@ async function loadRows(url) {
   do {
     // eslint-disable-next-line no-await-in-loop
     const resp = await fetch(`${url}&limit=${PAGE_SIZE}&offset=${rows.length}`);
-    if (!resp.ok) break;
+    if (!resp.ok) {
+      // the fallback below still runs and still returns what it returned. This
+      // says the sheet failed, which a legacy file that answers would otherwise
+      // hide behind an empty picker no reader can tell from a product with no
+      // sizes. #475
+      // eslint-disable-next-line no-console
+      console.error(`tire-specs: the specs sheet could not be read (HTTP ${resp.status}) after ${rows.length} row(s), so the legacy file is read instead`);
+      break;
+    }
     // eslint-disable-next-line no-await-in-loop
     const data = await resp.json();
     const page = data.data || (data.specs && data.specs.data);
@@ -43,8 +51,15 @@ async function loadRows(url) {
  * not a product without sizes, so it comes back as an error the band shows.
  * Renaming either column in DA used to leave every product page with an empty
  * selector and nothing said. Issue #122.
+ *
+ * Both sources failing is neither of those. It is an outage, and it used to
+ * return an empty size list, which is what six real products answer, so a
+ * failed read rendered as a fact about the product. It comes back as
+ * `unreadable` now: the picker still shows its empty state, and the console
+ * says which of the two happened. Issue #434.
  * @param {string} slug the product slug
- * @returns {Promise<{sizes?: Array<{size: string, specs: Object}>, error?: string}>}
+ * @returns {Promise<{sizes?: Array<{size: string, specs: Object}>, error?: string,
+ * unreadable?: boolean}>}
  */
 async function loadSizes(slug) {
   const rows = await loadRows(SPECS_URL);
@@ -65,7 +80,12 @@ async function loadSizes(slug) {
     };
   }
   const legacy = await fetch(LEGACY_SPECS_URL);
-  if (!legacy.ok) return { sizes: [] };
+  if (!legacy.ok) {
+    return {
+      error: `neither the specs sheet nor ${LEGACY_SPECS_URL} could be read (HTTP ${legacy.status})`,
+      unreadable: true,
+    };
+  }
   const legacyData = await legacy.json();
   return { sizes: legacyData[slug] || [] };
 }
@@ -199,7 +219,8 @@ function offerSizes(select, panel, sizes) {
  * @param {Element} heading the heading the block was decorated with
  * @param {HTMLSelectElement} select the picker
  * @param {HTMLElement} panel the panel a choice fills
- * @param {{sizes?: Array<{size: string, specs: Object}>, error?: string}} result
+ * @param {{sizes?: Array<{size: string, specs: Object}>, error?: string,
+ * unreadable?: boolean}} result
  */
 function fill(block, heading, select, panel, result) {
   // a sheet the block cannot read is an authoring mistake, and it is the whole
@@ -207,11 +228,16 @@ function fill(block, heading, select, panel, result) {
   if (result.error) {
     // eslint-disable-next-line no-console
     console.error(`tire-specs: ${result.error}`);
-    const message = document.createElement('p');
-    message.className = 'tire-specs-error';
-    message.textContent = `Specifications are unavailable: ${result.error}.`;
-    block.replaceChildren(heading, message);
-    return;
+    // an outage is not an authoring mistake and telling a reader the specs are
+    // unavailable would name the wrong thing, so it falls through to the
+    // picker's empty state and the line above is what separates the two
+    if (!result.unreadable) {
+      const message = document.createElement('p');
+      message.className = 'tire-specs-error';
+      message.textContent = `Specifications are unavailable: ${result.error}.`;
+      block.replaceChildren(heading, message);
+      return;
+    }
   }
 
   offerSizes(select, panel, result.sizes || []);
@@ -250,6 +276,6 @@ export default function decorate(block) {
 
   const { select, panel } = band(block, heading, slug);
   loadSizes(slug)
-    .catch(() => ({ sizes: [] }))
+    .catch((e) => ({ error: `the specs sheet could not be read (${e.message})`, unreadable: true }))
     .then((result) => fill(block, heading, select, panel, result));
 }

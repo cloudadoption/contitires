@@ -147,7 +147,7 @@ async function buildTips(list) {
   try {
     const resp = await fetch(TECHNOLOGY_SHEET_URL);
     if (!resp.ok) return;
-    rows = sheetRows(await resp.json(), 'technology');
+    rows = sheetRows(await resp.json());
   } catch (e) {
     return;
   }

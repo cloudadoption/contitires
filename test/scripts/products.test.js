@@ -3,7 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import {
-  SPECS_COLUMNS, missingColumns, sizeKey, sizesBySlug,
+  SPECS_COLUMNS, missingColumns, sizeKey, sizesBySlug, sheetRows, workbookSheet,
 } from '../../scripts/products.js';
 import { renderName } from '../../scripts/product-name.js';
 
@@ -42,6 +42,104 @@ describe('The products workbook contract', () => {
 
   it('reads a column that only some rows carry a value for', () => {
     expect(missingColumns([{ slug: 'a' }, { size: '1' }], SPECS_COLUMNS)).to.deep.equal([]);
+  });
+});
+
+/*
+ * #435. `sheetRows(json, name)` took a sheet name and ignored it whenever the
+ * response was single-sheet, which is the shape all seven call sites fetch. So
+ * the function answered a question it could not honour, and the only thing
+ * standing between a caller and another sheet's rows was that every caller
+ * happens to run missingColumns straight afterwards.
+ *
+ * It cannot be made to verify. Measured on the deployed workbook 2026-08-01: a
+ * single-sheet response carries `:type data limit offset total` and nothing
+ * naming the sheet, while `:names` exists only on the multi-sheet shape, where
+ * the lookup by name already does the work. So the name is gone from the path
+ * that ignored it rather than checked on it.
+ */
+
+// /products.json?sheet=catalog: rows at the top level, no field naming the sheet
+const SINGLE_SHEET = {
+  ':type': 'sheet',
+  total: 2,
+  offset: 0,
+  limit: 2,
+  data: [
+    { slug: 'vikingcontact-7', rating: 4.4, reviews: 92 },
+    { slug: 'sportcontact-7', rating: 4.8, reviews: 31 },
+  ],
+};
+
+// /products.json with no sheet named: one key per sheet, and :names listing them
+const WORKBOOK = {
+  ':version': 3,
+  ':type': 'multi-sheet',
+  ':names': ['catalog', 'technology'],
+  catalog: {
+    total: 1, offset: 0, limit: 1, data: [{ slug: 'vikingcontact-7', rating: 4.4 }],
+  },
+  technology: {
+    total: 1, offset: 0, limit: 1, data: [{ name: 'SportPlus', description: 'live\'s own wording' }],
+  },
+};
+
+// the legacy single-object file: a sheet name straight to an array
+const LEGACY = { products: [{ slug: 'vikingcontact-7', name: 'VikingContact 7' }] };
+
+describe('sheetRows, the reader that cannot be asked for a sheet', () => {
+  it('reads the rows of a single-sheet response', () => {
+    expect(sheetRows(SINGLE_SHEET)).to.have.lengthOf(2);
+    expect(sheetRows(SINGLE_SHEET)[0].slug).to.equal('vikingcontact-7');
+  });
+
+  // the whole of the fix: there is no name to hand in, so none can be ignored
+  it('takes one argument', () => {
+    expect(sheetRows.length).to.equal(1);
+  });
+
+  it('answers a workbook with no rows rather than picking a sheet', () => {
+    expect(sheetRows(WORKBOOK)).to.deep.equal([]);
+  });
+
+  it('gives a caller that names a sheet anyway no rows rather than that sheet\'s', () => {
+    expect(sheetRows(WORKBOOK, 'catalog')).to.deep.equal([]);
+    expect(sheetRows(WORKBOOK, 'technology')).to.deep.equal([]);
+  });
+
+  it('reads nothing as no rows', () => {
+    expect(sheetRows(null)).to.deep.equal([]);
+    expect(sheetRows(undefined)).to.deep.equal([]);
+    expect(sheetRows({})).to.deep.equal([]);
+  });
+});
+
+describe('workbookSheet, the lookup where the name means something', () => {
+  it('returns the named sheet\'s rows', () => {
+    expect(workbookSheet(WORKBOOK, 'catalog')).to.have.lengthOf(1);
+    expect(workbookSheet(WORKBOOK, 'catalog')[0].slug).to.equal('vikingcontact-7');
+  });
+
+  it('returns the sheet asked for and not its neighbour', () => {
+    expect(workbookSheet(WORKBOOK, 'technology')[0].name).to.equal('SportPlus');
+    expect(workbookSheet(WORKBOOK, 'technology')[0].slug).to.be.undefined;
+  });
+
+  it('returns no rows for a sheet the workbook does not carry', () => {
+    expect(workbookSheet(WORKBOOK, 'zzznotasheet')).to.deep.equal([]);
+  });
+
+  it('reads the legacy shape, a sheet name straight to an array', () => {
+    expect(workbookSheet(LEGACY, 'products')).to.have.lengthOf(1);
+  });
+
+  it('reads a single-sheet response as no rows, because it names no sheet', () => {
+    expect(workbookSheet(SINGLE_SHEET, 'catalog')).to.deep.equal([]);
+  });
+
+  it('reads nothing as no rows', () => {
+    expect(workbookSheet(null, 'catalog')).to.deep.equal([]);
+    expect(workbookSheet({}, 'catalog')).to.deep.equal([]);
   });
 });
 

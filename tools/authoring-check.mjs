@@ -44,8 +44,8 @@ async function checkProducts() {
     read('/products.json?sheet=products'),
     read('/products.json?sheet=specs&limit=10000'),
   ]);
-  const products = sheetRows(productsJson, 'products');
-  const specs = sheetRows(specsJson, 'specs');
+  const products = sheetRows(productsJson);
+  const specs = sheetRows(specsJson);
 
   const missing = missingColumns(specs, SPECS_COLUMNS);
   if (missing.length) {
