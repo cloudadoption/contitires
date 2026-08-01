@@ -69,6 +69,18 @@ describe('Hero marquee, the readings off live', () => {
     expect(value('.hero.left:not(.stacked) .hero-content h1', 'letter-spacing', '1025px')).to.equal('6px');
   });
 
+  // #407, the one exception. Live tracks 12 of the 13 and leaves
+  // /tires/all-weather alone, because live's own markup omits the
+  // `span.text-uppercase` there that its twelve siblings carry: live's
+  // stylesheet reaches the page and live's content does not. Our side is
+  // uniform, so nothing in the markup distinguishes it except the id the
+  // pipeline slugs from the title, which is what this keys on.
+  // Tracking it anyway costs a line: at 375 it renders 2 where live renders 1.
+  // One id beats a class inside a media query, so the base rule covers 6px too.
+  it('leaves /tires/all-weather untracked, as live leaves it', () => {
+    expect(value('.hero.left:not(.stacked) .hero-content h1#all-weather-tires', 'letter-spacing')).to.equal('normal');
+  });
+
   // `stacked` is unaffected and it is source order that does it, not a
   // `:not()`: `.hero.stacked .hero-content` scores the same 0-2-1 and is
   // declared later, so it keeps centring below 1025 and its own 1025 rule
