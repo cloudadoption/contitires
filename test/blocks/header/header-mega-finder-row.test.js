@@ -61,12 +61,14 @@ describe('Header mega panel, the row a finder button sits in', () => {
                   <p><strong>Search for Tire</strong></p>
                   <ul>
                     <li><button type="button" data-tire-finder="vehicle">By Vehicle</button></li>
+                    <li><button type="button" data-tire-finder="tire-size">By Tire Size</button></li>
                   </ul>
                 </li>
                 <li>
                   <p><strong>Popular</strong></p>
                   <ul>
                     <li><a href="/tires/extremecontact-sport-02">ExtremeContact Sport02</a></li>
+                    <li><a href="/tires/extremecontact-dws06-plus">ExtremeContact DWS06 Plus</a></li>
                   </ul>
                 </li>
               </ul>
@@ -117,6 +119,18 @@ describe('Header mega panel, the row a finder button sits in', () => {
     // the list item's own. Nothing here is measured against today's row.
     expect(px(button, 'marginTop')).to.equal(-px(button, 'paddingTop'));
     expect(px(button, 'marginBottom')).to.equal(-px(button, 'paddingBottom'));
+  });
+
+  it('keeps each button inside its own row, so it cannot take the next one\'s click', () => {
+    // the padding is now the link's 7px, and a button's box is its LINE box
+    // where an inline link's is its font's content area, so the button would
+    // reach 3.8px into the row above and below and hit-test over its
+    // neighbour. Both buttons open the same modal on different tabs, so the
+    // reader would land on the wrong one.
+    const buttons = [...document.querySelectorAll('li.nav-mega button[data-tire-finder]')];
+    expect(buttons.length, 'two searches, so there is a boundary to test').to.equal(2);
+    const [first, second] = buttons.map((el) => el.getBoundingClientRect());
+    expect(first.bottom - second.top).to.be.at.most(0);
   });
 
   it('keeps the rows level when the panel\'s type scale moves', () => {
