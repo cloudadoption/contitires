@@ -581,6 +581,18 @@ main .section.hero-container {
     height: auto;
   }
 
+  /* the rule above cannot reach the slim variant on its own. A media query adds
+     no specificity, so the base `height: 160px` at 0-4-0 outscores this
+     `height: auto` at 0-3-0 and wins at every width, which left /experience
+     showing a 160px strip over 240px of black inside a 400px band. Live fills
+     it: its `div.marquee__background` measures 1440x400 absolute at 1440 and
+     375x160 static at 375, stepping at 1025 the way this stylesheet does.
+     Same shape as #407's second tracking step, which needs to be declared here
+     rather than merely sit at a higher breakpoint. #466 */
+  .hero.stacked.slim .hero-image {
+    height: auto;
+  }
+
   .hero.stacked .hero-image::after {
     content: '';
   }
