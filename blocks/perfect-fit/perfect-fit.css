@@ -486,6 +486,14 @@ main .section .perfect-fit-form .perfect-fit-terms a:any-link {
   object-fit: contain;
 }
 
+/* the 1.2 is a ratio and it STAYS one, because live has no counterpart to take
+   an absolute box from. Live's finder collects the input and navigates: its
+   bundle builds `/tire-search/by-size/{w}/{r}/{d}` and hands it to
+   `window.location.href`, and `tire-teaser` appears nowhere in that bundle. So
+   live's result cards are the LISTING page's, which is where #422 measures them.
+   This compact row, a 64px thumbnail beside a 15px name, is ours, and it exists
+   because we resolve fitment from our own sheet where live calls an API we
+   cannot see. Nothing to inherit and nothing to match. #413 */
 .perfect-fit-result-body h3 {
   margin: 0;
   font-family: var(--body-font-family);
