@@ -113,7 +113,7 @@ API, a vendor account or an index configuration.
 |  | [One technology description differs on three pages](#one-technology-description-differs-on-three-pages-because-a-sheet-holds-one-row-per-technology) | diverges | ✅ decided, not outstanding: the sheet holds one row, so the alternative differs from 11 pages instead of 3 | [#380](https://github.com/cloudadoption/contitires/issues/380) |
 |  | [Fit by size](#fit-by-size) | differs | ⏳ queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
 |  | [Star rating and review count](#star-rating-and-review-count) | absent | ⚙️ the corpus needs the account | [#241](https://github.com/cloudadoption/contitires/issues/241) |
-|  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | ⏳ drop the link | [#357](https://github.com/cloudadoption/contitires/issues/357) |
+|  | [Live's specs pages redirect onto our product page](#lives-specs-pages-redirect-onto-our-product-page) | differs | ✅ 46 redirect rows shipped; live's size search, print control and all-sizes view are not rebuilt | [#357](https://github.com/cloudadoption/contitires/issues/357), [#463](https://github.com/cloudadoption/contitires/issues/463) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | ⚙️ live's exclusions are Solr config | -- |
 |  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ⏳ build the control | [#162](https://github.com/cloudadoption/contitires/issues/162) |
@@ -358,28 +358,42 @@ moves as reviews arrive. The review corpus itself, the moderation state and the 
 property configuration are in Continental's account and no scrape reaches them. So the visible
 number is unbuilt work and the living number behind it is not.
 
-### The specs link points at a page we 404
+### Live's specs pages redirect onto our product page
 
-**absent.** Live gives each product its own specs page. We render specs inline and still link
-to the page.
+**differs.** Live gives each product its own specs page. We redirect those URLs onto the product
+page, which shows the specs inline, so the link resolves and the destination is a different kind
+of document.
 
-Live serves 42 per-product specs pages. `/tires/extremecontact-dws06-plus/specs` answers 200 on
-live and 404 here, checked on 2026-07-30.
+Live serves a standalone specs page per product. On `extremecontact-dws06-plus` it is 5905px tall,
+with a size search, a print control, and one accordion row per size. Ours is the product page at
+3365px with a picker that shows one size at a time.
 
-Our product pages render the size specs inside the page, read from the workbook, which is a
-reasonable choice on its own. The problem is the link. The specs band ends with a "View all
-sizes and specs" control that `blocks/tire-specs` builds in the browser, pointing at the path we
-do not serve.
+**The link is no longer dead.** 46 redirect rows shipped on 2026-08-01, taking the sheet from 14
+rows to 60. All 46 targets our block emits answer 301 and then 200 on the product page, read on the
+published host. A nonsense control still returns 404, so the sheet is not a catch-all. A bookmark or
+a search result on a live specs URL now lands on the product page rather than on our 404.
 
-What it costs a visitor: a dead link at the foot of the specs band on 45 product pages, and it
-is the only dead link our own pages emit. A bookmark or a search result on a live specs URL
-lands on our 404 too.
+**Dropping the link was the other option and it was refused.** The specs are already on the page,
+so dropping the control loses no information, and it is the smaller change. But live shows that
+control, and removing one live shows is the regression this project exists to avoid. A viewer
+comparing the two sees a difference and concludes the platform could not do it. The rows keep the
+surface and fix the destination.
 
-What would close it: either drop the link, since the specs are already on the page, or add 42
-redirect rows onto the product pages. Dropping it is the smaller change and loses nothing,
-because the content the link promises is already above it.
-Filed as
-[#357](https://github.com/cloudadoption/contitires/issues/357); [#242](https://github.com/cloudadoption/contitires/issues/242) covered the specs section and closed without following the link.
+**One page diverges deliberately, and the error is live's rather than ours.**
+`/vancontact-as-ultra` links its own specs path on live, and that path answers 404 on live. We do
+not reproduce a broken link, so the row ships and the reader reaches the product page. That page
+is also the one product page outside `/tires/`, counted rather than assumed, while our block
+prefixes the path anyway. Live's dead link and ours are not even the same string.
+
+**What live still has that we do not.** The size search, the print control, and the accordion that
+opens the sizes together. A reader comparing four sizes side by side can do it on live and cannot do
+it here. Our picker also opens preselected on the first size where live's opens empty with a prompt,
+which is [#463](https://github.com/cloudadoption/contitires/issues/463).
+
+Filed as [#357](https://github.com/cloudadoption/contitires/issues/357), closed 2026-08-01 with no
+proving commit, because a sheet change produces no commit;
+[#242](https://github.com/cloudadoption/contitires/issues/242) covered the specs section and closed
+without following the link.
 
 ## Search
 
