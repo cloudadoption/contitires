@@ -146,6 +146,7 @@ API, a vendor account or an index configuration.
 |  | [Two heading margins we are leaving proportional](#two-heading-margins-we-are-leaving-proportional) | diverges | ✅ decided, not outstanding: one does not reach the page, the other has no single absolute that fits both directions | [#395](https://github.com/cloudadoption/contitires/issues/395) |
 |  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | differs | ⏳ author the same spacing device in DA, or accept the tighter rhythm | [#384](https://github.com/cloudadoption/contitires/issues/384) |
 |  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ⏳ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
+|  | [The hero content cap, which changes no wrap](#the-hero-content-cap-which-changes-no-wrap) | diverges | ✅ decided, not outstanding: measured over all 15 pages it reaches and it changes the wrap on none of them | [#409](https://github.com/cloudadoption/contitires/issues/409) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ⏳ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ⏳ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
 |  | [Prose link underlines](#prose-links-carry-an-underline-live-paints-transparent) | diverges | ✅ WCAG 1.4.1 | [#240](https://github.com/cloudadoption/contitires/issues/240) |
@@ -1171,6 +1172,36 @@ answer, since the device is live's typography rather than its structure.
 **Scope beyond that one page is UNMEASURED.** The count above is one article. Live's use of the
 device on the other 223 article-template pages has not been checked. Do not read eleven on one
 page as a site-wide figure.
+
+### The hero content cap, which changes no wrap
+
+**diverges.** Our `.hero-content` caps at 640px where live's marquee reaches 860px. The cap is
+staying, because it was measured over the whole population it reaches and it changes what a reader
+sees on no page.
+
+**The population is 15 pages, established over the authored markup of all 327 indexed paths.** 36
+hero blocks on 32 paths, 20 carrying the `left` class token, and 15 of those with a title. `.hero
+.stacked` is `max-width: none` and the `.hero.stacked.left` cap only applies from 1025, so `/` and
+`/experience` measure an 860 box at 900 and 576 at 1440. `hero breadcrumb title-left` is outside
+the population, because the selector needs the token `left` and `title-left` is a different token,
+which drops `/experience/conti-crew`.
+
+Natural single-line width against the rendered `h1` box, on all 15:
+
+| width | pages where the cap changes the wrap |
+|---|---|
+| 900 | **0 of 15**, widest natural is `/learn` at 486.6 in a 576 box |
+| 1440 | **2 of 15**, `/learn` at 681.2 and `/` at 621.2 |
+
+**Both of the two resolve to no fix.** `/` is a guardrail 23 zone: live's `h1` reads "Welcome to
+The Smart Choice In Tires" and ours reads "THE SMARTEST CHOICE IN TIRES", so the two are not
+comparable by design. `/learn` wraps to two lines on both sides at 1440, ours 681.2 natural in a
+576 box against live 860.8 natural in a 736 box. **Live needs the wider box to reach the same two
+lines because it tracks at 6px and we track nothing**, which is #407 rather than this.
+
+**What it costs a visitor:** no measurable difference at 900 or 1440. The cap is 220px narrower than
+live's and no title in the population is long enough for that to force a different number of
+lines.
 
 ### The content container, 64px wider than live's
 
