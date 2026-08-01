@@ -370,6 +370,23 @@ describe('product hero groups, the treatment live gives the closed row', () => {
     expect(Math.round(gap), 'live reads 20').to.equal(20);
   });
 
+  // the block's own tooltip button already takes this ring, and so do
+  // perfect-fit, tire-specs and the promo bar. Without a rule the one new
+  // control on the page takes Chrome's blue `auto 1px rgb(0, 95, 204)`.
+  it('shows a keyboard where it is, in the ring this block already uses', async () => {
+    block = authored(BOTH);
+    decorate(block);
+    const toggle = toggles(block)[1];
+
+    toggle.focus({ focusVisible: true });
+    expect(toggle.matches(':focus-visible'), 'the control takes keyboard focus').to.be.true;
+    // read into a string while it is focused: the declaration is live, and read
+    // later it reports whatever the element is doing then
+    const cs = getComputedStyle(toggle);
+    const ring = `${cs.outlineStyle} ${cs.outlineWidth} ${cs.outlineOffset}`;
+    expect(ring).to.equal('solid 2px 2px');
+  });
+
   it('leaves the wide row as it was, with no mark and no extra space', async () => {
     await setViewport({ width: 900, height: 900 });
     block = authored(BOTH);

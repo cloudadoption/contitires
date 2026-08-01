@@ -183,6 +183,13 @@ main .columns.bar .button.secondary:focus-visible {
   cursor: pointer;
 }
 
+/* the ring this block already gives its tooltip button, so the disclosure is not
+   the one control on the page wearing the browser's blue default */
+.columns.product-hero .product-hero-group-toggle:focus-visible {
+  outline: 2px solid var(--conti-yellow-contrast);
+  outline-offset: 2px;
+}
+
 /*
  * Live's mark is `#plus-outline` from its sprite: an 11px viewBox holding two
  * 1px strokes in currentColor, drawn 20px wide inside a 28px box, with 4px
