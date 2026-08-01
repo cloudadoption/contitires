@@ -277,3 +277,13 @@ export default function decorate(block) {
     whenLoaded().then(() => addTechnologyTooltips(block));
   }
 }
+
+/**
+ * STUB, so the disclosure tests LINK and each assertion can be seen to fail for
+ * its own reason. A missing export turns every assertion in a file red at once,
+ * which is the weakest red available (guardrail 7). Replaced by the fix.
+ * @param {Element} block the product hero block
+ * @param {boolean} collapsed whether the groups should be disclosure rows
+ */
+// eslint-disable-next-line no-unused-vars
+export function setHeroDisclosures(block, collapsed) {}
