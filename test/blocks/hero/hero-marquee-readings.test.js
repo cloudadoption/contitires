@@ -37,4 +37,28 @@ describe('Hero marquee, the readings off live', () => {
   it("pads the hero copy at live's 20px so the column measures 335 at 375", () => {
     expect(value('.hero-content', 'padding')).to.equal('56px 20px');
   });
+
+  // #408. Live centres the marquee title below its own 1025 step and pins it
+  // `start` above, measured at 1024 and 1025 on /tires. `left` set that
+  // alignment in the base, so ours read `left` at 375, 700 and 900 where live
+  // read `center`, on all 13 pages carrying the token without `stacked`.
+  // The two sibling variants already have this shape: `.hero.stacked` centres
+  // in the base and goes left at 1025, and so does `.hero.title-left`.
+  it('leaves the left variant centred below 1025, as the base sets it', () => {
+    expect(value('.hero.left .hero-content', 'text-align')).to.equal(null);
+    expect(value('.hero-content', 'text-align')).to.equal('center');
+  });
+
+  it("pins the left variant at live's own 1025 step", () => {
+    expect(value('.hero.left .hero-content', 'text-align', '1025px')).to.equal('left');
+  });
+
+  // `stacked` is unaffected and it is source order that does it, not a
+  // `:not()`: `.hero.stacked .hero-content` scores the same 0-2-1 and is
+  // declared later, so it keeps centring below 1025 and its own 1025 rule
+  // keeps pinning it above. /experience and / are the two pages this covers.
+  it('leaves the stacked variant where it was, on source order', () => {
+    expect(value('.hero.stacked .hero-content', 'text-align')).to.equal('center');
+    expect(value('.hero.stacked .hero-content', 'text-align', '1025px')).to.equal('left');
+  });
 });
