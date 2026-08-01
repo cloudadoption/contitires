@@ -1197,7 +1197,7 @@ Natural single-line width against the rendered `h1` box, on all 15:
 The Smart Choice In Tires" and ours reads "THE SMARTEST CHOICE IN TIRES", so the two are not
 comparable by design. `/learn` wraps to two lines on both sides at 1440, ours 681.2 natural in a
 576 box against live 860.8 natural in a 736 box. **Live needs the wider box to reach the same two
-lines because it tracks at 6px and we track nothing**, which is #407 rather than this.
+lines because it tracks at 6px and we do not track at all**, which is #407 rather than this.
 
 **What it costs a visitor:** no measurable difference at 900 or 1440. The cap is 220px narrower than
 live's and no title in the population is long enough for that to force a different number of
