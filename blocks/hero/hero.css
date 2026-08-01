@@ -398,10 +398,6 @@ main .section.hero-container {
   .hero.left .hero-content {
     text-align: left;
   }
-
-  .hero.left:not(.stacked) .hero-content h1 {
-    letter-spacing: 6px;
-  }
 }
 
 .hero.left .hero-content .hero-ctas {
@@ -605,6 +601,17 @@ main .section.hero-container {
   .hero.stacked .hero-content h1 {
     font-size: 42px;
     line-height: 48px;
+  }
+
+  /* live's second tracking step. It has to be DECLARED AFTER the 5px base rule,
+     not merely sit at a higher breakpoint: a media query adds no specificity, so
+     with the same selector on both, source order decides. Declared earlier it
+     read correct in the CSSOM and never reached the page.
+     It follows the `stacked` heading rule for the same reason the base rule
+     does, `:not()` scoring a class that stylelint reads as descending
+     specificity in the other order. #407 */
+  .hero.left:not(.stacked) .hero-content h1 {
+    letter-spacing: 6px;
   }
 
   .hero.stacked.left .hero-content {
