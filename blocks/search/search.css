@@ -142,6 +142,15 @@ main .search .search-result {
 main .search .search-result-title {
   margin: 0 0 12px;
   font-size: var(--body-font-size-xs);
+
+  /* live tracks this title at a flat 0.25px and it does it on the LINK. Live's
+     own h2 carries 0.5px below 1025 and normal above, and that step reaches no
+     glyph, because live's h2 has no direct text and every character is inside
+     the anchor. So one declaration here, inherited by the link that holds the
+     text, renders what live renders. Two of live's three declarations are inert
+     on live's own page, and a base rule with no query cannot be defeated by
+     source order the way a competing pair can. #424 */
+  letter-spacing: 0.25px;
   line-height: 20px;
 }
 
