@@ -146,6 +146,67 @@ main .columns.bar .button.secondary:focus-visible {
   border-top: 1px solid var(--conti-grey);
 }
 
+/*
+ * The disclosure live collapses both groups into below its own 768 step. The
+ * class is on the label only while the block has closed it, so these rules and
+ * the markup that needs them arrive and leave together. (#432)
+ *
+ * Live's closed group measures 61px on /tires/crosscontact-lx25: its 1px rule,
+ * 20px above a 20px row, 20px under it. The 20px below is here because the list
+ * that carries it when the group is open is not drawn when it is closed.
+ */
+.columns.product-hero .product-hero-collapsible {
+  padding-bottom: 20px;
+}
+
+/* and one gap above the rows rather than two: live reads 20px from the mark to
+   its first row, which the label's own padding now gives */
+.columns.product-hero .product-hero-collapsible + ul {
+  margin-top: 0;
+}
+
+.columns.product-hero .product-hero-group-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+
+  /* the UA drops these on form controls, so the label's own case and tracking
+     have to be asked for */
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/*
+ * Live's mark is `#plus-outline` from its sprite: an 11px viewBox holding two
+ * 1px strokes in currentColor, drawn 20px wide inside a 28px box, with 4px
+ * between it and the label. Two gradient bars are the same mark and no asset,
+ * the treatment the footer's disclosures already use.
+ *
+ * Live's open mark comes from a symbol whose viewBox is 13 by 1, so its bar
+ * renders about 17px against the plus's 20. One width is used here for both,
+ * so the mark does not change width as it opens.
+ */
+.columns.product-hero .product-hero-group-toggle::before {
+  content: '';
+  flex: none;
+  width: 28px;
+  height: 20px;
+  background:
+    linear-gradient(currentcolor, currentcolor) center / 20px 2px no-repeat,
+    linear-gradient(currentcolor, currentcolor) center / 2px 20px no-repeat;
+}
+
+.columns.product-hero .product-hero-group-toggle[aria-expanded='true']::before {
+  background: linear-gradient(currentcolor, currentcolor) center / 20px 2px no-repeat;
+}
+
 .columns.product-hero .product-hero-plan {
   margin: 8px 0 20px;
   padding: 0;

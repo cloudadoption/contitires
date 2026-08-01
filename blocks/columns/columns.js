@@ -119,6 +119,83 @@ function decorateProductHero(block) {
   decorateIcons(block);
 }
 
+/* Live collapses both trailing groups below its own 768 step and draws them
+   open with no control above it. Bracketed on /tires/crosscontact-lx25: 61px
+   with no row at 767 and 768, 258px and 144px with their rows at 769. (#432) */
+const isNarrow = window.matchMedia('(width <= 768px)');
+
+/* the label element and the list it introduces, in the order live rules them
+   off. The plan summary is not here: live leaves it outside con-details. */
+const HERO_GROUPS = [
+  ['.product-hero-best-for-label', '.product-hero-best-for'],
+  ['.product-hero-technology-label', '.product-hero-technology'],
+];
+
+let groups = 0;
+
+/**
+ * Moves a label's own words into a button that shows and hides its list. A real
+ * button gets Enter and Space from the browser, so there is no keydown handler
+ * to keep in step with the markup, and live's own handler sits on a custom
+ * element no keyboard reaches. The footer's disclosures are built this way.
+ * @param {Element} label the label element, which keeps its place and its rule
+ * @param {Element} list the list it introduces
+ */
+function collapseGroup(label, list) {
+  if (label.querySelector('.product-hero-group-toggle')) return;
+  if (!list.id) {
+    groups += 1;
+    list.id = `product-hero-group-${groups}`;
+  }
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'product-hero-group-toggle';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-controls', list.id);
+  toggle.append(...label.childNodes);
+  label.append(toggle);
+  label.classList.add('product-hero-collapsible');
+  list.hidden = true;
+
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    list.hidden = expanded;
+  });
+}
+
+/**
+ * Puts the label's words back where they were and draws the list again.
+ * @param {Element} label the label element
+ * @param {Element} list the list it introduces
+ */
+function restoreGroup(label, list) {
+  const toggle = label.querySelector('.product-hero-group-toggle');
+  if (!toggle) return;
+  toggle.replaceWith(...toggle.childNodes);
+  label.classList.remove('product-hero-collapsible');
+  list.hidden = false;
+}
+
+/**
+ * Closes the hero column's trailing groups into disclosures, or opens them.
+ *
+ * A group a reader left closed opens again on the way up, because above live's
+ * step there is no control to reopen it with.
+ * @param {Element} block the product hero block
+ * @param {boolean} collapsed whether the groups should be disclosure rows
+ */
+export function setHeroDisclosures(block, collapsed) {
+  HERO_GROUPS.forEach(([labelSelector, listSelector]) => {
+    const label = block.querySelector(labelSelector);
+    const list = block.querySelector(listSelector);
+    if (!label || !list) return;
+    if (collapsed) collapseGroup(label, list);
+    else restoreGroup(label, list);
+  });
+}
+
 let tips = 0;
 
 /** Resolves once the page has loaded, so a tooltip never races LCP. */
@@ -272,18 +349,10 @@ export default function decorate(block) {
 
   if (block.classList.contains('product-hero')) {
     decorateProductHero(block);
+    setHeroDisclosures(block, isNarrow.matches);
+    isNarrow.addEventListener('change', () => setHeroDisclosures(block, isNarrow.matches));
     // not awaited: the hero is the first section, so awaiting a fetch here
     // would put the tooltip in front of LCP
     whenLoaded().then(() => addTechnologyTooltips(block));
   }
 }
-
-/**
- * STUB, so the disclosure tests LINK and each assertion can be seen to fail for
- * its own reason. A missing export turns every assertion in a file red at once,
- * which is the weakest red available (guardrail 7). Replaced by the fix.
- * @param {Element} block the product hero block
- * @param {boolean} collapsed whether the groups should be disclosure rows
- */
-// eslint-disable-next-line no-unused-vars
-export function setHeroDisclosures(block, collapsed) {}

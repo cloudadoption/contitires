@@ -65,15 +65,24 @@ const BEST_FOR_ONLY = `
   <p><strong>Best for</strong></p>
   <ul><li>Passenger</li></ul>`;
 
-/** Waits for the media-query listener to have run, and says so when it has not. */
-async function settled(holds, what) {
-  for (let i = 0; i < 60; i += 1) {
-    if (holds()) return;
-    // eslint-disable-next-line no-await-in-loop
-    await new Promise((r) => { setTimeout(r, 20); });
-  }
-  throw new Error(`timed out waiting for ${what}`);
-}
+/**
+ * The subscriptions a block made to live's own step, with the handler each one
+ * registered. Under the whole suite these pages are BACKGROUNDED, and a
+ * backgrounded page is not delivered a media-query change promptly: the two
+ * tests that waited for one passed alone and timed out under `npm test`, at
+ * concurrency 1 and at the default respectively. Calling the handler is the
+ * same code path without the wait, and it also names the query rather than
+ * inferring the boundary from a rendered width.
+ * @param {Function} spy a sinon spy on MediaQueryList.prototype.addEventListener
+ * @returns {Array<{media: string, event: string, handler: Function}>}
+ */
+const subscriptions = (spy) => spy.getCalls()
+  .map((call, i) => ({
+    media: spy.thisValues[i].media,
+    event: call.args[0],
+    handler: call.args[1],
+  }))
+  .filter((s) => s.media === '(width <= 768px)');
 
 async function adopt(...paths) {
   const sheets = await Promise.all(paths.map(async (p) => {
@@ -112,7 +121,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
   it('gives both groups a control and hides their rows', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
 
     expect(toggles(block).map((t) => t.tagName), 'a real button, so the browser handles it')
       .to.eql(['BUTTON', 'BUTTON']);
@@ -124,7 +132,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
   it('keeps the label\'s own words in the control', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
 
     expect(toggles(block).map((t) => t.textContent.trim())).to.eql(['Best for', 'Technology']);
     // the label element stays where it was, so the hairline above it is unmoved
@@ -136,7 +143,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
   it('points each control at the list it opens, by its own id', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
 
     const [bestFor, technology] = lists(block);
     expect(toggles(block)[0].getAttribute('aria-controls')).to.equal(bestFor.id);
@@ -150,7 +156,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
   it('opens the group a reader presses, and closes it again', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
     const [, technology] = lists(block);
     const toggle = toggles(block)[1];
 
@@ -168,7 +173,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
   it('opens one group without opening the other', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
 
     toggles(block)[0].click();
     expect(lists(block).map((l) => l.hidden)).to.eql([false, true]);
@@ -179,7 +183,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
   it('opens from the keyboard', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
     const toggle = toggles(block)[1];
     const [, technology] = lists(block);
 
@@ -197,7 +200,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
   it('leaves the plan summary open, as live does', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
 
     const plan = block.querySelector('.product-hero-plan');
     expect(plan.hidden, 'the plan is not one of the two').to.be.false;
@@ -207,7 +209,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
   it('collapses the one group on a page with no Technology', async () => {
     block = authored(BEST_FOR_ONLY);
     decorate(block);
-    await settled(() => toggles(block).length === 1, 'the one control');
 
     expect(block.querySelector('.product-hero-best-for').hidden).to.be.true;
     expect(!!block.querySelector('.product-hero-technology-label'), 'none to collapse').to.be.false;
@@ -222,7 +223,6 @@ describe('product hero groups, closed at live\'s narrow widths', () => {
     }))));
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
     await addTechnologyTooltips(block);
     window.fetch.restore();
 
@@ -249,41 +249,50 @@ describe('product hero groups, open at live\'s wide widths', () => {
   it('draws no control at all, the way live draws none', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => lists(block).every((l) => !l.hidden), 'both lists drawn');
 
     expect(toggles(block), 'nothing to press').to.have.length(0);
     expect(labels(block).map((l) => l.textContent.trim())).to.eql(['Best for', 'Technology']);
     expect(lists(block).map((l) => l.getBoundingClientRect().height > 0)).to.eql([true, true]);
   });
 
-  it('takes the rows back when the viewport crosses live\'s boundary', async () => {
+  // live's own step, bracketed rather than assumed: 768 collapsed, 769 open
+  it('closes at 768 and draws no control at 769', async () => {
+    await setViewport({ width: 768, height: 812 });
     block = authored(BOTH);
     decorate(block);
-    expect(toggles(block), 'open to begin with').to.have.length(0);
-
-    await setViewport({ width: 768, height: 812 });
-    await settled(() => toggles(block).length === 2, 'controls at 768');
+    expect(toggles(block), 'a control at 768').to.have.length(2);
     expect(lists(block).map((l) => l.hidden), 'closed at 768').to.eql([true, true]);
+    block.remove();
 
     await setViewport({ width: 769, height: 812 });
-    await settled(() => toggles(block).length === 0, 'no control at 769');
-    expect(lists(block).map((l) => l.hidden), 'open at 769').to.eql([false, false]);
-    expect(labels(block).map((l) => l.textContent.trim()), 'the label reads as it did')
-      .to.eql(['Best for', 'Technology']);
-  });
-
-  it('reopens a group a reader had left closed, on the way up', async () => {
     block = authored(BOTH);
     decorate(block);
+    expect(toggles(block), 'none at 769').to.have.length(0);
+    expect(lists(block).map((l) => l.hidden), 'open at 769').to.eql([false, false]);
+    await setViewport({ width: 900, height: 900 });
+  });
+
+  it('subscribes to live\'s step, and closes the groups when it fires', async () => {
+    const spy = sinon.spy(MediaQueryList.prototype, 'addEventListener');
+    block = authored(BOTH);
+    decorate(block);
+    const subs = subscriptions(spy);
+    spy.restore();
+
+    expect(subs, 'one subscription to live\'s own step').to.have.length(1);
+    expect(subs[0].event).to.equal('change');
+    expect(toggles(block), 'open to begin with').to.have.length(0);
 
     await setViewport({ width: 375, height: 812 });
-    await settled(() => toggles(block).length === 2, 'controls at 375');
-    toggles(block)[0].click();
-    expect(lists(block).map((l) => l.hidden), 'one open, one closed').to.eql([false, true]);
+    subs[0].handler();
+    expect(toggles(block), 'closed when the step fires').to.have.length(2);
+    expect(lists(block).map((l) => l.hidden)).to.eql([true, true]);
 
     await setViewport({ width: 900, height: 900 });
-    await settled(() => toggles(block).length === 0, 'no control at 900');
-    expect(lists(block).map((l) => l.hidden), 'both drawn again').to.eql([false, false]);
+    subs[0].handler();
+    expect(toggles(block), 'open again above it').to.have.length(0);
+    expect(labels(block).map((l) => l.textContent.trim()), 'the label reads as it did')
+      .to.eql(['Best for', 'Technology']);
   });
 });
 
@@ -296,11 +305,16 @@ describe('product hero groups, the treatment live gives the closed row', () => {
   let block;
 
   before(async () => {
-    await adopt('/blocks/columns/columns.css');
+    // styles.css as well as the block's own: the hairline is drawn in
+    // var(--conti-grey), and an undefined custom property makes the whole
+    // shorthand invalid, so the border reads 0px and the test measures nothing
+    await adopt('/styles/styles.css', '/blocks/columns/columns.css');
+    document.body.classList.add('appear');
     await setViewport({ width: 375, height: 812 });
   });
 
   after(async () => {
+    document.body.classList.remove('appear');
     await setViewport({ width: 800, height: 600 });
   });
 
@@ -311,23 +325,29 @@ describe('product hero groups, the treatment live gives the closed row', () => {
   it('draws live\'s plus, and turns it into a minus when the group opens', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
     const toggle = toggles(block)[1];
+
+    // the computed value carries commas inside each colour, so the bars are
+    // counted by their own function rather than by splitting on a comma
+    const bars = (el) => (getComputedStyle(el, '::before').backgroundImage
+      .match(/linear-gradient\(/g) || []).length;
 
     const closed = getComputedStyle(toggle, '::before');
     expect(closed.width, 'live draws the mark 20px wide in a 28px box').to.equal('28px');
     expect(closed.height).to.equal('20px');
-    expect(closed.backgroundImage.split(',').length, 'two bars make the plus').to.equal(2);
+    expect(bars(toggle), 'two bars make the plus').to.equal(2);
+    expect(getComputedStyle(toggle, '::before').backgroundSize, 'one across, one down')
+      .to.equal('20px 2px, 2px 20px');
 
     toggle.click();
-    const open = getComputedStyle(toggle, '::before');
-    expect(open.backgroundImage.split(',').length, 'one bar makes the minus').to.equal(1);
+    expect(bars(toggle), 'one bar makes the minus').to.equal(1);
+    expect(getComputedStyle(toggle, '::before').backgroundSize, 'the bar across')
+      .to.equal('20px 2px');
   });
 
   it('keeps the row live\'s height by holding 20px under the mark', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
     const [label] = labels(block);
 
     // live's closed group is 61px: its 1px rule, 20px above the 20px mark, 20px under
@@ -342,7 +362,6 @@ describe('product hero groups, the treatment live gives the closed row', () => {
   it('leaves one 20px gap above the rows rather than two', async () => {
     block = authored(BOTH);
     decorate(block);
-    await settled(() => toggles(block).length === 2, 'both controls');
     const toggle = toggles(block)[1];
     const [, technology] = lists(block);
 
@@ -355,7 +374,6 @@ describe('product hero groups, the treatment live gives the closed row', () => {
     await setViewport({ width: 900, height: 900 });
     block = authored(BOTH);
     decorate(block);
-    await settled(() => lists(block).every((l) => !l.hidden), 'both lists drawn');
     const [label] = labels(block);
 
     expect(getComputedStyle(label).paddingBottom, 'nothing added above 768').to.equal('0px');
@@ -383,6 +401,20 @@ describe('setHeroDisclosures, called directly', () => {
     expect(toggles(block)).to.have.length(0);
     expect(lists(block).map((l) => l.hidden)).to.eql([false, false]);
     expect(labels(block).map((l) => l.textContent.trim())).to.eql(['Best for', 'Technology']);
+  });
+
+  // above live's step there is no control, so a group the reader left closed
+  // has to come back open or its rows are unreachable
+  it('opens a group the reader had closed, on the way up', () => {
+    block = authored(BOTH);
+    decorate(block);
+
+    setHeroDisclosures(block, true);
+    toggles(block)[0].click();
+    expect(lists(block).map((l) => l.hidden), 'one open, one closed').to.eql([false, true]);
+
+    setHeroDisclosures(block, false);
+    expect(lists(block).map((l) => l.hidden), 'both drawn again').to.eql([false, false]);
   });
 
   it('collapses once, however many times it is called', () => {
