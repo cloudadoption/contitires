@@ -538,6 +538,19 @@ main .section.hero-container {
   letter-spacing: 5px;
 }
 
+/* the one page of the thirteen live does not track, and the cause is live's
+   content rather than live's stylesheet: `/tires/all-weather` authors
+   `ALL-WEATHER TIRES` in capitals with no `span.text-uppercase`, where its
+   twelve siblings author title case inside one. So live's rule never reaches
+   it. Our markup is uniform, `hero left short` with a bare h1 on all thirteen,
+   and the id the pipeline slugs from the title is the only thing that tells
+   this page apart. Tracking it anyway costs a line: 2 at 375 against live's 1.
+   An id outscores the class rule above even inside the 1025 query, so this one
+   declaration covers both steps. #407 */
+.hero.left:not(.stacked) .hero-content h1#all-weather-tires {
+  letter-spacing: normal;
+}
+
 /* live divides the marquee at 160 rather than 200 on a page whose marquee
    carries a breadcrumb trail, which is every section hub under /experience */
 .hero.stacked.slim .hero-image {
