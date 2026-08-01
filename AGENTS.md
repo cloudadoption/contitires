@@ -57,7 +57,7 @@ The repository provides the basic structure, blocks, and configuration needed to
 - Follow Stylelint standard configuration
 - Use modern CSS features (CSS Grid, Flexbox, CSS Custom Properties)
 - Maintain responsive design principles
-  - Declare styles mobile first, use `min-width` media queries at 600px/900px/1200px for tablet and desktop
+  - Declare styles mobile first. Live pivots at `max-width: 768` and `max-width: 1024`, and both bounds match at N, so step at `min-width: 769px` and `min-width: 1025px` to land on live's boundaries rather than the boilerplate 600px/900px/1200px
 - Ensure all selectors are scoped to the block.
   - Bad: `.item-list`
   - Good: `.{blockname} .item-list`   
