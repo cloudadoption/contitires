@@ -539,6 +539,54 @@ describe('perfect-fit, the cascade gates each field behind the one before it', (
 });
 
 /*
+ * Live labels the size fields Width, Ratio and Diameter. Issue #482, read on
+ * live at 1440 and at 375, and read the same way three days earlier by #313.
+ *
+ * The name is written twice per field, once as the label and once as the empty
+ * control's own text, and this design shows the second one at rest. Both are
+ * asserted, because a field whose label and resting text disagree is a defect
+ * neither string can show on its own.
+ */
+describe('perfect-fit, the size fields carry live\'s names', () => {
+  let fetchStub;
+  const namesOf = (what) => [...panelOf('tire-size').querySelectorAll('.perfect-fit-field')]
+    .map((f) => (what === 'label'
+      ? f.querySelector('label').textContent
+      : f.querySelector('select').options[0].textContent));
+  async function open() {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+    return block;
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = stubSheets(CATALOGUE);
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('labels them the way live does', async () => {
+    await open();
+    expect(namesOf('label')).to.deep.equal(['Width', 'Ratio', 'Diameter']);
+  });
+
+  it('reads the same name inside the empty control', async () => {
+    await open();
+    expect(namesOf('option')).to.deep.equal(['Width', 'Ratio', 'Diameter']);
+  });
+
+  it('keeps the name when the cascade refills the field', async () => {
+    await open();
+    const panel = panelOf('tire-size');
+    const width = panel.querySelector('[name="width"]');
+    width.value = '225';
+    width.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(namesOf('option'), 'the copy the cascade writes').to.deep.equal(['Width', 'Ratio', 'Diameter']);
+  });
+});
+
+/*
  * Live's By Tire Size tab carries a "Where to find the sizes" tooltip between
  * the question and the fields, at 1440 and 375 both: a text target with a help
  * icon, opening on live's own sidewall diagram. Issue #438.
