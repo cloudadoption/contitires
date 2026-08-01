@@ -176,11 +176,15 @@ With this information, you can construct URLs for the preview environment (same 
 
 ## Contributing
 
-- **HARD RULE: never name the human in a GitHub issue or pull request. Write "the human".** This
-  covers issue titles and bodies, pull request titles and descriptions, review comments, and any
-  edit to an existing issue. It holds when quoting an instruction, when crediting a decision, and
-  when recording who owns an outstanding item. Standing instruction from 2026-08-01, after issue
-  #359 was found carrying the name 30 times.
+- **HARD RULE: never name a person or an operator role in a GitHub issue or pull request. Write
+  "the human".** This covers issue titles and bodies, pull request titles and descriptions, review
+  comments, and any edit to an existing issue. It holds when quoting an instruction, when crediting
+  a decision, and when recording who owns an outstanding item. The agent names `bitzer`, `shaun` and
+  `shirley` are fine and stay. Standing instruction from 2026-08-01, after issue #359 was found
+  carrying two such names 104 times between them.
+  - Where a sentence contrasted two human-side actors, drop the contrast rather than writing "the
+    human" twice: a ruling comes from outside the chain and a placement is the list's own ordering,
+    so the verb already says which it was.
 - Follow the existing code style and patterns
 - Test changes locally before committing
 - Follow the Publishing Process documented above
