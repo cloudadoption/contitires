@@ -563,11 +563,16 @@ describe('perfect-fit, where to find the sizes', () => {
   });
   afterEach(() => fetchStub.restore());
 
+  // `!!` rather than `to.not.exist`, as the rest of this file does it: chai
+  // stringifies the value it was given when an assertion fails, and a live DOM
+  // node walks the document from the panel outwards. Written the other way,
+  // these two hang the runner for two minutes instead of failing, so the only
+  // thing they could ever report is a timeout.
   it('offers the help on the size tab and on no other', async () => {
     await open();
-    expect(helpOf('tire-size'), 'the size tab offers it').to.exist;
-    expect(helpOf('vehicle'), 'the vehicle tab does not').to.not.exist;
-    expect(helpOf('plate'), 'the plate tab does not').to.not.exist;
+    expect(!!helpOf('tire-size'), 'the size tab offers it').to.be.true;
+    expect(!!helpOf('vehicle'), 'the vehicle tab does not').to.be.false;
+    expect(!!helpOf('plate'), 'the plate tab does not').to.be.false;
   });
 
   it('reads live\'s words, with the help icon beside them', async () => {

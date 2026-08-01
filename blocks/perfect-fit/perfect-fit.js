@@ -156,6 +156,34 @@ function termsNote() {
 }
 
 /**
+ * Live's cascade rule: the first field is always available, every field after
+ * it waits for the one before it to hold a value, and answering a field again
+ * closes the fields under it. Live renders all of them and gates by DISABLING,
+ * so nothing is hidden (#436).
+ *
+ * Written over the list rather than as calls against the fields that exist
+ * today, so a field added to a cascade later comes up gated. #437 wants a Trim
+ * on the vehicle side, and gating written per field would leave that one
+ * ungated while both slices still read correct on their own.
+ * @param {Array} steps ordered, `{ field, placeholder, options }`, where
+ *   `options` takes the values answered so far and returns what this field may
+ *   offer. The first step needs none: it is filled by its caller and never
+ *   refilled.
+ */
+function wireCascade(steps) {
+  const refresh = (from) => {
+    steps.slice(from + 1).forEach((step, i) => {
+      const answered = steps.slice(0, from + 1 + i).map((s) => s.field.value);
+      const available = answered.every(Boolean);
+      fillSelect(step.field, available ? step.options(answered) : [], step.placeholder);
+      step.field.disabled = !available;
+    });
+  };
+  steps.forEach((step, i) => step.field.addEventListener('change', () => refresh(i)));
+  refresh(0);
+}
+
+/**
  * Tracks which controls hold a value: the field name floats above a filled
  * control, and the call to action waits for the whole form.
  */
@@ -176,7 +204,7 @@ function wireFormState(form) {
  * Assembles one tab's form: live's question, the fields, the terms sentence,
  * and the call to action.
  */
-function buildForm(tabId, headingText, fields, onSubmit) {
+function buildForm(tabId, headingText, fields, onSubmit, help) {
   const form = document.createElement('form');
   form.className = `perfect-fit-form perfect-fit-form-${tabId}`;
   const heading = document.createElement('h2');
@@ -186,7 +214,9 @@ function buildForm(tabId, headingText, fields, onSubmit) {
   const grid = document.createElement('div');
   grid.className = 'perfect-fit-fields';
   grid.append(...fields);
-  form.append(heading, grid, termsNote(), searchButton());
+  // live sets the size help between the question and the fields, and offers
+  // nothing of the kind on the other two tabs
+  form.append(heading, ...(help ? [help] : []), grid, termsNote(), searchButton());
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     onSubmit();
@@ -234,27 +264,76 @@ function renderResults(container, products) {
   container.replaceChildren(count, list);
 }
 
+/**
+ * Live's "Where to find the sizes" help: the words, the help icon beside them,
+ * and live's own sidewall diagram behind both (#438). A reader who does not
+ * know their tire size has no way into this tab without it.
+ *
+ * Live hangs it on a `<b>` no keyboard reaches. This is a button carrying the
+ * same text and the same icon, so the rendered surface is live's and the
+ * control is operable, the same reasoning `tire-finder.js` gives for its own
+ * triggers.
+ */
+function sizeHelp() {
+  const help = document.createElement('div');
+  help.className = 'perfect-fit-help';
+
+  const tip = document.createElement('div');
+  tip.className = 'perfect-fit-help-tip';
+  tip.id = 'perfect-fit-help-tip';
+  tip.setAttribute('role', 'tooltip');
+  tip.hidden = true;
+  const diagram = document.createElement('img');
+  diagram.className = 'perfect-fit-help-diagram';
+  diagram.src = `${window.hlx.codeBasePath}/blocks/perfect-fit/tire-size-help.png`;
+  diagram.alt = 'Where to find the sizes';
+  diagram.width = 460;
+  diagram.height = 210;
+  diagram.loading = 'lazy';
+  tip.append(diagram);
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'perfect-fit-help-toggle';
+  button.setAttribute('aria-expanded', 'false');
+  button.setAttribute('aria-controls', tip.id);
+  const label = document.createElement('span');
+  label.className = 'perfect-fit-help-label';
+  // sentence case in the DOM, uppercased in CSS, as live does it
+  label.textContent = 'Where to find the sizes';
+  const icon = document.createElement('span');
+  icon.className = 'icon icon-help-circle';
+  button.append(label, icon);
+  button.addEventListener('click', () => {
+    const shown = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', String(!shown));
+    tip.hidden = shown;
+  });
+
+  help.append(button, tip);
+  decorateIcons(help);
+  return help;
+}
+
 function buildTireSizeForm(products, onResults) {
   const opts = sizeOptions(products);
   const width = createField('select', 'width', 'Width');
   fillSelect(width.field, opts.widths, 'Width');
   const aspect = createField('select', 'aspect', 'Aspect Ratio');
-  fillSelect(aspect.field, [], 'Aspect Ratio');
-  aspect.field.disabled = true;
   const rim = createField('select', 'rim', 'Rim Diameter');
-  fillSelect(rim.field, [], 'Rim Diameter');
-  rim.field.disabled = true;
-
-  width.field.addEventListener('change', () => {
-    fillSelect(aspect.field, opts.aspectsByWidth[width.field.value] || [], 'Aspect Ratio');
-    aspect.field.disabled = false;
-    fillSelect(rim.field, [], 'Rim Diameter');
-    rim.field.disabled = true;
-  });
-  aspect.field.addEventListener('change', () => {
-    fillSelect(rim.field, opts.rimsByWidthAspect[`${width.field.value}/${aspect.field.value}`] || [], 'Rim Diameter');
-    rim.field.disabled = false;
-  });
+  wireCascade([
+    { field: width.field, placeholder: 'Width' },
+    {
+      field: aspect.field,
+      placeholder: 'Aspect Ratio',
+      options: ([chosenWidth]) => opts.aspectsByWidth[chosenWidth] || [],
+    },
+    {
+      field: rim.field,
+      placeholder: 'Rim Diameter',
+      options: ([chosenWidth, chosenAspect]) => opts.rimsByWidthAspect[`${chosenWidth}/${chosenAspect}`] || [],
+    },
+  ]);
 
   const form = buildForm(
     'tire-size',
@@ -263,24 +342,29 @@ function buildTireSizeForm(products, onResults) {
     () => onResults(findBySize(products, {
       width: width.field.value, aspect: aspect.field.value, rim: rim.field.value,
     })),
+    sizeHelp(),
   );
   wireFormState(form);
   return form;
 }
 
-// live orders the vehicle fields make, model, year
+// live orders the vehicle fields make, model, year, and gates each behind the
+// one before it. Its fourth, Trim, waits on vehicle data this site does not
+// hold: #437 stays open on that, and the rule above is what a Trim inherits.
 function buildVehicleForm(products, onResults) {
   const make = createField('select', 'make', 'Make');
   fillSelect(make.field, Object.keys(VEHICLES), 'Make');
   const model = createField('select', 'model', 'Model');
-  fillSelect(model.field, [], 'Model');
-  model.field.disabled = true;
   const year = createField('select', 'year', 'Year');
-  fillSelect(year.field, YEARS, 'Year');
-  make.field.addEventListener('change', () => {
-    fillSelect(model.field, Object.keys(VEHICLES[make.field.value] || {}), 'Model');
-    model.field.disabled = false;
-  });
+  wireCascade([
+    { field: make.field, placeholder: 'Make' },
+    {
+      field: model.field,
+      placeholder: 'Model',
+      options: ([chosenMake]) => Object.keys(VEHICLES[chosenMake] || {}),
+    },
+    { field: year.field, placeholder: 'Year', options: () => YEARS },
+  ]);
   const form = buildForm(
     'vehicle',
     'What are you driving?',

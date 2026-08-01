@@ -279,6 +279,56 @@ body.perfect-fit-modal-open {
   text-align: center;
 }
 
+/* live's size help sits between the question and the fields, 12px under the one
+   and 28px above the other, where the question's own 20px would otherwise run
+   straight into the row (#438) */
+.perfect-fit-form-tire-size .perfect-fit-question {
+  margin-bottom: 12px;
+}
+
+.perfect-fit-help {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.perfect-fit-help-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--conti-white);
+  cursor: pointer;
+}
+
+.perfect-fit-help-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.25px;
+  line-height: 17px;
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+
+/* decorateIcons writes 16px onto the img, and live's disc is 20 */
+.perfect-fit-help-toggle .icon,
+.perfect-fit-help-toggle .icon img {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.perfect-fit-help-tip {
+  margin-top: 12px;
+}
+
+.perfect-fit-help-diagram {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+}
+
 .perfect-fit-form {
   width: 100%;
   max-width: 400px;
