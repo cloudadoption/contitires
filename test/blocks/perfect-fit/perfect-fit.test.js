@@ -452,6 +452,240 @@ describe('perfect-fit modal, rebuilt against live', () => {
   });
 });
 
+/*
+ * Live renders all four vehicle fields at once and gates them by DISABLING: at
+ * 1440 and 375 both, Make is enabled and Model, Year and Trim are visible and
+ * disabled. Issue #436 records the mechanism as one field showing at a time,
+ * which the reproduction disproved; a fix aimed at that would hide three
+ * controls live shows.
+ *
+ * These read the cascade rather than naming its members, so the Trim #437 wants
+ * is covered the day it lands rather than the day someone remembers to extend a
+ * list. Gating written per field and a field added later are each correct
+ * alone, which is the shape that got past #477 and #219.
+ */
+describe('perfect-fit, the cascade gates each field behind the one before it', () => {
+  let fetchStub;
+  const setField = (panel, name, value) => {
+    const el = panel.querySelector(`[name="${name}"]`);
+    el.value = value;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  const cascadeOf = (id) => [...panelOf(id).querySelectorAll('.perfect-fit-fields select')];
+  async function open(index = 0) {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, index);
+    return block;
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = stubSheets(CATALOGUE);
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('leaves only the head of the vehicle cascade available at rest', async () => {
+    await open();
+    const [head, ...rest] = cascadeOf('vehicle');
+    expect(head.disabled, `${head.name} leads the cascade`).to.be.false;
+    rest.forEach((field, i) => {
+      expect(field.disabled, `${field.name} waits for ${cascadeOf('vehicle')[i].name}`).to.be.true;
+    });
+  });
+
+  it('offers no options in a vehicle field it has not enabled', async () => {
+    await open();
+    cascadeOf('vehicle').slice(1).forEach((field) => {
+      const values = [...field.options].map((o) => o.value).filter(Boolean);
+      expect(values, `${field.name} holds no values while it is closed`).to.have.length(0);
+    });
+  });
+
+  it('opens one more vehicle field for each field that is answered', async () => {
+    await open();
+    const panel = panelOf('vehicle');
+    const answers = { make: 'Toyota', model: 'Camry', year: '2020' };
+    cascadeOf('vehicle').forEach((field, step) => {
+      const available = cascadeOf('vehicle').filter((f) => !f.disabled).map((f) => f.name);
+      expect(available, `after ${step} answers`).to.have.length(step + 1);
+      setField(panel, field.name, answers[field.name] || [...field.options][1].value);
+    });
+  });
+
+  it('closes the fields below a vehicle field that is answered again', async () => {
+    await open();
+    const panel = panelOf('vehicle');
+    setField(panel, 'make', 'Toyota');
+    setField(panel, 'model', 'Camry');
+    expect(cascadeOf('vehicle').filter((f) => f.disabled)).to.have.length(0);
+    setField(panel, 'make', 'Ford');
+    const shut = cascadeOf('vehicle').filter((f) => f.disabled).map((f) => f.name);
+    expect(shut, 'everything under the make closes again').to.deep.equal(['year']);
+  });
+
+  it('gates the tire size cascade by the same rule', async () => {
+    await open(1);
+    const [head, ...rest] = cascadeOf('tire-size');
+    expect(head.disabled, `${head.name} leads the cascade`).to.be.false;
+    rest.forEach((field) => {
+      expect(field.disabled, `${field.name} waits for the field before it`).to.be.true;
+    });
+    setField(panelOf('tire-size'), 'width', '225');
+    expect(cascadeOf('tire-size').filter((f) => !f.disabled).map((f) => f.name))
+      .to.deep.equal(['width', 'aspect']);
+  });
+});
+
+/*
+ * Live labels the size fields Width, Ratio and Diameter. Issue #482, read on
+ * live at 1440 and at 375, and read the same way three days earlier by #313.
+ *
+ * The name is written twice per field, once as the label and once as the empty
+ * control's own text, and this design shows the second one at rest. Both are
+ * asserted, because a field whose label and resting text disagree is a defect
+ * neither string can show on its own.
+ */
+describe('perfect-fit, the size fields carry live\'s names', () => {
+  let fetchStub;
+  const namesOf = (what) => [...panelOf('tire-size').querySelectorAll('.perfect-fit-field')]
+    .map((f) => (what === 'label'
+      ? f.querySelector('label').textContent
+      : f.querySelector('select').options[0].textContent));
+  async function open() {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+    return block;
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = stubSheets(CATALOGUE);
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('labels them the way live does', async () => {
+    await open();
+    expect(namesOf('label')).to.deep.equal(['Width', 'Ratio', 'Diameter']);
+  });
+
+  it('reads the same name inside the empty control', async () => {
+    await open();
+    expect(namesOf('option')).to.deep.equal(['Width', 'Ratio', 'Diameter']);
+  });
+
+  it('keeps the name when the cascade refills the field', async () => {
+    await open();
+    const panel = panelOf('tire-size');
+    const width = panel.querySelector('[name="width"]');
+    width.value = '225';
+    width.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(namesOf('option'), 'the copy the cascade writes').to.deep.equal(['Width', 'Ratio', 'Diameter']);
+  });
+});
+
+/*
+ * Live's By Tire Size tab carries a "Where to find the sizes" tooltip between
+ * the question and the fields, at 1440 and 375 both: a text target with a help
+ * icon, opening on live's own sidewall diagram. Issue #438.
+ *
+ * Live hangs it on a `<b>` no keyboard reaches. This is a button carrying the
+ * same text and the same icon, so the rendered surface is live's and the
+ * control is operable.
+ */
+describe('perfect-fit, where to find the sizes', () => {
+  let fetchStub;
+  const helpOf = (id) => panelOf(id).querySelector('.perfect-fit-help');
+  async function open(index = 1) {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, index);
+    return block;
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = stubSheets(CATALOGUE);
+  });
+  afterEach(() => fetchStub.restore());
+
+  // `!!` rather than `to.not.exist`, as the rest of this file does it: chai
+  // stringifies the value it was given when an assertion fails, and a live DOM
+  // node walks the document from the panel outwards. Written the other way,
+  // these two hang the runner for two minutes instead of failing, so the only
+  // thing they could ever report is a timeout.
+  it('offers the help on the size tab and on no other', async () => {
+    await open();
+    expect(!!helpOf('tire-size'), 'the size tab offers it').to.be.true;
+    expect(!!helpOf('vehicle'), 'the vehicle tab does not').to.be.false;
+    expect(!!helpOf('plate'), 'the plate tab does not').to.be.false;
+  });
+
+  it('reads live\'s words, with the help icon beside them', async () => {
+    await open();
+    const help = helpOf('tire-size');
+    expect(help.querySelector('.perfect-fit-help-label').textContent)
+      .to.equal('Where to find the sizes');
+    expect(help.querySelector('.icon-help-circle'), 'the icon live sets beside it').to.exist;
+  });
+
+  it('stands between the question and the fields, as live sets it', async () => {
+    await open();
+    const form = panelOf('tire-size').querySelector('.perfect-fit-form');
+    const order = [...form.children].map((el) => el.className.split(' ')[0]);
+    expect(order.indexOf('perfect-fit-help'))
+      .to.equal(order.indexOf('perfect-fit-question') + 1);
+    expect(order.indexOf('perfect-fit-fields'))
+      .to.equal(order.indexOf('perfect-fit-help') + 1);
+  });
+
+  it('opens the diagram on a control a keyboard reaches', async () => {
+    await open();
+    const help = helpOf('tire-size');
+    const button = help.querySelector('button');
+    expect(button, 'a button rather than live\'s bold text').to.exist;
+    expect(button.getAttribute('aria-expanded'), 'shut at rest').to.equal('false');
+    expect(help.querySelector('[role="tooltip"]').hidden, 'the diagram waits').to.be.true;
+    button.click();
+    expect(button.getAttribute('aria-expanded'), 'open on a click').to.equal('true');
+    expect(help.querySelector('[role="tooltip"]').hidden).to.be.false;
+  });
+
+  it('shows live\'s own sidewall diagram', async () => {
+    await open();
+    const image = helpOf('tire-size').querySelector('[role="tooltip"] img');
+    expect(image, 'the diagram itself').to.exist;
+    expect(image.getAttribute('src')).to.contain('tire-size-help');
+    expect(image.getAttribute('alt')).to.equal('Where to find the sizes');
+  });
+
+  /*
+   * Live's bubble carries a close button of its own, top right. The diagram is
+   * black lettering on transparency, so it reads only against the white bubble
+   * live draws behind it; on the dark panel the words disappear and the tire is
+   * all that survives.
+   */
+  it('shuts the bubble from the close control, and hands focus back', async () => {
+    await open();
+    const help = helpOf('tire-size');
+    const toggle = help.querySelector('.perfect-fit-help-toggle');
+    toggle.click();
+    const close = help.querySelector('.perfect-fit-help-close');
+    expect(!!close, 'the close control live puts in the bubble').to.be.true;
+    expect(close.getAttribute('aria-label')).to.equal('Close');
+    close.click();
+    expect(toggle.getAttribute('aria-expanded'), 'shut again').to.equal('false');
+    expect(help.querySelector('[role="tooltip"]').hidden).to.be.true;
+    // compared as a boolean for the reason given above: two DOM nodes either
+    // side of an equality hang the runner on the one run that matters, the
+    // failing one
+    expect(document.activeElement === toggle, 'focus goes back to the control that opened it')
+      .to.be.true;
+  });
+});
+
 // The DA sheet serves /products.json as a multi-sheet workbook: the product
 // rows live under products.data, with array fields flattened to comma strings.
 const WORKBOOK = {
