@@ -28,6 +28,17 @@ export const PRODUCTS_COLUMNS = ['slug', 'name'];
 export const CATALOG_COLUMNS = ['slug', 'rating', 'reviews'];
 
 /**
+ * The columns the product hero reads off the technology sheet. One row per
+ * technology rather than per product: the 14 names are a taxonomy the 34
+ * product pages draw on, and the `technology` column of the products sheet
+ * already names them per product.
+ *
+ * The description is live's own wording, carried verbatim. It is here rather
+ * than in the block because an author edits copy in DA and cannot reach code.
+ */
+export const TECHNOLOGY_COLUMNS = ['name', 'description'];
+
+/**
  * Which of the required columns no row of a sheet carries. A sheet with no
  * rows carries none of them.
  * @param {Array<Object>} rows the sheet's rows
