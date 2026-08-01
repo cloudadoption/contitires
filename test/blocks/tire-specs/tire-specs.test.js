@@ -694,12 +694,16 @@ describe('Tire specs, a sheet that does not carry its columns', () => {
 
   // a sheet that carries its columns and no row for this product is the
   // ordinary case for the six products live has no sizes for either
+  // waits for the picker rather than for the status line: band() writes the
+  // status synchronously, before the sheet has landed, so a wait on it read the
+  // console before the block could have written to it and the assertion below
+  // passed whatever the block did. Found by #434's connection check.
   it('draws the empty state, not an error, when the sheet is whole and the product has no rows', async () => {
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
     const block = buildInSection('purecontact-ls');
     decorate(block);
 
-    await when(() => block.querySelector('.tire-specs-status'));
+    await when(() => block.querySelector('.tire-specs-select option[disabled]'));
     expect(!!document.querySelector('.tire-specs-error'), 'no authoring error').to.be.false;
     expect(errors.called, 'console.error').to.be.false;
   });
