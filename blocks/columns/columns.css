@@ -272,6 +272,18 @@ main .columns.bar .button.secondary:focus-visible {
    number measured off live. (#411) */
 .columns.product-hero .product-hero-technology-logo {
   display: block;
+
+  /* `.columns img` at the top of this file runs an image to the full column, and
+     this rule set max-width and height and never contested `width`, so that
+     block-wide declaration applied unopposed and the logo drew at 327, 851, 406
+     and 588 against its own 215. `width: auto` contests it and nothing else
+     changes. The same file already answers this one rule earlier, at
+     `main .columns.bar .icon img`, for the same reason and with the same value.
+     That one pins a height because those icons are one display size; these six
+     share a 215 width and differ in height at 50, 82, 37, 38, 78 and 48, so
+     `height: auto` gives each its drawn size, which is what live does by writing
+     each image's own width and height. (#411) */
+  width: auto;
   max-width: 100%;
   height: auto;
   margin: 0 0 4px;
