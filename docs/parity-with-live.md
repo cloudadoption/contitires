@@ -134,7 +134,7 @@ the part that IS doable; the row says which half is which.
 |  | [Bazaarvoice](#bazaarvoice) | absent | ⚙️ reviews need the account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [EmbedSocial](#embedsocial) | absent | ⏳ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
-|  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. **THAT VERDICT IS ABOUT THE WIRING ONLY.** The form UI is a separate and doable thing — 26 inputs and 2 textareas, an EDS form block with submit disabled — and it is #101, which stays OPEN and pickable. This row cited #101 as though the issue were the geared thing; it is not, and closing it on this line would have closed real work under a verdict about the other half | [#101](https://github.com/cloudadoption/contitires/issues/101) |
+|  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. **THAT VERDICT IS #488 AND ONLY #488.** The two halves were one issue until 2026-08-01 and were split so they could stop sharing a verdict: #488 is the submission and closes here, #101 is the form UI — 26 inputs and 2 textareas, submit disabled — and stays OPEN and pickable. Nothing about the missing receiver blocks the rebuild. **A GEARED ROW DOES NOT MAKE EVERY ISSUE ON IT UNRESOLVABLE**, and this row cited #101 alone until the split, which would have closed real work under a verdict about the other half | [#488](https://github.com/cloudadoption/contitires/issues/488), [#101](https://github.com/cloudadoption/contitires/issues/101) |
 |  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **needs access to the API / data source.** Neither half is ours to build. A plate resolves through a registration lookup live buys and #243 established we do not have it. The vehicle half is different and the difference is recorded rather than hidden: **live's fitment IS publicly readable** — the cascade walks year to make to model to trim on an unauthenticated GET and returns the OE size, measured 2026-08-01, detail in the section below. **We do not take it.** Ruled 2026-08-01, and before that in #234: this site does not depend on, or harvest, a host it does not own. So the gap is real and closed as unresolvable, not parked as pending | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
@@ -679,9 +679,13 @@ inputs. The only `<form>` anywhere in our blocks is the header search, a GET to 
 
 What it costs a visitor: a racer cannot apply. The page explains the programme and then stops.
 
-What would close it, and what would not. The UI is buildable and [#101](https://github.com/cloudadoption/contitires/issues/101) is open for it. The
-submission is not, because a webform needs a receiver and live's is a Drupal endpoint on a host
-we do not own. A form that accepted a submission and dropped it would be worse than no form.
+What would close it, and what would not. **The two halves were split on 2026-08-01 so a verdict
+about one could not close the other.** The UI is buildable and
+[#101](https://github.com/cloudadoption/contitires/issues/101) is open and pickable for it. The
+submission is not buildable and is [#488](https://github.com/cloudadoption/contitires/issues/488),
+closed on this row: a webform needs a receiver and live's is a Drupal endpoint on a host we do not
+own. A form that accepted a submission and dropped it would be worse than no form, because a racer
+would believe they had applied.
 
 ### Vehicle and plate lookup
 
