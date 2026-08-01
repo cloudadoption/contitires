@@ -386,6 +386,71 @@ body.perfect-fit-modal-open {
   gap: 8px;
 }
 
+/* live's rear-size control, measured at 1440, 900 and 375 and the same at all
+   three: 12px uppercase words, underlined, 38px under the size row, white while
+   the control can be used and #949494 while it cannot (#313) */
+.perfect-fit-rear-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 38px auto 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--conti-white);
+  font-family: var(--heading-font-family);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 17px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.perfect-fit-rear-toggle:disabled {
+  color: var(--conti-dark-grey);
+  cursor: default;
+}
+
+.perfect-fit-rear-toggle:focus-visible {
+  outline: 2px solid var(--conti-yellow);
+  outline-offset: 2px;
+}
+
+/* live's two symbols stroke in currentColor, and this control draws them in two
+   colours, so the span is masked with the icon file rather than filled with a
+   drawing of its own: an img cannot take the colour beside it. 12 by 12 with
+   7.5px of air, which is live's icon--xs. */
+.perfect-fit-rear-toggle .icon {
+  width: 12px;
+  height: 12px;
+  margin-right: 7.5px;
+  background-color: currentcolor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.perfect-fit-rear-toggle .icon-plus-outline {
+  mask-image: url("../../icons/plus-outline.svg");
+}
+
+.perfect-fit-rear-toggle .icon-minus-outline {
+  mask-image: url("../../icons/minus-outline.svg");
+}
+
+/* the second row sits 38px under the control, on the grid the first row uses.
+   The display: grid above beats the browser's own [hidden] rule, so the closed
+   row needs this line or it draws three empty fields. */
+.perfect-fit-form-tire-size .perfect-fit-fields-rear {
+  margin-top: 38px;
+}
+
+.perfect-fit-fields-rear[hidden] {
+  display: none;
+}
+
 /* the field name reads inside the control while it is empty and floats into the
    12px strip above it once a value lands, which keeps the row 56px tall either
    way, as live does */
