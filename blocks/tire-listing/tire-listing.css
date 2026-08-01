@@ -485,6 +485,61 @@
 /* ---------- tablet and up ---------- */
 
 @media (width >= 600px) {
+  .tire-listing .tire-listing-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tire-listing .tire-listing-status {
+    align-self: auto;
+  }
+
+  .tire-listing .tire-listing-count {
+    text-align: left;
+  }
+
+  .tire-listing .tire-listing-tools {
+    justify-content: flex-end;
+    gap: 20px;
+    margin-top: 0;
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .tire-listing .tire-listing-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .tire-listing .tire-listing-pages {
+    margin-top: 0;
+  }
+}
+
+/* ---------- desktop: the filter panel becomes a column ---------- */
+
+/* 769 is LIVE'S step for the count and not the site's 600 or 900, on purpose:
+   live writes 24px on 32px under its own `max-width: 768`, so the large pair
+   starts one pixel above that cap. Stepping at 900 would render 24px across 769
+   to 900 where live is already at 30px. Do not tidy this into the scale. #421
+
+   THE CARD TURNS HERE TOO, AND FOR THE SAME REASON (#423). Live scopes twelve
+   `tire-teaser` rules under that one `max-width: 768`: its card is a ROW by
+   default and a COLUMN below the cap. Ours was written the other way round, a
+   column turning into a row and a grid, and it turned at the site's 600, so
+   between 600 and 768 the two cards were different shapes. The values on both
+   sides already agreed and only the boundary moved. 768 is iPad portrait, so
+   the one-pixel overlap lands on a real device rather than a hypothetical one.
+   Do not tidy either of these into the 600/900/1200 scale. */
+@media (width >= 769px) {
+  .tire-listing .tire-listing-count {
+    font-size: var(--heading-font-size-xl);
+    line-height: 38px;
+  }
+
   .tire-listing .tire-listing-card {
     flex-direction: row;
     align-items: flex-start;
@@ -514,8 +569,10 @@
     padding-top: 8px;
   }
 
-  /* the LAYOUT half stays at 600 with the rest of the card grid. The type half
-     moved to live's own 1025 step, in the block further down. #422 */
+  /* the LAYOUT half of the title, parked at 600 by #422 for this slice. Its
+     TYPE half is at live's own 1025 step further down and is not touched here.
+     Live centres the title under 768 and leaves it alone above, so the override
+     belongs on the card's boundary. */
   .tire-listing .tire-listing-card-title {
     grid-area: title;
     text-align: left;
@@ -556,52 +613,6 @@
     width: auto;
     margin: -20px 0 0 16px;
     padding: 12px 26px;
-  }
-
-  .tire-listing .tire-listing-header {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .tire-listing .tire-listing-status {
-    align-self: auto;
-  }
-
-  .tire-listing .tire-listing-count {
-    text-align: left;
-  }
-
-  .tire-listing .tire-listing-tools {
-    justify-content: flex-end;
-    gap: 20px;
-    margin-top: 0;
-    border-top: 0;
-    padding-top: 0;
-  }
-
-  .tire-listing .tire-listing-pager {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: left;
-  }
-
-  .tire-listing .tire-listing-pages {
-    margin-top: 0;
-  }
-}
-
-/* ---------- desktop: the filter panel becomes a column ---------- */
-
-/* 769 is LIVE'S step for the count and not the site's 600 or 900, on purpose:
-   live writes 24px on 32px under its own `max-width: 768`, so the large pair
-   starts one pixel above that cap. Stepping at 900 would render 24px across 769
-   to 900 where live is already at 30px. Do not tidy this into the scale. #421 */
-@media (width >= 769px) {
-  .tire-listing .tire-listing-count {
-    font-size: var(--heading-font-size-xl);
-    line-height: 38px;
   }
 }
 
