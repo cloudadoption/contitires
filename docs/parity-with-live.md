@@ -1060,7 +1060,7 @@ Two details of that change are deliberate and are not defects. The fragment's he
 level below the homepage's, because the bar is injected into pages that have their own heading
 hierarchy. Its noindex metadata is untouched.
 
-Three campaign pages keep live's rebate copy. That is a decision, not outstanding work: Ben
+Three campaign pages keep live's rebate copy. That is a decision, not outstanding work: the human
 ruled on 2026-07-30 to leave `/promotion`, `/promotionended` and `/offers` alone.
 
 The single rule asks one thing. Does the site read as a real offer, assert Continental's
