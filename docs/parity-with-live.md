@@ -127,7 +127,7 @@ API, a vendor account or an index configuration.
 |  | [EmbedSocial](#embedsocial) | absent | ⏳ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
 |  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ no receiver for a submission | [#101](https://github.com/cloudadoption/contitires/issues/101) |
-|  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ waiting on a fitment API | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309) |
+|  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **the gear is the plate half only.** A plate resolves through a registration lookup live buys and we do not have (#243). **THE VEHICLE HALF IS NOT GEARED AND THIS ROW SAID IT WAS UNTIL 2026-08-01: the fitment answer is PUBLIC.** `/api/tire-search/by-vehicle` walks to the OE size on a plain unauthenticated GET, read that day: 48 model years bare, 45 makes at `?year=2022`, 9 models at `&make=honda`, 9 trims at `&model=accord`, and `&trim=ex-l` returns **225/50 R17**. Vehicle-specific, controlled: a 2022 Civic gives 215/50 R17 and a 2022 Bronco Badlands 285/70 R17, a bogus trim gives 0 options and a bogus path 404s. So what blocks the vehicle half is a DECISION, not access: whether this site depends on, or harvests, a host it does not own (#234). Roughly 2,200 requests to harvest | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
@@ -677,15 +677,20 @@ we do not own. A form that accepted a submission and dropped it would be worse t
 
 ### Vehicle and plate lookup
 
-**approximated.** A stub on sample data, waiting on an API. Live's answer is not readable from
-outside.
+**approximated.** A stub on sample data. **Live's answer IS readable from outside, and this
+section said the opposite until 2026-08-01.**
 
 The two halves of this split cleanly and it is worth keeping them apart. Live's vehicle *tree*
 is public: `continentaltire.com/api/tire-search/by-vehicle` is an unauthenticated JSON endpoint
 that walks level by level. Curled on 2026-07-30 it returns 48 model years, 2027 down to 1980.
-`?year=2022` returns 45 makes. Adding `&make=honda` returns 9 models. What that endpoint does
-not return is the *fitment answer*, which tires fit that vehicle, and that is the part live
-resolves against a licensed data set we cannot see.
+`?year=2022` returns 45 makes. Adding `&make=honda` returns 9 models.
+
+**IT ALSO RETURNS THE FITMENT ANSWER, WHICH THIS SECTION DENIED FOR AS LONG AS IT HAS EXISTED.**
+The walk does not stop at model. `&model=accord` returns 9 trims, and `&trim=ex-l` returns
+**225/50 R17** — the OE size for that vehicle, from an unauthenticated GET. Measured 2026-08-01
+with the control that matters, because a constant would read identically: a 2022 Civic gives
+215/50 R17 and a 2022 Bronco Badlands gives 285/70 R17, a bogus trim gives 0 options, and a bogus
+path 404s. There is no licensed data set standing between us and the fit.
 
 Ours is a hand-written table of 6 makes and 17 models standing in for the tree, and a season
 filter standing in for the fit. By Plate collects a plate and a state and uses neither. It
@@ -697,23 +702,32 @@ reader who types a plate gets a season filter rather than a fit.
 [#307](https://github.com/cloudadoption/contitires/issues/307) already made the labels honest,
 so nobody is told the plate was read.
 
-Where this is left, and why. The tree could be widened from live's public endpoint, and that
-would make the dropdowns look right while the answer underneath stayed a stand-in. That is a
-worse position than the current one, because it hides the stub behind a convincing front. It
-stays as it is until there is a real fitment API to hook up, and the registration lookup behind
-By Plate needs one too. [#308](https://github.com/cloudadoption/contitires/issues/308),
+Where this is left, and why. **The old reasoning here was that widening the tree would make the
+dropdowns look right while the answer underneath stayed a stand-in, hiding the stub behind a
+convincing front. That argument rested on the fit being unavailable, and it is not**, so widening
+the tree can carry the real OE size with it rather than a season filter dressed up as one.
+
+What is left is a decision rather than a blocker: **whether this site depends on, or harvests, a
+host it does not own.** That is #234's question and it is unanswered. The harvest is roughly 2,200
+requests (one for the years, 48 for the makes, 48 x ~45 for the models) against a host we do not
+own, and guardrail 1 allows *modest* request volume, so either route carries a budget and a rate
+limit. **By Plate is different and stays geared**: a registration lookup is a service live buys,
+#243 established we do not have it, and no amount of work here reproduces it. [#308](https://github.com/cloudadoption/contitires/issues/308),
 [#309](https://github.com/cloudadoption/contitires/issues/309).
 
-**The 2229 drill-down URLs live serves and we answer 404 stay a documented gap, and the reason is
-this same missing fitment service rather than routing.** Live publishes a page per make and per
+**The 2229 drill-down URLs live serves and we answer 404 stay a documented gap. THE REASON IS NOT A
+MISSING FITMENT SERVICE — that was this document's answer until 2026-08-01 and the fit is public —
+it is the wildcard limit below, plus our own table's coverage, which is #308 and is a decision.**
+Live publishes a page per make and per
 make-and-model under `/tire-search/by-vehicle/`. Three forms of fix were measured and each is ruled
 out rather than merely unattempted. A wildcard redirect is not available: the redirects sheet holds
 0 wildcards across 77 rows, and Edge Delivery routes wildcard matching to a CDN rule that needs a
 `cdn.yaml` and a custom domain this project does not have. Enumerating the 2229 as real rows would
-not deliver live's surface either, because live's page is the finder filled from the fitment data
-set, and our table covers 6 makes and 17 models, so 2213 of the 2229 would resolve to a page that
-answers nothing. That is the same trade this section already refuses one paragraph up: a convincing
-front over a stub is worse than an honest miss.
+not deliver live's surface today, because live's page is the finder filled from the fitment data
+set and our table covers 6 makes and 17 models, so 2213 of the 2229 would resolve to a page that
+answers nothing. **That last clause is contingent rather than permanent**: it is our table's
+coverage talking, and widening it is #308, which is gated on the #234 decision and not on access.
+The wildcard finding above is the part that holds whatever is decided.
 
 Probing that tree needs care, and the care is specific. `/tire-search/by-vehicle/honda/zzznotamodel`
 returns 200 with the *identical* title to `/tire-search/by-vehicle/honda`, because a bad model falls
