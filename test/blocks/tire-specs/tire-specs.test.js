@@ -737,8 +737,8 @@ describe('Tire specs, an outage told apart from a product with no sizes', () => 
     await settled(block);
 
     expect(errors.called, 'console.error').to.be.true;
-    expect(String(errors.firstCall.args[0]), 'names the block and what failed')
-      .to.contain('tire-specs').and.to.contain('could not be read');
+    expect(String(errors.firstCall.args[0]), 'names the block and both sources')
+      .to.contain('tire-specs').and.to.contain('specs sheet').and.to.contain('/product-specs.json');
   });
 
   it('leaves the reader the same empty picker, and no message on the page', async () => {

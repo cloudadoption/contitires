@@ -12,12 +12,21 @@ const CATALOG_URL = '/products.json?sheet=catalog&limit=10000';
  * not a product nobody has rated, so it comes back as an error the band shows
  * rather than a band that quietly leaves. Issue #122 is the same shape on the
  * specs sheet.
+ *
+ * A sheet that cannot be read at all is neither of those. It is an outage, and
+ * it used to return an empty object, which fill read as a product with no
+ * rating: the band took itself away and nothing anywhere said a fetch had
+ * failed. It comes back as `unreadable` now, which is the error the band does
+ * not show. Issue #434.
  * @param {string} slug the product slug
- * @returns {Promise<{row?: Object, error?: string}>} the row, or what is wrong
+ * @returns {Promise<{row?: Object, error?: string, unreadable?: boolean}>} the
+ * row, or what is wrong
  */
 async function loadRating(slug) {
   const resp = await fetch(CATALOG_URL);
-  if (!resp.ok) return {};
+  if (!resp.ok) {
+    return { error: `the catalog sheet could not be read (HTTP ${resp.status})`, unreadable: true };
+  }
   const rows = sheetRows(await resp.json(), 'catalog');
   const missing = missingColumns(rows, CATALOG_COLUMNS);
   if (missing.length) {
@@ -49,7 +58,8 @@ function stars(rating) {
  * fills that case with a write-a-review control, which is the service and not
  * ours to offer.
  * @param {Element} block the tire-rating block
- * @param {{row?: Object, error?: string}} result what the sheet answered
+ * @param {{row?: Object, error?: string, unreadable?: boolean}} result what the
+ * sheet answered
  */
 function fill(block, result) {
   const heading = document.createElement('h2');
@@ -58,6 +68,13 @@ function fill(block, result) {
   if (result.error) {
     // eslint-disable-next-line no-console
     console.error(`tire-rating: ${result.error}`);
+    // an outage is the reader's business only in that a broken band is worse
+    // than none, so it leaves what an unrated product leaves and the line above
+    // is what separates the two
+    if (result.unreadable) {
+      (block.closest('.tire-rating-container') || block).remove();
+      return;
+    }
     const message = document.createElement('p');
     message.className = 'tire-rating-error';
     message.textContent = `Ratings are unavailable: ${result.error}.`;
@@ -105,6 +122,6 @@ export default function decorate(block) {
   const slug = authored || window.location.pathname.replace(/\/$/, '').split('/').pop();
 
   return loadRating(slug)
-    .catch(() => ({}))
+    .catch((e) => ({ error: `the catalog sheet could not be read (${e.message})`, unreadable: true }))
     .then((result) => fill(block, result));
 }
