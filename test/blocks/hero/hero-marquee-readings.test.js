@@ -137,7 +137,7 @@ describe('Hero marquee tracking, as it renders', () => {
     expect(tracking()).to.equal('6px');
   });
 
-  it("still renders 6px at the width the parity pairs were taken at", async () => {
+  it('still renders 6px at the width the parity pairs were taken at', async () => {
     await setViewport({ width: 1440, height: 900 });
     expect(tracking()).to.equal('6px');
   });
