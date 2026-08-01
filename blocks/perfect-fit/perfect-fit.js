@@ -476,7 +476,11 @@ function listCell(value) {
 async function loadSpecSizes() {
   try {
     const resp = await fetch(SPECS_URL);
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      // eslint-disable-next-line no-console
+      console.error(`perfect-fit: the specs sheet could not be read (HTTP ${resp.status}), so the finder is reading the products.sizes cell instead`);
+      return null;
+    }
     const rows = sheetRows(await resp.json());
     const missing = missingColumns(rows, SPECS_COLUMNS);
     if (missing.length) {
@@ -486,6 +490,8 @@ async function loadSpecSizes() {
     }
     return sizesBySlug(rows);
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(`perfect-fit: the specs sheet could not be read (${e.message}), so the finder is reading the products.sizes cell instead`);
     return null;
   }
 }
@@ -494,7 +500,11 @@ async function loadSpecSizes() {
 async function loadProducts() {
   try {
     const [resp, specSizes] = await Promise.all([fetch(PRODUCTS_URL), loadSpecSizes()]);
-    if (!resp.ok) return [];
+    if (!resp.ok) {
+      // eslint-disable-next-line no-console
+      console.error(`perfect-fit: the products sheet could not be read (HTTP ${resp.status}), so the finder has no tires to search`);
+      return [];
+    }
     const json = await resp.json();
     // support all three shapes: a single-sheet response (data), the whole
     // multi-sheet workbook (products.data), and the legacy single-object
@@ -518,6 +528,8 @@ async function loadProducts() {
     }
     return products;
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(`perfect-fit: the products sheet could not be read (${e.message}), so the finder has no tires to search`);
     return [];
   }
 }

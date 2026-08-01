@@ -741,8 +741,14 @@ describe('Tire specs, an outage told apart from a product with no sizes', () => 
     await settled(block);
 
     expect(errors.called, 'console.error').to.be.true;
-    expect(String(errors.firstCall.args[0]), 'names the block and both sources')
-      .to.contain('tire-specs').and.to.contain('specs sheet').and.to.contain('/product-specs.json');
+    // read across the calls rather than the first: #475 added a line in
+    // loadRows for the sheet's own failure, which now lands ahead of this one
+    const said = errors.getCalls().map((call) => String(call.args[0]));
+    expect(said.some((line) => line.includes('tire-specs')), 'names the block').to.be.true;
+    expect(
+      said.some((line) => line.includes('specs sheet') && line.includes('/product-specs.json')),
+      'one line names both sources',
+    ).to.be.true;
   });
 
   it('leaves the reader the same empty picker, and no message on the page', async () => {

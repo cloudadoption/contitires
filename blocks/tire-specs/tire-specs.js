@@ -21,7 +21,15 @@ async function loadRows(url) {
   do {
     // eslint-disable-next-line no-await-in-loop
     const resp = await fetch(`${url}&limit=${PAGE_SIZE}&offset=${rows.length}`);
-    if (!resp.ok) break;
+    if (!resp.ok) {
+      // the fallback below still runs and still returns what it returned. This
+      // says the sheet failed, which a legacy file that answers would otherwise
+      // hide behind an empty picker no reader can tell from a product with no
+      // sizes. #475
+      // eslint-disable-next-line no-console
+      console.error(`tire-specs: the specs sheet could not be read (HTTP ${resp.status}) after ${rows.length} row(s), so the legacy file is read instead`);
+      break;
+    }
     // eslint-disable-next-line no-await-in-loop
     const data = await resp.json();
     const page = data.data || (data.specs && data.specs.data);
