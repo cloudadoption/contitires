@@ -101,6 +101,14 @@ In the last column, ⏳ is work yet to come: queued, in flight, or named and not
 ✅ is settled: done, deliberate, or decided and needing nothing. ⚙️ needs something from inside live that the public site does not hand out, such as an
 API, a vendor account or an index configuration.
 
+**⚙️ IS A VERDICT, NOT A WAITING STATE (ruled 2026-08-01, and first ruled in #234 on 2026-07-29).**
+A geared row is a gap that cannot be closed here. Its reason is `needs access to the API / data
+source`, and the issues that depend on it CLOSE on the row rather than sitting in the queue looking
+like work somebody could pick up. **Reachable is not the same as ours to take**: where live's data
+can be read from outside, the ruling is that we do not harvest it, so the row still reads `needs
+access`. An issue may be cited on a geared row and still be open, but only where its own scope is
+the part that IS doable; the row says which half is which.
+
 | Bucket | Item | State | Will it be fixed | Issue |
 |---|---|---|---|---|
 | Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | ✅ the census is answered; a sheet still cannot match by shape, and two paths cannot be reached at all | [#337](https://github.com/cloudadoption/contitires/issues/337), [#465](https://github.com/cloudadoption/contitires/issues/465) |
@@ -126,8 +134,8 @@ API, a vendor account or an index configuration.
 |  | [Bazaarvoice](#bazaarvoice) | absent | ⚙️ reviews need the account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [EmbedSocial](#embedsocial) | absent | ⏳ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
-|  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ no receiver for a submission | [#101](https://github.com/cloudadoption/contitires/issues/101) |
-|  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **the gear is the plate half only.** A plate resolves through a registration lookup live buys and we do not have (#243). **THE VEHICLE HALF IS NOT GEARED AND THIS ROW SAID IT WAS UNTIL 2026-08-01: the fitment answer is PUBLIC.** `/api/tire-search/by-vehicle` walks to the OE size on a plain unauthenticated GET, read that day: 48 model years bare, 45 makes at `?year=2022`, 9 models at `&make=honda`, 9 trims at `&model=accord`, and `&trim=ex-l` returns **225/50 R17**. Vehicle-specific, controlled: a 2022 Civic gives 215/50 R17 and a 2022 Bronco Badlands 285/70 R17, a bogus trim gives 0 options and a bogus path 404s. So what blocks the vehicle half is a DECISION, not access: whether this site depends on, or harvests, a host it does not own (#234). Roughly 2,200 requests to harvest | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
+|  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. **THAT VERDICT IS ABOUT THE WIRING ONLY.** The form UI is a separate and doable thing — 26 inputs and 2 textareas, an EDS form block with submit disabled — and it is #101, which stays OPEN and pickable. This row cited #101 as though the issue were the geared thing; it is not, and closing it on this line would have closed real work under a verdict about the other half | [#101](https://github.com/cloudadoption/contitires/issues/101) |
+|  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **needs access to the API / data source.** Neither half is ours to build. A plate resolves through a registration lookup live buys and #243 established we do not have it. The vehicle half is different and the difference is recorded rather than hidden: **live's fitment IS publicly readable** — the cascade walks year to make to model to trim on an unauthenticated GET and returns the OE size, measured 2026-08-01, detail in the section below. **We do not take it.** Ruled 2026-08-01, and before that in #234: this site does not depend on, or harvest, a host it does not own. So the gap is real and closed as unresolvable, not parked as pending | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
@@ -707,12 +715,22 @@ dropdowns look right while the answer underneath stayed a stand-in, hiding the s
 convincing front. That argument rested on the fit being unavailable, and it is not**, so widening
 the tree can carry the real OE size with it rather than a season filter dressed up as one.
 
-What is left is a decision rather than a blocker: **whether this site depends on, or harvests, a
-host it does not own.** That is #234's question and it is unanswered. The harvest is roughly 2,200
-requests (one for the years, 48 for the makes, 48 x ~45 for the models) against a host we do not
-own, and guardrail 1 allows *modest* request volume, so either route carries a budget and a rate
-limit. **By Plate is different and stays geared**: a registration lookup is a service live buys,
-#243 established we do not have it, and no amount of work here reproduces it. [#308](https://github.com/cloudadoption/contitires/issues/308),
+**THE DECISION IS MADE AND IT IS NO: WE DO NOT HARVEST.** Ruled 2026-08-01, and before that in
+#234 on 2026-07-29. This site does not depend on, or harvest, a host it does not own, and that
+holds whether or not the data can be read. For scale, the harvest would have been roughly 2,200
+requests (one for the years, 48 for the makes, 48 x ~45 for the models), against guardrail 1's
+*modest* volume.
+
+**So this is a gap that cannot close, not a gap waiting on something.** The distinction matters
+for what the record says: we could read live's fitment and chose not to take it, which is a
+different sentence from being unable to see it, and this document said the second one until
+2026-08-01. #308 and #309 close on this line, and #437 with them: our own workbook carries no year
+and no trim dimension for any vehicle, not merely beyond the 17 models we cover. Its three sheets
+hold `vehicleTypes` as a coarse class and no vehicle-to-size mapping at all, and the finder's Year
+select is a generated `range(2015, 2026)` with nothing behind it.
+
+**By Plate never had a route either**: a registration lookup is a service live buys, #243
+established we do not have it, and no amount of work here reproduces it. [#308](https://github.com/cloudadoption/contitires/issues/308),
 [#309](https://github.com/cloudadoption/contitires/issues/309).
 
 **The 2229 drill-down URLs live serves and we answer 404 stay a documented gap. THE REASON IS NOT A
