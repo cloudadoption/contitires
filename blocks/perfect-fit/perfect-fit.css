@@ -168,14 +168,18 @@ main > .section.perfect-fit-host > div {
   text-align: center;
 }
 
+/* live draws each glyph in a 32 by 32 box and lets preserveAspectRatio fit the
+   drawing inside it, so its three viewBoxes, 32x17, 28x28 and 30x18, all take
+   the same room. `contain` is that fit. */
 .perfect-fit-card-list .icon {
-  height: 26px;
-  width: auto;
+  height: 32px;
+  width: 32px;
 }
 
 .perfect-fit-card-list .icon img {
   height: 100%;
-  width: auto;
+  width: 100%;
+  object-fit: contain;
 }
 
 /* tire-finder modal, opened from the perfect-fit items above. Live renders it
