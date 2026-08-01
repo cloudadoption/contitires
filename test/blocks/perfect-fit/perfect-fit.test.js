@@ -452,6 +452,163 @@ describe('perfect-fit modal, rebuilt against live', () => {
   });
 });
 
+/*
+ * Live renders all four vehicle fields at once and gates them by DISABLING: at
+ * 1440 and 375 both, Make is enabled and Model, Year and Trim are visible and
+ * disabled. Issue #436 records the mechanism as one field showing at a time,
+ * which the reproduction disproved; a fix aimed at that would hide three
+ * controls live shows.
+ *
+ * These read the cascade rather than naming its members, so the Trim #437 wants
+ * is covered the day it lands rather than the day someone remembers to extend a
+ * list. Gating written per field and a field added later are each correct
+ * alone, which is the shape that got past #477 and #219.
+ */
+describe('perfect-fit, the cascade gates each field behind the one before it', () => {
+  let fetchStub;
+  const setField = (panel, name, value) => {
+    const el = panel.querySelector(`[name="${name}"]`);
+    el.value = value;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  const cascadeOf = (id) => [...panelOf(id).querySelectorAll('.perfect-fit-fields select')];
+  async function open(index = 0) {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, index);
+    return block;
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = stubSheets(CATALOGUE);
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('leaves only the head of the vehicle cascade available at rest', async () => {
+    await open();
+    const [head, ...rest] = cascadeOf('vehicle');
+    expect(head.disabled, `${head.name} leads the cascade`).to.be.false;
+    rest.forEach((field, i) => {
+      expect(field.disabled, `${field.name} waits for ${cascadeOf('vehicle')[i].name}`).to.be.true;
+    });
+  });
+
+  it('offers no options in a vehicle field it has not enabled', async () => {
+    await open();
+    cascadeOf('vehicle').slice(1).forEach((field) => {
+      const values = [...field.options].map((o) => o.value).filter(Boolean);
+      expect(values, `${field.name} holds no values while it is closed`).to.have.length(0);
+    });
+  });
+
+  it('opens one more vehicle field for each field that is answered', async () => {
+    await open();
+    const panel = panelOf('vehicle');
+    const answers = { make: 'Toyota', model: 'Camry', year: '2020' };
+    cascadeOf('vehicle').forEach((field, step) => {
+      const available = cascadeOf('vehicle').filter((f) => !f.disabled).map((f) => f.name);
+      expect(available, `after ${step} answers`).to.have.length(step + 1);
+      setField(panel, field.name, answers[field.name] || [...field.options][1].value);
+    });
+  });
+
+  it('closes the fields below a vehicle field that is answered again', async () => {
+    await open();
+    const panel = panelOf('vehicle');
+    setField(panel, 'make', 'Toyota');
+    setField(panel, 'model', 'Camry');
+    expect(cascadeOf('vehicle').filter((f) => f.disabled)).to.have.length(0);
+    setField(panel, 'make', 'Ford');
+    const shut = cascadeOf('vehicle').filter((f) => f.disabled).map((f) => f.name);
+    expect(shut, 'everything under the make closes again').to.deep.equal(['year']);
+  });
+
+  it('gates the tire size cascade by the same rule', async () => {
+    await open(1);
+    const [head, ...rest] = cascadeOf('tire-size');
+    expect(head.disabled, `${head.name} leads the cascade`).to.be.false;
+    rest.forEach((field) => {
+      expect(field.disabled, `${field.name} waits for the field before it`).to.be.true;
+    });
+    setField(panelOf('tire-size'), 'width', '225');
+    expect(cascadeOf('tire-size').filter((f) => !f.disabled).map((f) => f.name))
+      .to.deep.equal(['width', 'aspect']);
+  });
+});
+
+/*
+ * Live's By Tire Size tab carries a "Where to find the sizes" tooltip between
+ * the question and the fields, at 1440 and 375 both: a text target with a help
+ * icon, opening on live's own sidewall diagram. Issue #438.
+ *
+ * Live hangs it on a `<b>` no keyboard reaches. This is a button carrying the
+ * same text and the same icon, so the rendered surface is live's and the
+ * control is operable.
+ */
+describe('perfect-fit, where to find the sizes', () => {
+  let fetchStub;
+  const helpOf = (id) => panelOf(id).querySelector('.perfect-fit-help');
+  async function open(index = 1) {
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, index);
+    return block;
+  }
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    fetchStub = stubSheets(CATALOGUE);
+  });
+  afterEach(() => fetchStub.restore());
+
+  it('offers the help on the size tab and on no other', async () => {
+    await open();
+    expect(helpOf('tire-size'), 'the size tab offers it').to.exist;
+    expect(helpOf('vehicle'), 'the vehicle tab does not').to.not.exist;
+    expect(helpOf('plate'), 'the plate tab does not').to.not.exist;
+  });
+
+  it('reads live\'s words, with the help icon beside them', async () => {
+    await open();
+    const help = helpOf('tire-size');
+    expect(help.querySelector('.perfect-fit-help-label').textContent)
+      .to.equal('Where to find the sizes');
+    expect(help.querySelector('.icon-help-circle'), 'the icon live sets beside it').to.exist;
+  });
+
+  it('stands between the question and the fields, as live sets it', async () => {
+    await open();
+    const form = panelOf('tire-size').querySelector('.perfect-fit-form');
+    const order = [...form.children].map((el) => el.className.split(' ')[0]);
+    expect(order.indexOf('perfect-fit-help'))
+      .to.equal(order.indexOf('perfect-fit-question') + 1);
+    expect(order.indexOf('perfect-fit-fields'))
+      .to.equal(order.indexOf('perfect-fit-help') + 1);
+  });
+
+  it('opens the diagram on a control a keyboard reaches', async () => {
+    await open();
+    const help = helpOf('tire-size');
+    const button = help.querySelector('button');
+    expect(button, 'a button rather than live\'s bold text').to.exist;
+    expect(button.getAttribute('aria-expanded'), 'shut at rest').to.equal('false');
+    expect(help.querySelector('[role="tooltip"]').hidden, 'the diagram waits').to.be.true;
+    button.click();
+    expect(button.getAttribute('aria-expanded'), 'open on a click').to.equal('true');
+    expect(help.querySelector('[role="tooltip"]').hidden).to.be.false;
+  });
+
+  it('shows live\'s own sidewall diagram', async () => {
+    await open();
+    const image = helpOf('tire-size').querySelector('[role="tooltip"] img');
+    expect(image, 'the diagram itself').to.exist;
+    expect(image.getAttribute('src')).to.contain('tire-size-help');
+    expect(image.getAttribute('alt')).to.equal('Where to find the sizes');
+  });
+});
+
 // The DA sheet serves /products.json as a multi-sheet workbook: the product
 // rows live under products.data, with array fields flattened to comma strings.
 const WORKBOOK = {
