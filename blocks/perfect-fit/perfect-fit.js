@@ -331,18 +331,19 @@ function buildTireSizeForm(products, onResults) {
   const opts = sizeOptions(products);
   const width = createField('select', 'width', 'Width');
   fillSelect(width.field, opts.widths, 'Width');
-  const aspect = createField('select', 'aspect', 'Aspect Ratio');
-  const rim = createField('select', 'rim', 'Rim Diameter');
+  // live names these three Width, Ratio and Diameter (#482)
+  const aspect = createField('select', 'aspect', 'Ratio');
+  const rim = createField('select', 'rim', 'Diameter');
   wireCascade([
     { field: width.field, placeholder: 'Width' },
     {
       field: aspect.field,
-      placeholder: 'Aspect Ratio',
+      placeholder: 'Ratio',
       options: ([chosenWidth]) => opts.aspectsByWidth[chosenWidth] || [],
     },
     {
       field: rim.field,
-      placeholder: 'Rim Diameter',
+      placeholder: 'Diameter',
       options: ([chosenWidth, chosenAspect]) => opts.rimsByWidthAspect[`${chosenWidth}/${chosenAspect}`] || [],
     },
   ]);
