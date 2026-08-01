@@ -398,6 +398,10 @@ main .section.hero-container {
   .hero.left .hero-content {
     text-align: left;
   }
+
+  .hero.left:not(.stacked) .hero-content h1 {
+    letter-spacing: 6px;
+  }
 }
 
 .hero.left .hero-content .hero-ctas {
@@ -519,6 +523,19 @@ main .section.hero-container {
 .hero.stacked .hero-content h1 {
   font-size: 30px;
   line-height: 36px;
+}
+
+/* live tracks the marquee title out, and the tracking is on its own
+   `span.text-uppercase` rather than on the h1: live's h1 computes `normal` on
+   every page read. Our titles carry no span, so the rule goes on the h1.
+   5px below live's step and 6px above, bracketed at 1024 and 1025 on /tires.
+   `:not(.stacked)` where #408 needed none: live tracks nothing on /experience,
+   so reaching that variant would open a divergence rather than close one.
+   It sits after the `stacked` heading rather than beside its own variant
+   because `:not()` scores a class and stylelint reads the other order as
+   descending specificity. #407 */
+.hero.left:not(.stacked) .hero-content h1 {
+  letter-spacing: 5px;
 }
 
 /* live divides the marquee at 160 rather than 200 on a page whose marquee
