@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it afterEach */
+/* global describe it beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
@@ -146,14 +146,6 @@ describe('tire-rating', () => {
     expect(!!document.querySelector('.tire-rating')).to.be.false;
   });
 
-  it('takes the band away when the sheet cannot be read', async () => {
-    stubFetch(CATALOG, false);
-    const block = build('4x4contact');
-    await decorate(block);
-
-    expect(!!document.querySelector('.tire-rating')).to.be.false;
-  });
-
   it('reads the slug off the path when no cell is authored', async () => {
     stubFetch(CATALOG);
     document.body.innerHTML = '<div class="tire-rating block"><div><div></div></div></div>';
@@ -189,5 +181,78 @@ describe('tire-rating', () => {
     const message = block.querySelector('.tire-rating-error');
     expect(message, 'the breach on the page').to.exist;
     expect(message.textContent).to.contain('reviews');
+  });
+});
+
+/*
+ * #434. A catalog outage and a product nobody has rated both ended with the
+ * band and its container gone, so the page afterwards showed a product that
+ * never had a rating and no reading of it could say which had happened. The
+ * band going is what a reader sees either way, because a broken band is worse.
+ * What separates them is the console, which is this repo's own way of saying a
+ * sheet could not be read: perfect-fit, article-cards and tire-specs all use it.
+ */
+describe('tire-rating, an outage told apart from an unrated product', () => {
+  let errors;
+
+  beforeEach(() => {
+    errors = sinon.stub(console, 'error');
+  });
+  afterEach(() => errors.restore());
+
+  it('takes the band away when the sheet answers 404, and says so', async () => {
+    stubFetch(CATALOG, false);
+    const block = build('4x4contact');
+    await decorate(block);
+
+    expect(!!document.querySelector('.tire-rating'), 'the block').to.be.false;
+    expect(!!document.querySelector('.tire-rating-container'), 'and its section').to.be.false;
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0]), 'names the block and the sheet')
+      .to.contain('tire-rating').and.to.contain('catalog sheet');
+  });
+
+  it('takes the band away when the read throws, and says so', async () => {
+    sinon.stub(window, 'fetch').rejects(new TypeError('Failed to fetch'));
+    const block = build('4x4contact');
+    await decorate(block);
+
+    expect(!!document.querySelector('.tire-rating'), 'the block').to.be.false;
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0])).to.contain('catalog sheet');
+  });
+
+  it('says nothing when the sheet is whole and nobody has rated the product', async () => {
+    stubFetch(CATALOG);
+    const block = build('scontact');
+    await decorate(block);
+
+    expect(!!document.querySelector('.tire-rating'), 'the block').to.be.false;
+    expect(errors.called, 'console.error').to.be.false;
+  });
+
+  it('says nothing when the sheet is whole and carries no row for the slug', async () => {
+    stubFetch(CATALOG);
+    await decorate(build('not-a-tire'));
+
+    expect(errors.called, 'console.error').to.be.false;
+  });
+
+  // the assertion the issue is about: not that either case renders nothing,
+  // which was already true, but that the two are no longer one answer
+  it('answers a failed read and an unrated product differently', async () => {
+    stubFetch(CATALOG, false);
+    await decorate(build('4x4contact'));
+    const onOutage = errors.callCount;
+
+    window.fetch.restore();
+    errors.resetHistory();
+    stubFetch(CATALOG);
+    await decorate(build('scontact'));
+    const onUnrated = errors.callCount;
+
+    expect(onOutage, 'a failed read').to.be.greaterThan(0);
+    expect(onUnrated, 'a product nobody has rated').to.equal(0);
+    expect(onOutage).to.not.equal(onUnrated);
   });
 });

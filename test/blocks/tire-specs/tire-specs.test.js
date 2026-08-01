@@ -704,3 +704,91 @@ describe('Tire specs, a sheet that does not carry its columns', () => {
     expect(errors.called, 'console.error').to.be.false;
   });
 });
+
+/*
+ * #434, the same defect on this block's two failure paths. The specs sheet and
+ * the legacy file both failing rendered as a product with no sizes, and six
+ * real products look precisely like that. The empty picker is the right thing
+ * for a reader in either case; the console is what tells the two apart.
+ */
+describe('Tire specs, an outage told apart from a product with no sizes', () => {
+  let fetchStub;
+  let errors;
+
+  beforeEach(() => {
+    errors = sinon.stub(console, 'error');
+  });
+  afterEach(() => {
+    fetchStub?.restore();
+    errors.restore();
+  });
+
+  /**
+   * Waits for whichever answer the block reaches, so a run that renders the
+   * authoring message fails on its assertion rather than timing out.
+   */
+  const settled = (block) => when(() => block.querySelector('.tire-specs-select option[disabled]')
+    || block.querySelector('.tire-specs-error'));
+
+  it('says so when neither the sheet nor the legacy file can be read', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response('', { status: 404 }));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await settled(block);
+
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0]), 'names the block and what failed')
+      .to.contain('tire-specs').and.to.contain('could not be read');
+  });
+
+  it('leaves the reader the same empty picker, and no message on the page', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response('', { status: 404 }));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await settled(block);
+
+    const none = block.querySelector('.tire-specs-select option[disabled]');
+    expect(none, 'the empty state').to.exist;
+    expect(none.textContent).to.equal('No results found');
+    expect(!!block.querySelector('.tire-specs-error'), 'nothing said to the reader').to.be.false;
+    expect(document.querySelector('.tire-specs-wrapper'), 'the band').to.exist;
+  });
+
+  it('says so when the read throws', async () => {
+    fetchStub = sinon.stub(window, 'fetch').rejects(new TypeError('Failed to fetch'));
+    const block = buildInSection('vikingcontact-7');
+    decorate(block);
+    await settled(block);
+
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0])).to.contain('could not be read');
+  });
+
+  it('still says nothing for a product the whole sheet has no rows for', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+    const block = buildInSection('purecontact-ls');
+    decorate(block);
+    await settled(block);
+
+    expect(errors.called, 'console.error').to.be.false;
+  });
+
+  it('answers a failed read and a product with no sizes differently', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response('', { status: 404 }));
+    const outage = buildInSection('vikingcontact-7');
+    decorate(outage);
+    await settled(outage);
+    const onOutage = errors.callCount;
+
+    fetchStub.restore();
+    errors.resetHistory();
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(WORKBOOK)));
+    const empty = buildInSection('purecontact-ls');
+    decorate(empty);
+    await settled(empty);
+    const onEmpty = errors.callCount;
+
+    expect(onOutage, 'a failed read').to.be.greaterThan(0);
+    expect(onEmpty, 'a product with no sizes').to.equal(0);
+  });
+});
