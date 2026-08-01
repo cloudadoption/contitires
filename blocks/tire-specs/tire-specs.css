@@ -7,12 +7,20 @@
    picked. Ours draws the band in full before the specs sheet lands, and the
    sheet only fills the picker, so nothing in it moves late and nothing needs
    reserving. Read at 1440x1000 with the profile's storage cleared and the cache
-   bypassed. Issues #314, #242, #232 and #111. */
+   bypassed. Issues #314, #242, #232 and #111.
+
+   The side inset is the section wrapper's alone. `main > .section > div` pads
+   every section 24 a side below 900 and 32 above it, and this band added
+   another 24 on top, which left the heading 279px at 375 where the section
+   leaves it 327. Live tracks out the word after the product name and it
+   measures 308.48px there, so it ran 29.48px past the box. The wrapper's inset
+   is load-bearing from here: #219 wants this surface narrowed to live's 20, and
+   taking it away instead would leave the band no side padding at all. #477. */
 .tire-specs {
   box-sizing: border-box;
   background-color: var(--conti-dark-black);
   color: var(--conti-white);
-  padding: 48px 24px;
+  padding: 48px 0;
   text-align: center;
 }
 
