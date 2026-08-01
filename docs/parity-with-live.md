@@ -704,6 +704,26 @@ stays as it is until there is a real fitment API to hook up, and the registratio
 By Plate needs one too. [#308](https://github.com/cloudadoption/contitires/issues/308),
 [#309](https://github.com/cloudadoption/contitires/issues/309).
 
+**The 2229 drill-down URLs live serves and we answer 404 stay a documented gap, and the reason is
+this same missing fitment service rather than routing.** Live publishes a page per make and per
+make-and-model under `/tire-search/by-vehicle/`. Three forms of fix were measured and each is ruled
+out rather than merely unattempted. A wildcard redirect is not available: the redirects sheet holds
+0 wildcards across 77 rows, and Edge Delivery routes wildcard matching to a CDN rule that needs a
+`cdn.yaml` and a custom domain this project does not have. Enumerating the 2229 as real rows would
+not deliver live's surface either, because live's page is the finder filled from the fitment data
+set, and our table covers 6 makes and 17 models, so 2213 of the 2229 would resolve to a page that
+answers nothing. That is the same trade this section already refuses one paragraph up: a convincing
+front over a stub is worse than an honest miss.
+
+Probing that tree needs care, and the care is specific. `/tire-search/by-vehicle/honda/zzznotamodel`
+returns 200 with the *identical* title to `/tire-search/by-vehicle/honda`, because a bad model falls
+back to the make's own title. So a title check reads a nonsense model as a real page, one level
+below where the same check works on makes. The field that changes at both levels is the string
+`no options available`: 0 on `/honda` and `/honda/civic`, 1 on `/honda/zzznotamodel` and
+`/zzznotamake`, with `continental` at 49 occurrences on all four as the control showing the reading
+can answer at all. Measured 2026-08-01.
+[#444](https://github.com/cloudadoption/contitires/issues/444).
+
 ### Real user monitoring, ours only
 
 **diverges.** We sample real user data. Live does not, and measures through GTM instead.
