@@ -776,6 +776,21 @@ The page renders and the buttons work, and the reader leaves our host on click. 
 bus does not serve zips, so closing it means either zip support, or re-cutting each pack into a
 format the bus does serve, or a third host. None of those is a code change in this repo. [#213](https://github.com/cloudadoption/contitires/issues/213).
 
+**One download on that page is a divergence made ON PURPOSE rather than a gap we have not closed,
+and it is the only one in this document of that kind.** Live serves
+`Continental-LogoGuidelines_2018.pdf`, 1.8 MB, and we return 404 for it. We could fetch the file.
+We are choosing not to serve it. Hosting the document that governs a company's trademark use
+asserts an authority this project does not have: it is a proof of concept operated by Adobe, and a
+reader who downloads brand guidelines from it is being told, by the act of hosting, that this site
+speaks for the brand. A redirect onto `/media` was considered and refused for a different reason,
+that it hands somebody who asked for a download an HTML page instead.
+
+Measured with a control rather than asserted: a nonsense media id returns 404 on our host, so the
+404 on the real path is a real absence rather than a broken probe, and our `/media` page emits 0
+relative hrefs to that file against 25 links on the page. So nothing of ours points at it and no
+reader reaches a dead link from our side. What a reader loses is the file, reached from live.
+[#465](https://github.com/cloudadoption/contitires/issues/465).
+
 ### The media gallery
 
 **differs.** Live keeps a hidden set the modal can reach. We have no third state.
