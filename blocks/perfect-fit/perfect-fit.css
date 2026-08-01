@@ -402,7 +402,9 @@ body.perfect-fit-modal-open {
   font-family: var(--heading-font-family);
   font-size: 12px;
   font-weight: 700;
-  line-height: 17px;
+
+  /* live's 1.4, which is 16.8px here: at 17 the glyph centres a pixel lower */
+  line-height: 1.4;
   letter-spacing: 1.25px;
   text-transform: uppercase;
   text-decoration: underline;

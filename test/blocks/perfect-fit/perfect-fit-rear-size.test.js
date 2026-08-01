@@ -342,6 +342,9 @@ describe('Perfect fit, the rear control against live\'s measurements', () => {
     expect(style.fontSize, 'font-size').to.equal('12px');
     expect(style.fontWeight, 'weight').to.equal('700');
     expect(style.letterSpacing, 'tracking').to.equal('1.25px');
+    // live's 1.4 on 12px, and the 0.2 it differs from 17 moves the glyph a
+    // whole pixel down the line box
+    expect(style.lineHeight, 'line box').to.equal('16.8px');
     expect(style.textTransform, 'case').to.equal('uppercase');
     expect(style.textDecorationLine, 'underline').to.equal('underline');
   });
