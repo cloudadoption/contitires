@@ -385,7 +385,19 @@ main .section.hero-container {
 .hero.left .hero-content {
   margin: 0;
   max-width: 640px;
-  text-align: left;
+}
+
+/* live centres the marquee title below its own step and pins it `start` above,
+   bracketed on /tires at 1024 and 1025. This variant set `left` in the base, so
+   ours read left at 375, 700 and 900 where live read centre, on the 13 pages
+   carrying `left` without `stacked`. Its two sibling variants already have this
+   shape, `.hero.stacked` below and `.hero.title-left` further down, and
+   `stacked` keeps its own centring here on source order rather than on a
+   `:not()`: it scores the same and is declared later. #408 */
+@media (width >= 1025px) {
+  .hero.left .hero-content {
+    text-align: left;
+  }
 }
 
 .hero.left .hero-content .hero-ctas {
