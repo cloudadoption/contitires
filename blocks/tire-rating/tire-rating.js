@@ -27,7 +27,7 @@ async function loadRating(slug) {
   if (!resp.ok) {
     return { error: `the catalog sheet could not be read (HTTP ${resp.status})`, unreadable: true };
   }
-  const rows = sheetRows(await resp.json(), 'catalog');
+  const rows = sheetRows(await resp.json());
   const missing = missingColumns(rows, CATALOG_COLUMNS);
   if (missing.length) {
     return { error: `the catalog sheet has no ${missing.join(' and no ')} column` };

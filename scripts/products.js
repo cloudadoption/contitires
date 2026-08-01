@@ -81,15 +81,34 @@ export function sizesBySlug(rows) {
 }
 
 /**
- * The rows of a sheet response, whichever shape it came in: a single-sheet
- * request puts them at data, the whole workbook under the sheet's name.
- * @param {Object} json a parsed sheet response
- * @param {string} name the sheet name
- * @returns {Array<Object>} the rows
+ * The rows of a single-sheet response, the shape `?sheet=<name>` returns.
+ *
+ * It takes no sheet name, and that is the point rather than an omission. The
+ * response carries nothing that says which sheet it is: measured on the
+ * deployed workbook, `?sheet=catalog` and `?sheet=specs` both answer with
+ * `:type data limit offset total` and no `:names`. So a name passed here could
+ * only be ignored, which is what the two-argument version did on the path every
+ * caller takes. There is no name to ignore now. Issue #435.
+ * @param {Object} json a parsed single-sheet response
+ * @returns {Array<Object>} the rows, or none for any other shape
  */
-export function sheetRows(json, name) {
+export function sheetRows(json) {
+  if (!json || !Array.isArray(json.data)) return [];
+  return json.data;
+}
+
+/**
+ * One sheet's rows out of the whole workbook, the shape a request naming no
+ * sheet returns. Here the name is honoured, because the response holds a key
+ * per sheet and `:names` listing them. The legacy single-object file writes a
+ * name straight to an array, and that is read too.
+ * @param {Object} json a parsed multi-sheet response
+ * @param {string} name the sheet name
+ * @returns {Array<Object>} that sheet's rows, or none if the workbook has no
+ * such sheet
+ */
+export function workbookSheet(json, name) {
   if (!json) return [];
-  if (Array.isArray(json.data)) return json.data;
   const sheet = json[name];
   if (sheet && Array.isArray(sheet.data)) return sheet.data;
   return Array.isArray(sheet) ? sheet : [];

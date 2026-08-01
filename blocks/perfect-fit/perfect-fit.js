@@ -1,6 +1,6 @@
 import { createOptimizedPicture, decorateIcons, loadCSS } from '../../scripts/aem.js';
 import {
-  SPECS_COLUMNS, missingColumns, sizesBySlug, sheetRows,
+  SPECS_COLUMNS, missingColumns, sizesBySlug, sheetRows, workbookSheet,
 } from '../../scripts/products.js';
 import { renderName } from '../../scripts/product-name.js';
 
@@ -477,7 +477,7 @@ async function loadSpecSizes() {
   try {
     const resp = await fetch(SPECS_URL);
     if (!resp.ok) return null;
-    const rows = sheetRows(await resp.json(), 'specs');
+    const rows = sheetRows(await resp.json());
     const missing = missingColumns(rows, SPECS_COLUMNS);
     if (missing.length) {
       // eslint-disable-next-line no-console
@@ -498,10 +498,12 @@ async function loadProducts() {
     const json = await resp.json();
     // support all three shapes: a single-sheet response (data), the whole
     // multi-sheet workbook (products.data), and the legacy single-object
-    // file ({ products: [...] }).
-    const rows = sheetRows(json, 'products').length
-      ? sheetRows(json, 'products')
-      : (json.products || []);
+    // file ({ products: [...] }). The name belongs to the second and third,
+    // where the response says which sheet it is, and to neither the first nor
+    // the reader of it (#435).
+    const rows = sheetRows(json).length
+      ? sheetRows(json)
+      : workbookSheet(json, 'products');
     const products = rows.map((product) => ({
       ...product,
       sizes: specSizes ? (specSizes.get(product.slug) || []) : listCell(product.sizes),
