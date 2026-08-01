@@ -97,65 +97,65 @@ Each of these says what the approximation rests on.
 **not knowable from outside** means live resolves it through a system the public site does not
 expose, so no amount of work here reproduces it. One row earns it.
 
-In the last column, ✅ is ordinary work: queued, in flight, or already settled and needing
-nothing. ⚙️ needs something from inside live that the public site does not hand out, such as an
+In the last column, ⏳ is work yet to come: queued, in flight, or named and not started.
+✅ is settled: done, deliberate, or decided and needing nothing. ⚙️ needs something from inside live that the public site does not hand out, such as an
 API, a vendor account or an index configuration.
 
 | Bucket | Item | State | Will it be fixed | Issue |
 |---|---|---|---|---|
-| Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | ✅ 63 rows to add | [#337](https://github.com/cloudadoption/contitires/issues/337) |
+| Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | ⏳ 63 rows to add | [#337](https://github.com/cloudadoption/contitires/issues/337) |
 |  | [Live's sports sub-nav is dead on live](#lives-sports-sub-nav-points-at-two-dead-urls) | diverges | ✅ nothing to do | [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289) |
-|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ✅ no owning issue | -- |
-|  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | ✅ queued | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | ✅ queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
-|  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | ✅ queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
+|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ⏳ no owning issue | -- |
+|  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | ⏳ queued | [#213](https://github.com/cloudadoption/contitires/issues/213) |
+|  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | ⏳ queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
+|  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | ⏳ queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
 | Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | approximated | ⚙️ live computes per request | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 |  | [One technology description differs on three pages](#one-technology-description-differs-on-three-pages-because-a-sheet-holds-one-row-per-technology) | diverges | ✅ decided, not outstanding: the sheet holds one row, so the alternative differs from 11 pages instead of 3 | [#380](https://github.com/cloudadoption/contitires/issues/380) |
-|  | [Fit by size](#fit-by-size) | differs | ✅ queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
+|  | [Fit by size](#fit-by-size) | differs | ⏳ queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
 |  | [Star rating and review count](#star-rating-and-review-count) | absent | ⚙️ the corpus needs the account | [#241](https://github.com/cloudadoption/contitires/issues/241) |
-|  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | ✅ drop the link | [#357](https://github.com/cloudadoption/contitires/issues/357) |
+|  | [The specs link points at a page we 404](#the-specs-link-points-at-a-page-we-404) | absent | ⏳ drop the link | [#357](https://github.com/cloudadoption/contitires/issues/357) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | ⚙️ live's exclusions are Solr config | -- |
-|  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ✅ build the control | [#162](https://github.com/cloudadoption/contitires/issues/162) |
-| Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ✅ emit Product from the workbook | -- |
+|  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ⏳ build the control | [#162](https://github.com/cloudadoption/contitires/issues/162) |
+| Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ⏳ emit Product from the workbook | -- |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
-| Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ✅ queued, and a decision | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+| Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ⏳ queued, and a decision | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [What live's tags report into](#what-lives-tags-report-into) | not knowable from outside | ⚙️ needs the ad accounts | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [Cookie consent](#cookie-consent) | absent | ✅ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [Cookie consent](#cookie-consent) | absent | ⏳ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [Bazaarvoice](#bazaarvoice) | absent | ⚙️ reviews need the account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [EmbedSocial](#embedsocial) | absent | ✅ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [EmbedSocial](#embedsocial) | absent | ⏳ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
 |  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ no receiver for a submission | [#101](https://github.com/cloudadoption/contitires/issues/101) |
 |  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ waiting on a fitment API | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309) |
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [The media gallery](#the-media-gallery) | differs | ✅ queued | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
+|  | [The media gallery](#the-media-gallery) | differs | ⏳ queued | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
 |  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ a delete nobody has proved safe | [#330](https://github.com/cloudadoption/contitires/issues/330) |
 |  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
-|  | [The default share image 404s](#the-default-share-image-404s) | differs | ✅ ship live's file | [#178](https://github.com/cloudadoption/contitires/issues/178) |
-| Content and editorial | [The homepage title](#the-homepage-title) | differs | ✅ queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
-|  | [No result count above the pager](#no-result-count-above-the-pager) | absent | ✅ queued | [#348](https://github.com/cloudadoption/contitires/issues/348) |
+|  | [The default share image 404s](#the-default-share-image-404s) | differs | ⏳ ship live's file | [#178](https://github.com/cloudadoption/contitires/issues/178) |
+| Content and editorial | [The homepage title](#the-homepage-title) | differs | ⏳ queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
+|  | [No result count above the pager](#no-result-count-above-the-pager) | absent | ⏳ queued | [#348](https://github.com/cloudadoption/contitires/issues/348) |
 |  | [Card teaser text](#card-teaser-text) | approximated | ⚙️ live's teaser field is unpublished | -- |
 |  | [Listings behind a service, authored as snapshots](#listings-behind-a-service-authored-as-snapshots) | approximated | ⚙️ live publishes no feed | [#256](https://github.com/cloudadoption/contitires/issues/256), [#257](https://github.com/cloudadoption/contitires/issues/257), [#258](https://github.com/cloudadoption/contitires/issues/258), [#259](https://github.com/cloudadoption/contitires/issues/259) |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ this table is the source | [#362](https://github.com/cloudadoption/contitires/issues/362) |
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
-| Layout and type | [The heading scale](#the-heading-scale) | differs | ✅ line boxes match live on the 63 headings measured; the article-template h2 SIZE is still 20px where live is 30 above 769 | [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
+| Layout and type | [The heading scale](#the-heading-scale) | differs | ⏳ line boxes match live on the 63 headings measured; the article-template h2 SIZE is still 20px where live is 30 above 769 | [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
 |  | [Heading line boxes we are leaving different from live](#heading-line-boxes-we-are-leaving-different-from-live) | diverges | ✅ decided, not outstanding: nine inherited from live, two below the threshold a rule earns | [#382](https://github.com/cloudadoption/contitires/issues/382), [#381](https://github.com/cloudadoption/contitires/issues/381) |
 |  | [Two heading margins we are leaving proportional](#two-heading-margins-we-are-leaving-proportional) | diverges | ✅ decided, not outstanding: one does not reach the page, the other has no single absolute that fits both directions | [#395](https://github.com/cloudadoption/contitires/issues/395) |
-|  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | differs | ✅ author the same spacing device in DA, or accept the tighter rhythm | [#384](https://github.com/cloudadoption/contitires/issues/384) |
-|  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ✅ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
-|  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ✅ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
-|  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ✅ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
+|  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | differs | ⏳ author the same spacing device in DA, or accept the tighter rhythm | [#384](https://github.com/cloudadoption/contitires/issues/384) |
+|  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ⏳ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
+|  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ⏳ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
+|  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ⏳ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
 |  | [Prose link underlines](#prose-links-carry-an-underline-live-paints-transparent) | diverges | ✅ WCAG 1.4.1 | [#240](https://github.com/cloudadoption/contitires/issues/240) |
 |  | [Superscripts](#superscripts) | diverges | ✅ deliberate | [#238](https://github.com/cloudadoption/contitires/issues/238) |
 | Performance and accessibility | [Delivered HTML weight](#delivered-html-weight) | differs | ✅ nothing to do | -- |
-|  | [Authored heading levels do not follow live's](#authored-heading-levels-do-not-follow-lives) | differs | ✅ re-level the authored documents | [#371](https://github.com/cloudadoption/contitires/issues/371), [#372](https://github.com/cloudadoption/contitires/issues/372) |
+|  | [Authored heading levels do not follow live's](#authored-heading-levels-do-not-follow-lives) | differs | ⏳ re-level the authored documents | [#371](https://github.com/cloudadoption/contitires/issues/371), [#372](https://github.com/cloudadoption/contitires/issues/372) |
 |  | [Product labels are static text where live's are a disclosure](#product-labels-are-static-text-where-lives-are-a-disclosure) | differs | ⚙️ live's advantage, no counterpart built | -- |
-|  | [Security headers](#security-headers) | differs | ✅ queued | -- |
-|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ✅ the runner hang and the 404 noise are fixed; fixture shape is open | [#125](https://github.com/cloudadoption/contitires/issues/125) |
+|  | [Security headers](#security-headers) | differs | ⏳ queued | -- |
+|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ⏳ the runner hang and the 404 noise are fixed; fixture shape is open | [#125](https://github.com/cloudadoption/contitires/issues/125) |
 |  | [The annotated tire diagram](#the-annotated-tire-diagram) | diverges | ✅ live's version is the defect | [#255](https://github.com/cloudadoption/contitires/issues/255) |
-|  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | ✅ queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
+|  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | ⏳ queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
 
 ## Navigation and routing
 
