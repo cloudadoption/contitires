@@ -482,9 +482,33 @@
   text-decoration: none;
 }
 
-/* ---------- tablet and up ---------- */
+/* ---------- desktop: the filter panel becomes a column ---------- */
 
-@media (width >= 600px) {
+/* 769 is LIVE'S step for the count and not the site's 600 or 900, on purpose:
+   live writes 24px on 32px under its own `max-width: 768`, so the large pair
+   starts one pixel above that cap. Stepping at 900 would render 24px across 769
+   to 900 where live is already at 30px. Do not tidy this into the scale. #421
+
+   THE CARD TURNS HERE TOO, AND FOR THE SAME REASON (#423). Live scopes twelve
+   `tire-teaser` rules under that one `max-width: 768`: its card is a ROW by
+   default and a COLUMN below the cap. Ours was written the other way round, a
+   column turning into a row and a grid, and it turned at the site's 600, so
+   between 600 and 768 the two cards were different shapes. The values on both
+   sides already agreed and only the boundary moved. 768 is iPad portrait, so
+   the one-pixel overlap lands on a real device rather than a hypothetical one.
+   Do not tidy either of these into the 600/900/1200 scale. */
+@media (width >= 769px) {
+  /* THE PAGE CHROME TURNS HERE TOO, AND IT IS THE SAME BOUNDARY AGAIN (#429).
+     The results header and the pager both stepped at the site's 600, so between
+     600 and 768 ours was a row and a flex where live is a column and a block.
+     Enumerated over the twelve pages carrying this block: live steps both at
+     769 on 12 of 12, ours stepped both at 600 on 12 of 12, bracketed 599
+     against 600 and 768 against 769. Nothing is page-specific on either side and
+     the two elements already travel together, which is what makes moving them
+     together safe.
+     The pager rule reaches the element and not the paging: `buildPager` returns
+     the `.tire-listing-pager` div before it appends the nav when there is one
+     page, so all-terrain, all-weather and winter carry it with nothing to page. */
   .tire-listing .tire-listing-header {
     flex-direction: row;
     align-items: center;
@@ -496,6 +520,8 @@
   }
 
   .tire-listing .tire-listing-count {
+    font-size: var(--heading-font-size-xl);
+    line-height: 38px;
     text-align: left;
   }
 
@@ -516,28 +542,6 @@
 
   .tire-listing .tire-listing-pages {
     margin-top: 0;
-  }
-}
-
-/* ---------- desktop: the filter panel becomes a column ---------- */
-
-/* 769 is LIVE'S step for the count and not the site's 600 or 900, on purpose:
-   live writes 24px on 32px under its own `max-width: 768`, so the large pair
-   starts one pixel above that cap. Stepping at 900 would render 24px across 769
-   to 900 where live is already at 30px. Do not tidy this into the scale. #421
-
-   THE CARD TURNS HERE TOO, AND FOR THE SAME REASON (#423). Live scopes twelve
-   `tire-teaser` rules under that one `max-width: 768`: its card is a ROW by
-   default and a COLUMN below the cap. Ours was written the other way round, a
-   column turning into a row and a grid, and it turned at the site's 600, so
-   between 600 and 768 the two cards were different shapes. The values on both
-   sides already agreed and only the boundary moved. 768 is iPad portrait, so
-   the one-pixel overlap lands on a real device rather than a hypothetical one.
-   Do not tidy either of these into the 600/900/1200 scale. */
-@media (width >= 769px) {
-  .tire-listing .tire-listing-count {
-    font-size: var(--heading-font-size-xl);
-    line-height: 38px;
   }
 
   .tire-listing .tire-listing-card {
