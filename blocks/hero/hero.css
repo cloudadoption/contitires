@@ -51,7 +51,12 @@ main .section.hero-container {
   width: 100%;
   max-width: 840px;
   margin: 0 auto;
-  padding: 56px 24px;
+
+  /* 20px a side is live's, read as the width it produces rather than as a
+     declaration: live's `.marquee__texts` carries no padding of its own and
+     measures 335 at 375, reaching it from an ancestor. At 24px ours measured
+     327, and those 8px decide two wraps once the titles are tracked. #456 */
+  padding: 56px 20px;
   text-align: center;
 }
 
