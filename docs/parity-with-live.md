@@ -117,6 +117,7 @@ API, a vendor account or an index configuration.
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | ⚙️ live's exclusions are Solr config | -- |
 |  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ⏳ build the control | [#162](https://github.com/cloudadoption/contitires/issues/162) |
+|  | [Our class names are kebab-case where live's are BEM](#our-class-names-are-kebab-case-where-lives-are-bem) | diverges | ✅ decided, not outstanding: the linter rejects BEM and nothing a visitor sees depends on it | [#107](https://github.com/cloudadoption/contitires/issues/107) |
 | Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ⏳ emit Product from the workbook | -- |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
 | Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ⏳ queued, and a decision | [#234](https://github.com/cloudadoption/contitires/issues/234) |
@@ -444,6 +445,26 @@ search is the one page whose whole content is built that way.
 
 What it costs a visitor: a query that would be better read newest-first has to be read in score
 order, and a no-JS client gets an empty results page.
+
+### Our class names are kebab-case where live's are BEM
+
+**diverges.** Live's search markup names its elements BEM-style, `search-result__title`,
+`search-result__excerpt`, `site-search__container`, `site-search__form-wrapper`, 88 distinct
+double-underscore classes on `/search?keywords=tire`. Ours are kebab-case throughout, 21 distinct
+under `.search-` in `blocks/search/search.css`.
+
+**The linter decides this and there is no room to match live.** `.stylelintrc.json` extends
+`stylelint-config-standard`, whose `selector-class-pattern` accepts kebab-case only. A probe
+selector `.probe__element` fails with "Expected class selector to be kebab-case"; the same rule
+passes `.probe-element` silently. So adopting live's names would mean either a lint error on every
+selector or turning the rule off for the repo.
+
+The double underscores that do appear in our CSS are in comments quoting live's class names, in
+`article-cards.css`, `cards.css` and `hero.css`. No selector uses one.
+
+**What it costs a visitor:** nothing. Class names are not rendered, and the two sets style the same
+elements to the same values wherever a parity row says they match. The cost is to a reader
+comparing the two stylesheets, who has to map the names by position rather than by name.
 
 ### Product pages carry no JSON-LD
 
