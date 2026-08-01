@@ -378,6 +378,28 @@ describe('Perfect fit, the rear control against live\'s measurements', () => {
     expect(getComputedStyle(rearRow()).display, 'open').to.equal('grid');
   });
 
+  /*
+   * Live stretches the control across the row below 769 and lets it take its
+   * own width above, the same 38px under the fields either way: 520 wide at
+   * 600 and 768, 237 at 769 and up, and 335 at 375 where the row is 335.
+   *
+   * The band below is the block's own 900 rather than live's 769, because the
+   * call to action beside it already stretches to 900 and a control that
+   * changed shape at 769 beside one that changed at 900 would disagree with
+   * itself between the two. Live's 769 for the whole size form is filed.
+   */
+  it('fills the row on a narrow screen and takes its own width on a wide one', async () => {
+    await setViewport({ width: 375, height: 812 });
+    await openFinder();
+    const row = () => sizePanel().querySelector('.perfect-fit-fields:not(.perfect-fit-fields-rear)');
+    const widthOf = (el) => Math.round(el.getBoundingClientRect().width);
+    expect(widthOf(toggle()), 'at 375 it fills the row').to.equal(widthOf(row()));
+    await setViewport({ width: 1440, height: 900 });
+    // the 237 live measures is a number the page's own font gives, so the
+    // width against the row is what a runner without that font can assert
+    expect(widthOf(toggle()) < widthOf(row()), 'at 1440 it takes its own width').to.be.true;
+  });
+
   it('lays the second row out the way the first one is laid out', async () => {
     await openFinder();
     setFrontSize();
