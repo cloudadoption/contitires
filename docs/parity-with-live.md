@@ -1072,7 +1072,7 @@ is not an offer this site makes.
 That is also why the bar could not keep live's offer while those three pages can. The bar is
 the disclosure, so it cannot advertise the thing it discloses.
 
-**The values inside these zones are not quoted here on purpose.** The copy is Ben's, it
+**The values inside these zones are not quoted here on purpose.** The copy is the human's, it
 changes in wording, figures and link targets, and none of it derives from live, so a figure
 recorded here would be stale by the time it was read. Check a zone against the single rule
 and nothing else.
