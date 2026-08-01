@@ -62,16 +62,19 @@
 
 /* ---------- filter form ---------- */
 
-/* the filter heading keeps the numbers it rendered before #185 moved the h3
-   token to live's 24px. A block treatment is measured against live on its own
-   surface, not carried along by the global scale. */
+/* live writes NO size and NO box on `.tires-filter-form h2`, only a
+   text-align at 768 and below, so its filter heading takes live's own bare h2:
+   30px on a 38px box at every width, which our global h2 already sets. So both
+   declarations go rather than being restated.
+
+   The 1.27 they replace was 38 over 30 rounded to two places, which is why the
+   box was live's to within 0.1px from 900 up and 2.44px short below it, where
+   the size was 28 rather than live's 30. #414 */
 .tire-listing .tire-listing-filters h2 {
   margin: 0;
   border-bottom: 1px solid var(--conti-grey);
   padding-bottom: 20px;
-  font-size: 28px;
   font-weight: 400;
-  line-height: 1.27;
   text-align: center;
 }
 
@@ -179,11 +182,15 @@
   align-self: flex-end;
 }
 
+/* live's own numbers, off `.tire-listing-page__results-header-left`: 24px on a
+   32px box at 768 and below, and no rule of its own above that, so live's count
+   takes live's bare h2 at 30px on 38px. The 769 rule below writes that pair out.
+   The 1.33 this replaces was 32 over 24 rounded. #421 */
 .tire-listing .tire-listing-count {
   margin: 0;
-  font-size: var(--heading-font-size-m);
+  font-size: var(--heading-font-size-l);
   font-weight: 400;
-  line-height: 1.33;
+  line-height: 32px;
   text-align: right;
 }
 
@@ -299,11 +306,14 @@
   padding-top: 16px;
 }
 
+/* live's `.tire-teaser__title` at 1024 and below: 14px on a 20px box, which is
+   the size this rule already had. The 1.43 it replaces was 20 over 14 rounded,
+   so the box moves 0.02px. #422 */
 .tire-listing .tire-listing-card-title {
   margin: 0;
   font-size: var(--body-font-size-xs);
   font-weight: 700;
-  line-height: 1.43;
+  line-height: 20px;
   letter-spacing: 0.5px;
   text-align: center;
 }
@@ -504,11 +514,10 @@
     padding-top: 8px;
   }
 
+  /* the LAYOUT half stays at 600 with the rest of the card grid. The type half
+     moved to live's own 1025 step, in the block further down. #422 */
   .tire-listing .tire-listing-card-title {
     grid-area: title;
-    font-size: 20px;
-    line-height: 1.5;
-    letter-spacing: normal;
     text-align: left;
   }
 
@@ -560,7 +569,6 @@
   }
 
   .tire-listing .tire-listing-count {
-    font-size: 28px;
     text-align: left;
   }
 
@@ -586,15 +594,20 @@
 
 /* ---------- desktop: the filter panel becomes a column ---------- */
 
+/* 769 is LIVE'S step for the count and not the site's 600 or 900, on purpose:
+   live writes 24px on 32px under its own `max-width: 768`, so the large pair
+   starts one pixel above that cap. Stepping at 900 would render 24px across 769
+   to 900 where live is already at 30px. Do not tidy this into the scale. #421 */
+@media (width >= 769px) {
+  .tire-listing .tire-listing-count {
+    font-size: var(--heading-font-size-xl);
+    line-height: 38px;
+  }
+}
+
 @media (width >= 900px) {
   .tire-listing {
     padding: 80px 16px;
-  }
-
-  /* the pair the h3 token used to carry, now written out (#185) */
-  .tire-listing .tire-listing-filters h2,
-  .tire-listing .tire-listing-count {
-    font-size: 30px;
   }
 
   /* live's grid: a 250px track holding a 230px form, then the results track
@@ -628,6 +641,21 @@
 
   .tire-listing .tire-listing-filters h2 {
     text-align: left;
+  }
+}
+
+/* 1025 is LIVE'S step for the card title: it writes 14px on 20px under its own
+   `max-width: 1024`, so the large pair starts one pixel above that cap. The
+   line-height here is UNITLESS ON PURPOSE and is not the #395 shape returning.
+   Live declares `line-height: var(--line-height-24)` on `.tire-teaser__title`,
+   and that token alone in live's scale of fifteen resolves to `var(--ratio)`,
+   which live's `:root` sets to 1.5. So the ratio IS live's own declaration and
+   the 30px box it draws at 20px is live's own box. #422 */
+@media (width >= 1025px) {
+  .tire-listing .tire-listing-card-title {
+    font-size: 20px;
+    line-height: 1.5;
+    letter-spacing: normal;
   }
 }
 

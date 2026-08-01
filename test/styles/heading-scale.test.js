@@ -570,6 +570,7 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       '/blocks/tire-rating/tire-rating.css',
       '/blocks/promo-bar/promo-bar.css',
       '/blocks/search/search.css',
+      '/blocks/tire-listing/tire-listing.css',
       '/styles/article.css',
     ];
     await Promise.all(files.map(async (f) => {
@@ -631,6 +632,28 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       'width < 900px', '33.6px'],
     ['/blocks/search/search.css',
       'main .search .search-no-results h2', '600px', '50.4px'],
+    // live steps the count at its own `max-width: 768`, so ours steps one pixel
+    // above that cap rather than at the site's 600 or 900 (#421).
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-count', null, '32px'],
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-count', '769px', '38px'],
+    // live steps the card title at its own `max-width: 1024`, so ours steps one
+    // pixel above that cap rather than at 600, where only the LAYOUT changes.
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-card-title', null, '20px'],
+    // THE 1.5 IS LIVE'S OWN AND IS NOT THE #395 SHAPE RETURNING. Live declares
+    // `line-height: var(--line-height-24)` on `.tire-teaser__title`, and that
+    // token alone in live's scale of fifteen resolves to `var(--ratio)`, which
+    // live's `:root` sets to 1.5 (#422).
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-card-title', '1025px', '1.5'],
+    ['/blocks/search/search.css',
+      'main .search .search-result-title', null, '20px'],
+    // live's own ratio again, the same `var(--line-height-24)` as the card
+    // title above (#420).
+    ['/blocks/search/search.css',
+      'main .search .search-result-title', '1025px', '1.5'],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title', null, '14.4px'],
   ];
@@ -725,6 +748,7 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
       '/blocks/tire-rating/tire-rating.css',
       '/blocks/promo-bar/promo-bar.css',
       '/blocks/search/search.css',
+      '/blocks/tire-listing/tire-listing.css',
       '/styles/article.css',
     ];
     await Promise.all(files.map(async (f) => {
@@ -799,6 +823,18 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
       ['33.6px', null, null]],
     ['/blocks/search/search.css',
       'main .search .search-no-results h2', ['1.2', '50.4px', '50.4px']],
+    // #414: live writes NO size and NO box on `.tires-filter-form h2`, only a
+    // text-align at 768 and below, so this block writes none either and the
+    // heading takes the global h2's 38 at every width. Three nulls is the
+    // assertion that it wrote none.
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-filters h2', [null, null, null]],
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-count', ['32px', '38px', '38px']],
+    ['/blocks/tire-listing/tire-listing.css',
+      '.tire-listing .tire-listing-card-title', ['20px', '20px', '1.5']],
+    ['/blocks/search/search.css',
+      'main .search .search-result-title', ['20px', '20px', '1.5']],
     ['/styles/article.css',
       'body.article main .section:has(.share-wrapper) .related-articles-title',
       ['14.4px', '14.4px', '14.4px']],
