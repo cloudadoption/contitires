@@ -612,6 +612,27 @@ describe('perfect-fit, where to find the sizes', () => {
     expect(image.getAttribute('src')).to.contain('tire-size-help');
     expect(image.getAttribute('alt')).to.equal('Where to find the sizes');
   });
+
+  /*
+   * Live's bubble carries a close button of its own, top right. The diagram is
+   * black lettering on transparency, so it reads only against the white bubble
+   * live draws behind it; on the dark panel the words disappear and the tire is
+   * all that survives.
+   */
+  it('shuts the bubble from the close control, and hands focus back', async () => {
+    await open();
+    const help = helpOf('tire-size');
+    const toggle = help.querySelector('.perfect-fit-help-toggle');
+    toggle.click();
+    const close = help.querySelector('.perfect-fit-help-close');
+    expect(!!close, 'the close control live puts in the bubble').to.be.true;
+    expect(close.getAttribute('aria-label')).to.equal('Close');
+    close.click();
+    expect(toggle.getAttribute('aria-expanded'), 'shut again').to.equal('false');
+    expect(help.querySelector('[role="tooltip"]').hidden).to.be.true;
+    expect(document.activeElement, 'focus goes back to the control that opened it')
+      .to.equal(toggle);
+  });
 });
 
 // The DA sheet serves /products.json as a multi-sheet workbook: the product
