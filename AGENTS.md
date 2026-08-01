@@ -176,6 +176,11 @@ With this information, you can construct URLs for the preview environment (same 
 
 ## Contributing
 
+- **HARD RULE: never name the human in a GitHub issue or pull request. Write "the human".** This
+  covers issue titles and bodies, pull request titles and descriptions, review comments, and any
+  edit to an existing issue. It holds when quoting an instruction, when crediting a decision, and
+  when recording who owns an outstanding item. Standing instruction from 2026-08-01, after issue
+  #359 was found carrying the name 30 times.
 - Follow the existing code style and patterns
 - Test changes locally before committing
 - Follow the Publishing Process documented above
