@@ -50,8 +50,11 @@ describe('Header mega panel, the row a finder button sits in', () => {
 
     // the panel opens off the top item's own control, which is the state
     // header.js leaves behind when a reader opens it
+    // the wrapper is what the panel hangs off: it is `position: relative` above
+    // the breakpoint, and without it `top: 100%` measures the viewport and puts
+    // the panel below the fold, where nothing can be pressed
     document.body.innerHTML = `
-      <header><nav id="nav" aria-expanded="true"><div class="nav-sections">
+      <header><div class="nav-wrapper"><nav id="nav" aria-expanded="true"><div class="nav-sections">
         <div class="default-content-wrapper">
           <ul>
             <li class="nav-drop nav-mega">
@@ -75,7 +78,7 @@ describe('Header mega panel, the row a finder button sits in', () => {
             </li>
           </ul>
         </div>
-      </div></nav></header>`;
+      </div></nav></div></header>`;
 
     const columns = [...document.querySelectorAll('li.nav-mega > ul > li > ul > li')];
     buttonRow = columns.find((row) => row.querySelector('button'));
@@ -121,16 +124,22 @@ describe('Header mega panel, the row a finder button sits in', () => {
     expect(px(button, 'marginBottom')).to.equal(-px(button, 'paddingBottom'));
   });
 
-  it('keeps each button inside its own row, so it cannot take the next one\'s click', () => {
-    // the padding is now the link's 7px, and a button's box is its LINE box
-    // where an inline link's is its font's content area, so the button would
-    // reach 3.8px into the row above and below and hit-test over its
-    // neighbour. Both buttons open the same modal on different tabs, so the
-    // reader would land on the wrong one.
+  it('leaves every label clickable on its own search', () => {
+    // the padded box now reaches 3.8px into the row above and below, where an
+    // inline link's stops inside its own row, so two searches share the
+    // whitespace between their labels. Both open the same modal on different
+    // tabs, so the guard is that a press on a LABEL still reaches the search
+    // it names, whoever owns the gap.
     const buttons = [...document.querySelectorAll('li.nav-mega button[data-tire-finder]')];
     expect(buttons.length, 'two searches, so there is a boundary to test').to.equal(2);
-    const [first, second] = buttons.map((el) => el.getBoundingClientRect());
-    expect(first.bottom - second.top).to.be.at.most(0);
+    // the tab name rather than the node: chai inspects a failed comparison, and
+    // inspecting two header subtrees takes longer than the runner will wait
+    const pressed = buttons.map((el) => {
+      const r = el.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return hit ? (hit.dataset.tireFinder || hit.tagName) : 'nothing';
+    });
+    expect(pressed).to.eql(buttons.map((el) => el.dataset.tireFinder));
   });
 
   it('keeps the rows level when the panel\'s type scale moves', () => {

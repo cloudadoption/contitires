@@ -638,10 +638,15 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   }
 
   /* A row's height is the list item's own line box. A link is inline, so the
-     padding above overlaps the rows around it and leaves that alone; a finder
-     button is inline-block, so the same padding joins the line box and grows
-     the row. Take it back out in the margin: whatever the padding is, the
-     button's margin box is its line box, and the row is the link's. */
+     padding above sits inside that row rather than growing it; a finder button
+     is inline-block, so the same padding joins the line box and grows the row.
+     Take it back out in the margin: whatever the padding is, the button's
+     margin box is its line box, and the row is the link's at any type scale.
+     The padded box does reach 3.8px into the row above and below, where an
+     inline link's stops inside its own row: the button's box is built on its
+     line box and the link's on the font's content area. That band is the
+     whitespace between two labels, the lower row wins it on paint order, and
+     no label's own text goes with it. */
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > button {
     margin-block: calc(-1 * var(--nav-mega-item-padding-block));
   }
