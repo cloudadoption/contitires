@@ -366,10 +366,28 @@ describe('Perfect fit, the rear control against live\'s measurements', () => {
 
   it('takes the glyph from the icon file rather than colouring a drawing in', async () => {
     await openFinder();
-    const style = getComputedStyle(toggle().querySelector('.icon'));
-    expect(style.maskImage, 'the plus is masked in').to.match(/plus-outline\.svg/);
-    expect(style.backgroundColor, 'and takes the control\'s own colour')
-      .to.equal('rgb(148, 148, 148)');
+    expect(getComputedStyle(toggle().querySelector('.icon')).maskImage, 'the plus is masked in')
+      .to.match(/plus-outline\.svg/);
+    setFrontSize();
+    toggle().click();
+    expect(getComputedStyle(toggle().querySelector('.icon')).maskImage, 'and the minus after it')
+      .to.match(/minus-outline\.svg/);
+  });
+
+  /*
+   * Live greys the glyph with the words while the control is shut and then
+   * draws it in the site's orange, where the words go white: rgb(148, 148, 148)
+   * and rgb(255, 165, 0) against rgb(255, 255, 255). Read on live at 1440 in
+   * all three states, shut, ready and open.
+   */
+  it('greys the glyph with the words and then draws it in live\'s orange', async () => {
+    await openFinder();
+    const glyph = () => getComputedStyle(toggle().querySelector('.icon')).backgroundColor;
+    expect(glyph(), 'shut, with the words').to.equal('rgb(148, 148, 148)');
+    setFrontSize();
+    expect(glyph(), 'ready, where the words are white').to.equal('rgb(255, 165, 0)');
+    toggle().click();
+    expect(glyph(), 'open').to.equal('rgb(255, 165, 0)');
   });
 
   it('gives the closed row no room at all', async () => {

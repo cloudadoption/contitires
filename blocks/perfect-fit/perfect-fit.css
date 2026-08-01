@@ -424,15 +424,23 @@ body.perfect-fit-modal-open {
 /* live's two symbols stroke in currentColor, and this control draws them in two
    colours, so the span is masked with the icon file rather than filled with a
    drawing of its own: an img cannot take the colour beside it. 12 by 12 with
-   7.5px of air, which is live's icon--xs. */
+   7.5px of air, which is live's icon--xs.
+
+   The glyph is the site's orange where the words are white, and greys with them
+   while the control is shut: live reads rgb(255, 165, 0) against
+   rgb(255, 255, 255) once the front size is complete, and 148 on both before. */
 .perfect-fit-rear-toggle .icon {
   width: 12px;
   height: 12px;
   margin-right: 7.5px;
-  background-color: currentcolor;
+  background-color: var(--conti-yellow);
   mask-position: center;
   mask-repeat: no-repeat;
   mask-size: contain;
+}
+
+.perfect-fit-rear-toggle:disabled .icon {
+  background-color: currentcolor;
 }
 
 .perfect-fit-rear-toggle .icon-plus-outline {
