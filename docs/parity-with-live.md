@@ -826,6 +826,30 @@ for them. [#330](https://github.com/cloudadoption/contitires/issues/330) keeps t
 fetching them from live again, and that proving a media path is unreferenced across DA, the code
 bus and the sheets has not been done.
 
+### The tire-size help icon, a second divergence made on purpose
+
+**differs by two default values, deliberately.** The drawing is live's. Two colour defaults are not,
+and copying live's file byte-exact would have given live's markup and not live's pixels.
+
+`icons/help-circle.svg` is traced from live's own sprite symbol `id=help`: **the path `d` is
+character-identical and 12 of 15 attributes match**, checked against live's sprite refetched at sha1
+`0969c953` so the source could not have moved under the comparison. The three that differ are two
+colour defaults and the attribute carrying them.
+
+**Why byte-exact would have been worse.** `decorateIcons` renders an icon as an `<img>`, and a CSS
+custom property does not cross into an image's own document. Live paints this glyph with two CSS
+overrides at that spot in its own stylesheet; an `<img>` here cannot receive them. So the file that
+matches live's bytes renders the wrong colours, and the file that renders live's colours carries two
+different defaults. **The two changed defaults are exactly and only the two live overrides**, which is
+what keeps this a divergence in the file rather than in the rendered surface.
+
+An inline alternative was proposed and refused: it would have matched the bytes at the cost of the
+authoring path DA's edit canvas supports, which is the same trade recorded one section down for the
+chevron sprite.
+
+What a visitor sees: live's glyph in live's colours. What differs is the file, and only where the file
+had to differ for that to be true.
+
 ### The chevron sprite
 
 **approximated.** Live uses an SVG sprite reference. We inline the same glyph as a data URI.
