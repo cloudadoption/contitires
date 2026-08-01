@@ -53,6 +53,22 @@ describe('Hero marquee, the readings off live', () => {
     expect(value('.hero.left .hero-content', 'text-align', '1025px')).to.equal('left');
   });
 
+  // #407. Live tracks the marquee title on 12 of these 13 pages, and the
+  // tracking is on a `span.text-uppercase` rather than on the h1: live's own h1
+  // computes `normal` everywhere. Our titles carry no span at all, so the rule
+  // goes on the h1. 5px below live's 1025 step and 6px above, bracketed at 1024
+  // and 1025 on /tires, which is the same pixel #408 turns on.
+  // `:not(.stacked)` is needed here where #408 did not need it: live tracks
+  // nothing on /experience, so reaching the stacked variant would open a
+  // divergence rather than close one.
+  it("tracks the left marquee title at live's 5px below 1025", () => {
+    expect(value('.hero.left:not(.stacked) .hero-content h1', 'letter-spacing')).to.equal('5px');
+  });
+
+  it("takes it to live's 6px above the step", () => {
+    expect(value('.hero.left:not(.stacked) .hero-content h1', 'letter-spacing', '1025px')).to.equal('6px');
+  });
+
   // `stacked` is unaffected and it is source order that does it, not a
   // `:not()`: `.hero.stacked .hero-content` scores the same 0-2-1 and is
   // declared later, so it keeps centring below 1025 and its own 1025 rule
