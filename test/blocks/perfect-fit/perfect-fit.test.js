@@ -889,3 +889,119 @@ describe('The finder reads its sizes from the specs sheet', () => {
     }
   });
 });
+
+/*
+ * #475, the same class as #434 on the finder's own two reads. A catalogue
+ * outage returned an empty product list and a specs outage returned null, and
+ * null here means "fall back to the stale sizes cell", which is a designed
+ * fallback rather than a defect. Neither said anything. So a finder with no
+ * products looked exactly like a catalogue with no products, and a finder
+ * quietly reading the stale cell looked exactly like one reading the sheet.
+ *
+ * The reader gets what they got before in each case. The console is what tells
+ * the outage from the empty answer, which is what the block already does for
+ * the column breach two lines up.
+ */
+describe('perfect-fit, an outage told apart from an empty catalogue', () => {
+  let fetchStub;
+  let errors;
+
+  beforeEach(() => {
+    window.hlx = window.hlx || {};
+    if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
+    errors = sinon.stub(console, 'error');
+  });
+  afterEach(() => {
+    fetchStub?.restore();
+    errors.restore();
+  });
+
+  /** A fetch stub that gives each sheet its own status, body or rejection. */
+  function stubSheetOutcome(outcomes) {
+    return sinon.stub(window, 'fetch').callsFake((url) => {
+      const name = new URL(String(url), 'https://x').searchParams.get('sheet');
+      const outcome = outcomes[name] || { body: { data: [] } };
+      if (outcome.throws) return Promise.reject(new TypeError('Failed to fetch'));
+      if (outcome.status) return Promise.resolve(new Response('', { status: outcome.status }));
+      return Promise.resolve(new Response(JSON.stringify(outcome.body)));
+    });
+  }
+
+  /** The widths the By Tire Size panel offers, placeholder excluded. */
+  const widths = () => [...panelOf('tire-size').querySelectorAll('[name="width"] option')]
+    .filter((option) => option.value).length;
+
+  it('says so when the specs sheet cannot be read, and still reads the sizes cell', async () => {
+    fetchStub = stubSheetOutcome({ specs: { status: 503 }, products: { body: PRODUCTS } });
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0]), 'names the sheet and the fallback')
+      .to.contain('specs sheet').and.to.contain('sizes cell');
+    expect(widths(), 'the sizes cell still fills the picker').to.equal(3);
+  });
+
+  it('says so when the specs read throws', async () => {
+    fetchStub = stubSheetOutcome({ specs: { throws: true }, products: { body: PRODUCTS } });
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0])).to.contain('specs sheet');
+  });
+
+  it('says so when the catalogue cannot be read, and the finder offers nothing', async () => {
+    fetchStub = stubSheetOutcome({ specs: { body: SPEC_SHEET }, products: { status: 503 } });
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0]), 'names the catalogue').to.contain('products sheet');
+    expect(widths(), 'no product to offer a size for').to.equal(0);
+  });
+
+  it('says so when the catalogue read throws', async () => {
+    fetchStub = stubSheetOutcome({ specs: { body: SPEC_SHEET }, products: { throws: true } });
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+
+    expect(errors.called, 'console.error').to.be.true;
+    expect(String(errors.firstCall.args[0])).to.contain('products sheet');
+  });
+
+  // the pair: a catalogue that reads and holds no rows is not an outage, and
+  // the specs sheet is whole here so the column breach does not fire either
+  it('says nothing when both sheets read and the catalogue simply holds no rows', async () => {
+    fetchStub = stubSheetOutcome({ specs: { body: SPEC_SHEET }, products: { body: { data: [] } } });
+    const block = buildBar();
+    await decorate(block);
+    await openFrom(block, 1);
+
+    expect(widths(), 'nothing to offer, the same as an outage').to.equal(0);
+    expect(errors.called, 'console.error').to.be.false;
+  });
+
+  it('answers a failed catalogue read and an empty catalogue differently', async () => {
+    fetchStub = stubSheetOutcome({ specs: { body: SPEC_SHEET }, products: { status: 503 } });
+    await decorate(buildBar());
+    await openFrom(document.querySelector('.perfect-fit.block'), 1);
+    const onOutage = errors.callCount;
+    const widthsOnOutage = widths();
+
+    fetchStub.restore();
+    errors.resetHistory();
+    fetchStub = stubSheetOutcome({ specs: { body: SPEC_SHEET }, products: { body: { data: [] } } });
+    await decorate(buildBar());
+    await openFrom(document.querySelector('.perfect-fit.block'), 1);
+    const onEmpty = errors.callCount;
+
+    expect(widthsOnOutage, 'the reader sees the same either way').to.equal(widths());
+    expect(onOutage, 'a failed read').to.be.greaterThan(0);
+    expect(onEmpty, 'an empty catalogue').to.equal(0);
+  });
+});
