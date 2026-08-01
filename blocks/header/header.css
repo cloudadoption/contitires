@@ -628,17 +628,22 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > :is(a, button) {
-    padding: 7px 0;
+    --nav-mega-item-padding-block: 7px;
+
+    padding: var(--nav-mega-item-padding-block) 0;
     font-size: 14px;
     text-transform: none;
     letter-spacing: normal;
     color: var(--conti-white);
   }
 
-  /* the links beside it are inline, so their padding overlaps the row rather
-     than growing it. Keep the finder buttons inside the same row. */
+  /* A row's height is the list item's own line box. A link is inline, so the
+     padding above overlaps the rows around it and leaves that alone; a finder
+     button is inline-block, so the same padding joins the line box and grows
+     the row. Take it back out in the margin: whatever the padding is, the
+     button's margin box is its line box, and the row is the link's. */
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > button {
-    padding-block: 3px;
+    margin-block: calc(-1 * var(--nav-mega-item-padding-block));
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > :is(a, button):hover,
