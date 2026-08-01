@@ -631,7 +631,7 @@ describe('The blocks that resize an h2 keep their own line box', () => {
       '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
       'width < 900px', '33.6px'],
     ['/blocks/search/search.css',
-      'main .search .search-no-results h2', '600px', '50.4px'],
+      'main .search .search-no-results h2', '769px', '60px'],
     // live steps the count at its own `max-width: 768`, so ours steps one pixel
     // above that cap rather than at the site's 600 or 900 (#421).
     ['/blocks/tire-listing/tire-listing.css',
@@ -821,8 +821,10 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
     ['/blocks/promo-bar/promo-bar.css',
       '.promo-bar-panel-content :is(h1, h2, h3, h4, h5, h6)',
       ['33.6px', null, null]],
+    // the empty-state heading takes the global 38 below live's 768 breakpoint
+    // and live's own 60 above it
     ['/blocks/search/search.css',
-      'main .search .search-no-results h2', ['1.2', '50.4px', '50.4px']],
+      'main .search .search-no-results h2', [null, '60px', '60px']],
     // #414: live writes NO size and NO box on `.tires-filter-form h2`, only a
     // text-align at 768 and below, so this block writes none either and the
     // heading takes the global h2's 38 at every width. Three nulls is the
@@ -846,6 +848,26 @@ describe('Each pinned line box, resolved at 375, 900 and 1440', () => {
         expect(resolved(file, selector, w), `at ${w}`).to.equal(expected[i]);
       });
     });
+  });
+
+  /**
+   * THE BOUNDARY ITSELF, which 375, 900 and 1440 cannot see. Live writes
+   * `@media screen and (max-width: 768px)` for the empty-state heading, so
+   * live's SMALL pair includes 768 and its large pair starts at 769. Ours
+   * stepped at `width >= 768px`, and `max-width: N` and `min-width: N` both
+   * match at N, so at exactly 768 we rendered live's 50px on 60px where live
+   * is still 30px on 38px.
+   *
+   * 768 is an iPad in portrait, so the one pixel is a device rather than a
+   * rounding. Found while measuring the #413 club against the same live
+   * stylesheet, not by re-reading this file (#405).
+   */
+  it('leaves the empty-state heading to the global box at exactly 768', () => {
+    const sel = 'main .search .search-no-results h2';
+    const at = (w) => resolved('/blocks/search/search.css', sel, w);
+    expect(at(768), 'at 768 live is still 30px on 38px, so this block writes nothing')
+      .to.equal(null);
+    expect(at(769), 'at 769 live steps to 50px on 60px').to.equal('60px');
   });
 });
 

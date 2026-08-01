@@ -254,18 +254,24 @@ main .search .search-pager-hidden {
 main .search .search-no-results {
   max-width: var(--search-width);
   margin: 0 auto;
-  padding: 48px 0;
+  padding: 20px 0;
   text-align: center;
 }
 
-/* the empty-result heading keeps the numbers it rendered before #185 moved the
-   h3 and h1 tokens to live's scale. The 600 rule below wins from 600 up, so
-   this one is what shows on a phone. */
+/* the heading takes the global h2, 30px on a 38px box, which is live's own
+   value below its breakpoint. The 768 rule at the foot of this file wins from
+   there up.
+
+   THE CAP IS LIVE'S OWN `16ch` AND THE UNIT IS THE POINT (#415). `ch` is the
+   advance of the font's zero, 639/1000 in Stag Sans Thin, so live's cap is
+   306.7px at 30px and 511.2px at 50px. Our h2 resolves to the same weight 300
+   and the same font file, so the two render alike. The `11em` this replaces
+   re-derived itself from whatever the size became: #405 moved the size and the
+   large cap went 462px to 550px as a side effect of a slice that was only meant
+   to touch the size and the line box. */
 main .search .search-no-results h2 {
-  max-width: 11em;
-  margin: 0 auto 32px;
-  font-size: 28px;
-  line-height: 1.2;
+  max-width: 16ch;
+  margin: 0 auto 20px;
   color: var(--conti-white);
 }
 
@@ -335,15 +341,36 @@ main .search .search-no-results .button:hover {
   main .search .search-pager-summary {
     padding: 0;
   }
+}
 
+/* 769 is LIVE'S breakpoint for this heading and not the site's 600 or 900, on
+   purpose: live sets 50px on a 60px box on .site-search__no-results h2 above
+   its own max-width 768, and stepping at 600 would render the large size across
+   600 to 768 where live is still 30px on 38px. Do not tidy this back into the
+   scale (#405).
+
+   AND IT IS 769 RATHER THAN 768 BECAUSE max-width: N AND min-width: N BOTH
+   MATCH AT N. Live's small pair includes 768, so a step at 768 renders the
+   large size at that one width where live is still small. 768 is an iPad in
+   portrait, so it is a device rather than a rounding. */
+@media (width >= 769px) {
+  /* the container steps here rather than at the site's 600, because live steps
+     it under the same `max-width: 768` as the heading. Across 600 to 768 ours
+     padded 72px where live pads 20px, which is the band neither endpoint in
+     #417 names. */
   main .search .search-no-results {
-    padding: 72px 0;
+    padding: 60px 0;
   }
 
-  /* frozen at what it rendered on the old 1.2 ratio, so the flat 38px on the
-     h2 rule does not reach it. Live has no counterpart for this state (#373) */
   main .search .search-no-results h2 {
-    font-size: 42px;
-    line-height: 50.4px;
+    font-size: 50px;
+    line-height: 60px;
+
+    /* live steps the gap here too, 20px to 28px, on
+       `.site-search__no-results > * + *` as a margin-top. Ours renders it as the
+       heading's margin-bottom instead: the `.button` anchor is an atomic inline
+       with margin 0, so the gap that shows is the larger of the two adjacent
+       margins and live's own number comes out either way (#416). */
+    margin-bottom: 28px;
   }
 }
