@@ -499,6 +499,16 @@ export async function revealPage(templateStyles) {
 }
 
 /**
+ * Whether the eager phase requests fonts.css, which decides whether a page
+ * paints in Stag or paints in the fallback and changes into Stag.
+ * @returns {boolean}
+ */
+export function loadsFontsEagerly() {
+  /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
+  return window.innerWidth >= 900 || !!sessionStorage.getItem('fonts-loaded');
+}
+
+/**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
  */
@@ -516,8 +526,7 @@ async function loadEager(doc) {
   }
 
   try {
-    /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
-    if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
+    if (loadsFontsEagerly()) {
       loadFonts();
     }
   } catch (e) {
