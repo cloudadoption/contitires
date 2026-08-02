@@ -51,16 +51,31 @@ export default function decorate(block) {
   panelContent.append(...panelCell.childNodes);
   panelCell.append(panelContent);
 
+  // live's call to action is `class="btn btn--yellow"`, a yellow field with
+  // black text, which is what the primary pill is here
   panelContent.querySelectorAll('a[href]').forEach((a) => {
-    a.classList.add('button', 'secondary');
+    a.classList.add('button', 'primary');
     if (a.parentElement.tagName === 'P') a.parentElement.className = 'button-wrapper';
   });
+
+  // live's own close control, in the panel's corner rather than in the padded
+  // content, so it sits where live's does at every width
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'promo-bar-close';
+  close.setAttribute('aria-label', 'Close the panel');
+  panelCell.append(close);
 
   const setExpanded = (expanded) => {
     toggle.setAttribute('aria-expanded', String(expanded));
     panelRow.classList.toggle('promo-bar-panel-open', expanded);
     panelRow.toggleAttribute('inert', !expanded);
   };
+
+  close.addEventListener('click', () => {
+    setExpanded(false);
+    toggle.focus();
+  });
 
   toggle.addEventListener('click', () => {
     setExpanded(toggle.getAttribute('aria-expanded') !== 'true');

@@ -652,9 +652,26 @@
     margin: -20px 0 0 16px;
     padding: 12px 26px;
   }
-}
 
-@media (width >= 900px) {
+  /* THE LEFT COLUMN TURNS HERE TOO (#533). Live swaps its toggle for an open
+     sidebar at this same cap, and it caps six rules there, not one:
+
+       .tire-listing-page__columns { display: block; padding: 80px 0 }
+       .tire-listing-page__columns > * { display: grid;
+         grid-template-columns: 250px 1fr; grid-column-gap: 130px }
+       .tire-listing-page__left  { padding-left: 20px }
+       .tire-listing-page__right { padding-right: 20px }
+       .container { padding: 0 var(--container-padding, 16px) }
+
+     each with a `max-width: 768` override to the mobile value. Ours sat at 900,
+     so across 769 to 899 we drew a control live had already replaced: measured
+     on /tires, live's toggle is 114x32 at 768 and 0x0 at 769, ours was 114x37 at
+     768, 769 and 899.
+
+     They move as one because the panel is `display: none` at the base, so
+     hiding the toggle without opening the panel leaves the filters unreachable.
+     The 48px gap is not live's 130 and the 1200 step below widens it: that pair
+     is its own reading and is untouched here. */
   .tire-listing {
     padding: 80px 16px;
   }
@@ -692,6 +709,7 @@
     text-align: left;
   }
 }
+
 
 /* 1025 is LIVE'S step for the card title: it writes 14px on 20px under its own
    `max-width: 1024`, so the large pair starts one pixel above that cap. The

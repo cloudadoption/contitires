@@ -487,6 +487,70 @@ describe('Tire listing block', () => {
     expect(block.querySelector('input[value="Ultra-High Performance"]').checked).to.be.true;
   });
 
+  /*
+   * The mega menu hands out `/tires/ultra-high-performance` and the nav document
+   * holds exactly that href. Live's own canonical is the clean path and its
+   * markup carries no `condition=` anywhere. A facet the path already implies
+   * says nothing new in the query string, so the address the reader copies,
+   * shares and that analytics records stays the one live published. Issue #239.
+   */
+  it('leaves a clean category path clean', async () => {
+    window.history.replaceState({}, '', '/tires/ultra-high-performance');
+    stubCatalog();
+    const block = buildBlock('<div><div>Ultra-High Performance</div></div>');
+    await decorate(block);
+
+    expect(block.querySelector('.tire-listing-count').textContent).to.equal('15 Results');
+    expect(window.location.pathname).to.equal('/tires/ultra-high-performance');
+    expect(window.location.search).to.equal('');
+  });
+
+  it('still normalises a legacy Drupal deep link on that same path', async () => {
+    window.history.replaceState({}, '', '/tires/ultra-high-performance?tire_category_conditions%5B13%5D=13');
+    stubCatalog();
+    const block = buildBlock('<div><div>Ultra-High Performance</div></div>');
+    await decorate(block);
+
+    expect(window.location.search).to.equal('?condition=ultra-high-performance');
+  });
+
+  it('restores the category, and its clean address, on Back', async () => {
+    window.history.replaceState({}, '', '/tires/ultra-high-performance');
+    stubCatalog();
+    const block = buildBlock('<div><div>Ultra-High Performance</div></div>');
+    await decorate(block);
+
+    const summer = block.querySelector('input[value="Summer"]');
+    summer.checked = true;
+    summer.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(window.location.search).to.equal('?condition=ultra-high-performance&weather=summer');
+
+    // Back lands on the address the page was entered at, which carries no query
+    window.history.replaceState({}, '', '/tires/ultra-high-performance');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+
+    // the facet the path implies comes back with it, rather than all 46 tires
+    expect(block.querySelector('.tire-listing-count').textContent).to.equal('15 Results');
+    expect(block.querySelector('input[value="Ultra-High Performance"]').checked).to.be.true;
+    expect(summer.checked).to.be.false;
+    // and the address is left as Back found it
+    expect(window.location.search).to.equal('');
+  });
+
+  it('writes the address once a reader changes a facet on a category page', async () => {
+    window.history.replaceState({}, '', '/tires/winter');
+    stubCatalog();
+    const block = buildBlock('<div><div>Winter</div></div>');
+    await decorate(block);
+    expect(window.location.search, 'clean on arrival').to.equal('');
+
+    const passenger = block.querySelector('input[value="Passenger"]');
+    passenger.checked = true;
+    passenger.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(window.location.search).to.equal('?vehicle=passenger&weather=winter');
+  });
+
   it('renders a category page in that category\'s own order', async () => {
     stubCatalog();
     const block = buildBlock('<div><div>Winter</div></div>');

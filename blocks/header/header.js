@@ -7,7 +7,14 @@ import { markFinderTriggers } from '../../scripts/tire-finder.js';
 // its desktop nav here and compresses the bar to fit, which header.css does
 // between this width and 1200.
 export const DESKTOP_MEDIA_QUERY = '(min-width: 1025px)';
-const isDesktop = window.matchMedia(DESKTOP_MEDIA_QUERY);
+
+// created on first use rather than at import, so a module that imports one of
+// the helpers below does not read the viewport on the way in
+let desktopQuery;
+function desktop() {
+  if (!desktopQuery) desktopQuery = window.matchMedia(DESKTOP_MEDIA_QUERY);
+  return desktopQuery;
+}
 
 // the rebate ribbon above the nav, authored once and shown site-wide. Live
 // carries it on every page except the homepage, which authors its own promo
@@ -48,11 +55,11 @@ function closeOnEscape(e) {
     const navSections = nav.querySelector('.nav-sections');
     if (!navSections) return;
     const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
+    if (navSectionExpanded && desktop().matches) {
       // eslint-disable-next-line no-use-before-define
       toggleAllNavSections(navSections);
       navSectionExpanded.focus();
-    } else if (!isDesktop.matches) {
+    } else if (!desktop().matches) {
       // eslint-disable-next-line no-use-before-define
       toggleMenu(nav, navSections);
       nav.querySelector('button').focus();
@@ -66,10 +73,10 @@ function closeOnFocusLost(e) {
     const navSections = nav.querySelector('.nav-sections');
     if (!navSections) return;
     const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
+    if (navSectionExpanded && desktop().matches) {
       // eslint-disable-next-line no-use-before-define
       toggleAllNavSections(navSections, false);
-    } else if (!isDesktop.matches) {
+    } else if (!desktop().matches) {
       // eslint-disable-next-line no-use-before-define
       toggleMenu(nav, navSections, false);
     }
@@ -85,7 +92,7 @@ function closeOnFocusLost(e) {
  * @param {Function} [applies] Whether the flyout behavior is in force
  * @returns {Element[]} the disclosure controls
  */
-export function wireNavDisclosures(navSections, applies = () => isDesktop.matches) {
+export function wireNavDisclosures(navSections, applies = () => desktop().matches) {
   return [...navSections.querySelectorAll('.nav-drop')].map((item, i) => {
     const panel = item.querySelector(':scope > ul');
     const control = item.querySelector(':scope > p > a, :scope > p > button');
@@ -192,13 +199,13 @@ function toggleAllNavSections(sections, expanded = false) {
 function toggleMenu(nav, navSections, forceExpanded = null) {
   const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
   const button = nav.querySelector('.nav-hamburger button');
-  document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
+  document.body.style.overflowY = (expanded || desktop().matches) ? '' : 'hidden';
   nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-  toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
+  toggleAllNavSections(navSections, expanded || desktop().matches ? 'false' : 'true');
   button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
 
   // enable menu collapse on escape keypress
-  if (!expanded || isDesktop.matches) {
+  if (!expanded || desktop().matches) {
     // collapse menu on escape press
     window.addEventListener('keydown', closeOnEscape);
     // collapse menu on focus lost
@@ -388,8 +395,8 @@ export default async function decorate(block) {
   });
   nav.setAttribute('aria-expanded', 'false');
   // prevent mobile nav behavior on window resize
-  toggleMenu(nav, navSections, isDesktop.matches);
-  isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
+  toggleMenu(nav, navSections, desktop().matches);
+  desktop().addEventListener('change', () => toggleMenu(nav, navSections, desktop().matches));
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';

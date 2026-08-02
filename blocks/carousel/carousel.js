@@ -95,11 +95,34 @@ export default function decorate(block) {
     if (e.key === 'ArrowRight') goTo(current + 1);
   });
 
-  // gentle optional autoplay, default off: add an `autoplay` variant to enable
+  // gentle optional autoplay, default off: add an `autoplay` variant to enable.
+  // WCAG 2.2.2 wants a way to stop it, and hover and focus are not one: a touch
+  // reader hovers nothing. A reader whose system asks for less motion gets it
+  // stopped without having to ask this page as well.
   if (block.classList.contains('autoplay')) {
     let timer;
-    const start = () => { timer = window.setInterval(() => goTo(current + 1), 6000); };
+    let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const stop = () => window.clearInterval(timer);
+    // one timer at a time, and none at all while the reader has it held
+    const start = () => {
+      stop();
+      if (paused) return;
+      timer = window.setInterval(() => goTo(current + 1), 6000);
+    };
+
+    const pause = document.createElement('button');
+    pause.type = 'button';
+    pause.className = 'carousel-pause';
+    pause.setAttribute('aria-label', 'Pause the carousel');
+    pause.setAttribute('aria-pressed', String(paused));
+    pause.addEventListener('click', () => {
+      paused = !paused;
+      pause.setAttribute('aria-pressed', String(paused));
+      if (paused) stop();
+      else start();
+    });
+    nav.append(pause);
+
     block.addEventListener('mouseenter', stop);
     block.addEventListener('mouseleave', start);
     block.addEventListener('focusin', stop);

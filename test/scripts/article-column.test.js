@@ -20,6 +20,19 @@ const LIVE = [
   { vw: 769, column: 392, reading: 290 },
 ];
 
+/**
+ * Live's measure below 769, where the sidebar follows the body and the copy
+ * takes the container: `.container` pads 20 each side there rather than 16, and
+ * `.news-article__default .news-article__body` caps at 60ch, which is 571px on
+ * live's 14.88px body. So the measure is min(571, viewport - 40). Read off
+ * continentaltire.com/learn/how-do-i-check-my-tire-pressure. (#205)
+ */
+const LIVE_NARROW = [
+  { vw: 768, reading: 571 },
+  { vw: 600, reading: 560 },
+  { vw: 375, reading: 335 },
+];
+
 async function adopt(...paths) {
   const sheets = await Promise.all(paths.map(async (p) => {
     const sheet = new CSSStyleSheet();
@@ -116,5 +129,71 @@ describe('Article body column', () => {
     const m = await measure(768);
     expect(m.tracks, 'one track').to.have.length(1);
     expect(m.scrollWidth, 'no sideways scroll at 768').to.be.at.most(m.vw);
+  });
+
+  // #205: the one column was min(640, viewport - 48) against live's
+  // min(571, viewport - 40), so the copy read 8px narrow where the viewport
+  // bound and 69px wide at 768, where live's cap binds and ours did not.
+  LIVE_NARROW.forEach(({ vw, reading }) => {
+    it(`tracks live's ${reading}px measure at ${vw}`, async () => {
+      const m = await measure(vw);
+      expect(m.reading, `reading measure at ${vw}`).to.be.closeTo(reading, 1);
+      expect(m.scrollWidth, `scrollWidth at ${vw}`).to.be.at.most(m.vw);
+    });
+  });
+});
+
+/** An article whose copy is short of the measure, one line per paragraph. */
+function buildShortArticle() {
+  const main = document.createElement('main');
+  main.innerHTML = `
+    <div><h1>2022 Continental Tire Soccer Schedule</h1></div>
+    <div>
+      <p>March 13, 2022<br><strong>Atlanta United</strong></p>
+      <p>March 20, 2022<br><strong>Austin FC</strong></p>
+      <p>April 9, 2022<br><strong>LA Galaxy</strong></p>
+      <p>May 7, 2022<br><strong>Charlotte FC</strong></p>
+    </div>`;
+  document.body.replaceChildren(main);
+  decorateMain(main);
+  main.querySelectorAll('.section').forEach((s) => {
+    s.dataset.sectionStatus = 'loaded';
+    s.style.display = null;
+  });
+  return main;
+}
+
+/**
+ * #194: the reading wrapper is a grid item, and auto inline margins turn off
+ * the grid's stretch, so a maximum left it shrinking to its content. One of the
+ * 229 article pages does not fill the measure,
+ * /learn/2022-continental-tire-soccer-schedule, whose 29 paragraphs are each a
+ * date and a fixture split by a <br>: it read 277px at every width from 769 up,
+ * against live's 559, 479, 387 and 290. Live sets the copy's inline MARGINS,
+ * `.news-article__default .news-article__body { margin: 0 13% }`, and lets the
+ * grid stretch the rest, so its measure holds whatever the copy is.
+ */
+describe('Article reading measure, copy short of it', () => {
+  let adopted;
+
+  before(async () => {
+    adopted = document.adoptedStyleSheets;
+    await adopt('/styles/styles.css', '/styles/article.css');
+    document.body.classList.add('article', 'appear');
+    buildShortArticle();
+  });
+
+  after(async () => {
+    document.adoptedStyleSheets = adopted;
+    document.body.classList.remove('article', 'appear');
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  LIVE.filter(({ vw }) => vw !== 1200).forEach(({ vw, reading }) => {
+    it(`holds live's ${reading}px measure at ${vw}`, async () => {
+      const m = await measure(vw);
+      expect(m.reading, `reading measure at ${vw}`).to.be.closeTo(reading, 1);
+    });
   });
 });

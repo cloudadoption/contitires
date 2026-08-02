@@ -37,37 +37,21 @@ main .video .video-play {
   cursor: pointer;
 }
 
-/* live's play badge: a white rounded triangle on a translucent field */
+/* live's play badge, off `.media-video.media--cta:after`: a 72px ringed circle
+   with a yellow triangle, the same mark the media gallery already carries. Kept
+   at its source hex rather than the site token, which is #ffa500 against the
+   badge's #ffa503. One size at every width: live's only other rule for the mark
+   restates the same 72. */
 main .video .video-play::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 4.5rem;
-  height: 3.25rem;
-  border-radius: 0.75rem;
-  background-color: rgb(0 0 0 / 65%);
+  width: 72px;
+  height: 72px;
   translate: -50% -50%;
-  transition: background-color 0.2s;
-}
-
-main .video .video-play::before {
-  content: '';
-  position: absolute;
-  z-index: 1;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-top: 0.6rem solid transparent;
-  border-bottom: 0.6rem solid transparent;
-  border-left: 1rem solid var(--clr-white, #fff);
-  translate: -35% -50%;
-}
-
-main .video .video-play:hover::after,
-main .video .video-play:focus-visible::after {
-  background-color: var(--link-color, #ffa500);
+  background-image: url("data:image/svg+xml,%3Csvg height='72' viewBox='0 0 76 76' width='72' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='38' cy='38' fill='%23000' fill-opacity='.6' r='37' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='m34 26 14 12.5-14 12.5z' fill='%23FFA503'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover;
 }
 
 main .video .video-play:focus-visible {
@@ -86,16 +70,5 @@ main .video.video-no-poster .video-frame {
      the way live does, rather than parking it at the column's left edge */
   main .video {
     margin: 2rem auto;
-  }
-
-  main .video .video-play::after {
-    width: 5.5rem;
-    height: 3.9rem;
-  }
-
-  main .video .video-play::before {
-    border-top-width: 0.75rem;
-    border-bottom-width: 0.75rem;
-    border-left-width: 1.25rem;
   }
 }

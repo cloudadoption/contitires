@@ -563,12 +563,16 @@ export default async function decorate(block) {
     return;
   }
 
-  const state = stateFromSearch(window.location.search);
   // a category page pre-selects its facet, unless the URL already says otherwise
   const preset = ALL_LABELS.find((label) => label.toLowerCase() === facet.toLowerCase());
-  if (preset && !FACET_GROUPS.some((group) => state.selection[group.key].length)) {
-    state.selection[groupOf(preset).key] = [preset];
-  }
+  const readState = () => {
+    const next = stateFromSearch(window.location.search);
+    if (preset && !FACET_GROUPS.some((group) => next.selection[group.key].length)) {
+      next.selection[groupOf(preset).key] = [preset];
+    }
+    return next;
+  };
+  const state = readState();
 
   const cards = document.createElement('ul');
   cards.className = 'tire-listing-cards';
@@ -579,7 +583,10 @@ export default async function decorate(block) {
   let onReset = () => {};
 
   let rendered = false;
-  const render = () => {
+  // `sync` is false for a render the history itself asked for: a popstate has
+  // already moved the address, and writing it again from there would hand the
+  // reader a forward entry for the Back they pressed
+  const render = (sync = true) => {
     const matched = sortRows(filterRows(rows, state.selection), state.sort, preset);
     const view = paginate(matched, state.page, pageSize);
     state.page = view.page;
@@ -593,10 +600,17 @@ export default async function decorate(block) {
     }) : buildEmpty(() => onReset()));
     decorateIcons(cards);
 
-    // the first render only normalizes the URL, so Back still leaves the page
-    const url = `${window.location.pathname}${searchFromState(state)}`;
-    if (rendered) window.history.pushState({}, '', url);
-    else window.history.replaceState({}, '', url);
+    // the first render only normalizes the URL, so Back still leaves the page,
+    // and only when the address carries a query of its own to normalize. A
+    // category page's facet comes from its path and is already in the address,
+    // so writing it into the query string gives the page a second address that
+    // is not the one live publishes or the mega menu hands out. A legacy Drupal
+    // deep link still resolves to our own parameters. #239
+    if (sync) {
+      const url = `${window.location.pathname}${searchFromState(state)}`;
+      if (rendered) window.history.pushState({}, '', url);
+      else if (window.location.search) window.history.replaceState({}, '', url);
+    }
     rendered = true;
   };
 
@@ -680,7 +694,9 @@ export default async function decorate(block) {
   });
 
   window.addEventListener('popstate', () => {
-    const next = stateFromSearch(window.location.search);
+    // readState, not stateFromSearch: an address with no query on a category
+    // page means that category, and the path is the only thing saying so
+    const next = readState();
     state.selection = next.selection;
     state.sort = next.sort;
     state.page = next.page;
@@ -688,7 +704,7 @@ export default async function decorate(block) {
       input.checked = (state.selection[groupOf(input.value).key] || []).includes(input.value);
     });
     header.querySelector('select').value = state.sort;
-    render();
+    render(false);
   });
 
   render();
