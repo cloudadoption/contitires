@@ -448,7 +448,23 @@ main .section.hero-container {
   background: none;
 }
 
-@media (width >= 900px) {
+/* live's own step for this whole block is 1025, not 900 and not 769. Read on
+   continentaltire.com at 768, 769, 899, 900, 1024 and 1025 against the same
+   paths on the published host: live's band holds 220 on /tires and on
+   /cruisingthecontinentalus and 258 to 222 on /learn from 768 through 1024, and
+   goes to 345 on the three of them at 1025. Its marquee copy holds 18px over
+   the same range and takes 20px at 1025. Ours moved all of it at 900, so
+   between 900 and 1024 every page carrying the block ran a desktop band and a
+   desktop type scale where live was still on its small one.
+
+   769 was the wrong target even though the project's other step is there: at
+   769 each of these rules would fire 131px earlier than live's does. The
+   breakpoint was the finding and the values were read per rule before it moved.
+
+   `hero left short` is authored on 12 published pages, /tires and its eleven
+   category pages, so the two `short` rules below are reached today. #513's body
+   says the class is on 0 of 60 sampled paths; the sample missed them. #513 */
+@media (width >= 1025px) {
   .hero {
     min-height: 440px;
   }

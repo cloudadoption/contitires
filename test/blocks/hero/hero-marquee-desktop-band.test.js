@@ -55,7 +55,7 @@ const BANDS = [
     what: 'a section hub with a trail', classes: 'breadcrumb stacked slimmer', band: 400, below: '0px', page: '/experience/soccer',
   },
   {
-    what: 'the learn hub', classes: 'left stacked slimmer short', band: 345, below: '345px', page: '/learn',
+    what: 'the learn hub', classes: 'left stacked slimmer short', band: 345, below: '0px', page: '/learn',
   },
   {
     what: 'the events hub', classes: 'stacked tall short', band: 345, below: '0px', page: '/events',
@@ -125,14 +125,16 @@ describe('Hero, live\'s desktop band on the divided marquee (#509)', () => {
       });
 
       /*
-       * The other side of live's own step. Two of the three release the band to
-       * their content at 0, and `/learn` does NOT: `.hero.left.short` scores
-       * 0-3-0 and fires from 900, so it beats `.hero.stacked`'s `min-height: 0`
-       * and holds 345 through the 900-to-1024 band against live's 222 there.
-       * `/events` carries `short` without `left`, so its `.hero.short` is 0-2-0
-       * and loses to that same 0 on source order. THAT ASYMMETRY IS
-       * `.hero.short`'s OWN 900 rather than anything these two rules do, and it
-       * is filed separately. Asserted per page so it cannot pass unnoticed.
+       * The other side of live's own step: the three release the band to their
+       * content at 0, which is what live does below 1025.
+       *
+       * `/learn` read 345 here until #513. `.hero.left.short` scores 0-3-0 and
+       * fired from 900, so it beat `.hero.stacked`'s `min-height: 0` and held
+       * 345 through the 900-to-1024 band against live's 222, while `/events`
+       * carrying `short` without `left` lost to that same 0 on source order.
+       * The block those rules sit in now opens at 1025, where live's own step
+       * is, so the asymmetry is gone and all three read 0. Asserted per page so
+       * it cannot come back unnoticed.
        */
       it(`reads ${below} below the step at 1024`, async () => {
         await setViewport({ width: 1024, height: 900 });
