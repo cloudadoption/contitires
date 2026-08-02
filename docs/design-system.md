@@ -88,7 +88,7 @@ Whether `fonts.css` is requested in the eager phase depends on viewport width. `
 
 `styles/lazy-styles.css` is fetched in the lazy phase by `loadLazy()`, and in this project it is one comment line and no rules. The boilerplate ships it as the place for global styles that can wait past LCP. No global rule here needed it. What would have gone in it went into a template stylesheet instead, where only the pages that use it pay for it.
 
-Block CSS is per block, and not global in delivery. `loadSection()` in `scripts/aem.js` fetches `/blocks/{name}/{name}.css` as the section holding that block loads, so a page downloads the stylesheets of the blocks it authors and no others. There are 29 of them, 9,802 lines in total, against 1,910 lines in `styles/`.
+Block CSS is per block, and not global in delivery. `loadSection()` in `scripts/aem.js` fetches `/blocks/{name}/{name}.css` as the section holding that block loads, so a page downloads the stylesheets of the blocks it authors and no others. There are 29 of them, 10,120 lines in total on 2026-08-03, against 1,964 lines in `styles/`.
 
 ## Template stylesheets, and how the article template gets one
 

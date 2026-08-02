@@ -90,7 +90,7 @@ says why at length. It answers a 404 on an image extension with 200, `image/png`
 And it sets `window.SAMPLE_PAGEVIEWS_AT_RATE = 'off'` in the runner page, so no test posts to the
 RUM endpoint.
 
-A local run: 132 test files, 1,968 tests, about 18 seconds, coverage above 92%. Coverage is reported and
+A local run on 2026-08-03: 142 test files, 2,106 tests, about 20 seconds, coverage 92.8%. Coverage is reported and
 does not gate. @web/test-runner's default threshold is zero on each of its four counts, and the
 config sets no `coverageConfig` to raise it.
 

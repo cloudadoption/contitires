@@ -9,26 +9,26 @@ Read [docs/architecture.md](architecture.md) first if the decoration model is ne
 these started from the [block collection](https://www.aem.live/developer/block-collection) and then
 diverged toward the reference site.
 
-Line counts are the JS and the CSS. The test column counts files under
+Line counts are the JS and the CSS on 2026-08-03. The test column counts files under
 [`test/blocks/`](../test/blocks); the runner is `@web/test-runner`, driven by `npm test`.
 
 | Block | What it is for | js/css | Tests |
 |---|---|---|---|
-| [header](#header) | the yellow bar, the mega menu, the search field | 408/821 | 5 |
+| [header](#header) | the yellow bar, the mega menu, the search field | 408/820 | 6 |
 | [footer](#footer) | link columns, the social band, the legal bar | 236/321 | 6 |
 | [fragment](#fragment) | pulls another document into this page | 50/1 | 1 |
-| [hero](#hero) | the marquee at the top of a page | 197/1118 | 13 |
+| [hero](#hero) | the marquee at the top of a page | 197/1205 | 15 |
 | [perfect-fit](#perfect-fit) | the tire finder, its bar and its modal | 875/811 | 10 |
-| [tire-listing](#tire-listing) | the filterable catalogue behind `/tires` | 712/755 | 5 |
-| [tire-specs](#tire-specs) | a product's per-size specification band | 281/175 | 2 |
+| [tire-listing](#tire-listing) | the filterable catalogue behind `/tires` | 712/791 | 6 |
+| [tire-specs](#tire-specs) | a product's per-size specification band | 281/197 | 3 |
 | [tire-rating](#tire-rating) | a product's aggregate rating, and its JSON-LD | 182/102 | 2 |
 | [size-list](#size-list) | authored tire sizes as chips | 20/22 | 1 |
 | [tire-features](#tire-features) | the annotated tire diagram | 160/332 | 1 |
-| [columns](#columns) | two-column layouts, including the product hero | 358/453 | 5 |
-| [cards](#cards) | the general card grid, in ten treatments | 75/1146 | 8 |
+| [columns](#columns) | two-column layouts, including the product hero | 358/481 | 6 |
+| [cards](#cards) | the general card grid, in ten treatments | 75/1209 | 9 |
 | [article-cards](#article-cards) | the learn listings over the query index | 346/413 | 3 |
 | [related-articles](#related-articles) | the links an editor picked for one article | 26/1 | 1 |
-| [media-gallery](#media-gallery) | a tile grid of stills and videos, with a modal | 284/636 | 5 |
+| [media-gallery](#media-gallery) | a tile grid of stills and videos, with a modal | 376/719 | 7 |
 | [carousel](#carousel) | one slide at a time, with a counter | 138/225 | 2 |
 | [video](#video) | a poster that becomes a player on click | 70/74 | 2 |
 | [tabs](#tabs) | one panel at a time behind a tab bar | 96/204 | 1 |
