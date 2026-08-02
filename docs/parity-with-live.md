@@ -138,6 +138,7 @@ the part that IS doable; the row says which half is which.
 |  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. **THAT VERDICT IS #488 AND ONLY #488.** The two halves were one issue until 2026-08-01 and were split so they could stop sharing a verdict: #488 is the submission and closes here, #101 is the form UI — 26 inputs and 2 textareas, submit disabled — and stays OPEN and pickable. Nothing about the missing receiver blocks the rebuild. **A GEARED ROW DOES NOT MAKE EVERY ISSUE ON IT UNRESOLVABLE**, and this row cited #101 alone until the split, which would have closed real work under a verdict about the other half | [#488](https://github.com/cloudadoption/contitires/issues/488), [#101](https://github.com/cloudadoption/contitires/issues/101) |
 |  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **needs access to the API / data source.** Neither half is ours to build. A plate resolves through a registration lookup live buys and #243 established we do not have it. The vehicle half is different and the difference is recorded rather than hidden: **live's fitment IS publicly readable** — the cascade walks year to make to model to trim on an unauthenticated GET and returns the OE size, measured 2026-08-01, detail in the section below. **We do not take it.** Ruled 2026-08-01, and before that in #234: this site does not depend on, or harvest, a host it does not own. So the gap is real and closed as unresolvable, not parked as pending | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
 |  | [Finder results render in the panel](#vehicle-and-plate-lookup) | differs | ✅ decided: the panel is where the platform's own guidance puts a dynamic result, and **no gear because the limit is ours** | [#483](https://github.com/cloudadoption/contitires/issues/483) |
+|  | [The finder's question heading is wider than live's](#vehicle-and-plate-lookup) | diverges | ✅ recorded: 64px wider above 769, equal below, and the ink lands in the same place | -- |
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
@@ -371,6 +372,29 @@ the fix rather than the omission**, and our width list is a subset of live's.
 Ruled 2026-08-02. `parseSize` in `blocks/perfect-fit/perfect-fit.js` already comments that `HL`
 and `T` return null on purpose and asserts it in a test, so the parser side is protected. This is
 the note for whoever next edits the sheet, who is not the same person.
+
+
+#### The finder's question heading is 64px wider than live's, and the ink is in the same place
+
+Our question heading measures 1136 where live's header measures 1072 above the 769 step, and 828
+against live's 764 at 900. **At and below 768 they are equal.** Both sides centre their text, so a
+visitor comparing the two pages sees the words in the same position and cannot find the difference.
+It is recorded rather than fixed for that reason.
+
+**THE CONTENT CAP IS NOT THE CAUSE, and this sentence exists so the next reader does not reopen
+that question.** Live's panel is 1136 and its heading is 1072, so live insets the heading *inside*
+a panel we now match. The 64px is a within-panel inset on that element, not our cap being wrong.
+#499 capped the panel correctly and #501 moved the form bound to where live puts it; neither
+touched this.
+
+It is pre-existing and identical on the By Tire Size tab, where it has been visible since #484
+released that tab from the form cap. Measured 2026-08-02 while proving #501, and deliberately not
+folded in: different element, different rule, and #501 names neither.
+
+**Written down because an invisible delta with no record is one the next measurement pass
+re-measures and re-argues.** That cost was paid twice on 2026-08-01, on four dead paths a sweep
+will find again and three pending rows that sat for days. One line closes it for the price of one
+line.
 
 ### Star rating and review count
 
