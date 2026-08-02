@@ -137,7 +137,18 @@ function createField(tag, name, labelText) {
   return { wrapper, field };
 }
 
-function fillSelect(select, values, placeholder) {
+/**
+ * Fills a control with its options.
+ *
+ * Live's options are a value and a label, and the two differ on four of its
+ * seven controls: the diameter reads "18 in" against a value of "18", and its
+ * make, model and trim read a name against a slug. Ours differ on the diameter
+ * alone, because the vehicle values here are a written map whose keys are
+ * already the display strings. So this takes a mapping rather than a unit
+ * (#489).
+ * @param {Function} [label] reads a value and returns what the reader sees
+ */
+function fillSelect(select, values, placeholder, label = (value) => value) {
   const ph = document.createElement('option');
   ph.value = '';
   ph.textContent = placeholder;
@@ -146,7 +157,7 @@ function fillSelect(select, values, placeholder) {
   select.replaceChildren(ph, ...values.map((value) => {
     const opt = document.createElement('option');
     opt.value = value;
-    opt.textContent = value;
+    opt.textContent = label(value);
     return opt;
   }));
 }
@@ -198,7 +209,7 @@ function wireCascade(steps) {
     steps.slice(from + 1).forEach((step, i) => {
       const answered = steps.slice(0, from + 1 + i).map((s) => s.field.value);
       const available = answered.every(Boolean);
-      fillSelect(step.field, available ? step.options(answered) : [], step.placeholder);
+      fillSelect(step.field, available ? step.options(answered) : [], step.placeholder, step.label);
       step.field.disabled = !available;
     });
   };
@@ -382,6 +393,9 @@ function buildSizeCascade(opts, prefix = '') {
       field: rim.field,
       placeholder: 'Diameter',
       options: ([chosenWidth, chosenAspect]) => opts.rimsByWidthAspect[`${chosenWidth}/${chosenAspect}`] || [],
+      // the one control live labels differently from its value: "18 in" over
+      // a value of 18, which its own endpoint and its makeLabels both give
+      label: (rimValue) => `${rimValue} in`,
     },
   ]);
   const fields = [width.field, aspect.field, rim.field];

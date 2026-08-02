@@ -372,8 +372,13 @@ body.perfect-fit-modal-open {
   margin: 0 auto;
 }
 
+/* live's size form is the dialog's content width and its fields row is a 520
+   island inside it, centred: 1136 and 520 at 1440, 828 and 520 at 900, 335 and
+   335 at 375. Capping the form at 496 took the terms sentence and the call to
+   action down with it, so the terms wrapped to two lines where live's runs on
+   one and the submit sat 20px lower for it (#484). */
 .perfect-fit-form-tire-size {
-  max-width: 496px;
+  max-width: none;
 }
 
 .perfect-fit-fields {
@@ -381,9 +386,27 @@ body.perfect-fit-modal-open {
   gap: 20px;
 }
 
+/* the row holds live's 520 from 768 up and falls back to the panel's width
+   below that, which is where the two already agreed at 335 */
+.perfect-fit-form-tire-size .perfect-fit-fields,
+.perfect-fit-rear-toggle {
+  box-sizing: border-box;
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+/* live composes that 520 two ways and steps at 769: 3x168 and 2x8 at 768,
+   3x160 and 2x20 above it, so the columns absorb the gap and the row does not
+   move */
 .perfect-fit-form-tire-size .perfect-fit-fields {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+
+@media (width >= 769px) {
+  .perfect-fit-form-tire-size .perfect-fit-fields {
+    gap: 20px;
+  }
 }
 
 /* live's rear-size control, measured at 1440, 900, 800, 768 and 375 and the same
@@ -570,6 +593,24 @@ main .section .perfect-fit-form .perfect-fit-terms a:any-link {
   color: var(--conti-text-grey);
 }
 
+/* live stops stretching the call to action at 769, not at 900, and the
+   rear-size control with it: its submit is 728 wide at 768 and 182 from 769,
+   and its rear control is the row's 520 at 768 and its own 237 above. The two
+   sit beside the fields row and stepping them anywhere else leaves the 769 to
+   899 band half converted (#484, #494). */
+@media (width >= 769px) {
+  .perfect-fit-form .perfect-fit-search {
+    width: auto;
+  }
+
+  .perfect-fit-rear-toggle {
+    width: auto;
+  }
+}
+
+/* the dialog's own chrome keeps the block's 900. Live's padding and close
+   button were not measured at 768 against 769, and an unmeasured value is not
+   moved on the strength of a neighbouring one. */
 @media (width >= 900px) {
   .perfect-fit-dialog {
     padding-top: 80px;
@@ -578,16 +619,6 @@ main .section .perfect-fit-form .perfect-fit-terms a:any-link {
   .perfect-fit-close {
     top: 24px;
     right: 24px;
-  }
-
-  /* live stops stretching the call to action once there is room for it, and
-     the rear-size control with it */
-  .perfect-fit-form .perfect-fit-search {
-    width: auto;
-  }
-
-  .perfect-fit-rear-toggle {
-    width: auto;
   }
 }
 
