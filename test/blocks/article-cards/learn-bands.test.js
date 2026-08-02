@@ -147,15 +147,24 @@ describe('Learn hub band treatments', () => {
       expect(cards(BAND, 'padding', '769px')).to.equal('80px 0px 38px');
     });
 
-    // live's tile footer is one 54px row from 769 up: the product name on the
-    // left, the Tire details link on the right. Ours stacked them, which made
-    // each tile taller and the band 76px taller than live's. On a narrow
-    // screen live stacks them, because one row wraps both halves.
-    it('puts the tile name and its link on one row from 769 up', () => {
+    // live's tile footer is one 54px row from 1025 up: the product name on the
+    // left, the Tire details link on the right. Below that it stacks them at 78
+    // tall. Ours stacked them at every width, which made each tile taller and
+    // the band 76px taller than live's above the step.
+    //
+    // This asserted 769 until #399. Read on live's own /learn at six widths:
+    // `.card__footer` is column and 78 tall at 769, 900, 1000 and 1024, and row
+    // and 54 tall at 1025 and 1440. The 54 belongs to the wide half alone, and
+    // at 769 the old rule left an 18px name sharing a row it had no width for.
+    // `cards()` reads the rule declared at a width rather than the cascade, so
+    // the base rule is what applies at 769 and a null there is the assertion
+    // that this no longer steps at 769.
+    it('puts the tile name and its link on one row from 1025 up', () => {
       expect(cards('.cards.highlights .cards-card-body', 'flex-direction')).to.equal('column');
-      expect(cards('.cards.highlights .cards-card-body', 'flex-direction', '769px')).to.equal('row');
-      expect(cards('.cards.highlights .cards-card-body', 'justify-content', '769px')).to.equal('space-between');
-      expect(cards('.cards.highlights .cards-card-body', 'align-items', '769px')).to.equal('center');
+      expect(cards('.cards.highlights .cards-card-body', 'flex-direction', '769px')).to.equal(null);
+      expect(cards('.cards.highlights .cards-card-body', 'flex-direction', '1025px')).to.equal('row');
+      expect(cards('.cards.highlights .cards-card-body', 'justify-content', '1025px')).to.equal('space-between');
+      expect(cards('.cards.highlights .cards-card-body', 'align-items', '1025px')).to.equal('center');
     });
 
     // the uppercase rule was written for the Tire details link and caught the

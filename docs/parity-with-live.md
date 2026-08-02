@@ -142,7 +142,7 @@ the part that IS doable; the row says which half is which.
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [The media gallery](#the-media-gallery) | differs | ⏳ queued | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
+|  | [The media gallery](#the-media-gallery) | differs | ⏳ queued: the block has live's hidden set now. Both halves that are left wait on authoring: the 32 assets for #319, and `Style: partner` on 10 documents before #326's width lands without regressing them | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
 |  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ a delete nobody has proved safe | [#330](https://github.com/cloudadoption/contitires/issues/330) |
 |  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
 |  | [The default share image 404s](#the-default-share-image-404s) | differs | ⏳ ship live's file | [#178](https://github.com/cloudadoption/contitires/issues/178) |
@@ -156,9 +156,8 @@ the part that IS doable; the row says which half is which.
 |  | [Heading line boxes we are leaving different from live](#heading-line-boxes-we-are-leaving-different-from-live) | diverges | ✅ decided, not outstanding: nine inherited from live, two below the threshold a rule earns | [#382](https://github.com/cloudadoption/contitires/issues/382), [#381](https://github.com/cloudadoption/contitires/issues/381) |
 |  | [Two heading margins we are leaving proportional](#two-heading-margins-we-are-leaving-proportional) | diverges | ✅ decided, not outstanding: one does not reach the page, the other has no single absolute that fits both directions | [#395](https://github.com/cloudadoption/contitires/issues/395) |
 |  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | differs | ⏳ author the same spacing device in DA, or accept the tighter rhythm | [#384](https://github.com/cloudadoption/contitires/issues/384) |
-|  | [The content container](#the-content-container-64px-wider-than-lives) | differs | ⏳ queued, not a local fix | [#219](https://github.com/cloudadoption/contitires/issues/219) |
 |  | [The hero content cap, which changes no wrap](#the-hero-content-cap-which-changes-no-wrap) | diverges | ✅ decided, not outstanding: measured over all 15 pages it reaches and it changes the wrap on none of them | [#409](https://github.com/cloudadoption/contitires/issues/409) |
-|  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ⏳ queued | [#219](https://github.com/cloudadoption/contitires/issues/219) |
+|  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ⏳ the page gutter steps at live's 769 and the heading scale at live's 1025; 23 block rules at 900 and 7 at 600 are open, unfiled | -- |
 |  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ⏳ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
 |  | [Prose link underlines](#prose-links-carry-an-underline-live-paints-transparent) | diverges | ✅ WCAG 1.4.1 | [#240](https://github.com/cloudadoption/contitires/issues/240) |
 |  | [Superscripts](#superscripts) | diverges | ✅ deliberate | [#238](https://github.com/cloudadoption/contitires/issues/238) |
@@ -968,24 +967,40 @@ reader reaches a dead link from our side. What a reader loses is the file, reach
 
 ### The media gallery
 
-**differs.** Live keeps a hidden set the modal can reach. We have no third state.
+**differs.** The block now has live's hidden set. The 32 assets that fill it are not authored.
 
 Live's product grid shows 2 to 6 tiles and its modal pages up to 11, keeping the rest as
-`media--hidden-media-gallery-item` at height 0. That happens on 10 of the 46 product pages, 32
-items in all. Live's inline galleries sit inside the article reading column, 559 wide at x=250
-at 1440. Below 769 live draws a "1 of 6" counter with arrows and a `+` expand badge.
+`media--hidden-media-gallery-item` at height 0. Counted on the 56 live tire URLs: 45 have a
+viewer, and the grid draws 2 on 1 page, 3 on 25, 4 on 5, 5 on 4 and 6 on 10. It never draws more
+than 6. Hidden items appear on those 10 pages and on no other, 32 in all. Live's inline galleries
+are inside the article reading column, 559 wide at x=250 at 1440. Below 769 live draws a "1 of 6"
+counter with arrows and a `+` expand badge.
 
-`blocks/media-gallery/media-gallery.js` reads every authored row into one items array, so one
-row is one tile and one slide. There is no hidden state. Our inline gallery is 750 wide at
-x=155 at 1440, so it breaks out of the reading column and starts further left than the copy
-above it. No counter and no expand badge below 769.
+`blocks/media-gallery/media-gallery.js` draws the first 6 rows of a `product` gallery and pages
+the whole set. So a seventh row onwards is modal only, and no new cell is needed. The cap is the
+product viewer's: live's article galleries keep back nothing and draw up to 14, on
+`/experience/lingenfelter-performance-engineering`. Our hero cells have 2 to 6 stills on the same
+45 pages live does, in the same distribution. Nothing on the site draws differently today, and the
+32 assets are what the third state waits for. They are reachable: each one is on a
+`con-media-gallery-modal src` in live's delivered page, so a curl reads them without driving
+live's modal.
 
-What it costs a visitor: on those 10 product pages our modal pages 2 to 6 slides where live
-pages 4 to 11, so images live shows cannot be reached here.
+Our inline gallery is 750 wide at x=155 at 1440, so it breaks out of the reading column and
+starts further left than the copy above it. No counter and no expand badge below 769.
 
-What would close it: a modal-only row state in the block, a width tied to the reading column, a
-counter and badge below 769, and a carousel for the `/events` Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326),
+What it costs a visitor: on those 10 product pages our modal pages 6 slides where live pages 7 to
+11, so images live shows cannot be reached here.
+
+What would close it: the 32 assets authored as rows 7 and up, a width tied to the reading column,
+a counter and badge below 769, and a carousel for the `/events` Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326),
 [#327](https://github.com/cloudadoption/contitires/issues/327), [#341](https://github.com/cloudadoption/contitires/issues/341), [#199](https://github.com/cloudadoption/contitires/issues/199).
+
+`#326` is blocked on authoring rather than on code. 26 published article pages have a gallery.
+Live draws 13 of them through `news-article__partners` and 13 through `news-article__default`,
+and 3 of the first 13 have `Style: partner` here. Tying the gallery to the reading column reaches
+the other 10 as well, taking them from 750, which is live's partner track, to 559. No DOM signal
+separates those 10 from the 13. Each group has pages whose share block is authored into the first
+section, and pages that take the built sidebar.
 
 ### Leftover originals in DA
 
@@ -1546,45 +1561,42 @@ for each of the remaining two would key a rule to one document, which is the mis
 **What would close them:** a width-driven box on the securecontact page. For `/ev-compatible`, only
 live resolving its own 360-against-440.
 
-### The content container, 64px wider than live's
+### The content container, now live's
 
-**differs.** We give 1200 of content inside 32 gutters. Live gives 1136 inside 16. Every band
-inherits it.
+**matches.** `main > .section > div` is `box-sizing: border-box; max-width: 1168px; margin:
+auto; padding: 0 20px`, going to 16px from 769, which is live's `.container` translated: live's
+`max-width: 73rem` with `padding: 0 1rem` under a global `* { box-sizing: border-box }`, going
+to 1.25rem under `max-width: 768px`, and `html { font-size: 100% }` so 73rem is 1168.
 
-Live's `.container` is `margin: 0 auto; max-width: 73rem; width: 100%; padding: 0 1rem`, and
-a global `* { box-sizing: border-box }` means the 73rem includes the padding. That is 1168
-outer and 1136 of content. Below 769 the padding goes to 1.25rem. At a 1440 viewport live's
-content starts at x=152.
+Read off both rendered pages at five widths, content width and where the content starts:
 
-Ours is `main > .section > div { max-width: 1200px; margin: auto; padding: 0 24px }`, going to
-32px from 900. There is no global `box-sizing` rule here, so the 1200 is the content box and
-the padding sits outside it: 1264 outer from 900. At 1440 our content starts at x=120.
+| width | was | now, and live's |
+|---|---|---|
+| 375 | 327 at x=24 | 335 at x=20 |
+| 768 | 720 at x=24 | 728 at x=20 |
+| 769 | 721 at x=24 | 737 at x=16 |
+| 900 | 836 at x=32 | 868 at x=16 |
+| 1440 | 1200 at x=120 | 1136 at x=152 |
 
-What it costs a visitor: anything the container measures runs wide, and each surface has to be
-corrected on its own. Four pairs, all re-derived from the CSS on both sides rather than read
-from an issue. The `/events` Social tiles are 189 at 1440 and 121 at 900 against live's 177
-and 127. The product-highlights video card is 387 against live's 365. The events results
-column is 885 against live's 821. Side padding gives 24 and 32 where live gives 16 and 20, so
-a page reads 4 to 16px narrower a side than live at every width.
+The bands measured off it followed. The `/events` Social tiles read 177 at 1440 and 127 at 900
+where they read 189 and 121, the news column beside them 337 at 900 where it read 323, and the
+`/experience/soccer` video cards 353.33, 264 and 220.33 at 1440, 900 and 769. Each of those is
+live's own number.
 
-What would close it, and the trap. This is not a local fix. Giving one band live's measure
-moves its left edge to x=152 while the section above it still starts at x=120, so a
-single-surface correction misaligns the page it means to fix. The container has to change
-globally, and the five surfaces that already hard-code live's 1136 have to come out in the
-same pass or they double up. Those five are `styles/article.css:212`,
-`blocks/cards/cards.css:220` and `:766`, `blocks/crew/crew.css:139` and
-`blocks/hero/hero.css:135`.
+Two surfaces had set live's 1136 on this same div themselves, `.cards.members` and
+`.cards.teaser`, and came out in the same pass: against a border-box 1168 a repeated 1136 caps
+the content at 1104. Three others keep their 1136 because it is not this container.
+`styles/article.css:264` is the article grid, and article pages take `max-width: none` on the
+wrapper. `blocks/crew/crew.css:139` and `blocks/hero/hero.css:147` sit inside sections that run
+edge to edge, so their 1136 is the only inset there.
 
 [#219](https://github.com/cloudadoption/contitires/issues/219), [#340](https://github.com/cloudadoption/contitires/issues/340), [#244](https://github.com/cloudadoption/contitires/issues/244), [#99](https://github.com/cloudadoption/contitires/issues/99).
 
 A number in the record does not reproduce and is not repeated here. [#99](https://github.com/cloudadoption/contitires/issues/99)'s close comment
 records live's events column at 789, and [#340](https://github.com/cloudadoption/contitires/issues/340) and [#244](https://github.com/cloudadoption/contitires/issues/244) restate it as fact. Live declares the
 same track we do, `grid-template-columns: 265px 1fr` with a 50px gap, and its listing sits in
-a plain `.container`, so live computes 1136 - 265 - 50 = 821. The 32px gap is twice live's own
-container padding, which suggests 789 was read at a different viewport or through an extra
-padded wrapper. The direction and the cause survive either way, because live's declared track
-is identical to ours and the whole delta is the container. 789 wants a browser measurement
-before anyone uses it.
+a plain `.container`, so live computes 1136 - 265 - 50 = 821, which is what we compute now too.
+789 wants a browser measurement before anyone uses it.
 
 ### Breakpoints, half of them live's
 
@@ -1596,21 +1608,21 @@ and `max-width: 1024px` 175 times, with `min-width: 769px` 29 more. `min-width: 
 once in all 982. Nothing at 600px in either direction. Live is a two-breakpoint site with a
 few one-off widths like 1170 and 1180.
 
-We carry 98 media queries across `styles/` and `blocks/`. 769px runs 34 times, 900px 26, 1025px
-21, 600px 8, then one-offs at 380, 641, 1170, 1181, 1184 and 1200. A quarter of our queries
-pivot at a width live effectively does not use. The two that matter most are both in
-`styles.css`. The section gutter steps at 900 where live's steps at 769, and the heading scale
-steps at 900 where live's h1 steps at 1025.
+We carry 120 media queries across `styles/` and `blocks/`. 769px runs 41 times, 1025px 31, 900px
+23, 600px 7, then one-offs at 380, 641, 1170, 1181, 1184 and 1200. A fifth of our queries pivot
+at a width live effectively does not use. The two that mattered most were both in `styles.css`
+and both are done: the heading scale steps at live's 1025, and the section gutter steps at live's
+769 since [#219](https://github.com/cloudadoption/contitires/issues/219).
 
-What it costs a visitor: between 769 and 900 a visitor gets our mobile gutter and live's
-desktop one. Between 900 and 1025 our headings have already stepped up while live's have not.
-The layout is right at 375, 768 and 1440 and drifts in the two windows between.
+What it costs a visitor: the page gutter is live's at every width now, so what is left is the
+blocks. Between 769 and 900 a band whose own rule still steps at 900 keeps its narrow layout
+where live has already gone wide.
 
-What would close it: move the 26 rules at 900 to 769 or 1025, whichever live uses on that
-surface, and take the 8 at 600 with them. Mechanical, but 34 rules across the tree, and each
+What would close it: move the 23 rules at 900 to 769 or 1025, whichever live uses on that
+surface, and take the 7 at 600 with them. Mechanical, but 30 rules across the tree, and each
 needs a measured pair either side to prove the move. The boilerplate is what pulled us here.
 `AGENTS.md` prescribes `min-width` media queries at 600px, 900px and 1200px, and live uses
-none of those three. [#219](https://github.com/cloudadoption/contitires/issues/219) covers the padding half of it.
+none of those three.
 
 ### The article body shifts up 51px after first paint
 

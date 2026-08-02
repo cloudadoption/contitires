@@ -665,9 +665,12 @@ describe('Hero block, the breadcrumb variant', () => {
     expect([...nav.querySelectorAll('li')].map((li) => li.textContent.trim()))
       .to.eql(['Experience', 'Partners']);
     expect(nav.querySelector('a').getAttribute('href')).to.equal('/experience');
-    const order = [...nav.parentElement.children];
-    expect(order.indexOf(nav), 'the trail sits below the title')
-      .to.be.below(order.indexOf(nav.parentElement.querySelector('h1')));
+    // document order, not sibling index: since #470 the trail hangs off the
+    // block and the title is inside the copy, so the two are no longer siblings
+    const title = block.querySelector('h1');
+    // eslint-disable-next-line no-bitwise
+    const before = nav.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(!!before, 'the trail sits below the title').to.be.true;
   });
 
   it('names the page the way the trail should read', async () => {

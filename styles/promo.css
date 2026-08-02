@@ -200,6 +200,36 @@ main .section.banner .columns > div > div:nth-child(2) p {
   line-height: 30px;
 }
 
+/* Below 769 live centres all three parts and runs the pills as a full-width
+   stack capped at 400 with 12px between them, `.promo-banner__inner` reading
+   `column`, `center`, `gap: 20px` at 768 and 375 against `row`, `start`,
+   `gap: 40px` at 769 and up. Ours left the card and the copy at the column's
+   left edge and drew the pills at their own width, touching, because two
+   `button-wrapper` paragraphs carry no margin between them. */
+
+/* the `.columns > div` tail is shared with the steps band above, and a section
+   cannot be both `steps` and `banner`, so their order carries no cascade
+   meaning here */
+/* stylelint-disable-next-line no-descending-specificity */
+main .section.banner .columns > div {
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+main .section.banner .columns > div > div:last-child {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+}
+
+main .section.banner .columns > div > div:last-child .button {
+  width: 100%;
+}
+
 @media (width >= 769px) {
   main .section.dark,
   main .section.black {
@@ -218,16 +248,15 @@ main .section.banner .columns > div > div:nth-child(2) p {
   main .section.tires ul {
     columns: 4;
   }
-}
 
-@media (width >= 900px) {
-  /* the copy takes what the card and the pills leave, and the pills sit in a
-     row of their own rather than stacking as two paragraphs */
-  main .section.meta .columns > div {
-    display: grid;
-    grid-template-columns: auto 1fr auto 1fr;
-    gap: 12px 20px;
-    align-items: center;
+  /* live turns this row at 769, where the generic columns rules still turn at
+     900, so between 769 and 899 these are what make the row. The copy takes
+     what the card and the pills leave, and the pills go back to their own
+     width side by side. Live's gap here is 40 against the 20 it stacks with. */
+  main .section.banner .columns > div {
+    flex-direction: row;
+    gap: 40px;
+    text-align: start;
   }
 
   main .section.banner .columns > div > div:first-child,
@@ -236,8 +265,24 @@ main .section.banner .columns > div > div:nth-child(2) p {
   }
 
   main .section.banner .columns > div > div:last-child {
-    display: flex;
+    flex-direction: row;
     gap: 12px;
+    width: auto;
+    max-width: none;
+  }
+
+  main .section.banner .columns > div > div:last-child .button {
+    width: auto;
+  }
+}
+
+@media (width >= 900px) {
+  /* the badge sits beside its copy, twice */
+  main .section.meta .columns > div {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 12px 20px;
+    align-items: center;
   }
 }
 
