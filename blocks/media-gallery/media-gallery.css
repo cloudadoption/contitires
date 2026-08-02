@@ -103,6 +103,85 @@ main .media-gallery .media-gallery-tile:focus-visible {
   }
 }
 
+/* ---- what live puts around the mobile slider ---- */
+
+/*
+ * Live's pager, taken from the `con-column-slider` rules themselves rather than
+ * from a screenshot: `width: 5rem`, auto margins, `space-between` so the two
+ * `1rem` arrows sit at the ends and the count centres between them, and
+ * `margin-top: var(--space-16)` once the slider is active. The count is 12px on
+ * a `line-height` of 1 at 1.25px tracking, bold.
+ *
+ * Live shows it only while the slider is active, which its own script switches
+ * at 768 and under. The switch is a media query here, because the strip is a
+ * grid from 769 up and there is nothing to page.
+ */
+main .media-gallery .media-gallery-pager {
+  display: none;
+}
+
+/* the arrow carries #333 in its own bytes and cannot follow a band, so the
+   count is pinned to the same value rather than inheriting one */
+main .media-gallery .media-gallery-pager-count {
+  color: var(--conti-black);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 1.25px;
+}
+
+main .media-gallery :is(.media-gallery-pager-prev, .media-gallery-pager-next) {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+  cursor: pointer;
+}
+
+main .media-gallery .media-gallery-pager-prev {
+  background-image: url("data:image/svg+xml,%3Csvg height='18' viewBox='0 0 9 18' width='9' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m9 0-9 8 9 8' fill='none' stroke='%23333' stroke-linecap='round' stroke-linejoin='round' transform='translate(0 1)'/%3E%3C/svg%3E");
+}
+
+main .media-gallery .media-gallery-pager-next {
+  background-image: url("data:image/svg+xml,%3Csvg height='18' viewBox='0 0 9 18' width='9' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m0 0 9 8-9 8' fill='none' stroke='%23333' stroke-linecap='round' stroke-linejoin='round' transform='translate(0 1)'/%3E%3C/svg%3E");
+}
+
+main .media-gallery :is(.media-gallery-pager-prev, .media-gallery-pager-next):focus-visible {
+  outline: 2px solid var(--conti-yellow-contrast);
+  outline-offset: 2px;
+}
+
+@media (width < 769px) {
+  main .media-gallery .media-gallery-pager {
+    display: flex;
+    width: 80px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 16px auto 0;
+  }
+
+  /* Live's expand badge, its rule and its drawing both: a 21px white circle
+     stroked #ffa500 with a #333 plus, at bottom 10 right 10 over the still. It
+     is what marks a tile as something that opens, and live draws it on the
+     product viewer and the article gallery alike. A data URI for the same
+     reason the play badge above is one. */
+  main .media-gallery:not(.cards) .media-gallery-tile::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    right: 10px;
+    bottom: 10px;
+    width: 21px;
+    height: 21px;
+    background-image: url("data:image/svg+xml,%3Csvg height='21' viewBox='0 0 21 21' width='21' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd' transform='translate(1 1)'%3E%3Ccircle cx='9.5' cy='9.5' fill='%23fff' r='9.5' stroke='%23ffa500'/%3E%3Cpath d='m6 9.5h8m-4-4v8' stroke='%23333' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+}
+
 /* ---- the modal the selected tile opens on ---- */
 
 /* Live insets its stage 40px and hangs the arrows 15px inside it, over the

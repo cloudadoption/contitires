@@ -129,6 +129,59 @@ function buildButton(item, kind) {
 }
 
 /**
+ * Live's mobile pager: `1 of 6` between two arrows, under the strip. Live's own
+ * slider hides every slide but the active one and counts off its own index; the
+ * strip here scroll-snaps, so the count follows the scroll and the arrows move
+ * it. That makes a swipe move the count too, which live's touch handlers also
+ * do. Both wrap, the way live's do.
+ * @param {Element} list the tile strip
+ * @param {number} total how many tiles
+ * @returns {Element} the pager
+ */
+function buildPager(list, total) {
+  const pager = document.createElement('div');
+  pager.className = 'media-gallery-pager';
+  const count = document.createElement('div');
+  count.className = 'media-gallery-pager-count';
+
+  let at = 0;
+  const read = (index) => {
+    at = index;
+    count.textContent = `${index + 1} of ${total}`;
+  };
+  read(0);
+
+  const cells = [...list.children];
+  // the cells snap centred, so the one on screen is the one whose middle is
+  // closest to the middle of the strip
+  const showing = () => {
+    const middle = list.scrollLeft + list.clientWidth / 2;
+    const off = (cell) => Math.abs(cell.offsetLeft + cell.offsetWidth / 2 - middle);
+    return cells.reduce((best, cell, i) => (off(cell) < off(cells[best]) ? i : best), 0);
+  };
+  const step = (delta) => {
+    const index = (at + delta + total) % total;
+    read(index);
+    const cell = cells[index];
+    list.scrollTo({ left: cell.offsetLeft - (list.clientWidth - cell.offsetWidth) / 2 });
+  };
+  list.addEventListener('scroll', () => read(showing()));
+
+  const arrow = (name, delta) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `media-gallery-pager-${name}`;
+    // live's own arrows carry no name at all, and a button with none is a
+    // button a screen reader can only call "button"
+    button.setAttribute('aria-label', name === 'prev' ? 'Previous' : 'Next');
+    button.addEventListener('click', () => step(delta));
+    return button;
+  };
+  pager.append(arrow('prev', -1), count, arrow('next', 1));
+  return pager;
+}
+
+/**
  * Media gallery: a grid of square tiles mixing stills and videos, opening on a
  * modal that pages the whole set. The player is the video block's, so a page of
  * videos asks nothing of YouTube until someone asks to watch one.
@@ -162,7 +215,7 @@ export default function decorate(block) {
     return;
   }
 
-  const captions = block.classList.contains('cards');
+  const cards = block.classList.contains('cards');
 
   const modal = document.createElement('dialog');
   modal.className = 'media-gallery-modal';
@@ -283,9 +336,13 @@ export default function decorate(block) {
     cell.append(tile);
     // live's card names the video under the still, and the still itself is the
     // whole of the click target
-    if (captions) cell.append(buildCaption(item));
+    if (cards) cell.append(buildCaption(item));
     list.append(cell);
   });
 
-  block.replaceChildren(list, modal);
+  // the strip is one tile at a time below 769 and the pager is what says how
+  // many there are. The cards grid is a column there rather than a slider, and
+  // live gives it none
+  const pager = !cards && items.length > 1 ? buildPager(list, items.length) : null;
+  block.replaceChildren(...[list, pager, modal].filter(Boolean));
 }
