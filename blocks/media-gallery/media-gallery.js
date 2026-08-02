@@ -122,6 +122,26 @@ function buildButton(item, kind) {
 }
 
 /**
+ * How many tiles the product viewer draws. Live's product grid keeps the rest
+ * of the set for the modal alone, marking those items
+ * `media--hidden-media-gallery-item` and giving them no picture at all.
+ *
+ * Counted on all 56 live tire URLs: 45 carry a viewer and the grid draws 2, 3,
+ * 4, 5 or 6, never more. Hidden items appear on 10 of the 45 and each of those
+ * draws exactly 6, so the 32 hidden assets are items 7 and up on every page
+ * that has any. That is why the cap needs no new row shape and no new cell: an
+ * author writes one photograph per paragraph in the hero's image cell, the way
+ * they always did, and the seventh onwards is modal only.
+ *
+ * The cap is the product viewer's alone. Live's article galleries draw the
+ * whole set and keep nothing back: 14 tiles on
+ * /experience/lingenfelter-performance-engineering, 8 on
+ * /experience/usf-pro-championships, 7 on /learn/continental-science-guy, and 0
+ * hidden on all 26 article pages that carry one. (#319)
+ */
+const PRODUCT_TILES = 6;
+
+/**
  * Media gallery: a grid of square tiles mixing stills and videos, opening on a
  * modal that pages the whole set. The player is the video block's, so a page of
  * videos asks nothing of YouTube until someone asks to watch one.
@@ -266,7 +286,13 @@ export default function decorate(block) {
 
   const list = document.createElement('ul');
   list.className = 'media-gallery-list';
-  items.forEach((item, i) => {
+  // the strip and the stage above took the whole array, so an item the grid
+  // skips is still paged to and still opens. slice keeps the indices, which is
+  // what lets a tile hand its own position straight to show()
+  const drawn = block.classList.contains('product')
+    ? items.slice(0, PRODUCT_TILES)
+    : items;
+  drawn.forEach((item, i) => {
     const cell = document.createElement('li');
     const tile = buildButton(item, 'tile');
     tile.addEventListener('click', () => {
