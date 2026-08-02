@@ -386,9 +386,11 @@ body.perfect-fit-modal-open {
   gap: 8px;
 }
 
-/* live's rear-size control, measured at 1440, 900 and 375 and the same at all
-   three: 12px uppercase words, underlined, 38px under the size row, white while
-   the control can be used and #949494 while it cannot (#313) */
+/* live's rear-size control, measured at 1440, 900, 800, 768 and 375 and the same
+   at all five: 12px uppercase words, underlined, 38px under the size row, white
+   while the control can be used and #949494 while it cannot (#313). The 800 and
+   768 readings matter because live steps this form at 769 where we step at 900,
+   which is #494 and is not this change. */
 .perfect-fit-rear-toggle {
   display: flex;
   align-items: center;
