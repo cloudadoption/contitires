@@ -182,6 +182,40 @@
   align-self: flex-end;
 }
 
+/* below the step live runs its filter control and its results count on ONE
+   LINE, and we stacked them. Live does it by pulling its whole results column
+   over its filter column, `margin-top: -33px` on
+   `.tire-listing-page__results-header`, where its filter column is 114x32 and
+   carries no bottom margin. Read at 375 and 768 on /tires and /tires/winter:
+   live's toggle is 114x32 at 20,390 and its count 168x32 at 188,389.
+
+   THE 33 IS LIVE'S NUMBER AND NOT OURS. Our toggle is 114x37 and carries
+   `margin-bottom: 20px`, so the row to close is 57 rather than 33. Copying
+   live's value would leave the count 24px low.
+
+   THE PULL IS ON THE HEADER BECAUSE THAT IS THE BOX LIVE MOVES, and not because
+   the alternative renders differently. Putting the same margin on the status
+   instead lands the count, the print row and the cards on the same pixels: the
+   header is a flex column, so a negative margin on its first item takes the
+   second one with it. Both were measured at 375 before this was written, and
+   two guesses about the difference were wrong before the measurement. What does
+   differ is the header's own border box, 287x83 at 38 against 287x26 at 95, and
+   live's is the first shape: its results header is 335x105 at 389, covering its
+   filter column the way ours now covers the toggle.
+
+   The count-to-print gap is live's 20px and survives either way, at 421 to 441
+   on live and 539 to 559 on ours before the pull. The test pins it because a
+   later change to the tools margin can move it, not because this rule can.
+
+   Covering the button does not cost it the click: `elementFromPoint` at its
+   centre still returns the button, because inline-level content paints above a
+   later sibling block's background. The test hit-tests all three widths. #460 */
+@media (width < 769px) {
+  .tire-listing .tire-listing-header {
+    margin-top: -57px;
+  }
+}
+
 /* live's own numbers, off `.tire-listing-page__results-header-left`: 24px on a
    32px box at 768 and below, and no rule of its own above that, so live's count
    takes live's bare h2 at 30px on 38px. The 769 rule below writes that pair out.
