@@ -106,7 +106,10 @@ describe('product hero, the photograph column takes what the copy leaves (#321)'
   /** live's `margin-right: var(--space-38)` between the two columns */
   const GAP = 38;
 
-  [769, 1025, 1200, 1440].forEach((width) => {
+  // 899 and 900 are here because the generic columns rules step at 900 and
+  // these step at live's 769, so the row is made by two rule sets above 900 and
+  // by one below it
+  [769, 899, 900, 1025, 1200, 1440].forEach((width) => {
     it(`holds the copy to live's 352 and starts both columns level at ${width}`, async () => {
       const at = await renderAt(width);
       frames.push(at.doc.defaultView.frameElement);
