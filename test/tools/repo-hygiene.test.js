@@ -27,7 +27,13 @@ const PLACEHOLDERS = /\{repo\}|\{owner\}/;
 /**
  * The workflows this repo ships, and the scaffold one-shot that must not come
  * back. A served file is asserted, a 404 is skipped, so this reads as a guard
- * once the one-shot is gone.
+ * once the one-shot is gone. The dev server has no directory listing, so the
+ * names are written out.
+ *
+ * The runner logs `404 network requests: .github/workflows/cleanup-on-create.yaml`
+ * on every run of this file, and that 404 is the assertion rather than noise.
+ * It is the only expected one here; web-test-runner.config.mjs enumerates the
+ * rest of the suite's.
  */
 const WORKFLOWS = ['main.yaml', 'cleanup-on-create.yaml'];
 
