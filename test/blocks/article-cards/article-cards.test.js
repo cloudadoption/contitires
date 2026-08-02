@@ -58,14 +58,74 @@ describe('Article cards block', () => {
     expect(!!block.querySelector('.article-cards-more')).to.be.false;
   });
 
-  it('skips rows that have no image', async () => {
+  /*
+   * Live prints "1-10 of 148 results" above LOAD MORE, in
+   * `<div class="load-more-pager"><div class="pager-summary"><b>1-10</b> of 148
+   * results</div><ul class="pager">`, read off /learn/news-and-events. The count
+   * and the control are one element on live, and live's own
+   * `con-ajax-controller` sets `pager=".load-more-pager"` with
+   * `updatePager(e) { ...innerHTML = e ? e.innerHTML : "" }`, so on the last page
+   * the fetched document has no pager and both the count and the button go.
+   *
+   * The range is cumulative here where live's is the fetched page's: live reads
+   * "11-20 of 148" over twenty appended teasers, because `appendmode` appends
+   * rows while the pager region is replaced wholesale. First render, which is
+   * what a visitor lands on, is "1-10" on both. Issue #348.
+   */
+  it('prints the count above load more and moves it as more is shown', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(15))));
+    const block = buildBlock();
+    await decorate(block);
+
+    const summary = block.querySelector('.article-cards-summary');
+    expect(summary).to.exist;
+    expect(summary.textContent).to.equal('1-12 of 15 results');
+    expect(summary.querySelector('b').textContent).to.equal('1-12');
+    // live keeps the count above the control, and adjacent to it
+    expect(summary.nextElementSibling).to.equal(block.querySelector('.article-cards-more'));
+
+    block.querySelector('.article-cards-more').click();
+    expect(!!block.querySelector('.article-cards-more')).to.be.false;
+    expect(!!block.querySelector('.article-cards-summary')).to.be.false;
+  });
+
+  it('prints no count when one batch holds everything', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(10))));
+    const block = buildBlock();
+    await decorate(block);
+
+    expect(!!block.querySelector('.article-cards-more')).to.be.false;
+    expect(!!block.querySelector('.article-cards-summary')).to.be.false;
+  });
+
+  it('draws a stub for a row that has no image', async () => {
     const res = indexResponse(3);
     res.data[1].image = '';
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(res)));
     const block = buildBlock();
     await decorate(block);
 
-    expect(block.querySelectorAll('.article-card')).to.have.length(2);
+    const cards = block.querySelectorAll('.article-card');
+    expect(cards).to.have.length(3);
+    // newest first, so the imageless row (lastModified 1700000001) is the middle card
+    const stubbed = cards[1];
+    expect(stubbed.querySelector('h2').textContent).to.equal('Article 1');
+    expect(!!stubbed.querySelector('picture')).to.be.false;
+    expect(stubbed.querySelector('.article-card-image .article-card-image-stub')).to.exist;
+    expect(!!cards[0].querySelector('.article-card-image-stub')).to.be.false;
+  });
+
+  it('draws a stub for a row carrying the default-meta-image fallback', async () => {
+    const res = indexResponse(3);
+    res.data[1].image = '/default-meta-image.png?width=1200&format=pjpg&optimize=medium';
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(res)));
+    const block = buildBlock();
+    await decorate(block);
+
+    const cards = block.querySelectorAll('.article-card');
+    expect(cards).to.have.length(3);
+    expect(!!cards[1].querySelector('picture')).to.be.false;
+    expect(cards[1].querySelector('.article-card-image-stub')).to.exist;
   });
 
   it('filters by an authored category', async () => {
@@ -90,29 +150,30 @@ describe('Article cards block', () => {
 
     expect(block.querySelectorAll('.article-card')).to.have.length(3);
     expect(!!block.querySelector('.article-cards-more')).to.be.false;
+    expect(!!block.querySelector('.article-cards-summary')).to.be.false;
   });
 });
 
 describe('selectRows', () => {
-  it('keeps imageless rows out and filters by category', () => {
+  it('keeps imageless rows in and filters by category', () => {
     const rows = [
       { image: '/a.png', category: 'News', lastModified: '3' },
       { image: '', category: 'News', lastModified: '2' },
       { image: '/c.png', category: 'Technology', lastModified: '1' },
     ];
-    expect(selectRows(rows, { category: 'news' }).map((r) => r.lastModified)).to.deep.equal(['3']);
-    expect(selectRows(rows).length).to.equal(2);
+    expect(selectRows(rows, { category: 'news' }).map((r) => r.lastModified)).to.deep.equal(['3', '2']);
+    expect(selectRows(rows).length).to.equal(3);
   });
 
-  it('drops rows using the missing default-meta-image fallback', () => {
+  it('keeps a row carrying the default-meta-image fallback', () => {
     const rows = [
       { image: '/learn/media_1.png?width=1200', lastModified: '3' },
       { image: '/default-meta-image.png?width=1200&format=pjpg', lastModified: '2' },
       { image: '/learn/media_2.png?width=1200', lastModified: '1' },
     ];
     const out = selectRows(rows);
-    expect(out).to.have.length(2);
-    expect(out.some((r) => r.image.includes('default-meta-image'))).to.be.false;
+    expect(out).to.have.length(3);
+    expect(out.some((r) => r.image.includes('default-meta-image'))).to.be.true;
   });
 
   it('sorts by weight ascending, unweighted rows last by lastModified', () => {
