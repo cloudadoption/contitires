@@ -227,6 +227,47 @@ main .section.hero-container {
   }
 }
 
+/* Below 1025 live divides this marquee the way it divides the homepage's: the
+   photo is a band in flow and the copy sits under it on black, rather than the
+   copy over a crop of the photo. Both pages this variant serves divide there,
+   read at 1025 and 1024 on /promotion and /ccpromotion, so it belongs to the
+   variant rather than to a page.
+
+   THE STRIP TAKES ITS OWN RATIO OVER LIVE'S 160 FLOOR. Live reads 477 at 1024
+   on /promotion, from an `aspect-ratio: 1024 / 477` its campaign theme puts on a
+   mobile-only product photograph; /ccpromotion reads the bare 160 at every width
+   below the step, so 477 is the campaign's number and not this variant's. One
+   asset is authored here and it is the 1440x400 desktop one.
+
+   No scrim: live's own rule is
+   `@media (max-width: 1024px) { .marquee--mobile-bg-divided .marquee__background::after { display: none } }`,
+   which `stacked` above already quotes. */
+@media (width < 1025px) {
+  .hero.promo {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    background-color: #000;
+  }
+
+  /* `relative` rather than `static` for the reason `stacked` gives: `.hero` is
+     the positioned ancestor, so an `inset: 0` pseudo-element on a static strip
+     would cover the copy under it as well as the photo */
+  .hero.promo .hero-image {
+    position: relative;
+    min-height: 160px;
+  }
+
+  .hero.promo .hero-image::after {
+    content: none;
+  }
+
+  /* live's 28, where the overlay above the step takes 56 */
+  .hero.promo .hero-content {
+    padding-block: 28px;
+  }
+}
+
 @media (width >= 1025px) {
   .hero.promo .hero-content h1 {
     font-size: 42px;
