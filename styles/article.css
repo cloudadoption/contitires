@@ -299,9 +299,17 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
   }
 
   /* live holds its copy to 74% of the column, whatever the column measures:
-     559 of 755, 479 of 647, 387 of 523, 290 of 392 */
+     559 of 755, 479 of 647, 387 of 523, 290 of 392.
+
+     A width, not a maximum. The wrapper is a grid item and auto inline margins
+     turn off the grid's stretch, so a maximum left it shrinking to its content:
+     /learn/2022-continental-tire-soccer-schedule, whose paragraphs are each a
+     date and a fixture split by a <br>, read 277 at every width from 769 up
+     against live's 559. Live writes the same geometry the other way round,
+     `.news-article__default .news-article__body { margin: 0 13% }` over the
+     stretch it keeps. (#194) */
   body.article main .section:has(.share-wrapper) .default-content-wrapper {
-    max-width: 74%;
+    width: 74%;
     margin-inline: auto;
   }
 
@@ -421,8 +429,11 @@ body.article main .section.partner .share-wrapper + .default-content-wrapper {
   }
 
   /* the copy takes the whole 305, not the 74% an article's reading column
-     holds it to, and a photograph in it is not broken out of that measure */
+     holds it to, and a photograph in it is not broken out of that measure.
+     A partner section carries a share block too, so the article rule reaches
+     this wrapper: it releases both properties that rule sets, not one. */
   body.article main .section.partner .default-content-wrapper {
+    width: auto;
     max-width: none;
   }
 
