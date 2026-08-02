@@ -21,24 +21,33 @@ const GLOBAL_CSS = '/styles/styles.css';
  * and under `screen and (max-width: 1024px)` the first drops to 12, the second
  * to 0 and the third to 0.
  *
- * Read on live and on the published host at /tires/vancontact-winter,
- * 2026-08-03, as rendered boxes:
+ * Rendered boxes off /tires/vancontact-winter, 2026-08-03. Live at 1440, 1025
+ * and 768, the published host at 1440:
  *
- *     width  what                 live      published
- *      1440  row x / width        0 / 1440  88 / 1264
- *      1440  logo left            20        120
- *      1440  first nav item left  226       330
- *      1440  utility right edge   1420      1320
- *      1200  logo left            20        32
- *      1200  first nav item left  226       242
+ *     width  what                 live       published
+ *      1440  row x / width        0 / 1440   88 / 1264
+ *      1440  logo left            20         120
+ *      1440  first nav item left  226        330
+ *      1440  utility right edge   1420       1320
+ *      1025  row x / width        0 / 1025   0 / 1025
+ *      1025  logo left            20         20
+ *      1025  first nav item left  226        226
+ *      1025  utility right edge   1005       1005
+ *       768  logo left            12         16
  *
  * THESE ARE RENDERED POSITIONS, NOT DECLARATIONS. The drift is a cap plus
  * `margin: auto`, so it appears in no single declaration: a test that walks
  * cssRules sees `max-width: 1264px` and cannot tell whether it binds.
  *
- * 1025 to 1199 already reads live's numbers, because that band was tuned to
- * 20px padding with a 20px gap for the wider logo. It is asserted here too, so
- * a desktop-side change cannot take it back out.
+ * 1025 to 1199 already read live's numbers, because that band was tuned to 20px
+ * padding with a 20px gap for the wider logo, and 1200 stepped back out to 32
+ * and 24. So the drift ran from 1200 up: 32 and 242 while the cap did not bind,
+ * then centred above 1264. Both edges of that band are asserted here, so a
+ * desktop-side change cannot put the step back.
+ *
+ * The 4px at 768 is live's own `padding-left: var(--space-12)` under
+ * `max-width: 1024`, not the cap, which does not bind below 1264 at all. It is
+ * untouched here and is guarded below rather than matched.
  */
 
 /** Live's insets from 1025 up: the logo's, the nav list's, and the cluster's. */
@@ -90,6 +99,9 @@ function buildHeader() {
               </ul>
             </div>
             <button class="nav-search-toggle" aria-label="Site search" aria-expanded="false"><span class="icon"></span></button>
+          </div>
+          <div class="nav-hamburger">
+            <button type="button" aria-label="Open navigation"><span class="nav-hamburger-icon"></span></button>
           </div>
         </nav>
       </div>
@@ -167,6 +179,25 @@ describe('Header row, live\'s edge-to-edge inset', () => {
 
       before(async () => {
         await setViewport({ width: w, height: 900 });
+      });
+    });
+  });
+
+  /*
+   * The mobile row, which the cap never reached: `max-width: 1264px` does not
+   * bind below 1264, so nothing here moved. 16 is OUR inset and live's is 12,
+   * with its toggle flush at the right edge where ours stops 16px short. That
+   * gap is live's own `max-width: 1024` rules and is a separate reading; what is
+   * held here is that a desktop-side change does not reach under 1025.
+   */
+  describe('and the mobile row keeps its own 16px inset', () => {
+    [1024, 768].forEach((w) => {
+      it(`holds the logo at 16 and the toggle 16 off the right edge at ${w}`, async () => {
+        await setViewport({ width: w, height: 900 });
+        const nav = await mount();
+        expect(left(nav.querySelector('.nav-brand img')), 'the logo').to.equal(16);
+        expect(viewport() - right(nav.querySelector('.nav-hamburger button')), 'the toggle')
+          .to.equal(16);
       });
     });
   });
