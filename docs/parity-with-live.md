@@ -1477,6 +1477,32 @@ lines because it tracks at 6px and we do not track at all**, which is #407 rathe
 live's and no title in the population is long enough for that to force a different number of
 lines.
 
+### The marquee band on two pages, where a min-height cannot reach live's number
+
+**diverges on `/all-new-securecontact-aw`, and is an inherited oddity on `/ev-compatible`.** The
+other five of #217's seven pages are covered by a rule; these two are not, and each for its own
+reason.
+
+**`/all-new-securecontact-aw`: live's band is not a fixed height.** It reads 480, 341.66 and 467.33
+across the three widths, which is an aspect-driven box rather than a number. Our band is a
+`min-height`, and no `min-height` reproduces a box whose height follows its own width. Reaching
+live's 480 at one width would put us further from it at the other two. **The remedy is a different
+box model on that page rather than a value.** That is a larger change than the gap it would close.
+
+**`/ev-compatible`: live contradicts itself, so there is no number to match.** Its section reads
+360 while the container inside it reads 440. Whichever we matched, we would differ from the other,
+and this is live's own inconsistency rather than a gap in our rebuild.
+
+**What both have in common, and it is why they are here rather than in the queue.** Live groups its
+desktop marquee band by the breadcrumb: 400 on the three hubs with one, 345 on the pages without.
+That is verified against live's own `marquee--has-breadcrumbs` class across the seven pages, with a
+known-present control on both ends. **Two rules cover five of the seven.** A single-page selector
+for each of the remaining two would key a rule to one document, which is the mistake
+`.hero.stacked.slim` already is. It would leave the aspect box wrong anyway.
+
+**What would close them:** a width-driven box on the securecontact page. For `/ev-compatible`, only
+live resolving its own 360-against-440.
+
 ### The content container, 64px wider than live's
 
 **differs.** We give 1200 of content inside 32 gutters. Live gives 1136 inside 16. Every band
