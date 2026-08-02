@@ -269,8 +269,37 @@ body.perfect-fit-modal-open {
   outline-offset: 2px;
 }
 
+/* Live caps the finder's content and this had none, so above 768 our box was the
+   viewport less 40 where live's is bounded. The rule was read off live rather
+   than taken from the box it produced: its `.container` carries
+   `max-width: 1168px` with side padding that steps, 16px from 769 and 20px
+   below, inside an outer 20px inset that exists only from 769. So live's content
+   is `min(1168, viewport - 40) - 32` above the step, which is 1136, 828 and 697
+   at 1440, 900 and 769, and `viewport - 40` at or below it, which is 728 at 768
+   and 335 at 375.
+
+   That is why the step below narrows rather than widens: live's own content
+   drops from 728 to 697 across 768 to 769, measured on both sides of the
+   boundary rather than inferred from the widths either side.
+
+   36px of padding with a 1136 content cap gives `min(1136, viewport - 72)`,
+   which is the same three numbers without mirroring live's two containers.
+
+   THE CONTAINER IS SHARED. `perfect-fit.js` builds one panels wrapper and
+   appends all three panels into it, so this reaches By Vehicle and By Plate too.
+   Live's three tabs are identical at 1440, 900, 769 and 768, so one cap is what
+   live has. It cannot bind on the other two here because `.perfect-fit-form`
+   caps them at 400, and the tests assert they do not move. #499 */
 .perfect-fit-panels {
   padding: 24px 20px 0;
+}
+
+@media (width >= 769px) {
+  .perfect-fit-panels {
+    max-width: 1136px;
+    margin-inline: auto;
+    padding-inline: 36px;
+  }
 }
 
 .perfect-fit-question {
