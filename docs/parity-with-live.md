@@ -113,7 +113,7 @@ the part that IS doable; the row says which half is which.
 |---|---|---|---|---|
 | Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | ✅ the census is answered; a sheet still cannot match by shape, and two paths cannot be reached at all | [#337](https://github.com/cloudadoption/contitires/issues/337), [#465](https://github.com/cloudadoption/contitires/issues/465) |
 |  | [Live's sports sub-nav is dead on live](#lives-sports-sub-nav-points-at-two-dead-urls) | diverges | ✅ nothing to do | [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289) |
-|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ⏳ no owning issue | -- |
+|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ⏳ queued | [#491](https://github.com/cloudadoption/contitires/issues/491) |
 |  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | ⏳ queued | [#213](https://github.com/cloudadoption/contitires/issues/213) |
 |  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | ⏳ queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
 |  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | ⏳ queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
@@ -127,13 +127,13 @@ the part that IS doable; the row says which half is which.
 |  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ✅ Relevance is our order, Date has no data | [#162](https://github.com/cloudadoption/contitires/issues/162) |
 |  | [The results band reserves height live does not](#the-results-band-reserves-height-live-does-not) | diverges | ✅ decided: 116px recovered, and the reservation buys CLS 0 where live shifts | [#431](https://github.com/cloudadoption/contitires/issues/431) |
 |  | [Our class names are kebab-case where live's are BEM](#our-class-names-are-kebab-case-where-lives-are-bem) | diverges | ✅ decided, not outstanding: the linter rejects BEM and nothing a visitor sees depends on it | [#107](https://github.com/cloudadoption/contitires/issues/107) |
-| Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ⏳ emit Product from the workbook | -- |
+| Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ⏳ emit Product from the workbook | [#490](https://github.com/cloudadoption/contitires/issues/490) |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
-| Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ⏳ queued, and a decision | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+| Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ⚙️ needs live's GTM container and the accounts its 229 tags report to | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [What live's tags report into](#what-lives-tags-report-into) | not knowable from outside | ⚙️ needs the ad accounts | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [Cookie consent](#cookie-consent) | absent | ⏳ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [Cookie consent](#cookie-consent) | absent | ⚙️ needs a consent platform and the tag inventory it gates | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [Bazaarvoice](#bazaarvoice) | absent | ⚙️ reviews need the account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
-|  | [EmbedSocial](#embedsocial) | absent | ⏳ queued | [#234](https://github.com/cloudadoption/contitires/issues/234) |
+|  | [EmbedSocial](#embedsocial) | absent | ⚙️ needs the EmbedSocial account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
 |  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. **THAT VERDICT IS #488 AND ONLY #488.** The two halves were one issue until 2026-08-01 and were split so they could stop sharing a verdict: #488 is the submission and closes here, #101 is the form UI — 26 inputs and 2 textareas, submit disabled — and stays OPEN and pickable. Nothing about the missing receiver blocks the rebuild. **A GEARED ROW DOES NOT MAKE EVERY ISSUE ON IT UNRESOLVABLE**, and this row cited #101 alone until the split, which would have closed real work under a verdict about the other half | [#488](https://github.com/cloudadoption/contitires/issues/488), [#101](https://github.com/cloudadoption/contitires/issues/101) |
 |  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **needs access to the API / data source.** Neither half is ours to build. A plate resolves through a registration lookup live buys and #243 established we do not have it. The vehicle half is different and the difference is recorded rather than hidden: **live's fitment IS publicly readable** — the cascade walks year to make to model to trim on an unauthenticated GET and returns the OE size, measured 2026-08-01, detail in the section below. **We do not take it.** Ruled 2026-08-01, and before that in #234: this site does not depend on, or harvest, a host it does not own. So the gap is real and closed as unresolvable, not parked as pending | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
@@ -165,7 +165,7 @@ the part that IS doable; the row says which half is which.
 | Performance and accessibility | [Delivered HTML weight](#delivered-html-weight) | differs | ✅ nothing to do | -- |
 |  | [Authored heading levels do not follow live's](#authored-heading-levels-do-not-follow-lives) | differs | ⏳ re-level the authored documents | [#371](https://github.com/cloudadoption/contitires/issues/371), [#372](https://github.com/cloudadoption/contitires/issues/372) |
 |  | [Product labels are static text where live's are a disclosure](#product-labels-are-static-text-where-lives-are-a-disclosure) | differs | ⚙️ live's advantage, no counterpart built | -- |
-|  | [Security headers](#security-headers) | differs | ⏳ queued | -- |
+|  | [Security headers](#security-headers) | differs | ⏳ queued | [#492](https://github.com/cloudadoption/contitires/issues/492) |
 |  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ⏳ the runner hang and the 404 noise are fixed; fixture shape is open | [#125](https://github.com/cloudadoption/contitires/issues/125) |
 |  | [The annotated tire diagram](#the-annotated-tire-diagram) | diverges | ✅ live's version is the defect | [#255](https://github.com/cloudadoption/contitires/issues/255) |
 |  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | ⏳ queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
@@ -1162,7 +1162,7 @@ of those, it does not match live. Reproducing live's wording in these places is 
 rather than the fix, so a diff against live flags all of them correctly and none of them is
 a parity gap.
 
-Four places.
+Five places.
 
 **The footer, on all 327 pages.** Live's copyright line is gone. Two paragraphs stand in its
 place: one attributing Continental's content, images and trademarks to Continental, one
@@ -1187,6 +1187,17 @@ Ours carries its own copy instead, and that copy is deliberately not live's.
 
 **Any place a commercial claim was removed.** Several pages still carry live's rebate copy,
 and if they change, that change belongs here.
+
+**`/promotion`, the page the promo bar links to.** The bar promises a 50-point rebate on a
+PageSpeed score for moving four templates to Edge Delivery Services. Its `See full details`
+link points here, so this page tells that story rather than live's tire rebate. Reproducing
+live's rebate copy here is the defect rather than the fix.
+
+Ruled 2026-08-02, superseding the 2026-07-30 decision to leave the page alone. That decision
+predates the bar. Back then no link walked a reader out of a joke and into what reads as a real
+offer. As of 2026-08-02 00:20 the page still served `Get a $110 Rebate` with $90 and $200 tiers
+and prepaid-card terms, and the rewrite is in flight. This row is the rule, not the page's
+current state.
 
 #### The promo bar carries its own copy on every page
 
