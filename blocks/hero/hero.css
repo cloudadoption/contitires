@@ -9,13 +9,29 @@ main .section.hero-container {
   margin: 0;
 }
 
+/* 220 is live's own small band and it runs the whole range below the 1025
+   step, not just the part #513's query used to cover. Read on 2026-08-02 on
+   continentaltire.com against the same paths on the published host, naming the
+   box on each side, `section.marquee` against `div.hero.block`: live holds 220
+   at 375, 768, 900 and 1024 on /cruisingthecontinentalus, /emilytalkstires,
+   /forwhatyoudo and /lightscameratraction, and 222 on the same four widths on
+   /customer-support/technical-documents. `.hero.short` declares the same 220
+   unbounded below, which is the shape this follows.
+
+   THREE PAGES TAKE THIS FLOOR WITH NO LIVE NUMBER A MIN-HEIGHT REPRODUCES, and
+   they move with it: /smart-choice and /all-new-securecontact-aw open with
+   live's `marquee--has-jumplink` and `marquee--video-aspect`, at a flat 340 and
+   at 251/382/426/467.33 across the four widths, and /promotionended has no live
+   page. The second is already in the parity document for its desktop band. Each
+   needs its own variant before its number is reachable; keeping the floor at
+   320 for their sake left the five above 100px tall. #521 */
 .hero {
   position: relative;
   display: flex;
   overflow: hidden;
   isolation: isolate;
   align-items: center;
-  min-height: 320px;
+  min-height: 220px;
   background-color: var(--conti-dark-black);
   color: var(--conti-white);
 }
