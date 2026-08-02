@@ -87,6 +87,7 @@ export default function decorate(block) {
   // pages this block builds, so the trail is a variant the page carries the
   // way live's own marquee carries `marquee--has-breadcrumbs`. hero.css sizes
   // its divided marquee at 160 for exactly this case. #289
+  let trail = null;
   if (block.classList.contains('breadcrumb')) {
     // the same rule banner uses: the name the page gives itself, or its title
     // minus the site suffix. Live names a page in the trail the way its
@@ -97,13 +98,15 @@ export default function decorate(block) {
     // a section hub has no section above it, so the two-step trail gives
     // nothing there. Live paints one step on /experience naming the hub itself,
     // which is what the hub builder draws. #250
-    const trail = buildBreadcrumb(window.location.pathname, label)
+    trail = buildBreadcrumb(window.location.pathname, label)
       || buildHubBreadcrumb(label);
-    if (trail) {
-      trail.className = 'hero-breadcrumb';
-      content.prepend(trail);
-    }
+    if (trail) trail.className = 'hero-breadcrumb';
   }
 
-  block.replaceChildren(imageWrap, content);
+  // the trail is a sibling of the copy, not the first line of it, which is
+  // live's own placement: its `nav.breadcrumb` sits at the top left of the
+  // marquee over the photo at every width, on all four pages that carry one.
+  // Inside the centred copy it added its own line and the gap under it to the
+  // band, 40px that live's band does not spend. #470
+  block.replaceChildren(...[trail, imageWrap, content].filter(Boolean));
 }

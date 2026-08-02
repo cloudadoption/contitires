@@ -837,14 +837,6 @@ main .section.hero-container {
     text-align: left;
   }
 
-  /* the trail adds 40 to the copy column, which pushed the band 8 past live's
-     400 once /experience carried one. Live fits its own 62px trail inside the
-     400 by sitting it at the top of the marquee rather than inside the centred
-     copy; trimming this variant's padding reaches the same height. */
-  .hero.stacked.slim .hero-content {
-    padding-block: 88px;
-  }
-
   .hero.stacked .hero-content h1 {
     font-size: 42px;
     line-height: 48px;
@@ -872,9 +864,31 @@ main .section.hero-container {
    which are live's: the link 12px at weight 700, 0.6px letter-spacing,
    uppercase, white and underlined, the current step the same without the
    underline, and a leaning bar between the steps. #289 ---- */
+
+/* OUT OF FLOW, PINNED TO THE BAND, which is where live draws it: its
+   `nav.breadcrumb` reads (12,12) from the top left of `section.marquee` at 375
+   and 768 and (20,20) at 900 and 1440, on /experience, /experience/partners,
+   /experience/conti-crew and /experience/soccer alike. Read on 2026-08-02.
+
+   So the inset is the trail's own and NOT the copy column's, which live runs at
+   20 below its desktop step and 64 above. In flow it was the first line of the
+   centred copy at (20,188), and the band paid 40 for it. `.hero` is the
+   positioned ancestor, so hero.js hangs the trail off the block: inside
+   `.hero-content`, which is `relative`, an absolute trail would resolve against
+   the copy box and sit at the top of that instead of over the photo. #470 */
 .hero .hero-breadcrumb {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: flex;
-  margin: 0 0 24px;
+  margin: 0;
+  padding: 12px;
+}
+
+@media (width >= 769px) {
+  .hero .hero-breadcrumb {
+    padding: 20px;
+  }
 }
 
 .hero .hero-breadcrumb ol {
