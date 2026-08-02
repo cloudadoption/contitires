@@ -963,6 +963,32 @@ main .section.cards-container .cards.highlights .cards-card-body a:any-link {
   color: var(--conti-black);
 }
 
+/* ---- the same variant over live's other component: a drawn mark on a dark
+   ground rather than a photograph on a white one.
+
+   Live's `cards-carousel__item` is #1d1d1d and carries a white-stroked icon;
+   its `tile` is transparent and carries a photo. Our three marks on
+   /ev-compatible are single `fill="none" stroke="#fff"` paths, so the white
+   tile swallowed all three and the Noise card, which is one such path and
+   nothing else, rendered as an empty 590 by 332 box.
+
+   The tile's own image is the discriminator, because the two components share
+   both classes. Censused across all 327 published paths: six `cards highlights`
+   rows, two of them in a `dark` section, and only /ev-compatible's holds icons.
+   A rule on the section alone would repaint /smart-choice's four photo tiles,
+   which live leaves on white at #333. Authoring the row as `highlights marks`
+   would say the same thing in the variant, and this reads it off the file
+   until then. Issue #398 ---- */
+main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg']) {
+  background-color: var(--conti-dark-black);
+}
+
+main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg'])
+  :is(.cards-card-body, .cards-card-body p, .cards-card-body :is(h1, h2, h3, h4, h5, h6),
+  .cards-card-body a:any-link) {
+  color: var(--conti-white);
+}
+
 /* ---- the band the benefits sit on: #333, edge to edge, with the intro above
    the marks and the roadside line below, each 38 from them. Issue #94 ---- */
 
