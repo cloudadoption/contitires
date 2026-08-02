@@ -1,7 +1,8 @@
 /* The bands under a Conti Crew member marquee: the description on white, the
    pull quote on black, then the Go In-Depth scroller and the teasers. Live
-   measures them itself, 960 of copy in a page padded 20 below 769 and 16
-   above, where the site's container gives 1200 and 24 or 32. Read off
+   measures them itself, 960 of copy in a page padded 20 below 769 and 16 above,
+   which is narrower than the container gives even now that #219 put live's own
+   1136 there. Read off
    continentaltire.com/experience/conti-crew/speed-academy. Issue #104. */
 
 /* live runs the bands flush against each other, where the site leaves 40 */
