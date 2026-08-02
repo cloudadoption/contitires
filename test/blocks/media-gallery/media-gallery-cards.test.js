@@ -63,7 +63,7 @@ describe('Media gallery cards, the name live puts under the still', () => {
 
   it('names every card with the title of its video', () => {
     decorate(block = mls());
-    const names = [...block.querySelectorAll('.media-gallery-caption h3')];
+    const names = [...block.querySelectorAll('.media-gallery-caption h2')];
     expect(names.map((h) => h.textContent)).to.eql([
       'Continental Tire x MLS: 15 Years of Passion, Pride & Partnership',
       "Passionate MLS Fans Are What It's All About!",
@@ -106,7 +106,7 @@ describe('Media gallery cards, the name live puts under the still', () => {
 
   it('names a still from its alt text when no video is authored', () => {
     decorate(block = authored([card('/media/ball.jpg', 'A soccer ball on the pitch', '', '', '')]));
-    expect(block.querySelector('.media-gallery-caption h3').textContent)
+    expect(block.querySelector('.media-gallery-caption h2').textContent)
       .to.equal('A soccer ball on the pitch');
   });
 
@@ -169,7 +169,7 @@ describe('Media gallery cards, live\'s measurements', () => {
 
   it('sets the name to live\'s type', async () => {
     await setViewport({ width: 1440, height: 900 });
-    const name = block.querySelector('.media-gallery-caption h3');
+    const name = block.querySelector('.media-gallery-caption h2');
     const caption = block.querySelector('.media-gallery-caption');
     expect(getComputedStyle(name).fontSize).to.equal('14px');
     expect(getComputedStyle(name).lineHeight).to.equal('20px');
@@ -183,7 +183,7 @@ describe('Media gallery cards, live\'s measurements', () => {
     const caption = block.querySelector('.media-gallery-caption');
     expect(getComputedStyle(block.closest('.section')).backgroundColor).to.equal('rgb(0, 0, 0)');
     expect(getComputedStyle(caption).backgroundColor).to.equal('rgb(255, 255, 255)');
-    expect(getComputedStyle(caption.querySelector('h3')).color).to.equal('rgb(51, 51, 51)');
+    expect(getComputedStyle(caption.querySelector('h2')).color).to.equal('rgb(51, 51, 51)');
     expect(getComputedStyle(caption.querySelector('p')).color).to.equal('rgb(51, 51, 51)');
   });
 

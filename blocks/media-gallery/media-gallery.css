@@ -482,8 +482,12 @@ main .media-gallery.cards .media-gallery-caption {
 }
 
 /* a dark band whites its own headings out, and this one stands on a white
-   card, so the footer names its colour on the heading itself */
-main .media-gallery.cards .media-gallery-caption h3 {
+   card, so the footer names its colour on the heading itself.
+   The name is an h2 on a card that stands on its own and a span on one that
+   ends on a call to action, so every rule below reaches both. The size and the
+   line box are pinned here, which is what keeps a promoted level off the global
+   h2 box of 30 over 38. #375 */
+main .media-gallery.cards .media-gallery-caption > :is(h2, span) {
   margin: 0;
   color: var(--conti-black);
   font-size: 14px;
@@ -517,7 +521,7 @@ main .media-gallery.cards .media-gallery-caption:has(.media-gallery-cta) {
   text-align: left;
 }
 
-main .media-gallery.cards .media-gallery-caption:has(.media-gallery-cta) h3 {
+main .media-gallery.cards .media-gallery-caption:has(.media-gallery-cta) > :is(h2, span) {
   font-size: 18px;
   letter-spacing: 0.25px;
   line-height: 22px;
@@ -600,7 +604,7 @@ main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-ga
   text-align: center;
 }
 
-main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption h3 {
+main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption > :is(h2, span) {
   font-weight: 700;
 }
 
@@ -629,7 +633,7 @@ main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-ga
 }
 
 @media (width >= 1025px) {
-  main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption h3 {
+  main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption > :is(h2, span) {
     font-size: 20px;
     line-height: 30px;
   }

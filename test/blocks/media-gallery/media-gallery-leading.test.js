@@ -83,7 +83,7 @@ describe('Media gallery leading, the episode live features', () => {
   });
 
   it('names the feature and its followers alike', () => {
-    const names = [...block.querySelectorAll('.media-gallery-caption h3')];
+    const names = [...block.querySelectorAll('.media-gallery-caption h2')];
     expect(names.map((h) => h.textContent)).to.eql([
       'For What You Do: Resin Art',
       'For What You Do: Dog Training',
@@ -171,7 +171,7 @@ describe('Media gallery leading, live\'s measurements', () => {
   it('sets the feature name to live\'s type at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
     decorate(block = series());
-    const name = getComputedStyle(block.querySelector('.media-gallery-caption h3'));
+    const name = getComputedStyle(block.querySelector('.media-gallery-caption h2'));
     expect(name.fontSize).to.equal('20px');
     expect(name.lineHeight).to.equal('30px');
     expect(name.fontWeight).to.equal('700');
@@ -182,7 +182,7 @@ describe('Media gallery leading, live\'s measurements', () => {
   it('drops the feature name to 14 over 20 at 900', async () => {
     await setViewport({ width: 900, height: 900 });
     decorate(block = series());
-    const name = getComputedStyle(block.querySelector('.media-gallery-caption h3'));
+    const name = getComputedStyle(block.querySelector('.media-gallery-caption h2'));
     expect(name.fontSize).to.equal('14px');
     expect(name.lineHeight).to.equal('20px');
     expect(name.fontWeight).to.equal('700');

@@ -42,13 +42,20 @@ function titleOf({ picture, link }) {
  * The name live prints under a card, then either the description it prints on
  * the cards it shows one for, or the link it puts on the cards that lead
  * somewhere. Live's product highlight card ends on `Tire details`.
+ *
+ * The name is an h2 on the cards that stand on their own and a plain span on
+ * the ones that end on a call to action. Live gives neither shape a heading,
+ * so the level is ours: a card whose name is the left half of a label row
+ * beside `Tire details` is not a section of the page, and one that names a
+ * video is. h2 rather than h3 because the page above it is an h1 and 2 of the
+ * 7 pages carrying this variant author nothing in between.
  * @param {{picture: Element, link: Element, text: string, cta: Element}} item one item
  * @returns {Element} the caption
  */
 function buildCaption(item) {
   const caption = document.createElement('div');
   caption.className = 'media-gallery-caption';
-  const heading = document.createElement('h3');
+  const heading = document.createElement(item.cta ? 'span' : 'h2');
   heading.textContent = titleOf(item);
   caption.append(heading);
   if (item.text) {

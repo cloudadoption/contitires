@@ -358,7 +358,7 @@ describe('Media gallery, a card that links on', () => {
     const block = highlights();
     decorate(block);
     const caption = block.querySelector('.media-gallery-caption');
-    expect(caption.querySelector('h3').textContent).to.equal('ExtremeContact DWS06 Plus');
+    expect(caption.querySelector('span').textContent).to.equal('ExtremeContact DWS06 Plus');
     // the name comes first, the link on is last
     expect(caption.lastElementChild.querySelector('a')).to.exist;
   });
@@ -376,8 +376,8 @@ describe('Media gallery, a card that links on', () => {
     const caption = block.querySelector('.media-gallery-caption');
     expect(caption.firstElementChild.tagName).to.equal('SPAN');
     expect(caption.firstElementChild.textContent).to.equal('ExtremeContact DWS06 Plus');
-    expect(block.querySelectorAll('.media-gallery-caption :is(h1, h2, h3, h4, h5, h6)').length,
-      'live gives this one no heading').to.equal(0);
+    const headings = block.querySelectorAll('.media-gallery-caption :is(h1, h2, h3, h4, h5, h6)');
+    expect(headings.length, 'live gives this one no heading').to.equal(0);
   });
 
   it('still renders a plain third cell as description text, not a link', () => {
