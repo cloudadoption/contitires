@@ -3,7 +3,12 @@
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
+import styleSheet from '../../helpers/stylesheet.js';
 import { addFinderIcons } from '../../../blocks/header/header.js';
+
+/** The two sheets these measurements stand on, parsed once for the file. */
+const HEADER_CSS = '/blocks/header/header.css';
+const GLOBAL_CSS = '/styles/styles.css';
 
 /**
  * The open TIRES panel, against live. Measured on continentaltire.com at 1440
@@ -31,12 +36,7 @@ describe('Header mega panel, the TIRES panel against live', () => {
 
   before(async () => {
     await setViewport({ width: 1440, height: 900 });
-    sheets = await Promise.all(['/styles/styles.css', '/blocks/header/header.css']
-      .map(async (path) => {
-        const sheet = new CSSStyleSheet();
-        await sheet.replace(await (await fetch(path)).text());
-        return sheet;
-      }));
+    sheets = await Promise.all([GLOBAL_CSS, HEADER_CSS].map((path) => styleSheet(path)));
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
     document.body.classList.add('appear');
 

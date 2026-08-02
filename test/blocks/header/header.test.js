@@ -6,6 +6,11 @@ import {
   addHamburger, buildSearch, buildUtilityNav, collapseRibbon, hasOwnPromoBar,
   isMegaMenu, wireNavDisclosures, DESKTOP_MEDIA_QUERY,
 } from '../../../blocks/header/header.js';
+import styleSheet from '../../helpers/stylesheet.js';
+
+/** The two sheets every CSS assertion below reads, parsed once for the file. */
+const HEADER_CSS = '/blocks/header/header.css';
+const GLOBAL_CSS = '/styles/styles.css';
 
 /** Index of the first child carrying `className` in an element's children. */
 function childIndex(el, className) {
@@ -57,10 +62,7 @@ describe('Header desktop breakpoint', () => {
   });
 
   it('hides the hamburger at the same width the script calls desktop', async () => {
-    const res = await fetch('/blocks/header/header.css');
-    expect(res.ok, 'header.css is served').to.be.true;
-    const sheet = new CSSStyleSheet();
-    await sheet.replace(await res.text());
+    const sheet = await styleSheet(HEADER_CSS);
     const hamburgerRule = [...sheet.cssRules]
       .filter((rule) => rule instanceof CSSMediaRule)
       .find((rule) => [...rule.cssRules].some((r) => r.selectorText?.includes('.nav-hamburger')
@@ -118,10 +120,8 @@ describe('Header mobile bar', () => {
   let headerSheet;
 
   before(async () => {
-    globalSheet = new CSSStyleSheet();
-    await globalSheet.replace(await (await fetch('/styles/styles.css')).text());
-    headerSheet = new CSSStyleSheet();
-    await headerSheet.replace(await (await fetch('/blocks/header/header.css')).text());
+    [globalSheet, headerSheet] = await Promise
+      .all([GLOBAL_CSS, HEADER_CSS].map((path) => styleSheet(path)));
   });
 
   /** The value a property takes in the rule matching `selector`. */
@@ -156,8 +156,7 @@ describe('Header compressed band', () => {
   let sheet;
 
   before(async () => {
-    sheet = new CSSStyleSheet();
-    await sheet.replace(await (await fetch('/blocks/header/header.css')).text());
+    sheet = await styleSheet(HEADER_CSS);
   });
 
   /** Media rules whose condition names `width`. */
@@ -189,9 +188,7 @@ describe('Header mobile layout order', () => {
   let sheet;
 
   before(async () => {
-    const res = await fetch('/blocks/header/header.css');
-    sheet = new CSSStyleSheet();
-    await sheet.replace(await res.text());
+    sheet = await styleSheet(HEADER_CSS);
   });
 
   /** Area names in the first row of a selector's grid template. */
@@ -256,8 +253,7 @@ describe('Header promo ribbon layout', () => {
   let ribbonRule;
 
   before(async () => {
-    const global = new CSSStyleSheet();
-    await global.replace(await (await fetch('/styles/styles.css')).text());
+    const global = await styleSheet(GLOBAL_CSS);
     headerRule = [...global.cssRules].find((rule) => rule.selectorText === 'header');
     rootRule = [...global.cssRules].find((rule) => rule.selectorText === ':root');
     ownPromoRule = [...global.cssRules]
@@ -265,8 +261,7 @@ describe('Header promo ribbon layout', () => {
     previewRule = [...global.cssRules]
       .find((rule) => rule.selectorText?.includes('.block-preview'));
 
-    const header = new CSSStyleSheet();
-    await header.replace(await (await fetch('/blocks/header/header.css')).text());
+    const header = await styleSheet(HEADER_CSS);
     ribbonRule = [...header.cssRules]
       .find((rule) => rule.selectorText?.includes('.nav-wrapper .promo-bar-bar'));
   });
@@ -319,12 +314,10 @@ describe('Header layout model', () => {
   let panelRule;
 
   before(async () => {
-    const global = new CSSStyleSheet();
-    await global.replace(await (await fetch('/styles/styles.css')).text());
+    const global = await styleSheet(GLOBAL_CSS);
     headerRule = [...global.cssRules].find((rule) => rule.selectorText === 'header');
 
-    const header = new CSSStyleSheet();
-    await header.replace(await (await fetch('/blocks/header/header.css')).text());
+    const header = await styleSheet(HEADER_CSS);
     const top = [...header.cssRules];
     const width = DESKTOP_MEDIA_QUERY.match(/(\d+)px/)[1];
     const desktop = top.filter((rule) => rule instanceof CSSMediaRule
@@ -395,9 +388,7 @@ describe('Header mega-menu panel width', () => {
   let panelRule;
 
   before(async () => {
-    const res = await fetch('/blocks/header/header.css');
-    const sheet = new CSSStyleSheet();
-    await sheet.replace(await res.text());
+    const sheet = await styleSheet(HEADER_CSS);
     const selector = 'header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul';
     panelRule = [...sheet.cssRules]
       .filter((rule) => rule instanceof CSSMediaRule)
