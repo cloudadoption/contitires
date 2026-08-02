@@ -3,6 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
+import { addFinderIcons } from '../../../blocks/header/header.js';
 
 /**
  * The mega panel's finder buttons sit in a row of their own height.
@@ -28,6 +29,21 @@ import { setViewport } from '@web/test-runner-commands';
  * The rows are measured with `getBoundingClientRect` at 1440 with the panel
  * open, because this is a property of the line box and no declaration carries
  * it. Issue #440.
+ *
+ * THE FIXTURE TAKES ITS GLYPH FROM `addFinderIcons`, WHICH IS WHAT SHIPS. #237
+ * put a 25px line glyph in every finder trigger and this file kept building
+ * bare buttons, so the levelness it asserted was true of the fixture and false
+ * of the panel. It could not go red on the rows it named. The glyph comes from
+ * the function rather than from a hand-written span, so the day the markup
+ * changes this file follows it instead of drifting again. Issue #518.
+ *
+ * WHAT THE GLYPH DID TO THE ROWS, and it is a separate claim from the
+ * derivation above. A 25px box in a 22.4px line box makes the finder row 34.8
+ * where the link row beside it is 28.8. On the published host the finder rows
+ * are 35 apart against live's 37, where before the glyph they were 29, so the
+ * glyph moved them toward live and stopped 2.2 short. #237 named the panel
+ * colour, the glyphs and the rule position and not the pitch, so that residue
+ * is recorded here rather than closed.
  */
 describe('Header mega panel, the row a finder button sits in', () => {
   let sheets;
@@ -80,6 +96,11 @@ describe('Header mega panel, the row a finder button sits in', () => {
         </div>
       </div></nav></div></header>`;
 
+    // production prepends a glyph to every finder trigger, so the fixture takes
+    // it from the same function rather than from a copy of what it writes
+    // today. header.js is the source of the markup and this file follows it.
+    addFinderIcons([...document.querySelectorAll('[data-tire-finder]')]);
+
     const columns = [...document.querySelectorAll('li.nav-mega > ul > li > ul > li')];
     buttonRow = columns.find((row) => row.querySelector('button'));
     linkRow = columns.find((row) => row.querySelector('a'));
@@ -104,9 +125,45 @@ describe('Header mega panel, the row a finder button sits in', () => {
   /** A computed length in px, as a number. */
   const px = (el, prop) => parseFloat(getComputedStyle(el)[prop]);
 
-  it('leaves the button in the row the link beside it sits in', () => {
+  /**
+   * Runs `body` with the glyphs out of the fixture, then puts the same nodes
+   * back where they were.
+   *
+   * It detaches and re-attaches rather than removing and calling
+   * `addFinderIcons` again, and that is the whole point of writing it this way.
+   * A restore that BUILDS a glyph repairs a fixture that never had one, so the
+   * first test to call this would hand the later ones the state they are meant
+   * to be asserting. Checked by taking the `addFinderIcons` call out of the
+   * fixture: with a rebuilding restore all seven stayed green, which is this
+   * file's own defect wearing the fix's clothes.
+   */
+  function withoutGlyphs(body) {
+    const detached = [...document.querySelectorAll('[data-tire-finder] .icon')]
+      .map((icon) => ({ icon, host: icon.parentElement }));
+    detached.forEach(({ icon }) => icon.remove());
+    try {
+      body();
+    } finally {
+      detached.forEach(({ icon, host }) => host.prepend(icon));
+    }
+  }
+
+  it('leaves the button in the link\'s row for everything but the glyph', () => {
+    // #440's property, on the state where it still holds. The padding cancels
+    // in the margin, so with nothing taller than the text in the button the
+    // two rows are the same box.
+    withoutGlyphs(() => {
+      expect(buttonRow.getBoundingClientRect().height)
+        .to.be.closeTo(linkRow.getBoundingClientRect().height, 0.01);
+    });
+  });
+
+  it('lets the glyph, and only the glyph, take the button out of that row', () => {
+    // and the other side of it: put the glyph back and the rows part. Written
+    // as a pair so the difference is attributed to the glyph rather than to a
+    // number read off a render.
     expect(buttonRow.getBoundingClientRect().height)
-      .to.be.closeTo(linkRow.getBoundingClientRect().height, 0.01);
+      .to.be.above(linkRow.getBoundingClientRect().height);
   });
 
   it('gives the button the padding the shared rule gives the link', () => {
@@ -144,13 +201,34 @@ describe('Header mega panel, the row a finder button sits in', () => {
 
   it('keeps the rows level when the panel\'s type scale moves', () => {
     // the defect this closes: at 14px the two rows are 0.59 apart and nobody
-    // sees it; one move of the panel's type scale and they are 6 apart
+    // sees it; one move of the panel's type scale and they are 6 apart. The
+    // glyph comes out for it, because with a fixed 25px box in the button the
+    // row is the glyph's at any type scale and the padding is no longer what
+    // the reading would be measuring.
     scale.replaceSync(`
       header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > :is(a, button) {
         font-size: 20px;
       }`);
-    expect(buttonRow.getBoundingClientRect().height)
-      .to.be.closeTo(linkRow.getBoundingClientRect().height, 0.01);
+    withoutGlyphs(() => {
+      expect(buttonRow.getBoundingClientRect().height)
+        .to.be.closeTo(linkRow.getBoundingClientRect().height, 0.01);
+    });
     scale.replaceSync('');
+  });
+
+  /*
+   * The parity delta, on its own so a failure names which of the two it is.
+   * Live's finder rows are 37px apart at 1440 and the shipped panel's are 35,
+   * read on the published host after #237; the fixture renders 34.8, which is
+   * that 35 before the browser rounds it. Before the glyph landed ours were 29,
+   * so the 25px box moved the rows toward live and stopped 2.2 short.
+   *
+   * #237 named the panel colour, the glyphs and the rule position and not the
+   * row pitch, so this records the residue rather than closing it. A change
+   * that moves the pitch either way fails here and has to say which way it
+   * meant to go.
+   */
+  it('runs 34.8 against live\'s 37, the residue the glyph left', () => {
+    expect(buttonRow.getBoundingClientRect().height).to.be.closeTo(34.8, 0.05);
   });
 });
