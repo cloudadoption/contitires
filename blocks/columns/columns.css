@@ -148,6 +148,20 @@ main .columns.bar .button.secondary:focus-visible {
   }
 }
 
+/* The store control, which live runs the width of the column on the same step:
+   `@media screen and (max-width: 768px) { .tire-page__description-cta .btn
+   { width: 100% } }`. Its column there is live's plain `.container`, so the
+   control measures 335 at 375 and 728 at 768, where ours was the same 146px pill
+   it draws at 1440. Above 769 live leaves it a pill and so does this.
+
+   Keyed on the href, the way decorateRebate already keys on /promotion, so the
+   flag and the offer link in the same column keep their own width. */
+@media (width < 769px) {
+  .columns.product-hero a.button[href="/store-finder"] {
+    width: 100%;
+  }
+}
+
 /*
  * The product hero column, read off continentaltire.com/tires/4x4sportcontact
  * at 1440. Live closes that column with two groups, each ruled off by a 1px
