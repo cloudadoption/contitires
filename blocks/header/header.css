@@ -34,7 +34,13 @@ header .nav-wrapper .promo-bar-bar {
 
 /* the collapsed mobile bar reads logo, then toggle, like the live site. Tools
    is hidden here and gets its own row once the drawer opens, so naming it
-   between the two keeps the toggle at the right padding edge. */
+   between the two keeps the toggle at the right padding edge.
+
+   The row is NOT capped. Live's `.header__row` is a bare flex box at viewport
+   width, and its inset is padding on the row's own parts: 20px left of the logo
+   and 20px right of the utility cluster from 1025 up. Ours ran `max-width:
+   1264px` with `margin: auto`, so above 1264 the whole row was centred and the
+   logo drifted inward, 120 at 1440 against live's 20. */
 header nav {
   box-sizing: border-box;
   display: grid;
@@ -43,8 +49,6 @@ header nav {
     'sections sections sections' 1fr / 1fr auto auto;
   align-items: center;
   gap: 0 16px;
-  margin: auto;
-  max-width: 1264px;
   height: var(--nav-height);
   padding: 0 16px;
   font-family: var(--body-font-family);
@@ -69,13 +73,16 @@ header nav[aria-expanded='true'] {
     position: relative;
   }
 
+  /* live's three insets, all 20: `.header--dark .header__logo` pads 20 left,
+     `.header--dark .header__right` pads 20 right, and `.main-nav__top` takes a
+     20px margin off the logo. The gap here carries the third, so the first
+     top-level item starts at 226 the way live's does. */
   header nav {
     display: flex;
     justify-content: space-between;
     align-items: stretch;
-    gap: 0 24px;
-    max-width: 1264px;
-    padding: 0 32px;
+    gap: 0 20px;
+    padding: 0 20px;
   }
 
   header nav[aria-expanded='true'] {
@@ -445,22 +452,14 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   }
 
   /* live reaches its breakpoint by compressing the bar rather than
-     overflowing: the utility items above drop to icons, the padding narrows,
-     and the sections row wraps a label that no longer fits. Live runs an 88px
-     bar where that happens and a 72px one once it stops. */
+     overflowing: the utility items above drop to icons and the sections row
+     wraps a label that no longer fits. Live runs an 88px bar where that happens
+     and a 72px one once it stops.
+
+     The 20px padding and 20px gap this band used to declare are live's own
+     numbers, so they moved up to the rule above and now hold from 1025 all the
+     way out. Wrapping is what is left that belongs to the narrow band. */
   @media (width < 1200px) {
-    header nav {
-      padding: 0 20px;
-
-      /* the 186 logo is 36px wider than the 150 it replaced, and at 1025 the
-         row had 5px of slack, so it took the page 5px sideways (#167). Live
-         pays for the same logo by wrapping a label and running an 88px bar
-         there; our items already fill 72, so the row buys the width from its
-         own gutter instead. The outer padding is the page inset and is left
-         where #129 measured it. */
-      gap: 0 20px;
-    }
-
     header nav .nav-sections {
       white-space: normal;
     }
