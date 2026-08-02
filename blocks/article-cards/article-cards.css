@@ -142,6 +142,16 @@ main .article-cards .article-card-body p {
   overflow: hidden;
 }
 
+/* the count above the control, at live's `.pager-summary` type. Live centres it
+   in the flex column it shares with the button, `.load-more-pager`, and gives
+   the pair a 20px gap. Issue #348. */
+main .article-cards .article-cards-summary {
+  margin: 40px 0 0;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: center;
+}
+
 main .article-cards .article-cards-more {
   display: block;
   margin: 40px auto 0;
@@ -157,6 +167,12 @@ main .article-cards .article-cards-more {
   text-transform: uppercase;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* the count now opens the pair, so the 40px above moves to it and the button
+   keeps live's 20px inner gap */
+main .article-cards .article-cards-summary + .article-cards-more {
+  margin-top: 20px;
 }
 
 main .article-cards .article-cards-more:hover,

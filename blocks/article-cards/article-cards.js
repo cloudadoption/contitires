@@ -312,6 +312,14 @@ export default async function decorate(block) {
   more.className = 'article-cards-more';
   more.textContent = 'Load more';
 
+  // "1-10 of 148 results", the string live prints above its own LOAD MORE. Live
+  // holds the two in one `.load-more-pager`, and its ajax controller replaces
+  // that element wholesale, so the count goes when the control does.
+  const summary = document.createElement('div');
+  summary.className = 'article-cards-summary';
+  const range = document.createElement('b');
+  summary.append(range, ` of ${rows.length} results`);
+
   let shown = 0;
   const renderNext = () => {
     rows.slice(shown, shown + BATCH).forEach((row) => {
@@ -320,7 +328,11 @@ export default async function decorate(block) {
       list.append(li);
     });
     shown = Math.min(shown + BATCH, rows.length);
-    if (shown >= rows.length) more.remove();
+    range.textContent = `1-${shown}`;
+    if (shown >= rows.length) {
+      summary.remove();
+      more.remove();
+    }
   };
 
   renderNext();
@@ -329,6 +341,6 @@ export default async function decorate(block) {
   dropEmptyWrappers(block);
   if (shown < rows.length) {
     more.addEventListener('click', renderNext);
-    block.append(more);
+    block.append(summary, more);
   }
 }
