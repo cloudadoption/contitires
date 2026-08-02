@@ -42,6 +42,20 @@ main .section.columns-container {
   }
 }
 
+/* Live's slide title is 400, so ours is too. Its `.content-slider__slide-title`
+   carries no font-weight of its own and the only `content-slider` rule that sets
+   one is the pager's, so it takes the 400 live leaves every heading it does not
+   name. Ours came off the shared `h1, h2, h3, h4, h5, h6 { font-weight: 300 }`
+   rule in styles.css onto StagSans-Thin, which is what read mid grey.
+
+   One heading moves today. A plain `columns` block holds one on /warranty alone
+   across the 328 paths in the published index; the three on /promotion sit in
+   `columns steps`, on the promo template, where `main .section.steps h2` already
+   declares 400 and outscores this. `feature` restates it below on its own rule. */
+.columns h2 {
+  font-weight: 400;
+}
+
 /* the feature heading keeps the numbers it rendered before #185 moved the h3
    token to live's 24px */
 .columns.feature h2 {
