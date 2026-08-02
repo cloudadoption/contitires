@@ -18,10 +18,32 @@
    it away, so the heading now gets live's own 335 at 375. #477. */
 .tire-specs {
   box-sizing: border-box;
-  background-color: var(--conti-dark-black);
   color: var(--conti-white);
   padding: 48px 0;
   text-align: center;
+}
+
+/* The black is the SECTION's, so it runs edge to edge. Live hangs this band off
+   `.tire-page__bottom` with no container in between, and paints it
+   `--background-color: #000000`. #1d1d1d is live's own `--dark-black`, which it
+   uses on other surfaces and not on this one, and painting the block instead of
+   the section left a #1d1d1d card inside the page container with a white gutter
+   each side: 1136 wide at x=152 in a 1440 viewport on the published host.
+
+   The CONTENT keeps the container #219 gave it, so only the paint moved. Live
+   insets this band's own content differently again, from a `.container--wide`
+   that caps at 1390, which is a separate delta and not this one. */
+main .section.tire-specs-container:has(.tire-specs) {
+  margin: 0;
+  background-color: #000;
+}
+
+/* live's band touches the copy above it, and the neighbour's own bottom margin
+   collapses into 40px of white above the black without this. The container class
+   alone names the section: a relational selector cannot be nested inside
+   another, so `:has(+ ... :has(.tire-specs))` is dropped whole. */
+main .section:has(+ .section.tire-specs-container) {
+  margin-bottom: 0;
 }
 
 /* live sets the product's own name in title case and tracks out the word after
