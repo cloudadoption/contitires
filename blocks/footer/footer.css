@@ -19,11 +19,16 @@ footer .footer ul {
   padding: 0;
 }
 
-/* link groups (nav columns), capped and centered like the section content */
+/* link groups (nav columns), capped and centered like the section content.
+   Live's rows sit 50px apart. The gutter stays at 32 rather than taking live's
+   60: it is what lets our six tracks fit at 1184, where live's 60 needs 1260
+   and overflows its own container to get there (#138, and the column band in
+   docs/parity-with-live.md). Two values, so the row gap cannot take the
+   gutter with it. */
 footer .footer-links {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 50px 32px;
   padding: 32px 24px;
   box-sizing: border-box;
   max-width: 1264px;
