@@ -109,10 +109,28 @@ main .search .search-status:empty {
   padding-bottom: 40px;
 }
 
-/* the band exists as soon as there is a query, holding its height before the
-   results land, and stays out of the way when there is nothing to show */
+/* The band exists as soon as there is a query, holding its height before the
+   results land, and stays out of the way when there is nothing to show.
+   `fillResults` runs on the load event, so this is what keeps the footer out of
+   view until then: with the band's bottom edge at or below the fold, results
+   landing later move nothing a reader can see.
+
+   The 316 is derived rather than chosen. The reservation has to cover
+   `viewport - bandTop - padding`, and the band's top is 244 at 375 and 315 at
+   1440 with padding of 72 and 104, so the two requirements are 496 and 581.
+   `100vh - 316px` gives exactly 496 at 812 tall and 684 at 1000, and the narrow
+   width binds. The 200 this replaces reserved 116px more than the page needs at
+   every height, which is empty dark in the short states (#431).
+
+   The floor sits on the CONTENT box, so the rendered band is this plus the
+   padding below: 496+72=568 at 375 and 684+104=788 at 1440.
+
+   Live pays none of this: it renders its results server-side, so its own band is
+   `min-height: 0` in every state and is sized by its content from the first
+   paint. The remainder is the cost of reserving for content whose height is not
+   known until the index returns, and `docs/parity-with-live.md` carries it. */
 main .search .search-results-wrapper.search-band {
-  min-height: calc(100vh - 200px);
+  min-height: calc(100vh - 316px);
   background-color: var(--conti-black);
   padding: 24px 24px 48px;
 }
@@ -142,6 +160,26 @@ main .search .search-result {
 main .search .search-result-title {
   margin: 0 0 12px;
   font-size: var(--body-font-size-xs);
+
+  /* live renders this title at 700 and DECLARES IT NOWHERE. Walking its own
+     sheets, 279 rules carry a `font-weight` and none matches this title or its
+     anchor, so the 700 is the browser's default for an h2 left standing. Ours
+     read 300 only because `styles.css:258` resets h1 through h6, which reaches
+     here. So this restores what our own reset removed rather than adding a
+     weight live chose, and a reader who greps live's sheets for a 700 and finds
+     nothing has not disproved it.
+
+     NOT a global heading divergence: live's three h2s on /warranty compute 400.
+     The 700 is what this element gets in the absence of a rule.
+
+     On the title and not on the anchor, for the same reason the tracking above
+     is: live's h2 holds no direct text, every character is inside the link, and
+     the link inherits. Tested by direction on live rather than read off a
+     computed value, which cannot tell inherit from declare: setting live's h2 to
+     300 pulls the anchor with it and setting the anchor leaves the h2 at 700.
+     The weight does not step at 1025 on either side, so the block below is not a
+     second place it belongs. #454 */
+  font-weight: 700;
 
   /* live tracks this title at a flat 0.25px and it does it on the LINK. Live's
      own h2 carries 0.5px below 1025 and normal above, and that step reaches no
