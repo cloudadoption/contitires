@@ -191,6 +191,20 @@ main .section.cards-container {
   text-decoration: none;
 }
 
+/* live's product card, the one row of the six whose cards carry a link. Its
+   name is a span in live's `card__footer` at 18px on a 22px box, read on
+   /learn at 1440, 900 and 375; ours read the shared 16 on 19.2. The other five
+   rows keep that shared number, because live sets no single value across them:
+   18/26 on the three `tile__title` rows, whose 26 nobody has taken a second
+   reading on, and 14/18 on the two carousel rows, which 18px would move away
+   from live. The element stays an h3 where live carries no heading, so the card
+   keeps a level. Issue #399 */
+.cards.highlights > ul > li:has(.cards-card-body a) .cards-card-body
+  :is(h1, h2, h3, h4, h5, h6) {
+  font-size: 18px;
+  line-height: 22px;
+}
+
 .cards.highlights .cards-card-body a::after {
   content: '';
   display: inline-block;
