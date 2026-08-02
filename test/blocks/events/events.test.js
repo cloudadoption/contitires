@@ -2,8 +2,19 @@
 /* global describe it before after beforeEach */
 
 import { expect } from '@esm-bundle/chai';
+import sinon from 'sinon';
 import { setViewport } from '@web/test-runner-commands';
 import decorate from '../../../blocks/events/events.js';
+
+// The rows below are live's own, read on 2026-07-29, and the block now drops an
+// event once it is over (#325). So the calendar is pinned to the day they were
+// read, which is what stops these fixtures disappearing one by one as the real
+// date moves past them.
+let calendar;
+before(() => {
+  calendar = sinon.useFakeTimers({ now: new Date(2026, 6, 29, 12), toFake: ['Date'] });
+});
+after(() => calendar.restore());
 
 /**
  * Live renders an event as a two-part card: an orange band carrying the

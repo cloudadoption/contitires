@@ -71,10 +71,22 @@ describe('Events block, dropping an event that is over', () => {
 
   it('keeps a multi-day event halfway through', () => {
     const block = build([
-      row('Thursday', 2026, 'Jul 30–05', 'Started in July, runs to the 5th'),
+      row('Thursday', 2026, 'Aug 01–09', 'Started the 1st, runs to the 9th'),
       row('Friday', 2026, 'Jul 24–26', 'Over in July'),
     ]);
-    expect(names(block)).to.deep.equal(['Started in July, runs to the 5th']);
+    expect(names(block)).to.deep.equal(['Started the 1st, runs to the 9th']);
+  });
+
+  // no row on the sheet crosses a month today. Reading `Jul 30-05` as July 5
+  // would drop an event still going on, so the end day falling before the start
+  // day is read as the next month.
+  it('reads a one-month range that runs into the next month', () => {
+    const block = build([
+      row('Thursday', 2026, 'Jul 30–05', 'Into August'),
+      row('Thursday', 2026, 'Jul 30–Aug 05', 'Into August, spelled out'),
+      row('Thursday', 2026, 'Jul 20–26', 'Wholly in July'),
+    ]);
+    expect(names(block)).to.deep.equal(['Into August', 'Into August, spelled out']);
   });
 
   it('reads the en dash the sheet actually uses, and a hyphen too', () => {

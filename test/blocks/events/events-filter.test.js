@@ -2,8 +2,19 @@
 /* global describe it before after beforeEach */
 
 import { expect } from '@esm-bundle/chai';
+import sinon from 'sinon';
 import { setViewport } from '@web/test-runner-commands';
 import decorate, { searchFromState, stateFromSearch } from '../../../blocks/events/events.js';
+
+// The rows below are live's own, read on 2026-07-29, and the counts asserted
+// here are live's own from that day. The block now drops an event once it is
+// over (#325), so the calendar is pinned to the day of the reading rather than
+// letting these fixtures fall off the page one by one.
+let calendar;
+before(() => {
+  calendar = sinon.useFakeTimers({ now: new Date(2026, 6, 29, 12), toFake: ['Date'] });
+});
+after(() => calendar.restore());
 
 /**
  * Live puts a filter beside the calendar: an Event type fieldset holding one
