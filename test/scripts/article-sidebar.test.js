@@ -2,7 +2,9 @@
 /* global describe it before beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
+import { setViewport } from '@web/test-runner-commands';
 import { decorateMain } from '../../scripts/scripts.js';
+import decorateRelated from '../../blocks/related-articles/related-articles.js';
 
 /** An article as authored: a title section, a body section, then metadata. */
 function buildArticle({ related = false } = {}) {
@@ -168,6 +170,85 @@ describe('Article layout', () => {
   it('marks the related links with live\'s gold bullet', () => {
     expect(value(`${BODY} .related-articles-list li`, 'list-style-type')).to.equal('disc');
     expect(value(`${BODY} .related-articles-list li::marker`, 'color')).to.equal('var(--conti-yellow)');
+  });
+});
+
+/**
+ * The sidebar's own internal spacing. Live's sharebar is a 45px row,
+ * `.sharebar { height: var(--space-45) }` over border-box, so its 1px rules and
+ * 8px padding come out of the 45. Its related list is a `.panel`, and
+ * `.panel { padding-top: var(--space-28) }` opens 28px above the title at every
+ * width, which `.news-article__related` takes to 38 below 769.
+ *
+ * Ours drops the lower rule and the lower padding, which live keeps, so the row
+ * measured 33: 1px of rule, 8px of padding and share.css's 24px floor. And the
+ * list had no padding of its own. Together the title read 43px higher than
+ * live's, measured from the top of the sharebar. Read off
+ * continentaltire.com/learn/how-do-i-check-my-tire-pressure. (#204)
+ */
+describe('Article sidebar spacing', () => {
+  let adopted;
+
+  const box = (sel) => {
+    const r = document.querySelector(sel).getBoundingClientRect();
+    return { top: Math.round(r.top), bottom: Math.round(r.bottom), height: Math.round(r.height) };
+  };
+
+  before(async () => {
+    adopted = document.adoptedStyleSheets;
+    const sheets = await Promise.all(['/styles/styles.css', '/blocks/share/share.css',
+      '/blocks/related-articles/related-articles.css', '/styles/article.css'].map(async (href) => {
+      const s = new CSSStyleSheet();
+      await s.replace(await (await fetch(href)).text());
+      return s;
+    }));
+    document.adoptedStyleSheets = [...adopted, ...sheets];
+    document.body.classList.add('article', 'appear');
+
+    const main = buildArticle({ related: true });
+    decorateMain(main);
+    decorateRelated(main.querySelector('.related-articles'));
+    main.querySelectorAll('.section').forEach((s) => {
+      s.dataset.sectionStatus = 'loaded';
+      s.style.display = null;
+    });
+  });
+
+  after(async () => {
+    document.adoptedStyleSheets = adopted;
+    document.body.classList.remove('article', 'appear');
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  // live keeps the bar 45 at every width, so this is not a breakpoint of ours
+  [1440, 900, 768, 375].forEach((vw) => {
+    it(`draws live's 45px sharebar at ${vw}`, async () => {
+      await setViewport({ width: vw, height: 900 });
+      expect(box('.share').height, `share height at ${vw}`).to.equal(45);
+    });
+  });
+
+  it("pads the related list on live's 28 beside the body", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const related = document.querySelector('.related-articles');
+    expect(getComputedStyle(related).paddingTop, 'panel padding').to.equal('28px');
+    expect(box('.related-articles').top - box('.share').bottom, 'list follows the bar flush')
+      .to.equal(0);
+    // live reads 76 here. The last 3px is live's own `.panel__title`, an
+    // inline-flex box on a line box taller than itself; ours is a block
+    // heading, and its 12/14.4 against live's 12/16 is recorded under #373.
+    expect(box('.related-articles-title').top - box('.share').top, 'bar top to title top')
+      .to.equal(73);
+  });
+
+  it('opens it to 38 where the sidebar follows the body', async () => {
+    await setViewport({ width: 768, height: 900 });
+    const related = document.querySelector('.related-articles');
+    expect(getComputedStyle(related).paddingTop, 'panel padding').to.equal('38px');
+    // live reads 86, the same 3px apart
+    expect(box('.related-articles-title').top - box('.share').top, 'bar top to title top')
+      .to.equal(83);
   });
 });
 
