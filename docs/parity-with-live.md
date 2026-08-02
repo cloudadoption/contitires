@@ -124,7 +124,7 @@ the part that IS doable; the row says which half is which.
 |  | [Live's specs pages redirect onto our product page](#lives-specs-pages-redirect-onto-our-product-page) | differs | ✅ 46 redirect rows shipped; live's size search, print control and all-sizes view are not rebuilt | [#357](https://github.com/cloudadoption/contitires/issues/357), [#463](https://github.com/cloudadoption/contitires/issues/463) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | ⚙️ live's exclusions are Solr config | -- |
-|  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ⏳ build the control | [#162](https://github.com/cloudadoption/contitires/issues/162) |
+|  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ✅ Relevance is our order, Date has no data | [#162](https://github.com/cloudadoption/contitires/issues/162) |
 |  | [Our class names are kebab-case where live's are BEM](#our-class-names-are-kebab-case-where-lives-are-bem) | diverges | ✅ decided, not outstanding: the linter rejects BEM and nothing a visitor sees depends on it | [#107](https://github.com/cloudadoption/contitires/issues/107) |
 | Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ⏳ emit Product from the workbook | [#490](https://github.com/cloudadoption/contitires/issues/490) |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
@@ -355,6 +355,21 @@ either behind a form post or a path shape the public pages do not link. That one
 rather than settled, and what would settle it is finding a live page that links a by-size
 result.
 
+#### One sContact size keeps its misspelling on purpose
+
+Three sContact rows in the specs sheet are spelled `T135/70R18`, `T145/85R18` and `T165/80R17`,
+where live's own specs page spells them bare. Two of the three normalise, because live's width
+control offers 145 and 165. [#496](https://github.com/cloudadoption/contitires/issues/496).
+
+**`T135/70R18` is left exactly as it is.** Live offers 29 widths and 135 is not among them, so
+correcting that row would put a width on our control that live's does not have. The misspelling is
+what makes `parseSize` reject the row. That rejection is the behaviour we want, so **leaving it is
+the fix rather than the omission**, and our width list is a subset of live's.
+
+Ruled 2026-08-02. `parseSize` in `blocks/perfect-fit/perfect-fit.js` already comments that `HL`
+and `T` return null on purpose and asserts it in a test, so the parser side is protected. This is
+the note for whoever next edits the sheet, who is not the same person.
+
 ### Star rating and review count
 
 **absent.** Live shows a rating on every product page. We show none, and we already hold a
@@ -467,13 +482,28 @@ would mean copying a defect on purpose.
 
 ### No sort control on the results page
 
-**absent.** Live offers a sort on its results page. We render results in score order with no
-control to change it.
+**absent, and half of it is not a loss.** Live's control offers two options, `created=Date` and
+`search_api_relevance=Relevance`, and it defaults to relevance.
+
+**The Relevance half is already what we render.** Live's no-sort order and its
+`sort_by=search_api_relevance` order read identically, taken twice on
+`keywords=all season tires` at 46 results, and that is the order our results page already
+produces. A visitor who never touches live's control sees the same ordering on both sides.
+
+**What is lost is the Date option alone, and no data this site holds can honour it.** The default
+index has six columns and no date. `learn`'s `lastModified` is our own publish timestamp, and its
+219 values fall on three days, 2026-07-25, 2026-07-30 and 2026-07-31, which are the days this
+migration published. So newest-first would order the articles by our deploy sequence. Neither our
+pages nor live's publish an article date at all, and the prose dateline reaches 29 of 220 pages.
+
+So the gap closes here rather than as work. **A select with one honourable option is worse than no
+select.** [#162](https://github.com/cloudadoption/contitires/issues/162) closes on this line.
+
+Our relevance order is not claimed equal to live's: that is the search-ranking row above, geared
+for needing live's Solr config.
 
 The ranking sections above are about which rows come back and in what order the scan puts them.
-This is the control on top of that, and it is a separate gap: a reader who wants live's newest
-first has no way to ask for it here. It is tracked as
-[#162](https://github.com/cloudadoption/contitires/issues/162).
+This is the control on top of that.
 
 Live also renders its result list server-side, so a reader with JavaScript off sees results on
 live and sees none here. `scripts/search.js` fetches `/query-index.json` and builds the list in
