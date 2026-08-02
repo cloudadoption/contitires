@@ -100,6 +100,23 @@ describe('Media gallery, the counter live puts under the mobile slider', () => {
     expect(countOf(block), 'back off the first').to.equal('3 of 3');
   });
 
+  /*
+   * The product grid draws live's first six and keeps the rest for the modal
+   * (#319), so the strip below 769 holds six cells whatever the set is. The
+   * counter counts the strip it pages and not the set the modal holds, or it
+   * counts to a tile that is not there.
+   */
+  it('counts the tiles the product grid drew, not the set behind them', () => {
+    decorate(block = stills(11, 'product'));
+    expect(block.querySelectorAll('.media-gallery-tile').length, "live's six").to.equal(6);
+    expect(countOf(block)).to.equal('1 of 6');
+    const next = block.querySelector('.media-gallery-pager-next');
+    Array.from({ length: 5 }).forEach(() => next.click());
+    expect(countOf(block), 'the last tile the grid drew').to.equal('6 of 6');
+    next.click();
+    expect(countOf(block), 'round to the first').to.equal('1 of 6');
+  });
+
   it('leaves a single tile without a counter, having nothing to count', () => {
     decorate(block = stills(1));
     expect(!!pagerOf(block)).to.be.false;
