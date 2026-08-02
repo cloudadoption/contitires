@@ -367,8 +367,10 @@ export default function decorate(block) {
   });
 
   // the strip is one tile at a time below 769 and the pager is what says how
-  // many there are. The cards grid is a column there rather than a slider, and
-  // live gives it none
-  const pager = !cards && items.length > 1 ? buildPager(list, items.length) : null;
+  // many there are. It counts what the grid DREW rather than the whole set: a
+  // product page keeps its seventh row onwards for the modal, and a count of 11
+  // over a strip of 6 pages to a tile that is not there. The cards grid is a
+  // column below 769 rather than a slider, and live gives it none
+  const pager = !cards && drawn.length > 1 ? buildPager(list, drawn.length) : null;
   block.replaceChildren(...[list, pager, modal].filter(Boolean));
 }
