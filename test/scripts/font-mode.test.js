@@ -92,12 +92,13 @@ describe('The eager phase\'s font decision (#511)', () => {
       expect(await at(768, true)).to.equal(await at(768, false));
     });
   });
-
-  it('leaves the flag for loadFonts to write and loadLazy to act on', () => {
-    // the flag is not removed, only unread here. Nothing asserts the write,
-    // because `loadFonts` is internal; what this pins is that a set flag does
-    // not reach the decision above.
-    sessionStorage.setItem(FLAG, 'true');
-    expect(sessionStorage.getItem(FLAG), 'still writable and still read elsewhere').to.equal('true');
-  });
 });
+
+/*
+ * There is no assertion here that `loadFonts` still writes the flag. The first
+ * draft had one and it read `sessionStorage.setItem` then `getItem`, which
+ * tests the browser rather than this file: it cannot go red for any reason we
+ * would want to hear about. `loadFonts` is internal, so the write has no
+ * reachable witness, and the claim belongs in the note above instead. Same
+ * lesson as #518, one slice earlier.
+ */

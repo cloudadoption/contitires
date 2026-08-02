@@ -500,12 +500,22 @@ export async function revealPage(templateStyles) {
 
 /**
  * Whether the eager phase requests fonts.css, which decides whether a page
- * paints in Stag or paints in the fallback and changes into Stag.
+ * paints in Stag or paints in the fallback and changes into Stag afterwards.
+ *
+ * The width is a proxy for a fast connection, and it steps at 769 because that
+ * is where AGENTS.md puts this project's step, against live's 768 pivot. It was
+ * 900, the boilerplate's own breakpoint and the fifth of that family here.
+ *
+ * `sessionStorage.getItem('fonts-loaded')` used to be a second term. It made
+ * one URL at one width paint two ways, and the tab's history rather than the
+ * visitor picked which: a fresh tab took the fonts in the lazy phase at
+ * FCP + 1155ms, a tab that had already shown a page took them eagerly at
+ * FCP - 2ms. `loadFonts` still writes that flag and `loadLazy` still calls it
+ * unconditionally; it is no longer read here. #511
  * @returns {boolean}
  */
 export function loadsFontsEagerly() {
-  /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
-  return window.innerWidth >= 900 || !!sessionStorage.getItem('fonts-loaded');
+  return window.innerWidth >= 769;
 }
 
 /**
