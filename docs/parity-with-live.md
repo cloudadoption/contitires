@@ -142,7 +142,7 @@ the part that IS doable; the row says which half is which.
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [The media gallery](#the-media-gallery) | differs | ⏳ queued | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
+|  | [The media gallery](#the-media-gallery) | differs | ⏳ queued: the block has live's hidden set now. Both halves that are left wait on authoring: the 32 assets for #319, and `Style: partner` on 10 documents before #326's width lands without regressing them | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
 |  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ a delete nobody has proved safe | [#330](https://github.com/cloudadoption/contitires/issues/330) |
 |  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
 |  | [The default share image 404s](#the-default-share-image-404s) | differs | ⏳ ship live's file | [#178](https://github.com/cloudadoption/contitires/issues/178) |
@@ -967,24 +967,40 @@ reader reaches a dead link from our side. What a reader loses is the file, reach
 
 ### The media gallery
 
-**differs.** Live keeps a hidden set the modal can reach. We have no third state.
+**differs.** The block now has live's hidden set. The 32 assets that fill it are not authored.
 
 Live's product grid shows 2 to 6 tiles and its modal pages up to 11, keeping the rest as
-`media--hidden-media-gallery-item` at height 0. That happens on 10 of the 46 product pages, 32
-items in all. Live's inline galleries sit inside the article reading column, 559 wide at x=250
-at 1440. Below 769 live draws a "1 of 6" counter with arrows and a `+` expand badge.
+`media--hidden-media-gallery-item` at height 0. Counted on the 56 live tire URLs: 45 have a
+viewer, and the grid draws 2 on 1 page, 3 on 25, 4 on 5, 5 on 4 and 6 on 10. It never draws more
+than 6. Hidden items appear on those 10 pages and on no other, 32 in all. Live's inline galleries
+are inside the article reading column, 559 wide at x=250 at 1440. Below 769 live draws a "1 of 6"
+counter with arrows and a `+` expand badge.
 
-`blocks/media-gallery/media-gallery.js` reads every authored row into one items array, so one
-row is one tile and one slide. There is no hidden state. Our inline gallery is 750 wide at
-x=155 at 1440, so it breaks out of the reading column and starts further left than the copy
-above it. No counter and no expand badge below 769.
+`blocks/media-gallery/media-gallery.js` draws the first 6 rows of a `product` gallery and pages
+the whole set. So a seventh row onwards is modal only, and no new cell is needed. The cap is the
+product viewer's: live's article galleries keep back nothing and draw up to 14, on
+`/experience/lingenfelter-performance-engineering`. Our hero cells have 2 to 6 stills on the same
+45 pages live does, in the same distribution. Nothing on the site draws differently today, and the
+32 assets are what the third state waits for. They are reachable: each one is on a
+`con-media-gallery-modal src` in live's delivered page, so a curl reads them without driving
+live's modal.
 
-What it costs a visitor: on those 10 product pages our modal pages 2 to 6 slides where live
-pages 4 to 11, so images live shows cannot be reached here.
+Our inline gallery is 750 wide at x=155 at 1440, so it breaks out of the reading column and
+starts further left than the copy above it. No counter and no expand badge below 769.
 
-What would close it: a modal-only row state in the block, a width tied to the reading column, a
-counter and badge below 769, and a carousel for the `/events` Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326),
+What it costs a visitor: on those 10 product pages our modal pages 6 slides where live pages 7 to
+11, so images live shows cannot be reached here.
+
+What would close it: the 32 assets authored as rows 7 and up, a width tied to the reading column,
+a counter and badge below 769, and a carousel for the `/events` Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326),
 [#327](https://github.com/cloudadoption/contitires/issues/327), [#341](https://github.com/cloudadoption/contitires/issues/341), [#199](https://github.com/cloudadoption/contitires/issues/199).
+
+`#326` is blocked on authoring rather than on code. 26 published article pages have a gallery.
+Live draws 13 of them through `news-article__partners` and 13 through `news-article__default`,
+and 3 of the first 13 have `Style: partner` here. Tying the gallery to the reading column reaches
+the other 10 as well, taking them from 750, which is live's partner track, to 559. No DOM signal
+separates those 10 from the 13. Each group has pages whose share block is authored into the first
+section, and pages that take the built sidebar.
 
 ### Leftover originals in DA
 
