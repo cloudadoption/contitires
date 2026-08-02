@@ -58,14 +58,34 @@ describe('Article cards block', () => {
     expect(!!block.querySelector('.article-cards-more')).to.be.false;
   });
 
-  it('skips rows that have no image', async () => {
+  it('draws a stub for a row that has no image', async () => {
     const res = indexResponse(3);
     res.data[1].image = '';
     fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(res)));
     const block = buildBlock();
     await decorate(block);
 
-    expect(block.querySelectorAll('.article-card')).to.have.length(2);
+    const cards = block.querySelectorAll('.article-card');
+    expect(cards).to.have.length(3);
+    // newest first, so the imageless row (lastModified 1700000001) is the middle card
+    const stubbed = cards[1];
+    expect(stubbed.querySelector('h2').textContent).to.equal('Article 1');
+    expect(stubbed.querySelector('picture')).to.not.exist;
+    expect(stubbed.querySelector('.article-card-image .article-card-image-stub')).to.exist;
+    expect(cards[0].querySelector('.article-card-image-stub')).to.not.exist;
+  });
+
+  it('draws a stub for a row carrying the default-meta-image fallback', async () => {
+    const res = indexResponse(3);
+    res.data[1].image = '/default-meta-image.png?width=1200&format=pjpg&optimize=medium';
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(res)));
+    const block = buildBlock();
+    await decorate(block);
+
+    const cards = block.querySelectorAll('.article-card');
+    expect(cards).to.have.length(3);
+    expect(cards[1].querySelector('picture')).to.not.exist;
+    expect(cards[1].querySelector('.article-card-image-stub')).to.exist;
   });
 
   it('filters by an authored category', async () => {
@@ -94,25 +114,25 @@ describe('Article cards block', () => {
 });
 
 describe('selectRows', () => {
-  it('keeps imageless rows out and filters by category', () => {
+  it('keeps imageless rows in and filters by category', () => {
     const rows = [
       { image: '/a.png', category: 'News', lastModified: '3' },
       { image: '', category: 'News', lastModified: '2' },
       { image: '/c.png', category: 'Technology', lastModified: '1' },
     ];
-    expect(selectRows(rows, { category: 'news' }).map((r) => r.lastModified)).to.deep.equal(['3']);
-    expect(selectRows(rows).length).to.equal(2);
+    expect(selectRows(rows, { category: 'news' }).map((r) => r.lastModified)).to.deep.equal(['3', '2']);
+    expect(selectRows(rows).length).to.equal(3);
   });
 
-  it('drops rows using the missing default-meta-image fallback', () => {
+  it('keeps a row carrying the default-meta-image fallback', () => {
     const rows = [
       { image: '/learn/media_1.png?width=1200', lastModified: '3' },
       { image: '/default-meta-image.png?width=1200&format=pjpg', lastModified: '2' },
       { image: '/learn/media_2.png?width=1200', lastModified: '1' },
     ];
     const out = selectRows(rows);
-    expect(out).to.have.length(2);
-    expect(out.some((r) => r.image.includes('default-meta-image'))).to.be.false;
+    expect(out).to.have.length(3);
+    expect(out.some((r) => r.image.includes('default-meta-image'))).to.be.true;
   });
 
   it('sorts by weight ascending, unweighted rows last by lastModified', () => {
