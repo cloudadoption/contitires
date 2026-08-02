@@ -12,10 +12,18 @@
  * follows the body.
  */
 
+/* 571px is live's own measure below 769, read on
+   /learn/how-do-i-check-my-tire-pressure at 375, 600 and 768: `.container` pads
+   20 each side there rather than the 16 it pads above, and
+   `.news-article__default .news-article__body` caps at 60ch, which is 571.4 on
+   live's 14.88px body. There is no border-box reset in this sheet, so the
+   maximum is the content box and the measure is min(571, viewport - 40): 335,
+   560, 571. Ours was min(640, viewport - 48), 8px narrow where the viewport
+   bound and 69px wide at 768. (#205) */
 body.article main .section {
-  max-width: 640px;
+  max-width: 571px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
 body.article main .section > div {
