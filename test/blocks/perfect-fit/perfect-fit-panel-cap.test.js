@@ -29,9 +29,14 @@ import decorate from '../../../blocks/perfect-fit/perfect-fit.js';
  * THE CAP IS ON A SHARED CONTAINER. `perfect-fit.js` builds one panels wrapper
  * and appends all three panels into it, so this reaches By Vehicle and By Plate
  * as well. Live's three tabs are identical at every width read, 1440, 900, 769
- * and 768, so one cap is what live has. It cannot bind on the other two here
- * because their forms are capped at 400 by `.perfect-fit-form`, and that they
- * do not move is asserted below rather than assumed.
+ * and 768, so one cap is what live has.
+ *
+ * When this file was written the cap could not bind on the other two, because
+ * `.perfect-fit-form` capped them at 400, and they were asserted here to stay
+ * there. #501 moved that 400 onto the fields row, so the cap now binds on all
+ * three and the assertion below reads the panel's own content width off each
+ * tab. That is the same guard doing more work rather than a guard relaxed: it
+ * failed on all three widths against the 400s until #501 landed.
  */
 
 const PRODUCTS = {
@@ -55,10 +60,8 @@ const LIVE_CONTENT = {
   1440: 1136, 900: 828, 769: 697, 768: 728, 375: 335,
 };
 
-/** What the two other tabs render at, which this cap must not move. */
-const OTHER_TAB_FORM = {
-  1440: 400, 900: 400, 769: 400, 768: 400, 375: 335,
-};
+/** What the two other tabs render at, which is this same cap since #501. */
+const OTHER_TAB_FORM = LIVE_CONTENT;
 
 function stubSheets(sheets) {
   return sinon.stub(window, 'fetch').callsFake((url) => {
@@ -188,8 +191,8 @@ describe('Perfect fit, the panel takes live\'s content cap (#499)', () => {
 
   /*
    * The cap is on a container all three panels share, so the two tabs #499 does
-   * not name are asserted not to move. Their forms are capped at 400 by
-   * `.perfect-fit-form`, well inside the cap, so it cannot bind on them.
+   * not name are asserted here too. They took 400 from `.perfect-fit-form` until
+   * #501 moved that onto the fields row; they take this cap now.
    */
   describe('the two tabs the shared container also reaches', () => {
     /*
@@ -203,7 +206,7 @@ describe('Perfect fit, the panel takes live\'s content cap (#499)', () => {
     };
 
     [1440, 900, 768].forEach((w) => {
-      it(`leaves the vehicle and plate forms at ${OTHER_TAB_FORM[w]} at ${w}`, async () => {
+      it(`gives the vehicle and plate forms the capped ${OTHER_TAB_FORM[w]} at ${w}`, async () => {
         await setViewport({ width: w, height: w === 768 ? 1024 : 900 });
         await openFinder(0);
         expect(formWidthOn('vehicle'), 'by vehicle').to.equal(OTHER_TAB_FORM[w]);
