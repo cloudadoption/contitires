@@ -72,12 +72,13 @@ describe('Media gallery cards, the name live puts under the still', () => {
   });
 
   /*
-   * The level, which is ours to set rather than live's to match. Live gives
-   * these tiles no heading at all, so there is nothing to copy, and our h3 sat
-   * under the banner h1 on the two pages of the seven that author no h2 of
-   * their own: /emilytalkstires and /learn/product-highlights. h2 closes that
-   * skip on both. Live's own /forwhatyoudo reads h1 then h3, so matching live
-   * here would reproduce live's defect. Issue #375.
+   * The level. Live gives every card after the leading one an h2 and the leading
+   * one an h3, so one level per caption lands on live's for all but the first
+   * card. Ours were all h3, which read straight off the banner h1 on the two
+   * pages of the seven that author no h2 of their own, /emilytalkstires and
+   * /learn/product-highlights. Live has that same skip on /emilytalkstires. Read
+   * off live's seven pages on 2026-08-03 and recorded in
+   * docs/parity-with-live.md. Issue #375.
    */
   it('names a card with an h2, so no level is skipped', () => {
     decorate(block = mls());

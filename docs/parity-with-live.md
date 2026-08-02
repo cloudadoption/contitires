@@ -142,7 +142,8 @@ the part that IS doable; the row says which half is which.
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [The media gallery](#the-media-gallery) | differs | ⏳ queued | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
+|  | [The media gallery](#the-media-gallery) | differs | ⏳ queued; the mobile counter and expand badge are live's own now | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326) |
+|  | [The gallery caption takes a level live does not](#the-gallery-caption-takes-a-level-live-does-not) | diverges | ✅ decided: live's own markup skips h1 to h3 on two of the seven pages | [#375](https://github.com/cloudadoption/contitires/issues/375) |
 |  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ a delete nobody has proved safe | [#330](https://github.com/cloudadoption/contitires/issues/330) |
 |  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
 |  | [The default share image 404s](#the-default-share-image-404s) | differs | ⏳ ship live's file | [#178](https://github.com/cloudadoption/contitires/issues/178) |
@@ -972,19 +973,59 @@ reader reaches a dead link from our side. What a reader loses is the file, reach
 Live's product grid shows 2 to 6 tiles and its modal pages up to 11, keeping the rest as
 `media--hidden-media-gallery-item` at height 0. That happens on 10 of the 46 product pages, 32
 items in all. Live's inline galleries sit inside the article reading column, 559 wide at x=250
-at 1440. Below 769 live draws a "1 of 6" counter with arrows and a `+` expand badge.
+at 1440.
 
 `blocks/media-gallery/media-gallery.js` reads every authored row into one items array, so one
 row is one tile and one slide. There is no hidden state. Our inline gallery is 750 wide at
 x=155 at 1440, so it breaks out of the reading column and starts further left than the copy
-above it. No counter and no expand badge below 769.
+above it.
+
+The `1 of 6` counter and the `+` expand badge live draws below 769 are here as of #327, both
+taken from live's own source rather than from a screenshot: the pager geometry and the two
+chevrons off the `con-column-slider` component, the badge off
+`.media-gallery con-column-slider .media--media-gallery-item:before`. Two details are ours.
+Live's arrows carry no accessible name and these are labelled, and live counts off its own slide
+index where this strip scroll-snaps, so the count reads the scroll position and a swipe moves it.
 
 What it costs a visitor: on those 10 product pages our modal pages 2 to 6 slides where live
 pages 4 to 11, so images live shows cannot be reached here.
 
-What would close it: a modal-only row state in the block, a width tied to the reading column, a
-counter and badge below 769, and a carousel for the `/events` Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326),
-[#327](https://github.com/cloudadoption/contitires/issues/327), [#341](https://github.com/cloudadoption/contitires/issues/341), [#199](https://github.com/cloudadoption/contitires/issues/199).
+What would close it: a modal-only row state in the block, a width tied to the reading column,
+and a carousel for the `/events` Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#341](https://github.com/cloudadoption/contitires/issues/341),
+[#199](https://github.com/cloudadoption/contitires/issues/199).
+
+### The gallery caption takes a level live does not
+
+**diverges on one card per page, deliberately.** The block gives every card name one level, and
+live gives its leading card a different one from the rest.
+
+The caption exists on the `cards` variant alone, which is 7 of the 34 published pages carrying
+the block. Ours were all h3. Live's levels, read off the seven pages on 2026-08-03:
+
+| live page | live's card levels |
+|---|---|
+| `/forwhatyoudo`, `/lightscameratraction`, `/cruisingthecontinentalus`, `/experience/soccer` | leading card h3, every following card h2 |
+| `/emilytalkstires` | leading card h3 directly under the h1, following cards h2 |
+| `/my-first-car-my-first-tires` | every card h2 |
+| `/learn/product-highlights` | no card heading at all |
+
+What ships: h2 on a card that stands on its own, and a plain span on a card that ends on a call
+to action. That lands on live's own level for every following card, matches live exactly on
+`/my-first-car-my-first-tires`, and matches live's headingless footer on
+`/learn/product-highlights`, where the name is the left half of a label row with `TIRE DETAILS`
+on the right.
+
+**What it buys, and what it costs.** Two of the seven pages author no h2 of their own,
+`/emilytalkstires` and `/learn/product-highlights`, so our h3 read straight off the banner h1 on
+both. Live has that same skip on `/emilytalkstires`, where its leading h3 also sits under the h1
+with nothing in between; that one is a WCAG failure rather than a choice, and it is the case
+GUARDRAILS 5 exempts from the inherited line. The cost is the four pages where live's leading h3
+sits under a section h2 and skips nothing: there the leading card is an h2 here where live's is an
+h3. One level per caption is what avoids a heading level that depends on a card's position, and
+it leaves no skip on any of the seven.
+
+The 14px size and the 20px line box are pinned in the block, so the promoted level does not take
+the global h2 box of 30 over 38. [#375](https://github.com/cloudadoption/contitires/issues/375).
 
 ### Leftover originals in DA
 
