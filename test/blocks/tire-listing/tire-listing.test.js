@@ -514,6 +514,29 @@ describe('Tire listing block', () => {
     expect(window.location.search).to.equal('?condition=ultra-high-performance');
   });
 
+  it('restores the category, and its clean address, on Back', async () => {
+    window.history.replaceState({}, '', '/tires/ultra-high-performance');
+    stubCatalog();
+    const block = buildBlock('<div><div>Ultra-High Performance</div></div>');
+    await decorate(block);
+
+    const summer = block.querySelector('input[value="Summer"]');
+    summer.checked = true;
+    summer.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(window.location.search).to.equal('?condition=ultra-high-performance&weather=summer');
+
+    // Back lands on the address the page was entered at, which carries no query
+    window.history.replaceState({}, '', '/tires/ultra-high-performance');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+
+    // the facet the path implies comes back with it, rather than all 46 tires
+    expect(block.querySelector('.tire-listing-count').textContent).to.equal('15 Results');
+    expect(block.querySelector('input[value="Ultra-High Performance"]').checked).to.be.true;
+    expect(summer.checked).to.be.false;
+    // and the address is left as Back found it
+    expect(window.location.search).to.equal('');
+  });
+
   it('writes the address once a reader changes a facet on a category page', async () => {
     window.history.replaceState({}, '', '/tires/winter');
     stubCatalog();
