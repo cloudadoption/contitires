@@ -133,6 +133,24 @@ describe("Cards, the hub row's next control against live's own", () => {
     expect(Math.round(rect(block.querySelector('.cards-scroll-next')).right)).to.equal(viewport());
   });
 
+  /**
+   * The question behind the finding: four shows are authored and three were on
+   * screen at 1440, so was the fourth reachable at all? It was, by wheel, touch
+   * and keyboard, and by no control anyone could see. This holds the row to
+   * reaching the last of them.
+   */
+  it('reaches the fourth show once the control is used', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const block = buildRow();
+    const list = block.querySelector('ul');
+    const last = list.lastElementChild;
+    expect(Math.round(rect(last).right), 'cut off at rest, as live cuts it')
+      .to.be.greaterThan(viewport());
+    block.querySelector('.cards-scroll-next').click();
+    list.scrollTo({ left: list.scrollWidth - list.clientWidth, behavior: 'auto' });
+    expect(Math.round(rect(last).right), 'and fully on it after').to.be.at.most(viewport());
+  });
+
   it('keeps a row that does not scroll from drawing a control at all', async () => {
     await setViewport({ width: 1440, height: 900 });
     const controls = buildRow(2).querySelector('.cards-scroll-controls');
