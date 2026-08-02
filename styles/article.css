@@ -12,10 +12,18 @@
  * follows the body.
  */
 
+/* 571px is live's own measure below 769, read on
+   /learn/how-do-i-check-my-tire-pressure at 375, 600 and 768: `.container` pads
+   20 each side there rather than the 16 it pads above, and
+   `.news-article__default .news-article__body` caps at 60ch, which is 571.4 on
+   live's 14.88px body. There is no border-box reset in this sheet, so the
+   maximum is the content box and the measure is min(571, viewport - 40): 335,
+   560, 571. Ours was min(640, viewport - 48), 8px narrow where the viewport
+   bound and 69px wide at 768. (#205) */
 body.article main .section {
-  max-width: 640px;
+  max-width: 571px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
 body.article main .section > div {
@@ -195,9 +203,24 @@ body.article main .section:has(.share-wrapper) {
   row-gap: 32px;
 }
 
+/* live's sharebar is a 45px row at every width, `.sharebar { height: 45px }`
+   over its own border-box, so the 1px rules and the 8px padding come out of the
+   45. The article drops the lower rule and the lower padding, which left 33: 1px
+   of rule, 8px of padding and share.css's 24px floor. 36 puts the row back on
+   live's 45 and leaves that floor, which is the smallest touch target
+   Lighthouse accepts, where the other contexts want it. (#204) */
 body.article main .section:has(.share-wrapper) .share {
   border-bottom: 0;
   padding: 8px 0 0;
+  min-height: 36px;
+}
+
+/* live's related list is a `.panel`, and a panel opens 28px above its title,
+   which `.news-article__related` takes to 38 below 769 where the sidebar
+   follows the body. We had none, and with the 33px bar the title read 43px
+   higher than live's from the top of the sharebar. (#204) */
+body.article main .section:has(.share-wrapper) .related-articles {
+  padding-top: 38px;
 }
 
 body.article main .section:has(.share-wrapper) .related-articles-title {
@@ -276,9 +299,17 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
   }
 
   /* live holds its copy to 74% of the column, whatever the column measures:
-     559 of 755, 479 of 647, 387 of 523, 290 of 392 */
+     559 of 755, 479 of 647, 387 of 523, 290 of 392.
+
+     A width, not a maximum. The wrapper is a grid item and auto inline margins
+     turn off the grid's stretch, so a maximum left it shrinking to its content:
+     /learn/2022-continental-tire-soccer-schedule, whose paragraphs are each a
+     date and a fixture split by a <br>, read 277 at every width from 769 up
+     against live's 559. Live writes the same geometry the other way round,
+     `.news-article__default .news-article__body { margin: 0 13% }` over the
+     stretch it keeps. (#194) */
   body.article main .section:has(.share-wrapper) .default-content-wrapper {
-    max-width: 74%;
+    width: 74%;
     margin-inline: auto;
   }
 
@@ -302,6 +333,11 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
      moves beside the body (#200) */
   body.article main .section:first-of-type:not(:where(:has(.share-wrapper))) {
     padding-bottom: 60px;
+  }
+
+  /* the panel's own 28, where `.news-article__related` no longer overrides it */
+  body.article main .section:has(.share-wrapper) .related-articles {
+    padding-top: 28px;
   }
 }
 
@@ -393,8 +429,11 @@ body.article main .section.partner .share-wrapper + .default-content-wrapper {
   }
 
   /* the copy takes the whole 305, not the 74% an article's reading column
-     holds it to, and a photograph in it is not broken out of that measure */
+     holds it to, and a photograph in it is not broken out of that measure.
+     A partner section carries a share block too, so the article rule reaches
+     this wrapper: it releases both properties that rule sets, not one. */
   body.article main .section.partner .default-content-wrapper {
+    width: auto;
     max-width: none;
   }
 

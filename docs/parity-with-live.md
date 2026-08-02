@@ -284,10 +284,18 @@ From 1025 up live's logo renders 186x34. Ours is 150px wide. Live's open TIRES p
 cross-section and a plate. Ours paints `#1d1d1d` and the finder column has no icons, though all
 three assets are in the repo.
 
-The footer row gap is 50px on live and 32px here. Between 1080 and 1183 we show three columns
-where live shows six, because our container caps at 1264 with 32px padding so six tracks first
-fit at 1184. That band is a decision rather than a defect. Matching it means letting the footer
-overflow its own container the way live's does, by up to 36px. [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237), [#138](https://github.com/cloudadoption/contitires/issues/138), [#202](https://github.com/cloudadoption/contitires/issues/202).
+Between 1080 and 1183 the footer shows three columns where live shows six, because our container
+caps at 1264 with 32px padding so six tracks first fit at 1184. That band is a decision rather
+than a defect. Matching it means letting the footer overflow its own container the way live's
+does, by up to 36px.
+
+The rows are 50px apart as live's are. The columns are collapsed disclosure rows to 768 and open at
+769 where live opens them, and the legal bar stacks to 768 too. Two things are left in the bands
+either side. Our collapsed footer is taller than live's wherever it collapses, 790 against 704 at
+768 and 812 against 704 at 599, which is the stacked rows and not the boundary. From 769 to 899 we
+lay two columns where live lays three, its search column beside two that wrap, so the footer runs
+1044 against live's 783 until our grid takes over at 900.
+[#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237), [#138](https://github.com/cloudadoption/contitires/issues/138), [#202](https://github.com/cloudadoption/contitires/issues/202).
 
 ## Product pages
 
@@ -1032,23 +1040,27 @@ What it costs a visitor: nothing they see. The glyph cannot be recoloured per in
 not pick up icon theming. It carries live's colour rather than our contrast token, which the
 comment justifies by the icon being decorative and `aria-hidden` on live too. [#277](https://github.com/cloudadoption/contitires/issues/277).
 
-### The default share image 404s
+### The default share image
 
-**differs.** 26 pages name an `og:image` that does not exist.
+**matches, re-encoded.** 26 pages name a fallback `og:image` and the file now answers 200.
 
-Live serves `Continental_Logo_Social.jpg` as the fallback `og:image`, 200 at 46,926 bytes.
+Live's own fallback is `Continental_Logo_Social.jpg`, 1200x630 and 46,926 bytes. It reads off
+`/legal`, a page with no image of its own. The path ours name is not a choice: the pipeline
+hardcodes `/default-meta-image.png`. The file is the only part this repo supplies. Until
+2026-08-02 no file by that name was tracked here. The bare path answered 404 and so did the
+`?width=1200&format=pjpg&optimize=medium` form the index rows store, which left those 26 pages
+sharing with no preview image.
 
-Every affected page here names
-`https://main--contitires--cloudadoption.aem.live/default-meta-image.png?width=1200&format=pjpg&optimize=medium`.
-Both the bare path and the query-string form answer 404, and the repo tracks no file by that
-name.
+What ships is live's image at live's dimensions rather than a drawing of one, following the ruling
+on [#178](https://github.com/cloudadoption/contitires/issues/178): we do not choose what the site
+claims when shared, we copy what live claims.
 
-What it costs a visitor: those 26 pages have no preview image when the link is shared on social
-or pasted into a chat. Live shows the Continental logo card in the same place.
-
-What would close it: ship live's file unchanged at `/default-meta-image.png`.
-[#178](https://github.com/cloudadoption/contitires/issues/178) already ruled how to decide it:
-we do not choose what the site claims when shared, we copy what live claims.
+The one departure is the encoding, and the hardcoded path forces it. Live's file is a JPEG behind
+a path ending `.png`, and the code bus types a static file by its extension. JPEG bytes under that
+name would go out as `image/png`, and a card crawler handed a mismatched type can drop the image.
+A 16-colour palette encodes the two-tone image in 17,058 bytes, under live's 46,926, with a
+background of `#ffa500`, the `--conti-yellow` token. Live's JPEG decodes that same
+background to (254, 165, 0), one step of red off it.
 
 ## Content and editorial
 
@@ -1068,6 +1080,28 @@ rather than improve it.
 Live truncates some of its own descriptions and we reproduce that too. Live's description on
 `/learn/150-years-sustainability` ends "...and has since.." with the stray pair of dots.
 `/newsletter-signup` carries zero meta description tags on live, and zero here.
+
+### og:title on a product page
+
+**differs on all 46 product pages, and no code here changes it.** Ours repeats the whole page
+title where live gives the product name.
+
+`/tires/purecontact-ls` heads its share card "PureContact LS Tires | Continental Tire" and live
+heads the same page "PureContact LS". Read 2026-08-02 at the `path` the catalog sheet gives for
+each of the 46: our `og:title` equals our own `<title>` on 46 of 46, and live's equals the
+catalog's plain `name` cell on 46 of 46. A shared link renders that string as its headline, so ours
+spends the headline on the site name and the word Tires.
+
+The tag is not composed in this repo. The pipeline sets `og:title` from the page title in
+`src/steps/extract-metadata.js`, and the one thing that overrides it is an `og:title` value in the
+page's own metadata, which is authored content. So it closes with 46 rows in a `metadata.json`
+sheet at the content root, keyed on the catalog's `path` column and valued from its `name` column.
+No change under `blocks/` or `scripts/` reaches it. A wildcard row will not do, because the value
+differs per page. Nor will JavaScript: a card crawler reads the delivered HTML and never runs our
+scripts.
+
+The page `<title>` is not in question here. [#516](https://github.com/cloudadoption/contitires/issues/516),
+with the spelling of the names themselves at [#515](https://github.com/cloudadoption/contitires/issues/515).
 
 ### No result count above the pager
 
@@ -1748,16 +1782,32 @@ live's 300. We send neither `x-content-type-options` nor `x-frame-options`.
 What it costs a visitor: nothing they see. It moves the Lighthouse best-practices CSP audit,
 which is the only place it shows up in a score.
 
-What would close it: adding the two headers we lack would make our set a superset of live's.
-Neither is set today.
+**Neither missing header can come from this repo, which puts this among the gaps no work here
+closes.** `head.html` reads like the lever because our CSP arrives that way. It is narrower than
+that. The pipeline honours `move-to-http-header` on one node, the
+`meta[http-equiv="content-security-policy"]` it selects in `src/steps/csp.js`, and only when that
+policy contains a `'nonce-aem'`. A second `meta http-equiv` beside it emits a meta tag in the body
+and no header. Browsers ignore these two in meta form in any case. A `metadata.json` sheet is no
+help either: the pipeline's `ALLOWED_RESPONSE_HEADERS` is `content-security-policy`, its
+report-only twin, the two `access-control-allow-*` and `link`.
+
+What would close it: the `headers` object in the site configuration, which is the config
+service rather than git, documented at <https://www.aem.live/docs/custom-headers>. There
+`x-content-type-options: nosniff` is unconditional and closes half of it.
+`x-frame-options: SAMEORIGIN` needs a decision first. Config headers apply to preview as well as
+live, and `da.live` frames `{ref}--{site}--{org}.aem.page` for its block library, so SAMEORIGIN on
+the preview host would break the authoring surface this rebuild demonstrates. A CSP
+`frame-ancestors 'self' https://da.live https://*.da.live` buys the same clickjacking protection
+from `head.html` without that cost, at the price of not being a literal superset of live's header
+set. [#492](https://github.com/cloudadoption/contitires/issues/492).
 
 ### The test suite and repo hygiene
 
 **differs.** None of this is visible from outside, and it is what the next person to change the
 code inherits.
 
-There are 29 block directories and 2 of them ship without a test directory, `fragment` and
-`library-metadata`. `git ls-files` counts 72 tracked test files.
+All 29 block directories ship a test directory. `fragment` and `library-metadata` were the last
+two without one and got theirs on 2026-08-02. `git ls-files` counts 108 tracked test files.
 
 Two of the three things that made the suite prove less than it looks are fixed. #317 and #318
 closed in PR #392 on 2026-07-31: an absence assertion whose actual value is a DOM element no
@@ -1771,8 +1821,9 @@ content in production.
 What it costs a visitor: nothing. The cost is a green suite that proves less than it looks, and
 two documents that describe a site which changed underneath them.
 
-What would close it: tests for the two untested blocks with delivered-shape fixtures, a runner
-fix or a lint rule for the hanging assertion, and real fixture files or stubbed requests. [#125](https://github.com/cloudadoption/contitires/issues/125),
+What would close it: delivered-shape fixtures across the suite, which the two new block test
+directories use and the older ones do not, a runner fix or a lint rule for the hanging assertion,
+and real fixture files or stubbed requests. [#125](https://github.com/cloudadoption/contitires/issues/125),
 [#222](https://github.com/cloudadoption/contitires/issues/222), [#317](https://github.com/cloudadoption/contitires/issues/317), [#318](https://github.com/cloudadoption/contitires/issues/318), [#126](https://github.com/cloudadoption/contitires/issues/126), [#304](https://github.com/cloudadoption/contitires/issues/304), [#316](https://github.com/cloudadoption/contitires/issues/316), [#345](https://github.com/cloudadoption/contitires/issues/345), [#322](https://github.com/cloudadoption/contitires/issues/322).
 
 ### The annotated tire diagram

@@ -160,6 +160,36 @@ function monthOf(card) {
 }
 
 /**
+ * The day a card's pill stops being about, read back off the pill the way the
+ * month is so an author can write the lines in any order. `Aug 06-09` ends on
+ * the 9th and a single day ends on itself, which is what makes a multi-day event
+ * halfway through still upcoming. The separator in the authored sheet is an en
+ * dash, so the day is the last number rather than anything after a hyphen, and
+ * the month is the last month named, for a range crossing into the next one.
+ * An event whose pill names no date cannot be shown to be over and has none.
+ * @param {Element} card a built card
+ * @returns {Date|null}
+ */
+export function endOf(card) {
+  const range = card.querySelector('.events-range');
+  const year = card.querySelector('.events-year');
+  if (!range || !year) return null;
+  const text = range.textContent.trim().toLowerCase();
+  const months = [...text.matchAll(/[a-z]+/g)]
+    .map((match) => MONTHS.indexOf(match[0].slice(0, 3)))
+    .filter((month) => month >= 0);
+  const days = text.match(/\d+/g);
+  const number = Number(year.textContent.trim());
+  if (!months.length || !days || !number) return null;
+  // a range naming one month whose end day falls before its start day runs into
+  // the next one, `Aug 29-02`. The sheet holds no such row today, and reading
+  // that as Aug 2 would drop an event still going on. Month 12 rolls the year.
+  const crosses = months.length === 1 && days.length > 1
+    && Number(days.at(-1)) < Number(days[0]);
+  return new Date(number, months.at(-1) + (crosses ? 1 : 0), Number(days.at(-1)));
+}
+
+/**
  * The filter a URL asks for. Slugs rather than labels, so the reader works
  * without the calendar in hand. Live's own parameters are Drupal term ids
  * (`event_type[162]`), which say nothing without live's taxonomy, and its
@@ -267,15 +297,30 @@ function buildFilter(events, onChange, onReset) {
 export default function decorate(block) {
   const list = document.createElement('ul');
   list.className = 'events-list';
+
+  // midnight, so an event ending today is still on
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const events = [...block.children].map((row) => {
     const cells = [...row.children];
     const card = document.createElement('li');
     card.append(buildDate(cells[0]), buildDetail(cells[1], cells[2]));
-    list.append(card);
     const category = card.querySelector('.events-category');
     const label = category && category.textContent.trim();
-    return { card, type: label ? { slug: slugify(label), label } : null, month: monthOf(card) };
-  });
+    return {
+      card,
+      type: label ? { slug: slugify(label), label } : null,
+      month: monthOf(card),
+      end: endOf(card),
+    };
+    // live drops an event once it is over, and the authored rows stay as they
+    // are: they are the history. Dropped here rather than at render, because the
+    // month facet is built from these same entries and the two have to agree
+    // about what past means.
+  }).filter((event) => !(event.end && event.end < today));
+
+  events.forEach((event) => list.append(event.card));
 
   const state = stateFromSearch(window.location.search);
 

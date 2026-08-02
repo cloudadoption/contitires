@@ -69,6 +69,41 @@ main .article-cards .article-card-image img {
   }
 }
 
+/* an article published with no thumbnail of its own. Live keeps it in the
+   listing and draws a black tile in the thumbnail's place, and hides the tile
+   under its own `max-width: 768` so the wrapper alone rules the title off:
+
+     .news-teaser__image-stub { background-color: #000000; height: 128px;
+       width: 100%; border-radius: 1rem;
+       background: url(.../contiseal-white.png) center / 50% no-repeat }
+
+   The 16px is live's 1rem, and #000 is live's #000000 rather than
+   --conti-black, which is #333. The mark inside live's tile is a raster this
+   repo does not carry, and icons/tech-contiseal.svg is the technology
+   pictogram and not that badge, so the tile ships without a mark. Issue #346. */
+main .article-cards .article-card-image-stub {
+  display: none;
+  height: 128px;
+  border-radius: 16px;
+  background-color: #000;
+}
+
+/* live's tile is 171 wide from its own 769, because the wrapper around it is.
+   Ours is 171 only from 900, where the card turns (#113), so the empty wrapper
+   takes live's width one band early and the tile reads live's box throughout. */
+@media (width >= 769px) {
+  main .article-cards .article-card-image:has(.article-card-image-stub) {
+    width: 171px;
+    flex-shrink: 0;
+    margin: 0 16px 0 0;
+    border: 0;
+  }
+
+  main .article-cards .article-card-image-stub {
+    display: block;
+  }
+}
+
 /* :where() holds this at the specificity the unscoped selector read as, so the
    feature band's own image rule below still wins on source order */
 main .article-cards .article-card:where(:hover, :focus-visible) .article-card-image img {
@@ -107,6 +142,16 @@ main .article-cards .article-card-body p {
   overflow: hidden;
 }
 
+/* the count above the control, at live's `.pager-summary` type. Live centres it
+   in the flex column it shares with the button, `.load-more-pager`, and gives
+   the pair a 20px gap. Issue #348. */
+main .article-cards .article-cards-summary {
+  margin: 40px 0 0;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: center;
+}
+
 main .article-cards .article-cards-more {
   display: block;
   margin: 40px auto 0;
@@ -122,6 +167,12 @@ main .article-cards .article-cards-more {
   text-transform: uppercase;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* the count now opens the pair, so the 40px above moves to it and the button
+   keeps live's 20px inner gap */
+main .article-cards .article-cards-summary + .article-cards-more {
+  margin-top: 20px;
 }
 
 main .article-cards .article-cards-more:hover,
