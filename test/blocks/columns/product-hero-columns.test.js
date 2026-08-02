@@ -24,6 +24,11 @@ const HERO = `
             light trucks and SUVs. Designed for luxury vehicle applications, this
             Original Equipment tire comes with Self Supporting Runflat options.</p>
           <p><strong><a href="/store-finder" class="button">Find a store</a></strong></p>
+          <div class="product-hero-offer">
+            <p>Get a $110 Continental Tire Prepaid Mastercard&reg; by mail when you
+              purchase a set of 4 qualifying Continental Tires through August 31, 2026.</p>
+            <p><em><a href="/promotion" class="button secondary">Offer details</a></em></p>
+          </div>
           <p class="product-hero-plan-link"><a href="/warranty">Total Confidence Plan</a></p>
           <ul class="product-hero-plan">
             <li>60 Day Trial</li><li>3 Year Roadside Assistance</li>
