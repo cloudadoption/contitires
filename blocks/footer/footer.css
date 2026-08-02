@@ -68,7 +68,10 @@ footer .footer-links-group ul {
 /* Written out rather than grouped in an :is(): that takes its specificity from
    its most specific branch, so `:is(a, button[data-tire-finder])` scored an
    attribute selector on the plain links too and outranked the social band's
-   own colour. Spelled out, each selector scores what it reads as. (#198) */
+   own colour. Spelled out, each selector scores what it reads as. That holds
+   for every one of them in this sheet, the icon rule and the hover pair below
+   included: the construct also kept stylelint from comparing the rules it
+   inflated, so it hid the warning it earned. (#198, #202) */
 footer .footer-links-group a,
 footer .footer-links-group button[data-tire-finder] {
   display: flex;
@@ -81,7 +84,8 @@ footer .footer-links-group button[data-tire-finder] {
   letter-spacing: 0.5px;
 }
 
-footer .footer-links-group :is(a, button[data-tire-finder]) .icon {
+footer .footer-links-group a .icon,
+footer .footer-links-group button[data-tire-finder] .icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
@@ -248,8 +252,10 @@ footer .footer-bottom a {
 }
 
 /* hover/focus, grouped last so specificity only ever increases */
-footer .footer-links-group :is(a, button[data-tire-finder]):hover,
-footer .footer-links-group :is(a, button[data-tire-finder]):focus-visible,
+footer .footer-links-group a:hover,
+footer .footer-links-group a:focus-visible,
+footer .footer-links-group button[data-tire-finder]:hover,
+footer .footer-links-group button[data-tire-finder]:focus-visible,
 footer .footer-bottom a:hover,
 footer .footer-bottom a:focus-visible {
   text-decoration: underline;
