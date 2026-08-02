@@ -668,6 +668,46 @@ main .section.hero-container {
     content: '';
   }
 
+  /* and it comes back with a background, which is the whole of #519. `.hero.left`
+     at :431 and `.hero.short` at :447 both score 0-3-0 and `short` is declared
+     second, so on a hero carrying both the background is `none`; the rule above
+     then generates the pseudo-element over a bare photo and the white copy has
+     nothing behind it. Below 1025 it never showed, because `content: none` keeps
+     it from generating at all and live hides its own there too.
+
+     LIVE'S VALUE IS A FLAT rgba AND NOT THE GRADIENT `short` CANCELLED, so
+     letting `.hero.left` through is the wrong fix twice over: it would paint a
+     gradient live does not paint here, and it is the exact rule #471 is open
+     against. Read out of continentaltire.com's stylesheet on 2026-08-02:
+
+       .marquee__background::after { background: rgba(0, 0, 0, var(--marquee-bg-opacity, 0.2)) }
+       @media (max-width: 1024px) { .marquee--mobile-bg-divided ...::after { display: none } }
+       .marquee--with-left-backdrop .marquee__background::after { background: <two gradients> }
+
+     So live's scrim is flat by default, per-marquee through one custom property,
+     and the gradient belongs to one variant we do not carry here. Painted values
+     at 1440: 0.3 on /learn, 0.4 on /events.
+
+     `stacked` IS WHAT BOUNDS THIS, AND IT HAS TO BE. `hero left short` is
+     authored on /tires and its eleven category pages, all PUBLISHED, read off
+     `.plain.html` for all 328 indexed paths on both hosts. Live gives those
+     marquees `--marquee-bg-opacity: 0` and paints nothing, so `background: none`
+     is right there and a fix on `.hero.short` would darken twelve pages live
+     leaves clear. The pages live paints a scrim on are the ones it divides below
+     1025, `marquee--mobile-bg-divided`, which is this block's `stacked`.
+
+     The opacity rides a custom property the way live's does. `tall` carries the
+     0.4 because it is the one class that tells our two `stacked short` heroes
+     apart today, on /events alone; that is a page hook rather than a reading
+     about strip heights, and a third such hero needs its own value here. #519 */
+  .hero.stacked.short .hero-image::after {
+    background: rgb(0 0 0 / var(--hero-scrim-opacity, 30%));
+  }
+
+  .hero.stacked.short.tall {
+    --hero-scrim-opacity: 40%;
+  }
+
   .hero.stacked .hero-content {
     padding: 96px 32px;
     text-align: left;
