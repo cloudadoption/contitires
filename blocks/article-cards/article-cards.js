@@ -93,6 +93,17 @@ function dropEmptyWrappers(block) {
   });
 }
 
+/**
+ * Whether a row has a thumbnail of its own. An article published without one
+ * is indexed against the site's OG image, which is a Continental wordmark on
+ * yellow and reads as an article photo it is not.
+ * @param {Object} row one index row
+ * @returns {boolean}
+ */
+function hasImage(row) {
+  return !!row.image && !row.image.includes('/default-meta-image');
+}
+
 /** Builds one card: an anchor wrapping the optimized image and the title. */
 function buildCard(row) {
   const card = document.createElement('a');
@@ -101,9 +112,18 @@ function buildCard(row) {
 
   const figure = document.createElement('div');
   figure.className = 'article-card-image';
-  // empty alt: the title below is inside the same link, so an alt carrying it
-  // again makes a screen reader read every card title twice
-  figure.append(createOptimizedPicture(row.image, '', false, [{ width: '750' }]));
+  if (hasImage(row)) {
+    // empty alt: the title below is inside the same link, so an alt carrying it
+    // again makes a screen reader read every card title twice
+    figure.append(createOptimizedPicture(row.image, '', false, [{ width: '750' }]));
+  } else {
+    // live's own treatment for an article with no photo: a black tile where the
+    // thumbnail would be, `.news-teaser__image-stub`. Its mark is a raster this
+    // repo does not carry, so the tile ships without one.
+    const empty = document.createElement('div');
+    empty.className = 'article-card-image-stub';
+    figure.append(empty);
+  }
 
   // h2, which is the level live titles its own category cards at. The grid is
   // the only content a category page carries under its banner h1, so an h3 here
@@ -148,7 +168,6 @@ export function selectRows(rows, { category, subcategory } = {}) {
     return Number.isNaN(w) ? Infinity : w;
   };
   return rows
-    .filter((row) => row.image && !row.image.includes('/default-meta-image'))
     .filter((row) => matches(row.category, category))
     .filter((row) => matches(row.subcategory, subcategory))
     .sort((a, b) => {

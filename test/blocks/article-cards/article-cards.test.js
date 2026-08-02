@@ -70,9 +70,9 @@ describe('Article cards block', () => {
     // newest first, so the imageless row (lastModified 1700000001) is the middle card
     const stubbed = cards[1];
     expect(stubbed.querySelector('h2').textContent).to.equal('Article 1');
-    expect(stubbed.querySelector('picture')).to.not.exist;
+    expect(!!stubbed.querySelector('picture')).to.be.false;
     expect(stubbed.querySelector('.article-card-image .article-card-image-stub')).to.exist;
-    expect(cards[0].querySelector('.article-card-image-stub')).to.not.exist;
+    expect(!!cards[0].querySelector('.article-card-image-stub')).to.be.false;
   });
 
   it('draws a stub for a row carrying the default-meta-image fallback', async () => {
@@ -84,7 +84,7 @@ describe('Article cards block', () => {
 
     const cards = block.querySelectorAll('.article-card');
     expect(cards).to.have.length(3);
-    expect(cards[1].querySelector('picture')).to.not.exist;
+    expect(!!cards[1].querySelector('picture')).to.be.false;
     expect(cards[1].querySelector('.article-card-image-stub')).to.exist;
   });
 
