@@ -71,6 +71,23 @@ describe('Media gallery cards, the name live puts under the still', () => {
     ]);
   });
 
+  /*
+   * The level, which is ours to set rather than live's to match. Live gives
+   * these tiles no heading at all, so there is nothing to copy, and our h3 sat
+   * under the banner h1 on the two pages of the seven that author no h2 of
+   * their own: /emilytalkstires and /learn/product-highlights. h2 closes that
+   * skip on both. Live's own /forwhatyoudo reads h1 then h3, so matching live
+   * here would reproduce live's defect. Issue #375.
+   */
+  it('names a card with an h2, so no level is skipped', () => {
+    decorate(block = mls());
+    const names = [...block.querySelectorAll('.media-gallery-caption h2')];
+    expect(names.length).to.equal(3);
+    expect(names[0].textContent)
+      .to.equal('Continental Tire x MLS: 15 Years of Passion, Pride & Partnership');
+    expect(block.querySelectorAll('.media-gallery-caption h3').length, 'no h3 left').to.equal(0);
+  });
+
   // live's click target is the still, and its footer is not part of it
   it('leaves the caption outside the control the click opens', () => {
     decorate(block = mls());
