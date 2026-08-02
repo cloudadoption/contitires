@@ -87,7 +87,8 @@ describe('The promo template', () => {
   // live puts the three in a row from 769 rather than from 900
   it('holds the banner card to the size live draws it', () => {
     expect(value('main .section.banner .columns-img-col img', 'width')).to.equal('120px');
-    expect(value('main .section.banner .columns > div > div:last-child', 'display', '769px')).to.equal('flex');
+    expect(value('main .section.banner .columns > div > div:last-child', 'display')).to.equal('flex');
+    expect(value('main .section.banner .columns > div > div:last-child', 'flex-direction', '769px')).to.equal('row');
   });
 
   // the meta row is a badge beside its copy, twice
