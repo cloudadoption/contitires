@@ -85,12 +85,19 @@ describe("The cta band, live's heading over its controls", () => {
       - light.querySelector('h2').getBoundingClientRect().bottom)).to.equal(16);
   });
 
+  /* the column is the wrapper INSIDE its padding, read off the box rather than
+     spelled as the outer less a constant: that constant was the container's own
+     24 a side, and #219 put live's 20 there, so a literal would pin this test to
+     a number the container no longer has. Live's column at 768 is 728. */
   it('runs a pill the width of the column below 769', async () => {
     await setViewport({ width: 768, height: 900 });
     const pill = dark.querySelector('.button');
     const wrapper = dark.firstElementChild;
-    expect(Math.round(pill.getBoundingClientRect().width))
-      .to.equal(Math.round(wrapper.getBoundingClientRect().width) - 48);
+    const cs = getComputedStyle(wrapper);
+    const column = wrapper.getBoundingClientRect().width
+      - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    expect(Math.round(column), "live's column at 768").to.equal(728);
+    expect(Math.round(pill.getBoundingClientRect().width)).to.equal(Math.round(column));
     await setViewport({ width: 769, height: 900 });
     expect(Math.round(pill.getBoundingClientRect().width)).to.be.below(300);
   });

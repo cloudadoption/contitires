@@ -9,18 +9,20 @@ import decorate from '../../../blocks/tire-specs/tire-specs.js';
 /**
  * The specs heading ran past its own container at 375, where live's fits.
  *
- * The band was padded twice: `main > .section > div` gives every section 24px a
+ * The band was padded twice: `main > .section > div` gave every section 24px a
  * side below 900 and 32 above it, and `.tire-specs` gave another 24 on top, so
- * the heading had 279px at 375 where the section leaves it 327. Live tracks out
+ * the heading had 279px at 375 where the section left it 327. Live tracks out
  * the word after the product name, and that word measures 308.48px at 375 on
  * both sites, so it overflowed ours by 29.48px and fits live's 335px box with
  * 13.27 to spare. Measured on the published host and on
  * continentaltire.com/tires/contiprocontact, artifacts in `.mossy/parity/477/`.
  *
- * THE SECTION INSET IS LOAD-BEARING FROM HERE. #219 covers the same surface
- * from the other end, and if it takes the section's 24 away after this took the
- * band's, the band ends with no side padding at all and neither issue's own
- * evidence would show it. The last test here is that dependency, executable.
+ * THE SECTION INSET IS LOAD-BEARING FROM HERE, and #219 narrowed it to live's
+ * own 20 below 769 and 16 above rather than taking it away, which is the case
+ * this file was written to catch. So the box the heading gets IS live's 335 at
+ * 375 now, and 868 at 900, both read off continentaltire.com at those widths.
+ * The last test is still that dependency, executable: the inset may move to
+ * live's number and may not go to zero.
  *
  * The numbers are read with `getComputedStyle` and `getBoundingClientRect` at a
  * real viewport rather than off the declarations, because a declared value
@@ -89,15 +91,15 @@ describe('Tire specs, the width the band leaves its heading', () => {
     expect(`${cs.paddingTop} ${cs.paddingBottom}`).to.equal('48px 48px');
   });
 
-  it('hands the heading all 327 the section leaves at 375', async () => {
+  it('hands the heading all 335 live leaves at 375', async () => {
     await setViewport({ width: 375, height: 800 });
-    expect(inside(wrapper), 'the section inset, once').to.equal(327);
-    expect(block.querySelector('h2').clientWidth, 'the heading').to.equal(327);
+    expect(inside(wrapper), 'the section inset, once').to.equal(335);
+    expect(block.querySelector('h2').clientWidth, 'the heading').to.equal(335);
   });
 
-  it('hands it all 836 at 900, where the section pads 32', async () => {
+  it('hands it all 868 at 900, where live pads 16', async () => {
     await setViewport({ width: 900, height: 800 });
-    expect(block.querySelector('h2').clientWidth).to.equal(836);
+    expect(block.querySelector('h2').clientWidth).to.equal(868);
   });
 
   it('has room at 375 for the tracked word live fits there', async () => {
@@ -109,6 +111,7 @@ describe('Tire specs, the width the band leaves its heading', () => {
   it('leans on the section inset, the only side padding left', async () => {
     await setViewport({ width: 375, height: 800 });
     const cs = getComputedStyle(wrapper);
-    expect(`${cs.paddingLeft} ${cs.paddingRight}`).to.equal('24px 24px');
+    expect(`${cs.paddingLeft} ${cs.paddingRight}`, "live's 20 below 769").to.equal('20px 20px');
+    expect(parseFloat(cs.paddingLeft), 'and never zero').to.be.greaterThan(0);
   });
 });

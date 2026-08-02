@@ -301,16 +301,18 @@ describe('Tabs block, live\'s measurements', () => {
   });
 
   // the cap is the sidebar's; a panel without one takes the page container,
-  // which this site measures 1200 wide
+  // which is live's 1136 of content inside its 16 a side since #219
   it('gives a panel with no sidebar the whole container at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
     const tabs = block.querySelectorAll('[role="tab"]');
     tabs[1].click();
     const panel = block.querySelectorAll('[role="tabpanel"]')[1];
     const wrapper = block.closest('.section').firstElementChild;
-    expect(Math.round(panel.getBoundingClientRect().width)).to.equal(1200);
-    expect(Math.round(panel.getBoundingClientRect().width))
-      .to.equal(Math.round(wrapper.getBoundingClientRect().width) - 64);
+    const cs = getComputedStyle(wrapper);
+    const column = wrapper.getBoundingClientRect().width
+      - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    expect(Math.round(panel.getBoundingClientRect().width)).to.equal(1136);
+    expect(Math.round(panel.getBoundingClientRect().width)).to.equal(Math.round(column));
   });
 
   it('drops the sidebar under the panel at 375, 28 below it', async () => {
