@@ -125,6 +125,7 @@ the part that IS doable; the row says which half is which.
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | ⚙️ live's exclusions are Solr config | -- |
 |  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ✅ Relevance is our order, Date has no data | [#162](https://github.com/cloudadoption/contitires/issues/162) |
+|  | [The results band reserves height live does not](#the-results-band-reserves-height-live-does-not) | diverges | ✅ decided: 116px recovered, and the reservation buys CLS 0 where live shifts | [#431](https://github.com/cloudadoption/contitires/issues/431) |
 |  | [Our class names are kebab-case where live's are BEM](#our-class-names-are-kebab-case-where-lives-are-bem) | diverges | ✅ decided, not outstanding: the linter rejects BEM and nothing a visitor sees depends on it | [#107](https://github.com/cloudadoption/contitires/issues/107) |
 | Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ⏳ emit Product from the workbook | -- |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
@@ -513,6 +514,69 @@ search is the one page whose whole content is built that way.
 
 What it costs a visitor: a query that would be better read newest-first has to be read in score
 order, and a no-JS client gets an empty results page.
+
+### The results band reserves height live does not
+
+**Live sizes its results band by its content and we reserve height for content that has not
+arrived yet.** Live's band computes `min-height: 0` at every state and width measured. Ours holds
+a floor, so a query with few results leaves dark space below them where live's band stops.
+
+**The measurement, at a 1000px-tall viewport and an 812px one:**
+
+    state          live band   our band
+    many  1440        1766       1855
+    few   1440         713        904
+    one   1440         197        904
+    none  1440         371        904
+    many   375        3409       3162
+    one    375         221        684
+    none   375         222        684
+
+A full page of results is content-bound on both sides and the floor never shows. The short states
+are where it does, and it runs to about 630px at 1440.
+
+**The reason is where the results come from.** Live renders them server-side, so its first paint
+already knows how tall they are and it has no in-flight state to reserve for. Ours are fetched
+from a published index after the page paints, so the band has to hold a height before anything
+has arrived. That is a property of the delivery model rather than a styling miss, and it is the
+honest answer to what live sizes its band by.
+
+**The floor is load-bearing, and the evidence is a measurement taken when it was introduced.**
+The verification taken when it was introduced recorded **CLS 0.687 on mobile before this band
+existed and 0.000 after**. Without the floor the empty state collapses to 253px at 375, putting the band's
+bottom at 497 against a fold of 812, so the footer would sit in view and then be pushed down when
+results land. The route that looks free, dropping the floor once the results arrive, is the same
+move: it shrinks the band in exactly the short states and trades the empty space for the shift the
+floor prevents.
+
+**What was recovered: 116px at every height.** The floor has to hold the band's bottom at or below
+the fold, and from the measured band top and padding that is 496 at 375 and 581 at 1440. The
+narrow width binds, so `calc(100vh - 316px)` is the tightest expression that satisfies both, down
+from `calc(100vh - 200px)`. The remainder is the reservation itself and is not recoverable by
+styling.
+
+**And this is a place where this site beats live.** Our page does not shift at all:
+
+    state          ours    live
+    many  1440       0     0.3864
+    few   1440       0     0.4047
+    one   1440       0     0.0594
+    none  1440       0     0.0041
+    many   375       0     0.1448
+    one    375       0     0.0208
+    none   375       0     0.0046
+
+**Stated in both directions: we pay empty pixels and buy a stable page, and live pays a shifting
+page and buys tight bands.** Live's worst reading is 0.4047, which is well past the 0.1 threshold
+a Core Web Vitals pass allows, and ours is zero in all seven readings. A visitor comparing the two
+sees more dark space on ours and never sees our page move under their cursor.
+
+**What was not measured:** the in-flight state itself. `fillResults` is deferred to the load event
+at `blocks/search/search.js:352` and any probe runs after it, so the browser cannot be caught
+between decoration and the results landing without changing the code. Everything above is the
+settled state plus the buffered layout-shift record, which is what CLS is computed from. The
+counterfactual, what the shift would be with no floor, is arithmetic on measured offsets rather
+than a reading.
 
 ### Our class names are kebab-case where live's are BEM
 
