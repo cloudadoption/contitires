@@ -553,6 +553,27 @@ main .section.hero-container {
   height: 160px;
 }
 
+/* live divides four more marquees at three further heights, read off the
+   published host on 2026-08-02: 224 on /events, 130 on /experience/soccer and
+   /learn, and 125 on /all-new-securecontact-aw. They sit on one axis with the
+   200 above and `slim`'s 160, so they are named for where they fall on it and
+   not for what they measure.
+
+   `slimmer` carries two pages that are authored differently, `breadcrumb` on
+   the one and `left` on the other, so the name composes with both rather than
+   standing in for either. #217 */
+.hero.stacked.tall .hero-image {
+  height: 224px;
+}
+
+.hero.stacked.slimmer .hero-image {
+  height: 130px;
+}
+
+.hero.stacked.slimmest .hero-image {
+  height: 125px;
+}
+
 @media (width >= 1025px) {
   .hero.stacked {
     flex-direction: row;
@@ -588,8 +609,16 @@ main .section.hero-container {
      it: its `div.marquee__background` measures 1440x400 absolute at 1440 and
      375x160 static at 375, stepping at 1025 the way this stylesheet does.
      Same shape as #407's second tracking step, which needs to be declared here
-     rather than merely sit at a higher breakpoint. #466 */
-  .hero.stacked.slim .hero-image {
+     rather than merely sit at a higher breakpoint. #466
+
+     EVERY STRIP VARIANT NEEDS ITS OWN NAME IN THIS LIST, and the three added
+     for #217 are here for that reason rather than for a number of their own.
+     Left out, each one repeats #466 on its own pages: the strip holds its
+     divided height above the step inside a 560 band. */
+  .hero.stacked.slim .hero-image,
+  .hero.stacked.tall .hero-image,
+  .hero.stacked.slimmer .hero-image,
+  .hero.stacked.slimmest .hero-image {
     height: auto;
   }
 
