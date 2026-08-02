@@ -1460,6 +1460,15 @@ hero blocks on 32 paths, 20 carrying the `left` class token, and 15 of those wit
 the population, because the selector needs the token `left` and `title-left` is a different token,
 which drops `/experience/conti-crew`.
 
+**THE 900 READINGS BELOW PREDATE #513 AND ARE NOT CURRENT (noted 2026-08-02 18:26).** They were
+taken while `hero.css`'s whole `@media (width >= 900px)` query applied at 900, and #513 moved
+that query to 1025 because live steps there. **`.hero-content { padding: 96px 32px }` is inside
+it**, so the content box at 900 is no longer the box these numbers were measured in. The 1440
+row is unaffected, since 1440 is above the query either way. **Re-measuring is blocked**: the
+rendered read needs the `capture.sh` daemon and `browser-guard.sh` refuses while a foreign
+headful Chrome is up. The conclusion may well survive; it is the numbers that are stale, and
+saying so is cheaper than a reader trusting them.
+
 Natural single-line width against the rendered `h1` box, on all 15:
 
 | width | pages where the cap changes the wrap |
