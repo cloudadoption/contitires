@@ -111,6 +111,44 @@ main .columns.bar .button.secondary:focus-visible {
 }
 
 /*
+ * The two columns of the product hero, read off
+ * continentaltire.com/tires/4x4contact in headless Chrome at 1440, 1200, 1025
+ * and 769.
+ *
+ * Live's row is `.tire-page__top`, a flex row with NO align-items, so both
+ * columns start at its top. The COPY is the constant: `.tire-page__top-right` is
+ * `flex: 0 1 22rem` with `min-width: 22rem`, 352px at live's 16px root, and
+ * `.tire-page__top-left` is `flex: 1` with `margin-right: var(--space-38)`. So
+ * the photographs take what the copy leaves: 746 of 1136 at 1440 and at 1200,
+ * 603 of 993 at 1025, 347 of 737 at 769.
+ *
+ * The generic rules above gave both cells `flex: 1` and centred them, which drew
+ * two 588 halves at 1440 and started the photograph 180px BELOW the h1 where
+ * live starts it 38 above. `flex: 0 0 352px` is live's basis and its min-width
+ * in one declaration, because a floor of the basis is what blocks the shrink.
+ *
+ * It steps at 769, which is where live's own `max-width: 768` hands the row
+ * over and where this block's disclosures already open. The generic columns
+ * rules still step at 900, so between 769 and 899 these are what make the row.
+ * (#321)
+ */
+@media (width >= 769px) {
+  .columns.product-hero > div {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 38px;
+  }
+
+  .columns.product-hero > div > div:first-child {
+    flex: 1;
+  }
+
+  .columns.product-hero > div > div:last-child {
+    flex: 0 0 352px;
+  }
+}
+
+/*
  * The product hero column, read off continentaltire.com/tires/4x4sportcontact
  * at 1440. Live closes that column with two groups, each ruled off by a 1px
  * #cdcdcd hairline with 20px above it: the Total Confidence Plan summary, then

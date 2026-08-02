@@ -53,6 +53,55 @@ function stars(rating) {
 }
 
 /**
+ * The Product a search engine reads, from the catalog row this band already
+ * holds. Live carries one on every product page, `@type` Product with an
+ * `AggregateRating` inside it, which is what draws the stars into a result. Ours
+ * carried none.
+ *
+ * Live also writes `brand` and `manufacturer`, both Continental, and its own
+ * canonical URL. Those are not here: this rebuild does not present itself as
+ * Continental's site. `category`, live's Best for list, is not here either
+ * because the hero already names those on the page.
+ *
+ * A row nobody has rated gets a Product and no aggregate, which is 5 of the 46:
+ * a rating of 0 out of 5 is a verdict nobody gave. A row the sheet does not hold
+ * gets nothing at all.
+ *
+ * It is a script this block writes rather than markup the pipeline delivers, so
+ * a crawler that runs no JavaScript sees none of it where live server-renders
+ * its own. (#490)
+ * @param {Object} row the product's catalog row
+ */
+function describeProduct(row) {
+  if (!row.name) return;
+  // one Product per page: nothing else on the site emits ld+json, and a band
+  // built onto a fragment's own main would otherwise write a second
+  if (document.head.querySelector('script[type="application/ld+json"]')) return;
+
+  const product = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: row.name,
+    image: row.image || undefined,
+    description: row.description || undefined,
+  };
+  const rating = Number(row.rating) || 0;
+  const reviews = Number(row.reviews) || 0;
+  if (rating && reviews) {
+    product.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: rating,
+      reviewCount: reviews,
+    };
+  }
+
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.textContent = JSON.stringify(product);
+  document.head.append(script);
+}
+
+/**
  * Fills the band with the aggregate, once the sheet has landed. A product the
  * sheet has no row for, or that nobody has rated, takes the band away: live
  * fills that case with a write-a-review control, which is the service and not
@@ -112,6 +161,9 @@ function fill(block, result) {
  * carries what the catalog sheet does hold, the aggregate rating and count,
  * and is headed for what it shows rather than for what live shows.
  *
+ * The row it reads is also the Product a search engine reads, so the block emits
+ * that before it fills, and the two answer the same sheet read.
+ *
  * The product is identified by a slug the band is built with, falling back to
  * the last path segment.
  * @param {Element} block the tire-rating block
@@ -123,5 +175,8 @@ export default function decorate(block) {
 
   return loadRating(slug)
     .catch((e) => ({ error: `the catalog sheet could not be read (${e.message})`, unreadable: true }))
-    .then((result) => fill(block, result));
+    .then((result) => {
+      if (result.row) describeProduct(result.row);
+      fill(block, result);
+    });
 }
