@@ -1173,6 +1173,15 @@ or endorsed by Continental.
 reads `Welcome to`, and the paragraph under the h1 is a disclaimer where live carries a
 rebate offer. The h1 itself is unchanged and still matches live.
 
+**The band is taller than live's, and that is this decision rather than a gap.** The height
+follows from the disclosure copy: live has no counterpart for those paragraphs, so the box
+that holds them has nothing to match. **No change removes the height and keeps the
+paragraphs.** Reaching live's number while keeping the disclosure would mean shrinking the
+type or the padding until it fits, which is styling a disclosure to a target rather than
+letting the copy set its own height, and that is a worse outcome than the difference.
+The measurement is deliberately not quoted here: a pixel pair in this document reads as a
+delta somebody should chase.
+
 **The promo bar, at the top of every page.** Live promises a rebate on a set of tires.
 Ours carries its own copy instead, and that copy is deliberately not live's.
 
