@@ -1,6 +1,6 @@
 # Continental Tire on AEM Edge Delivery Services
 
-Can continentaltire.com run on [AEM Edge Delivery Services](https://www.aem.live/)? This repo is the answer, and the answer is a working site. It rebuilds the live Drupal 11 site with [DA](https://da.live/) as the content source, over seven days from 2026-07-24 to 2026-07-30.
+Can continentaltire.com run on [AEM Edge Delivery Services](https://www.aem.live/)? This repo is the answer, and the answer is a working site. It rebuilds the live Drupal 11 site with [DA](https://da.live/) as the content source, from 2026-07-24 to 2026-08-03.
 
 This is a technical demo, not Continental's site. The content, images, product data and trademarks are Continental's, taken from the public site to answer that one question.
 
@@ -8,10 +8,11 @@ This is a technical demo, not Continental's site. The content, images, product d
 - Preview: <https://main--contitires--cloudadoption.aem.page/>
 - Authoring: <https://da.live/#/cloudadoption/contitires> (needs DA access)
 - Where this site and live differ: [docs/parity-with-live.md](docs/parity-with-live.md)
+- How it is built, and how the rest would be: [docs/](docs/README.md)
 
 ## What it established
 
-The page inventory came across. [327 pages are published here](docs/parity-with-live.md#the-scale-of-what-shipped) against the 319 URLs live's sitemap lists. The paths are live's own rather than new ones, and a [redirects sheet](https://da.live/sheet#/cloudadoption/contitires/redirects) answers what Drupal aliased.
+The page inventory came across. [349 pages are published here](docs/parity-with-live.md#the-scale-of-what-shipped) against the 319 URLs live's sitemap lists, and 328 of them are in the site index. The paths are live's own rather than new ones, and a [redirects sheet](https://da.live/sheet#/cloudadoption/contitires/redirects) of 77 rows answers what Drupal aliased.
 
 Each Drupal construct the site leans on has an Edge Delivery equivalent, and this is the mapping the build used:
 
@@ -35,7 +36,7 @@ Three places deliberately do not match live: the footer, the homepage hero's eye
 
 Edge Delivery serves a page from two sources. Content is authored in DA as documents and sheets, converted to plain semantic HTML, and delivered on the content bus. Code is in this repo, where each directory under `blocks/` is a CSS file and a JS decorator that upgrades the authored markup in the browser. Publishing content and merging code are independent, and preview (`.aem.page`) and live (`.aem.live`) are separate publish states.
 
-A page then loads in three phases. The eager phase gets to LCP. The lazy phase brings the rest of the page with the header and the footer. The delayed phase takes what can wait, which here is the newsletter form's HubSpot embed. [Keeping it 100](https://www.aem.live/developer/keeping-it-100) is why the split matters.
+A page then loads in three phases. The eager phase gets to LCP. The lazy phase brings the rest of the page with the header and the footer. The delayed phase takes what can wait, which here is the third-party script behind the three pages carrying a widget. [Keeping it 100](https://www.aem.live/developer/keeping-it-100) is why the split matters, and [docs/architecture.md](docs/architecture.md) says what this site puts in each phase.
 
 ## Working on this repo
 
@@ -66,25 +67,31 @@ node tools/authoring-check.mjs                 # defaults to the published site
 node tools/authoring-check.mjs --host http://localhost:3000
 ```
 
-[`/products.json`](https://main--contitires--cloudadoption.aem.live/products.json) is one workbook of three sheets, and the blocks read them by column name:
+[`/products.json`](https://main--contitires--cloudadoption.aem.live/products.json) is one workbook of four sheets, and the blocks read them by column name:
 
-| Sheet | Read by | Columns it is read by |
-|---|---|---|
-| `products` | [perfect-fit](blocks/perfect-fit/perfect-fit.js), the tire finder | `slug`, `name`, `category`, `season`, `vehicleTypes`, `image` |
-| `specs` | [tire-specs](blocks/tire-specs/tire-specs.js) and the finder | `slug`, `size`, plus the 19 spec fields, which render in column order |
-| `catalog` | [tire-listing](blocks/tire-listing/tire-listing.js), [tire-rating](blocks/tire-rating/tire-rating.js) | `slug`, `name`, `path`, `image`, `bestFor`, `facetWeights`, `weight`, `rating`, `reviews` |
+| Sheet | Rows | Read by | Columns it is read by |
+|---|---|---|---|
+| `products` | 46 | [perfect-fit](blocks/perfect-fit/perfect-fit.js), the tire finder | `slug`, `name`, `category`, `season`, `vehicleTypes`, `image` |
+| `specs` | 1656 | [tire-specs](blocks/tire-specs/tire-specs.js) and the finder | `slug`, `size`, plus the 19 spec fields, which render in column order |
+| `catalog` | 46 | [tire-listing](blocks/tire-listing/tire-listing.js), [tire-rating](blocks/tire-rating/tire-rating.js) | `slug`, `name`, `path`, `image`, `bestFor`, `facetWeights`, `weight`, `rating`, `reviews` |
+| `technology` | 14 | [tire-features](blocks/tire-features/tire-features.js) | `name`, `description`, `logo`, `shape` |
+
+The sheet API answers 1000 rows to a request that names no limit, and `specs` is longer than that, so a block reading it pages until the reported total is in. Forget that and the page renders a product with no sizes and says so nowhere. It is the quietest way to break this workbook.
+
+A second sheet at the content root, `metadata.json`, sets `og:title` to the bare product name on the 46 product pages, which is how live splits a full `<title>` from the name a shared link shows. That tag is composed in the pipeline rather than in this repo, so a sheet is where it has to be set. [Bulk metadata](https://www.aem.live/docs/bulk-metadata) is the mechanism.
 
 The `specs` sheet is the one source of which sizes a product comes in, one row per size. `sizes` on the `products` sheet is derived from it, and no block reads it while the specs sheet is whole. The two write a size differently, `205/55 R 16` against `205/55R16`, and [`scripts/products.js`](scripts/products.js) has the one function that settles which of the two is one size.
 
 An article takes one `Category` value, and a listing filters the query index by the same string. Both ends are free text in DA, so a typo at either drops articles out of a page that still renders. [`scripts/categories.js`](scripts/categories.js) is where the vocabulary is written down: `Tire Tips`, `Technology` and `News`.
 
-A section is banded by a Section Metadata block with a `Style` row, which the pipeline turns into a class on the section. A class written on the section div is stripped instead. The global stylesheet reads `black`, `cta`, `dark`, `full-width`, `highlight`, `light` and `two-columns`, and a template stylesheet adds its own.
+A section is banded by a Section Metadata block with a `Style` row, which the pipeline turns into a class on the section. A class written on the section div is stripped instead. The global stylesheet reads `banner`, `black`, `checklist`, `copy`, `cta`, `dark`, `full-width`, `highlight`, `light`, `meta`, `partner`, `promo`, `quote`, `steps`, `terms`, `tires` and `two-columns`, and a template stylesheet adds its own. A value outside that set renders unstyled and reports nothing.
 
 ## Where the detail is
 
+- [docs/](docs/README.md) is the technical documentation. Its reader is an engineer taking this forward who has not built an Edge Delivery site before. It covers the architecture, the block inventory, the content model, the design system and how the work gets done. [One document](docs/completing-the-migration.md) says how each remaining gap would be implemented by a team that has the APIs this build did not.
 - [docs/parity-with-live.md](docs/parity-with-live.md) is the comparison against continentaltire.com, bucket by bucket: what differs, what this site diverges on by choice, what is approximated, what is absent, and what no work here reaches. A parity finding belongs there and nowhere else.
 - [The authoring guide](https://main--contitires--cloudadoption.aem.live/tools/authoring-guide) is written for whoever edits the content, in five pages.
-- The [issue queue](https://github.com/cloudadoption/contitires/issues) has the open work, ordered in [#359](https://github.com/cloudadoption/contitires/issues/359).
+- The [issue queue](https://github.com/cloudadoption/contitires/issues) has what is left.
 
 ## Documentation
 
