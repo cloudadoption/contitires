@@ -107,6 +107,22 @@ describe("Cards, the product name on live's highlight card", () => {
     });
   });
 
+  // The same rule draws a chevron after every link in the body. Live draws one
+  // after `Tire details` and nothing after the name, and on ours the name's
+  // chevron was what pushed the box to two lines between 769 and 1024: the name
+  // read 44 there against live's 22.
+  it('draws no glyph after the name, the way live draws none', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const link = name(build()).querySelector('a');
+    expect(getComputedStyle(link, '::after').content).to.equal('none');
+  });
+
+  it('holds the name to one line at 800, where live holds it to one', async () => {
+    await setViewport({ width: 800, height: 900 });
+    const box = name(build()).getBoundingClientRect();
+    expect(Math.round(box.height * 10) / 10).to.equal(22);
+  });
+
   it('keeps the name a heading, where live carries none', async () => {
     await setViewport({ width: 1440, height: 900 });
     expect(name(build()).tagName).to.equal('H3');
