@@ -652,8 +652,21 @@ main .section.hero-container {
   letter-spacing: normal;
 }
 
-/* live divides the marquee at 160 rather than 200 on a page whose marquee
-   carries a breadcrumb trail, which is every section hub under /experience */
+/* live divides the marquee at 160 rather than 200 on the five pages that carry
+   `slim`, and THE BREADCRUMB TRAIL IS NOT WHAT PREDICTS IT. Read at 375 and 900
+   on continentaltire.com on 2026-08-02:
+
+     /experience              160   trail
+     /experience/partners     160   trail
+     /experience/conti-crew   160   trail
+     /my-first-car-my-first-tires  160   no trail on either side
+     /ev-compatible           160   no trail on either side
+
+   Live divides the last two at 160 with no trail anywhere on them, and it
+   divides /experience/soccer at 130 WITH one, so a trail neither brings the 160
+   nor comes with it. The class live shares across all five is
+   `marquee--mobile-bg-divided`, which is what `stacked` stands for, and 160 is
+   one value on the axis the four heights below sit on. #474 */
 .hero.stacked.slim .hero-image {
   height: 160px;
 }
@@ -694,8 +707,24 @@ main .section.hero-container {
      An earlier reading of "160 against 400" compared our inner <img>, which is
      1440x160, against live's whole marquee section, and had the delta pointing
      the wrong way. Name the box on both sides before trusting a number.
-     `stacked slim` is authored on /experience alone, checked across all 325
-     indexed paths. Issue #250. */
+
+     `stacked slim` IS AUTHORED ON FIVE PUBLISHED PAGES, not on /experience
+     alone. Read off `.plain.html` for all 328 paths in the published query index
+     on 2026-08-02, with 37 hero blocks across 33 pages as the known-present
+     control and an invented token returning 0 as the known-absent one:
+
+       /experience                   hero left stacked slim breadcrumb
+       /experience/partners          hero stacked slim breadcrumb
+       /experience/conti-crew        hero stacked slim breadcrumb title-left
+       /my-first-car-my-first-tires  hero left stacked slim
+       /ev-compatible                hero stacked slim
+
+     Live reads 400 at 1440 on the first four and 360 on /ev-compatible, so that
+     page takes this 400 where live gives it 360; the comment further down
+     naming it as out of scope was written when `slim` reached one page. The
+     count that used to stand here was derived rather than measured, and the two
+     pages that joined the variant afterwards could not have shown up in it.
+     Issue #250, #474. */
   .hero.stacked.slim {
     min-height: 400px;
   }

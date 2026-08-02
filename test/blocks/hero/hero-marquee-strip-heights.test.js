@@ -50,9 +50,17 @@ const VARIANTS = [
   },
 ];
 
-/** The two strips already in the file, which none of this may move. */
+/**
+ * The strips already in the file, which none of this may move.
+ *
+ * `slim` without `breadcrumb` is here because the trail is not what brings the
+ * 160: live divides /my-first-car-my-first-tires and /ev-compatible at 160 with
+ * no trail on either side, and divides /experience/soccer at 130 with one. Read
+ * at 375 and 900 on 2026-08-02. #474
+ */
 const UNCHANGED = [
   { classes: 'left stacked slim breadcrumb', strip: 160, what: 'the /experience hubs' },
+  { classes: 'stacked slim', strip: 160, what: 'a slim marquee with no trail' },
   { classes: 'stacked', strip: 200, what: 'the base divided marquee' },
 ];
 
