@@ -18,12 +18,22 @@ main > .section.perfect-fit-host > div {
   padding: 0;
 }
 
+/* live's bar below its item breakpoint is a column of a 12px heading and the
+   list, 16 apart, in 22 of padding either side: 22 + 12 + 16 + 52 + 22 is its
+   124. The 16 is a `margin-top` on live's own `ul` rather than a gap, and it is
+   the last unaccounted part of that 124.
+
+   The 12 either side is not live's, which pads its bar 0 and its container 20.
+   Ours is inside the section's own 24, so 12 here puts the item row in live's
+   303px of room rather than 279, and that is what keeps the labels on one line:
+   they want 270.2 together, so at 279 the middle one turns over and a 12px line
+   box gives 24 rather than 12. Live still fits at 360 and this does too. #176 */
 .perfect-fit {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 24px;
+  gap: 16px;
+  padding: 22px 12px;
   text-align: center;
 }
 
@@ -33,11 +43,15 @@ main > .section.perfect-fit-host > div {
   padding: 13px 24px;
 }
 
+/* live's heading is an h2 at 12px on a 12px line box at every width. Ours read
+   19.19 on the 1.6 it inherits, and below the breakpoint that 7.19 is in the
+   bar's height because the heading is a row of the column. */
 .perfect-fit-label {
   margin: 0;
   font-family: var(--heading-font-family);
   font-size: 12px;
   font-weight: 700;
+  line-height: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
 }
@@ -45,10 +59,13 @@ main > .section.perfect-fit-host > div {
 .perfect-fit-items {
   display: flex;
 
-  /* live keeps the three items on one row all the way down to 375 */
+  /* live keeps the three items on one row all the way down to 375, 16 apart
+     there and 38 at 1440. The 16 is load-bearing: at 32 the row wants 302.2 of
+     the 303 it has and the labels wrap. The desktop 32 is ours and is left
+     where it is, since nothing above the breakpoint turns on it. */
   flex-wrap: nowrap;
   justify-content: center;
-  gap: 8px 32px;
+  gap: 8px 16px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -62,7 +79,10 @@ main > .section.perfect-fit-host > div {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+
+  /* live's label hangs 8 off its icon in both directions, as a margin below the
+     breakpoint and beside it above: 32 + 8 + 12 is its 52 */
+  gap: 8px;
   border: 0;
   background: none;
   padding: 0;
@@ -75,7 +95,10 @@ main > .section.perfect-fit-host > div {
   .perfect-fit-item {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+  }
+
+  .perfect-fit-items {
+    column-gap: 32px;
   }
 }
 
@@ -112,12 +135,45 @@ main > .section.perfect-fit-host > div {
   filter: invert(1);
 }
 
+/* live's bar draws each glyph in a 32 by 32 box and lets preserveAspectRatio
+   fit the drawing inside it, the same as the card does: 32 is the item above
+   the breakpoint, where the row is its tallest child. Ours was 17 with the
+   width left to the drawing, so the three came out at three widths and the row
+   was the LABEL rather than the icon.
+
+   SCOPED TO THE BAR THAT CARRIES A HEADING. The listing pages author the same
+   block as a single CTA with no heading, and that strip's 17px glyph and 19.19
+   label were measured on their own listing page rather than here. The scope is
+   in `:where` so it adds no weight: each of the three refines the rule directly
+   above it by source order and leaves the strip on that rule, where a heavier
+   selector would sort ahead of every later `.icon` in this file. #176 */
+:where(.perfect-fit:has(.perfect-fit-label)) .perfect-fit-items .icon {
+  height: 32px;
+  width: 32px;
+}
+
+:where(.perfect-fit:has(.perfect-fit-label)) .perfect-fit-items .icon img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
+/* the label is already 12px, from `.perfect-fit-items p` above, and it was on
+   the 19.2px line box it inherits because that rule sets no line-height. Live's
+   is 12 on 12, so what moves here is the line box and not the font size. */
+:where(.perfect-fit:has(.perfect-fit-label)) .perfect-fit-items p {
+  line-height: 12px;
+}
+
+/* live pads the bar 12 either side above the breakpoint, on a 32px item: 56.
+   At our 14 the same item gives 60, so the 2px this was within of live's is the
+   4 between the two. */
 @media (width >= 900px) {
   .perfect-fit {
     flex-direction: row;
     justify-content: center;
     gap: 24px;
-    padding: 14px 32px;
+    padding: 12px 32px;
   }
 }
 
