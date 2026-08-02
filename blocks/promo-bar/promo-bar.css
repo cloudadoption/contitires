@@ -85,11 +85,13 @@ main .section.promo-bar-container {
 }
 
 /* row 2: collapsible panel, animated via a 0fr/1fr grid track so the
-   height never has to be measured in JS */
+   height never has to be measured in JS. Live's own treatment, off
+   `[slot=detail]`: #000002 behind white text inside a 5px yellow frame. */
 .promo-bar-panel {
   display: grid;
   grid-template-rows: 0fr;
-  background-color: var(--conti-white);
+  background-color: #000002;
+  color: var(--conti-white);
   transition: grid-template-rows 0.3s ease;
 }
 
@@ -97,9 +99,19 @@ main .section.promo-bar-container {
   grid-template-rows: 1fr;
 }
 
+/* the frame is on the grid item, not on the padded content, so it reaches both
+   edges the way live's full-bleed panel does. Its width goes with the open
+   class rather than living on the item: a border cannot be crushed by a 0fr
+   row, so a permanent one would leak 10px of yellow under the shut bar. */
 .promo-bar-panel-inner {
+  position: relative;
   min-height: 0;
+  border: 0 solid var(--conti-yellow);
   overflow: hidden;
+}
+
+.promo-bar-panel-open .promo-bar-panel-inner {
+  border-width: 5px;
 }
 
 .promo-bar-panel-content {
@@ -111,6 +123,27 @@ main .section.promo-bar-container {
   text-align: center;
   opacity: 0;
   transition: opacity 0.2s ease;
+}
+
+/* live's `icon__close-circle icon--lg icon--white`: a 30px circle filled and
+   stroked white with a #333 cross, 0.5rem in from the panel's corner. Inlined
+   rather than taken from /icons/close-circle.svg, whose strokes are #333 and
+   cannot be recoloured from CSS. */
+.promo-bar-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  padding: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -1 30 31'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='14.5' cy='14.5' r='14.5' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M20.5 21.5l-12-13m0 13l12-13' stroke='%23333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
+  cursor: pointer;
+}
+
+.promo-bar-close:focus-visible {
+  outline: 2px solid var(--conti-yellow);
+  outline-offset: 2px;
 }
 
 .promo-bar-panel-open .promo-bar-panel-content {

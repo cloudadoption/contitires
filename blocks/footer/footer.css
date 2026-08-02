@@ -68,7 +68,10 @@ footer .footer-links-group ul {
 /* Written out rather than grouped in an :is(): that takes its specificity from
    its most specific branch, so `:is(a, button[data-tire-finder])` scored an
    attribute selector on the plain links too and outranked the social band's
-   own colour. Spelled out, each selector scores what it reads as. (#198) */
+   own colour. Spelled out, each selector scores what it reads as. That holds
+   for every one of them in this sheet, the icon rule and the hover pair below
+   included: the construct also kept stylelint from comparing the rules it
+   inflated, so it hid the warning it earned. (#198, #202) */
 footer .footer-links-group a,
 footer .footer-links-group button[data-tire-finder] {
   display: flex;
@@ -81,7 +84,8 @@ footer .footer-links-group button[data-tire-finder] {
   letter-spacing: 0.5px;
 }
 
-footer .footer-links-group :is(a, button[data-tire-finder]) .icon {
+footer .footer-links-group a .icon,
+footer .footer-links-group button[data-tire-finder] .icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
@@ -176,12 +180,14 @@ footer .footer-social-heading {
   white-space: nowrap;
 }
 
+/* the list runs the viewport, not the 1264 the columns below it are capped at.
+   The cells are quarters either way, so a cap moved all four icons inward:
+   208, 554, 837 and 1160 at 1440 where live has 142, 532, 859 and 1226. Live's
+   band does not line up with its footer grid and neither does this one. (#141) */
 footer .footer-social ul {
   flex-direction: row;
   justify-content: center;
   gap: 0;
-  max-width: 1264px;
-  margin: 0 auto;
 }
 
 footer .footer-social li {
@@ -246,14 +252,22 @@ footer .footer-bottom a {
 }
 
 /* hover/focus, grouped last so specificity only ever increases */
-footer .footer-links-group :is(a, button[data-tire-finder]):hover,
-footer .footer-links-group :is(a, button[data-tire-finder]):focus-visible,
+footer .footer-links-group a:hover,
+footer .footer-links-group a:focus-visible,
+footer .footer-links-group button[data-tire-finder]:hover,
+footer .footer-links-group button[data-tire-finder]:focus-visible,
 footer .footer-bottom a:hover,
 footer .footer-bottom a:focus-visible {
   text-decoration: underline;
 }
 
-@media (width >= 600px) {
+/* 769 is live's boundary, and everything the footer does at a width does it
+   here. Below it live holds the columns as disclosure rows, stacks the legal
+   bar and runs the calls to action across; from 769 the columns open, the bar
+   goes to one line, and live names each network instead of showing the icon
+   alone, which grows the band 2px, 68 to 70, and opens live's 7px gap beside
+   the icon. Ours opened the columns at 600, three bands early (#138). */
+@media (width >= 769px) {
   footer .footer-links {
     flex-flow: row wrap;
     padding: 40px 32px;
@@ -275,11 +289,7 @@ footer .footer-bottom a:focus-visible {
     justify-content: space-between;
     padding: 20px max(32px, calc(50% - 600px));
   }
-}
 
-/* 769 is where live names each network instead of showing the icon alone. The
-   band grows 2px with it, 68 to 70, and live's 7px gap opens beside the icon. */
-@media (width >= 769px) {
   footer .footer-social a {
     gap: 7px;
     padding: 23px 0;

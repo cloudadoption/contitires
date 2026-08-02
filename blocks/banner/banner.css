@@ -20,6 +20,27 @@ main .section.banner-container > .banner-wrapper {
   padding: 0;
 }
 
+/* ---- the gap under the band, which the band leaves to whatever follows it
+   because its own section reads `margin: 0` above. Live gives it two numbers:
+   `.nav-tabs { padding-top: var(--space-8) }` at every width, and
+   `.legal-page__rich-text .rich-text { padding: var(--space-60) 0 }` dropping
+   to `var(--space-38)` at 768 and under. All 14 pages carrying the band were
+   enumerated on 2026-08-02: 5 open on a category-tabs row, 6 on default
+   content, and 3 on a cards grid. The cards three are not addressed here,
+   because `main .section.cards-container` reads `margin: 0` so they already sit
+   flush the way live's black card band does. ---- */
+main .section.banner-container:has(.banner.block) + .section.category-tabs-container {
+  margin-top: 8px;
+}
+
+/* a section holding no block is the page's body copy. Below 769 it keeps the
+   site's own 40 against live's 38, a 2px residue that earns no rule. */
+@media (width >= 769px) {
+  main .section.banner-container:has(.banner.block) + .section:not(:has(.block)) {
+    margin-top: 60px;
+  }
+}
+
 /* `.block` keeps these off a section a page styles `banner`, which the promo
    template has */
 .banner.block {

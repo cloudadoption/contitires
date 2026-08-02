@@ -134,6 +134,10 @@ describe('The partner layout', () => {
     expect(m.shareWidth, 'share width').to.equal(305);
     expect(m.titleWidth, 'title width').to.equal(305);
     expect(m.shareLeft - m.galleryLeft, 'sidebar offset').to.equal(795);
+    // the copy takes the whole column here, where an article's reading column
+    // is held to 74% of it. Both sheets set that on the same wrapper, so this
+    // holds the partner override to whatever the article rule turns into (#194)
+    expect(m.copy.width, 'copy width').to.equal(305);
   });
 
   // the gallery leads the page, and the sidebar starts level with it rather

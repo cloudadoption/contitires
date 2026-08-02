@@ -137,8 +137,12 @@ main .section.cards-container {
   aspect-ratio: 16 / 9;
 }
 
-/* one row wraps both halves at 375, so the footer stacks there. From 769 live
-   puts the name and its link on one row, a single 54px strip under the image. */
+/* the name over its link, which is how live stacks them below 1025. Live's
+   `card__footer` reads flex-direction column and 78 tall at 1024, 1000 and 900,
+   and row at 54 from 1025 up: the 769 this stepped at was the wrong number and
+   the 54 belongs to the wide half alone. At 769 it left an 18px name sharing a
+   row with the Tire details link, which wrapped three of /learn's four names to
+   a 44px box against live's 22. (#399) */
 .cards.highlights .cards-card-body {
   margin: 0;
   padding: 16px 20px;
@@ -148,7 +152,7 @@ main .section.cards-container {
   gap: 8px;
 }
 
-@media (width >= 769px) {
+@media (width >= 1025px) {
   .cards.highlights .cards-card-body {
     flex-direction: row;
     justify-content: space-between;
@@ -184,14 +188,36 @@ main .section.cards-container {
   text-decoration-color: var(--conti-dark-yellow);
 }
 
-/* the uppercase above is for the Tire details link. Live sets the product name
-   in the case the author wrote. */
+/* the rule above is for the Tire details link, and a name that is a link took
+   it whole: the uppercase, the inline-flex box and the 14px, so the heading's
+   own size never reached the glyphs. Live's name is a bare span in its
+   `card__footer`. Ours reads the case the author wrote, the heading's size and
+   the heading's line. (#399) */
 .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) a {
+  display: inline;
+  font-size: inherit;
   text-transform: none;
   text-decoration: none;
 }
 
-.cards.highlights .cards-card-body a::after {
+/* live's product card, the one row of the six whose cards carry a link. Its
+   name is a span in live's `card__footer` at 18px on a 22px box, read on
+   /learn at 1440, 900 and 375; ours read the shared 16 on 19.2. The other five
+   rows keep that shared number, because live sets no single value across them:
+   18/26 on the three `tile__title` rows, whose 26 nobody has taken a second
+   reading on, and 14/18 on the two carousel rows, which 18px would move away
+   from live. The element stays an h3 where live carries no heading, so the card
+   keeps a level. Issue #399 */
+.cards.highlights > ul > li:has(.cards-card-body a) .cards-card-body
+  :is(h1, h2, h3, h4, h5, h6) {
+  font-size: 18px;
+  line-height: 22px;
+}
+
+/* the chevron belongs to the link in the copy, the Tire details one, which is
+   where live puts its own. On a name it drew a glyph live's span does not carry
+   and pushed the name's box to a second line below 1025. (#399) */
+.cards.highlights .cards-card-body :where(p) a::after {
   content: '';
   display: inline-block;
   width: 6px;
@@ -223,18 +249,18 @@ main .section.cards-container:has(.cards.highlights) h2 {
 
 /* ---- facts: the Go In-Depth scroller on a Conti Crew page ---- */
 
-/* live runs the scroller and its heading the full width of the page, and
-   measures the teasers itself: 1136 of content with 20 of page padding below
-   769 and 16 above, rather than the site's container */
+/* live runs the scroller and its heading the full width of the page, rather
+   than the site's container */
 main .section.cards-container:has(.cards.facts) > div {
   max-width: none;
   padding: 0;
 }
 
-main .section.cards-container:has(.cards.members) > div {
-  max-width: 1136px;
-  padding: 0 20px;
-}
+/* the members band took live's 1136 of content and its 20/16 of page padding
+   here, because the site's container gave 1200 inside 24 and 32. #219 put live's
+   numbers on the container itself, so this band reads them from there. Repeating
+   the 1136 against a border-box 1168 would subtract the padding twice and cap
+   the band at 1104. */
 
 /* live runs the cards past both edges of the page: the row starts at the
    container's outer edge and keeps a peek of the next card on the right.
@@ -307,10 +333,6 @@ main .section.cards-container:has(.cards.members) > div {
 }
 
 @media (width >= 769px) {
-  main .section.cards-container:has(.cards.members) > div {
-    padding: 0 16px;
-  }
-
   .cards.facts > ul {
     --facts-inset: max(0px, calc(50vw - 584px));
   }
@@ -583,15 +605,20 @@ main .section.cards-container:has(.cards.category) > div {
   }
 }
 
+/* live's own arrow, `.tire-category-card__title .icon` at display block and
+   font-size 18px over an `arrow-right-outline` svg at 1em, so an 18 by 18 box
+   starting a line of its own. The 8px chevron this replaces was inline-block,
+   so whether it shared the title's last line depended on the title: at 1440 it
+   sat beside "Light Truck / SUV Tires" and under the other two, and at 769 it
+   sat beside all three. A block takes the line in every tile, which is what
+   live does at 1440, 1200, 900, 769, 768 and 375. Issue #236 */
 .cards.category .cards-card-body a::after {
   content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-inline-start: 10px;
-  border-inline-end: 2px solid currentcolor;
-  border-block-end: 2px solid currentcolor;
-  transform: translateY(-2px) rotate(-45deg);
+  display: block;
+  width: 18px;
+  height: 18px;
+  background-color: currentcolor;
+  mask: url('/icons/arrow-right.svg') no-repeat center / contain;
 }
 
 @media (width >= 900px) {
@@ -799,13 +826,9 @@ main .section.cards-container:has(.cards.teaser) {
   color: var(--conti-white);
 }
 
-/* live measures this band itself rather than taking the page's container: 1136
-   of content, with 20 of page padding below 769 and 16 above */
-main .section.cards-container:has(.cards.teaser) > div {
-  max-width: 1136px;
-  padding: 0 20px;
-}
-
+/* live measures this band at 1136 of content inside 20/16 of page padding, which
+   the container itself now gives since #219. Repeating it here would cap the band
+   at 1104 against a border-box 1168. */
 main .section.cards-container:has(.cards.teaser) h2 {
   margin: 0;
   color: var(--conti-white);
@@ -826,10 +849,6 @@ main .section.cards-container:has(.cards.teaser) p {
 @media (width >= 769px) {
   main .section.cards-container:has(.cards.teaser) {
     padding: 80px 0;
-  }
-
-  main .section.cards-container:has(.cards.teaser) > div {
-    padding: 0 16px;
   }
 
   main .section.cards-container:has(.cards.teaser) p {
@@ -961,6 +980,32 @@ main .section.cards-container .cards.highlights .cards-card-body,
 main .section.cards-container .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6),
 main .section.cards-container .cards.highlights .cards-card-body a:any-link {
   color: var(--conti-black);
+}
+
+/* ---- the same variant over live's other component: a drawn mark on a dark
+   ground rather than a photograph on a white one.
+
+   Live's `cards-carousel__item` is #1d1d1d and carries a white-stroked icon;
+   its `tile` is transparent and carries a photo. Our three marks on
+   /ev-compatible are single `fill="none" stroke="#fff"` paths, so the white
+   tile swallowed all three and the Noise card, which is one such path and
+   nothing else, rendered as an empty 590 by 332 box.
+
+   The tile's own image is the discriminator, because the two components share
+   both classes. Censused across all 327 published paths: six `cards highlights`
+   rows, two of them in a `dark` section, and only /ev-compatible's holds icons.
+   A rule on the section alone would repaint /smart-choice's four photo tiles,
+   which live leaves on white at #333. Authoring the row as `highlights marks`
+   would say the same thing in the variant, and this reads it off the file
+   until then. Issue #398 ---- */
+main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg']) {
+  background-color: var(--conti-dark-black);
+}
+
+main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg'])
+  :is(.cards-card-body, .cards-card-body :is(h1, h2, h3, h4, h5, h6),
+  .cards-card-body a:any-link) {
+  color: var(--conti-white);
 }
 
 /* ---- the band the benefits sit on: #333, edge to edge, with the intro above

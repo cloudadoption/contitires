@@ -24,10 +24,11 @@ main > .section.perfect-fit-host > div {
    the last unaccounted part of that 124.
 
    The 12 either side is not live's, which pads its bar 0 and its container 20.
-   Ours is inside the section's own 24, so 12 here puts the item row in live's
-   303px of room rather than 279, and that is what keeps the labels on one line:
-   they want 270.2 together, so at 279 the middle one turns over and a 12px line
-   box gives 24 rather than 12. Live still fits at 360 and this does too. #176 */
+   Ours is inside the section's own inset, live's 20 since #219, so 12 here puts
+   the item row in 311px of room against live's 335 rather than the 279 a doubled
+   24 gave, and that is what keeps the labels on one line: they want 270.2
+   together, so at 279 the middle one turns over and a 12px line box gives 24
+   rather than 12. Live still fits at 360 and this does too. #176 */
 .perfect-fit {
   display: flex;
   flex-direction: column;
