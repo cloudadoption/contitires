@@ -88,11 +88,17 @@ describe("Cards, the product name on live's highlight card", () => {
     });
   });
 
-  // #399's table gives a rendered height as well as a line box, and the two did
-  // not close together. The name is a link and the shared rule for the `Tire
-  // details` link puts every link in this body at inline-flex, so the flex box
-  // stood 1px past the heading's own line: 20.2 on a 19.2 box before, 23 on a
-  // 22 box after the size moved. Live's span renders 22 on a 22 box.
+  // The name is a link, and the shared rule for the `Tire details` link sets
+  // both a 14px size and inline-flex on every link in this body, so the
+  // heading's own size never reached the glyphs: the h3 read 16 while the text
+  // it holds rendered 14, and the flex box stood 1px past the heading's line.
+  // #399 measured the h3, which is why its table says 16.
+  it("renders the name's own text at 18, not the card link's 14", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const link = name(build()).querySelector('a');
+    expect(getComputedStyle(link).fontSize).to.equal('18px');
+  });
+
   [1440, 375].forEach((width) => {
     it(`renders the name box at live's 22 at ${width}`, async () => {
       await setViewport({ width, height: 900 });
