@@ -53,10 +53,12 @@ describe('Promo bar block', () => {
     expect(panel.classList.contains('promo-bar-panel-open')).to.be.false;
   });
 
-  it('styles the detail link as a secondary button', () => {
+  // live's own is `class="btn btn--yellow"`, a yellow field with black text
+  it('styles the detail link as the primary button', () => {
     const link = block.querySelector('.promo-bar-panel-content a[href="/offers"]');
     expect(link.classList.contains('button')).to.be.true;
-    expect(link.classList.contains('secondary')).to.be.true;
+    expect(link.classList.contains('primary')).to.be.true;
+    expect(link.classList.contains('secondary')).to.be.false;
   });
 
   it('expands and collapses on toggle click', () => {
