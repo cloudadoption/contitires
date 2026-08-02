@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before beforeEach afterEach */
+/* global describe it before after beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
@@ -141,8 +141,10 @@ describe('Article layout', () => {
     expect(value(BODY, 'gap', '769px')).to.equal('45px');
   });
 
+  // a width, not a maximum: the wrapper is a grid item and auto inline margins
+  // turn off stretch, so a maximum let a page shrink to its copy (#194)
   it('holds the reading column to live\'s measure inside its own column', () => {
-    expect(value(`${BODY} .default-content-wrapper`, 'max-width', '769px')).to.equal('74%');
+    expect(value(`${BODY} .default-content-wrapper`, 'width', '769px')).to.equal('74%');
     expect(value(`${BODY} > *`, 'grid-column', '769px')).to.equal('1');
   });
 

@@ -251,7 +251,7 @@ describe('Banner block, live\'s dark band', () => {
 
 /**
  * The band runs edge to edge, where a section holds its content to 1200 and
- * the article template holds it to a 640px reading column. /experience/sports
+ * the article template holds it to a 571px reading column. /experience/sports
  * carries the band and is authored as an article, and live runs the band edge
  * to edge there like it does everywhere else, so the band has to win that
  * cascade wherever the two sheets land in the document.
