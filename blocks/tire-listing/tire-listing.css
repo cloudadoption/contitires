@@ -440,14 +440,50 @@
 .tire-listing .tire-listing-cta {
   width: 100%;
   margin-top: 20px;
-  border-color: var(--conti-yellow);
   padding: 12px 20px;
+}
+
+/* live's `btn--border-yellow` on the SEE DETAILS pill: a white box with a 2px
+   `--yellow` outline that fills yellow on hover. Live's `--yellow` is #ffa500,
+   which is `--conti-yellow` here already, so only the cascade was ever wrong.
+
+   THE VARIANT HAS TO BE NAMED. These three declarations sat on the rule above at
+   0-2-0, and `a.button.secondary` in styles.css is 0-2-1, so styles.css took all
+   three: the outline drew in `--conti-black` and the fill came out transparent.
+   Read off the published host at 375, 769 and 1440, `rgb(51, 51, 51)` over
+   `rgba(0, 0, 0, 0)` against live's `rgb(255, 165, 0)` over `rgb(255, 255, 255)`.
+   Ten pills on each of the twelve pages carrying this block.
+
+   The hover pair moves for the same reason and it was the worse half: at 0-3-0 it
+   lost to `a.button.secondary:hover` at 0-3-1, so the pill filled BLACK under the
+   pointer where live fills it yellow.
+
+   THE COLOURS SPLIT OFF rather than the whole rule being raised, because the
+   layout half is balanced where it stands. `padding: 12px 20px` here and
+   `12px 26px` in the 769 block are both 0-2-0 and both lose to the global
+   `a.button:any-link`, which declares 26 as well, so the pill renders at 26
+   throughout and matches live's 136px. Raising this rule alone would let the 20
+   beat the desktop 26: measured at 1440, that takes 12px off the pill, so 124
+   against live's 136.
+
+   Every other block that recolours a variant names it the same way, which is why
+   none of them carries this bug: `.hero .button.primary`,
+   `main .columns.bar .button.secondary`, `.store-locator .button.secondary`. Live
+   raises its own by writing the class twice,
+   `.btn--border-yellow.btn--border-yellow`.
+
+   THE YELLOW STOPS AT THE PILL. Live's mobile filter control is
+   `btn--sm btn--white btn--border-black`, drawn dark, and its filter submit is
+   `btn--yellow`, filled. Ours are `secondary` and `primary` and are already
+   right, so this selector names `.tire-listing-cta` and cannot reach them. */
+.tire-listing .tire-listing-cta.button.secondary {
+  border-color: var(--conti-yellow);
   background-color: var(--conti-white);
   color: var(--conti-black);
 }
 
-.tire-listing .tire-listing-cta:hover,
-.tire-listing .tire-listing-cta:focus-visible {
+.tire-listing .tire-listing-cta.button.secondary:hover,
+.tire-listing .tire-listing-cta.button.secondary:focus-visible {
   border-color: var(--conti-yellow);
   background-color: var(--conti-yellow);
   color: var(--conti-black);
