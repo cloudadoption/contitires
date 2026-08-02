@@ -80,13 +80,20 @@ const linkLine = (block) => block.querySelectorAll('.hero-content p')[1];
 /**
  * The three authored shapes the block's min-heights reach, with the value each
  * takes below live's step and the one it takes above it.
+ *
+ * The first two read 220 below the step since #521, which is the value the
+ * table above records live holding from 768 through 1024 and which this test
+ * asserted our 320 against while the breakpoint was the finding. The page
+ * counts are a fresh read of the same 328 indexed paths on 2026-08-02: 9 bare
+ * `hero` and 3 bare `hero left`, down from the 10 and 4 of #513's slice because
+ * /experience/soccer took `stacked slimmer` in between.
  */
 const SHAPES = [
   {
-    page: '/cruisingthecontinentalus', classes: '', below: '320px', above: '440px', live: 220, pages: 10,
+    page: '/cruisingthecontinentalus', classes: '', below: '220px', above: '440px', live: 220, pages: 9,
   },
   {
-    page: '/learn', classes: 'left', below: '320px', above: '560px', live: 222, pages: 4,
+    page: '/learn', classes: 'left', below: '220px', above: '560px', live: 222, pages: 3,
   },
   {
     page: '/tires', classes: 'left short', below: '220px', above: '345px', live: 220, pages: 12,
