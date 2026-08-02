@@ -67,15 +67,16 @@ describe('Perfect fit strip, live\'s tire glyph behind the label', () => {
     return document.querySelector('.perfect-fit.block');
   }
 
-  /** Decorated and laid out, with the drawings in so the boxes are final. */
+  /**
+   * Decorated and laid out. Nothing below waits for a drawing to arrive: what
+   * these read is which side of the label the glyph is on, and the injected
+   * `img` carries width and height attributes, so an unloaded glyph occupies a
+   * box on the same side as a loaded one. `loading="lazy"` on a page the runner
+   * keeps in the background can leave a drawing pending for the whole run.
+   */
   async function render(build) {
     const block = build();
     await decorate(block);
-    const imgs = [...block.querySelectorAll('img')];
-    await Promise.all(imgs.map((img) => (img.complete ? null : new Promise((resolve) => {
-      img.addEventListener('load', resolve, { once: true });
-      img.addEventListener('error', resolve, { once: true });
-    }))));
     return block;
   }
 
@@ -114,6 +115,7 @@ describe('Perfect fit strip, live\'s tire glyph behind the label', () => {
     const item = block.querySelector('.perfect-fit-item');
     const icon = item.querySelector('.icon').getBoundingClientRect();
     const label = item.querySelector('p').getBoundingClientRect();
+    expect(icon.width, 'the glyph occupies a box').to.be.greaterThan(0);
     expect(Math.round(icon.left)).to.be.greaterThan(Math.round(label.right));
   });
 
