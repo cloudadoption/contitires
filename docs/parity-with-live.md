@@ -1756,8 +1756,8 @@ Neither is set today.
 **differs.** None of this is visible from outside, and it is what the next person to change the
 code inherits.
 
-There are 29 block directories and 2 of them ship without a test directory, `fragment` and
-`library-metadata`. `git ls-files` counts 72 tracked test files.
+All 29 block directories ship a test directory. `fragment` and `library-metadata` were the last
+two without one and got theirs on 2026-08-02, where `git ls-files` counts 108 tracked test files.
 
 Two of the three things that made the suite prove less than it looks are fixed. #317 and #318
 closed in PR #392 on 2026-07-31: an absence assertion whose actual value is a DOM element no
@@ -1771,8 +1771,9 @@ content in production.
 What it costs a visitor: nothing. The cost is a green suite that proves less than it looks, and
 two documents that describe a site which changed underneath them.
 
-What would close it: tests for the two untested blocks with delivered-shape fixtures, a runner
-fix or a lint rule for the hanging assertion, and real fixture files or stubbed requests. [#125](https://github.com/cloudadoption/contitires/issues/125),
+What would close it: delivered-shape fixtures across the suite, which the two new block test
+directories use and the older ones do not, a runner fix or a lint rule for the hanging assertion,
+and real fixture files or stubbed requests. [#125](https://github.com/cloudadoption/contitires/issues/125),
 [#222](https://github.com/cloudadoption/contitires/issues/222), [#317](https://github.com/cloudadoption/contitires/issues/317), [#318](https://github.com/cloudadoption/contitires/issues/318), [#126](https://github.com/cloudadoption/contitires/issues/126), [#304](https://github.com/cloudadoption/contitires/issues/304), [#316](https://github.com/cloudadoption/contitires/issues/316), [#345](https://github.com/cloudadoption/contitires/issues/345), [#322](https://github.com/cloudadoption/contitires/issues/322).
 
 ### The annotated tire diagram
