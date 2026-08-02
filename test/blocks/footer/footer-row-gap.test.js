@@ -140,7 +140,7 @@ describe('Footer, the column rows take live\'s 50px gap (#138)', () => {
   });
 
   /*
-   * Live's stacked footer below 600 spaces its disclosure rows with their own
+   * Live's stacked footer below 769 spaces its disclosure rows with their own
    * dividers, so the columns' gap is 0 there and a row gap must not leak in.
    */
   it('leaves the stacked rows at 0 at 375', async () => {
