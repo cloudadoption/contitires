@@ -19,7 +19,7 @@ import { buildFooterContent, setFooterDisclosures } from '../../../blocks/footer
  * It belongs to the column-band decision recorded in docs/parity-with-live.md,
  * so it is guarded here rather than changed.
  *
- * Below 600 the columns become live's stacked disclosure rows, which set
+ * Below 769 the columns become live's stacked disclosure rows, which set
  * `gap: 0` and space themselves with their own dividers. The row gap does not
  * reach there and must not start to.
  *
@@ -59,9 +59,9 @@ function mount(w) {
   const footer = document.querySelector('footer');
   footer.append(buildFooterContent(buildFragment()));
   const links = footer.querySelector('.footer-links');
-  // decorate() drives this off `(width < 600px)`; mirror it so the fixture is
+  // decorate() drives this off `(width < 769px)`; mirror it so the fixture is
   // in the same state the page is at this width
-  setFooterDisclosures(links, w < 600);
+  setFooterDisclosures(links, w < 769);
   if (links.getBoundingClientRect().height === 0) {
     throw new Error('the footer fixture rendered with no box, so nothing here was measured');
   }
@@ -140,7 +140,7 @@ describe('Footer, the column rows take live\'s 50px gap (#138)', () => {
   });
 
   /*
-   * Live's stacked footer below 600 spaces its disclosure rows with their own
+   * Live's stacked footer below 769 spaces its disclosure rows with their own
    * dividers, so the columns' gap is 0 there and a row gap must not leak in.
    */
   it('leaves the stacked rows at 0 at 375', async () => {
