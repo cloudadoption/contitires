@@ -176,12 +176,14 @@ footer .footer-social-heading {
   white-space: nowrap;
 }
 
+/* the list runs the viewport, not the 1264 the columns below it are capped at.
+   The cells are quarters either way, so a cap moved all four icons inward:
+   208, 554, 837 and 1160 at 1440 where live has 142, 532, 859 and 1226. Live's
+   band does not line up with its footer grid and neither does this one. (#141) */
 footer .footer-social ul {
   flex-direction: row;
   justify-content: center;
   gap: 0;
-  max-width: 1264px;
-  margin: 0 auto;
 }
 
 footer .footer-social li {
