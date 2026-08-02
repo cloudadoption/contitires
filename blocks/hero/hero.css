@@ -586,6 +586,30 @@ main .section.hero-container {
     content: '';
     background: linear-gradient(0deg, rgb(0 0 0) 0%, rgb(0 0 0 / 0%) 100%);
   }
+
+  /* /experience, /experience/partners and /experience/conti-crew, live's three
+     `marquee--with-left-backdrop` marquees. Live opts them back in below the
+     step the way `marquee--events` does, with a gradient of its own:
+
+       .marquee--with-left-backdrop.marquee--mobile-bg-divided
+         .marquee__background::after {
+         display: block;
+         background: linear-gradient(rgba(0,0,0,0.6) 12.81%, rgba(0,0,0,0) 34.06%);
+       }
+
+     Read on continentaltire.com at 375 and 900 on 2026-08-02, against the same
+     three paths on the published host where ours generated no pseudo-element.
+     `/experience/soccer` carries live's breadcrumb class without the backdrop
+     one and takes the flat value instead, so this rule must not reach it.
+
+     `content: ''` is the load-bearing half, the same as the `tall` rule above:
+     the two-layer desktop gradient at the foot of this file is already declared
+     on this selector and paints nothing here, because the base `stacked` rule
+     stops the pseudo-element generating. #530 */
+  .hero.stacked.slim.breadcrumb .hero-image::after {
+    content: '';
+    background: linear-gradient(rgb(0 0 0 / 60%) 12.81%, rgb(0 0 0 / 0%) 34.06%);
+  }
 }
 
 /* live runs the divided copy the width of the page and centres it, where the
