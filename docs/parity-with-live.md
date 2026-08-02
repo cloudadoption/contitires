@@ -284,10 +284,18 @@ From 1025 up live's logo renders 186x34. Ours is 150px wide. Live's open TIRES p
 cross-section and a plate. Ours paints `#1d1d1d` and the finder column has no icons, though all
 three assets are in the repo.
 
-The footer row gap is 50px on live and 32px here. Between 1080 and 1183 we show three columns
-where live shows six, because our container caps at 1264 with 32px padding so six tracks first
-fit at 1184. That band is a decision rather than a defect. Matching it means letting the footer
-overflow its own container the way live's does, by up to 36px. [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237), [#138](https://github.com/cloudadoption/contitires/issues/138), [#202](https://github.com/cloudadoption/contitires/issues/202).
+Between 1080 and 1183 the footer shows three columns where live shows six, because our container
+caps at 1264 with 32px padding so six tracks first fit at 1184. That band is a decision rather
+than a defect. Matching it means letting the footer overflow its own container the way live's
+does, by up to 36px.
+
+The rows are 50px apart as live's are. The columns are collapsed disclosure rows to 768 and open at
+769 where live opens them, and the legal bar stacks to 768 too. Two things are left in the bands
+either side. Our collapsed footer is taller than live's wherever it collapses, 790 against 704 at
+768 and 812 against 704 at 599, which is the stacked rows and not the boundary. From 769 to 899 we
+lay two columns where live lays three, its search column beside two that wrap, so the footer runs
+1044 against live's 783 until our grid takes over at 900.
+[#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237), [#138](https://github.com/cloudadoption/contitires/issues/138), [#202](https://github.com/cloudadoption/contitires/issues/202).
 
 ## Product pages
 
