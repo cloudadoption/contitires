@@ -63,6 +63,7 @@ async function adopt(...paths) {
 const tile = (block) => block.querySelector(':scope > ul > li');
 const body = (block) => block.querySelector('.cards-card-body');
 const head = (block) => block.querySelector('.cards-card-body h3');
+const copy = (block) => block.querySelector('.cards-card-body p');
 
 describe("Cards, live's dark ground under a drawn mark", () => {
   before(async () => {
@@ -94,7 +95,8 @@ describe("Cards, live's dark ground under a drawn mark", () => {
     await setViewport({ width: 1440, height: 900 });
     const block = build();
     expect(getComputedStyle(head(block)).color, 'the name').to.equal('rgb(255, 255, 255)');
-    expect(getComputedStyle(body(block)).color, 'the copy').to.equal('rgb(255, 255, 255)');
+    expect(getComputedStyle(copy(block)).color, 'the copy').to.equal('rgb(255, 255, 255)');
+    expect(getComputedStyle(body(block)).color, 'the body').to.equal('rgb(255, 255, 255)');
   });
 
   // /smart-choice's Total Confidence Plan row. Same variant, same `dark`

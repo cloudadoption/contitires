@@ -1015,7 +1015,7 @@ main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.sv
 }
 
 main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg'])
-  :is(.cards-card-body, .cards-card-body p, .cards-card-body :is(h1, h2, h3, h4, h5, h6),
+  :is(.cards-card-body, .cards-card-body :is(h1, h2, h3, h4, h5, h6),
   .cards-card-body a:any-link) {
   color: var(--conti-white);
 }
