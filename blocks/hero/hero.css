@@ -889,3 +889,49 @@ main .section.hero-container {
     text-align: left;
   }
 }
+
+/* ---- /learn's EV band, which live centres and sets in capitals. Of the four
+   in-page bands named at `.hero.left .hero-image::after` above, live gives three
+   `banner-with-image--style-left` and gives /learn's `--style-center`:
+
+     .banner-with-image--style-center .banner-with-image__copy-title {
+       text-transform: uppercase; letter-spacing: 6px }
+     .banner-with-image--style-center .banner-with-image__copy {
+       background: none; text-align: center; margin: 0 auto; max-width: 840px }
+
+   So the capitals are a treatment and not authored copy: live's own markup reads
+   `<h3 class="banner-with-image__copy-title">Continental Tire is EV Compatible</h3>`
+   in sentence case, the same words our document carries. Read off
+   continentaltire.com/learn and its stylesheet on 2026-08-03.
+
+   THE HEADING LEVEL IS THE DISCRIMINATOR, and it is exact rather than
+   incidental: /learn's is the ONE hero block holding an h3 across the 328 paths
+   in the published index. Live's other three bands carry no heading at all, so
+   they have no title treatment to diverge from; ours author an h2 in one and
+   nothing in the other two. `:has()` also outscores the 1025 rule that pins
+   `left`, so the centring holds at every width the way live's does, with no
+   second query.
+
+   The 6px is live's number at live's own size. `--brand22` sets this title 42px,
+   which is what `.hero-content` already renders from 1025, and live keeps the
+   same 6px under its 768 query where the title drops to 32px. Its 56px box is
+   NOT taken: ours runs 30px below the step against live's 42, so a box copied
+   from live's larger type would belong to neither.
+
+   IT SITS AT THE FOOT for the reason the stacked rules do: every other
+   `.hero-content` rule in this file scores 0-3-0 or less, and `:has()` takes this
+   one to 0-3-1, which stylelint reads as descending anywhere above here. ---- */
+.hero.left .hero-content:has(h3) {
+  max-width: 840px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero.left .hero-content:has(h3) h3 {
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+.hero.left .hero-content:has(h3) .hero-ctas {
+  justify-content: center;
+}

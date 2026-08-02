@@ -673,8 +673,17 @@ main .section.cta {
   text-align: center;
 }
 
+/* The weight is live's and the colour was never the difference. Both sides paint
+   this heading #333 on white and white on the dark band, and ours read mid grey
+   because the shared `h1, h2, h3, h4, h5, h6 { font-weight: 300 }` rule near the
+   top of this file puts it on StagSans-Thin, where live's counterpart runs on
+   StagSans-Light. Live resets all six levels to `font-weight: inherit`, sets no
+   weight on body, and then names 36 component titles that take 300; `.banner__title`,
+   which is this band's heading, carries no rule of its own at all. Authored on
+   /warranty alone across the 328 paths in the published index, twice. */
 main .section.cta :is(h1, h2, h3, h4, h5, h6) {
   margin: 0;
+  font-weight: 400;
 }
 
 /* live's controls are the band's own children, so a paragraph around one
