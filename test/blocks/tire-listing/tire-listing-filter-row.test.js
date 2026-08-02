@@ -29,10 +29,19 @@ import { expect } from '@esm-bundle/chai';
  * The block is on 12 published pages, `/tires` and its eleven category pages,
  * counted by the selector over all 328 indexed paths.
  *
- * THE PULL GOES ON THE STATUS RATHER THAN ON THE HEADER, and the hit test below
- * is why. The header is the full column width, so pulling it over the toggle
- * puts an empty 335px-wide box on top of a 114px button and swallows the click.
- * The status is 104 wide and right-aligned, so it clears the button.
+ * THE PULL IS ON THE HEADER BECAUSE THAT IS THE BOX LIVE MOVES. The same margin
+ * on the status lands the count, the print row and the cards on the same pixels,
+ * because the header is a flex column and a negative margin on its first item
+ * takes the second one with it. Measured at 375 both ways. The header's own
+ * border box is what differs, 287x83 at 38 against 287x26 at 95, and live's
+ * results header is the first shape.
+ *
+ * So the 20px assertion below does NOT separate the two mechanisms and is not
+ * offered as if it did. It pins live's own gap against a later change to the
+ * tools margin, which is what turns it red.
+ *
+ * The hit test is the same kind of guard. Covering the button costs it nothing,
+ * because inline-level content paints above a later sibling block's background.
  */
 
 const LAYOUT = `
@@ -100,8 +109,8 @@ describe('Tire listing, the filter control and the results count share a line be
     });
 
     it(`leaves the toggle clickable at ${width}`, async () => {
-      // the pull must not park an empty box over the button: the header is the
-      // full column width and the status is not
+      // the header's box covers the button once it is pulled, so this reads
+      // whether that costs the click. It does not, and the assertion records it
       const doc = await renderAt(width);
       const toggle = doc.querySelector('.tire-listing-toggle');
       const b = toggle.getBoundingClientRect();
@@ -110,12 +119,23 @@ describe('Tire listing, the filter control and the results count share a line be
     });
   });
 
+  [375, 599, 768].forEach((width) => {
+    it(`keeps live's 20px between the count and the print row at ${width}`, async () => {
+      // the reading that decides WHERE the pull goes: live's count-to-tools gap
+      // is 20px and so is ours, so the two rows move together or not at all
+      const doc = await renderAt(width);
+      const count = boxOf(doc, '.tire-listing-count');
+      const tools = boxOf(doc, '.tire-listing-tools');
+      expect(Math.round(tools.top - count.bottom)).to.equal(20);
+    });
+  });
+
   it('leaves the count below the toggle at 769, where live opens the sidebar instead', async () => {
     // above the step live's toggle is 0x0 and its own header margin is 0, so the
     // pull is confined to the widths that stack
     const doc = await renderAt(769);
-    const status = doc.querySelector('.tire-listing-status');
-    expect(doc.defaultView.getComputedStyle(status).marginTop).to.equal('0px');
+    const header = doc.querySelector('.tire-listing-header');
+    expect(doc.defaultView.getComputedStyle(header).marginTop).to.equal('0px');
   });
 });
 
