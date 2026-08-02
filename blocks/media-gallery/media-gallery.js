@@ -165,7 +165,7 @@ function buildPager(list, total) {
     const cell = cells[index];
     list.scrollTo({ left: cell.offsetLeft - (list.clientWidth - cell.offsetWidth) / 2 });
   };
-  list.addEventListener('scroll', () => read(showing()));
+  list.addEventListener('scroll', () => read(showing()), { passive: true });
 
   const arrow = (name, delta) => {
     const button = document.createElement('button');
