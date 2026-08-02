@@ -9,13 +9,29 @@ main .section.hero-container {
   margin: 0;
 }
 
+/* 220 is live's own small band and it runs the whole range below the 1025
+   step, not just the part #513's query used to cover. Read on 2026-08-02 on
+   continentaltire.com against the same paths on the published host, naming the
+   box on each side, `section.marquee` against `div.hero.block`: live holds 220
+   at 375, 768, 900 and 1024 on /cruisingthecontinentalus, /emilytalkstires,
+   /forwhatyoudo and /lightscameratraction, and 222 on the same four widths on
+   /customer-support/technical-documents. `.hero.short` declares the same 220
+   unbounded below, which is the shape this follows.
+
+   THREE PAGES TAKE THIS FLOOR WITH NO LIVE NUMBER A MIN-HEIGHT REPRODUCES, and
+   they move with it: /smart-choice and /all-new-securecontact-aw open with
+   live's `marquee--has-jumplink` and `marquee--video-aspect`, at a flat 340 and
+   at 251/382/426/467.33 across the four widths, and /promotionended has no live
+   page. The second is already in the parity document for its desktop band. Each
+   needs its own variant before its number is reachable; keeping the floor at
+   320 for their sake left the five above 100px tall. #521 */
 .hero {
   position: relative;
   display: flex;
   overflow: hidden;
   isolation: isolate;
   align-items: center;
-  min-height: 320px;
+  min-height: 220px;
   background-color: var(--conti-dark-black);
   color: var(--conti-white);
 }
@@ -24,6 +40,17 @@ main .section.hero-container {
   position: absolute;
   inset: 0;
   z-index: -1;
+}
+
+/* THE WRAP GIVES UP ITS NEGATIVE z-index when it carries a play control, and
+   that is what keeps the control clickable. `.hero-image` at -1 opens a stacking
+   context its children cannot leave, which would trap the badge under the copy
+   box; `auto` opens none, so the badge's own 2 counts in the hero's context and
+   beats the copy's 1 where the two overlap above the step. Declared here rather
+   than beside the control at the foot of this file, where it would sit after the
+   0-4-0 strip rules that stylelint reads as descending specificity. #468 */
+.hero:has(.hero-play) .hero-image {
+  z-index: auto;
 }
 
 .hero .hero-image::after {
@@ -570,6 +597,30 @@ main .section.hero-container {
     content: '';
     background: linear-gradient(0deg, rgb(0 0 0) 0%, rgb(0 0 0 / 0%) 100%);
   }
+
+  /* /experience, /experience/partners and /experience/conti-crew, live's three
+     `marquee--with-left-backdrop` marquees. Live opts them back in below the
+     step the way `marquee--events` does, with a gradient of its own:
+
+       .marquee--with-left-backdrop.marquee--mobile-bg-divided
+         .marquee__background::after {
+         display: block;
+         background: linear-gradient(rgba(0,0,0,0.6) 12.81%, rgba(0,0,0,0) 34.06%);
+       }
+
+     Read on continentaltire.com at 375 and 900 on 2026-08-02, against the same
+     three paths on the published host where ours generated no pseudo-element.
+     `/experience/soccer` carries live's breadcrumb class without the backdrop
+     one and takes the flat value instead, so this rule must not reach it.
+
+     `content: ''` is the load-bearing half, the same as the `tall` rule above:
+     the two-layer desktop gradient at the foot of this file is already declared
+     on this selector and paints nothing here, because the base `stacked` rule
+     stops the pseudo-element generating. #530 */
+  .hero.stacked.slim.breadcrumb .hero-image::after {
+    content: '';
+    background: linear-gradient(rgb(0 0 0 / 60%) 12.81%, rgb(0 0 0 / 0%) 34.06%);
+  }
 }
 
 /* live runs the divided copy the width of the page and centres it, where the
@@ -612,8 +663,21 @@ main .section.hero-container {
   letter-spacing: normal;
 }
 
-/* live divides the marquee at 160 rather than 200 on a page whose marquee
-   carries a breadcrumb trail, which is every section hub under /experience */
+/* live divides the marquee at 160 rather than 200 on the five pages that carry
+   `slim`, and THE BREADCRUMB TRAIL IS NOT WHAT PREDICTS IT. Read at 375 and 900
+   on continentaltire.com on 2026-08-02:
+
+     /experience              160   trail
+     /experience/partners     160   trail
+     /experience/conti-crew   160   trail
+     /my-first-car-my-first-tires  160   no trail on either side
+     /ev-compatible           160   no trail on either side
+
+   Live divides the last two at 160 with no trail anywhere on them, and it
+   divides /experience/soccer at 130 WITH one, so a trail neither brings the 160
+   nor comes with it. The class live shares across all five is
+   `marquee--mobile-bg-divided`, which is what `stacked` stands for, and 160 is
+   one value on the axis the four heights below sit on. #474 */
 .hero.stacked.slim .hero-image {
   height: 160px;
 }
@@ -654,8 +718,24 @@ main .section.hero-container {
      An earlier reading of "160 against 400" compared our inner <img>, which is
      1440x160, against live's whole marquee section, and had the delta pointing
      the wrong way. Name the box on both sides before trusting a number.
-     `stacked slim` is authored on /experience alone, checked across all 325
-     indexed paths. Issue #250. */
+
+     `stacked slim` IS AUTHORED ON FIVE PUBLISHED PAGES, not on /experience
+     alone. Read off `.plain.html` for all 328 paths in the published query index
+     on 2026-08-02, with 37 hero blocks across 33 pages as the known-present
+     control and an invented token returning 0 as the known-absent one:
+
+       /experience                   hero left stacked slim breadcrumb
+       /experience/partners          hero stacked slim breadcrumb
+       /experience/conti-crew        hero stacked slim breadcrumb title-left
+       /my-first-car-my-first-tires  hero left stacked slim
+       /ev-compatible                hero stacked slim
+
+     Live reads 400 at 1440 on the first four and 360 on /ev-compatible, so that
+     page takes this 400 where live gives it 360; the comment further down
+     naming it as out of scope was written when `slim` reached one page. The
+     count that used to stand here was derived rather than measured, and the two
+     pages that joined the variant afterwards could not have shown up in it.
+     Issue #250, #474. */
   .hero.stacked.slim {
     min-height: 400px;
   }
@@ -797,14 +877,6 @@ main .section.hero-container {
     text-align: left;
   }
 
-  /* the trail adds 40 to the copy column, which pushed the band 8 past live's
-     400 once /experience carried one. Live fits its own 62px trail inside the
-     400 by sitting it at the top of the marquee rather than inside the centred
-     copy; trimming this variant's padding reaches the same height. */
-  .hero.stacked.slim .hero-content {
-    padding-block: 88px;
-  }
-
   .hero.stacked .hero-content h1 {
     font-size: 42px;
     line-height: 48px;
@@ -832,9 +904,31 @@ main .section.hero-container {
    which are live's: the link 12px at weight 700, 0.6px letter-spacing,
    uppercase, white and underlined, the current step the same without the
    underline, and a leaning bar between the steps. #289 ---- */
+
+/* OUT OF FLOW, PINNED TO THE BAND, which is where live draws it: its
+   `nav.breadcrumb` reads (12,12) from the top left of `section.marquee` at 375
+   and 768 and (20,20) at 900 and 1440, on /experience, /experience/partners,
+   /experience/conti-crew and /experience/soccer alike. Read on 2026-08-02.
+
+   So the inset is the trail's own and NOT the copy column's, which live runs at
+   20 below its desktop step and 64 above. In flow it was the first line of the
+   centred copy at (20,188), and the band paid 40 for it. `.hero` is the
+   positioned ancestor, so hero.js hangs the trail off the block: inside
+   `.hero-content`, which is `relative`, an absolute trail would resolve against
+   the copy box and sit at the top of that instead of over the photo. #470 */
 .hero .hero-breadcrumb {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: flex;
-  margin: 0 0 24px;
+  margin: 0;
+  padding: 12px;
+}
+
+@media (width >= 769px) {
+  .hero .hero-breadcrumb {
+    padding: 20px;
+  }
 }
 
 .hero .hero-breadcrumb ol {
@@ -873,6 +967,139 @@ main .section.hero-container {
   font-weight: 700;
   letter-spacing: 0.6px;
   text-decoration: underline;
+}
+
+/* ---- the play control live draws over the marquee on the one page that
+   carries a video. Live's `div.marquee__video-overlay` covers the photo, 375x160
+   at 375 and 1440x400 at 1440, with its button centred at (188,80) and (720,200)
+   from the marquee's top left. Read on 2026-08-02.
+
+   Live draws the badge from a stylesheet inside its own custom element, so a
+   probe reads the button as 0x0 and there is no value of live's to copy. The
+   badge here is the one `blocks/video/video.css` already draws on every player
+   on the site, at the size that file uses. #468 ---- */
+
+.hero .hero-play {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.hero .hero-play::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4.5rem;
+  height: 3.25rem;
+  border-radius: 0.75rem;
+  background-color: rgb(0 0 0 / 65%);
+  translate: -50% -50%;
+  transition: background-color 0.2s;
+}
+
+.hero .hero-play::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-top: 0.6rem solid transparent;
+  border-bottom: 0.6rem solid transparent;
+  border-left: 1rem solid var(--conti-white);
+  translate: -35% -50%;
+}
+
+.hero .hero-play:hover::after,
+.hero .hero-play:focus-visible::after {
+  background-color: var(--conti-yellow);
+}
+
+.hero .hero-play:focus-visible {
+  outline: 2px solid var(--conti-yellow);
+  outline-offset: -4px;
+}
+
+.hero .hero-modal {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: 40px;
+  border: 0;
+  background-color: transparent;
+}
+
+/* a dialog is drawn only while it is open, so the layout waits on the attribute
+   rather than overriding the display that keeps it shut */
+.hero .hero-modal[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero .hero-modal::backdrop {
+  background-color: rgb(0 0 0 / 90%);
+}
+
+.hero .hero-stage {
+  display: flex;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero .hero-close {
+  align-self: flex-end;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  color: var(--conti-white);
+  cursor: pointer;
+}
+
+.hero .hero-close::before,
+.hero .hero-close::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background-color: currentcolor;
+}
+
+.hero .hero-close::before {
+  rotate: 45deg;
+}
+
+.hero .hero-close::after {
+  rotate: -45deg;
+}
+
+@media (width >= 769px) {
+  .hero .hero-play::after {
+    width: 5.5rem;
+    height: 3.9rem;
+  }
+
+  .hero .hero-play::before {
+    border-top-width: 0.75rem;
+    border-bottom-width: 0.75rem;
+    border-left-width: 1.25rem;
+  }
 }
 
 /* `title-left`: the marquee title pinned left, and nothing else.

@@ -120,14 +120,15 @@ describe("Sports band, live's dark teaser band", () => {
     expect(value(BAND, 'padding', '769px')).to.equal('80px 0px');
   });
 
-  // live holds the band's content to 1136 with 20 of page padding below 769
-  // and 16 above, where the site's own container gives 24 and 32
-  // the container is content-box, so the cap is live's 1136 of content and the
-  // padding sits outside it
-  it("measures the band's content the way live measures it", () => {
-    expect(value(`${BAND} > div`, 'max-width')).to.equal('1136px');
-    expect(value(`${BAND} > div`, 'padding')).to.equal('0px 20px');
-    expect(value(`${BAND} > div`, 'padding', '769px')).to.equal('0px 16px');
+  // Live holds the band's content to 1136 with 20 of page padding below 769 and
+  // 16 above. This band used to say so itself, because the site's container gave
+  // 1200 inside 24 and 32; #219 put live's numbers on the container, so the band
+  // takes them from there and repeating the cap would subtract the padding twice.
+  // The rendered proof at five widths is in test/styles/page-container.test.js.
+  it('adds no measure of its own, so the page container measures it once', () => {
+    expect(value(`${BAND} > div`, 'max-width'), 'no cap here').to.be.null;
+    expect(value(`${BAND} > div`, 'padding'), 'no side padding here').to.be.null;
+    expect(value(`${BAND} > div`, 'padding', '769px')).to.be.null;
   });
 
   it('centres the heading and the line under it', () => {
@@ -558,10 +559,12 @@ describe("Register your tires band, live's six benefits", () => {
       .to.equal(Math.round(items[0].getBoundingClientRect().left));
   });
 
+  // one per row means the row IS the page column, which is live's 728 at 768
+  // since #219 gave the container live's 20 a side rather than 24
   it('stacks the benefits one per row below 769', async () => {
     await setViewport({ width: 768, height: 900 });
     const items = [...block.querySelectorAll('li')];
-    expect(Math.round(items[0].getBoundingClientRect().width)).to.equal(720);
+    expect(Math.round(items[0].getBoundingClientRect().width)).to.equal(728);
     expect(Math.round(items[1].getBoundingClientRect().top
       - items[0].getBoundingClientRect().bottom)).to.equal(38);
   });

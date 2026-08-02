@@ -446,10 +446,19 @@ main :is(.cards, .columns, .hero) :is(p, li) a:any-link:not(.button) {
    other way round. It declares `text-decoration-line: underline` on its tile
    titles and paints it `rgba(0, 0, 0, 0)`, so reading the line alone says live
    underlines them too. Measured on continentaltire.com at /, /tires and
-   /experience/partners: line underline, colour transparent, nothing shown. #240 */
+   /experience/partners: line underline, colour transparent, nothing shown. #240
+
+   The third selector is the same title with the nesting the other way round, an
+   anchor that WRAPS its heading, which is what the news teasers build. Ours read
+   underline in white on /events where live reads underline in rgba(0, 0, 0, 0)
+   and shows nothing, three teasers on each side. It is here and not on the
+   teaser, which already declares no underline and loses at 0-2-1 to the prose
+   rule above. #455 */
 main .default-content-wrapper :is(h1, h2, h3, h4, h5, h6) a:any-link:not(.button),
 main :is(.cards, .columns, .hero) :is(p, li) :is(h1, h2, h3, h4, h5, h6)
-  a:any-link:not(.button) {
+  a:any-link:not(.button),
+main :is(.cards, .columns, .hero) :is(p, li)
+  a:any-link:not(.button):has(:is(h1, h2, h3, h4, h5, h6)) {
   text-decoration: none;
 }
 
@@ -619,19 +628,35 @@ main > .section:empty {
   display: none;
 }
 
+/* The container every band on the site hangs off, and live's own three numbers.
+   Live's is `.container { margin: 0 auto; max-width: 73rem; width: 100%;
+   padding: 0 1rem }` with the padding going to 1.25rem under `max-width: 768px`,
+   and a global `* { box-sizing: border-box }` puts that padding INSIDE the 73rem.
+   `html { font-size: 100% }`, so 73rem is 1168 and the content is 1136.
+
+   The box model comes with the cap. There is no universal box-sizing here, so
+   1200 was a content box with its padding outside it, and narrowing the cap
+   alone would have left the outer at 1200 plus the padding.
+
+   Measured against live at 375, 768, 769, 900 and 1440: content 327/720/721/
+   836/1200 against live's 335/728/737/868/1136, starting at 24/24/24/32/120
+   against live's 20/20/16/16/152. The inset NARROWS and does not go: #477 took
+   the specs band's own 24 away, so this is the only thing holding that band off
+   the viewport edge. #219 */
 main > .section > div {
-  max-width: 1200px;
+  box-sizing: border-box;
+  max-width: 1168px;
   margin: auto;
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
 main > .section:first-of-type {
   margin-top: 0;
 }
 
-@media (width >= 900px) {
+@media (width >= 769px) {
   main > .section > div {
-    padding: 0 32px;
+    padding: 0 16px;
   }
 }
 
