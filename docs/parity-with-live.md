@@ -361,7 +361,7 @@ Three sContact rows in the specs sheet are spelled `T135/70R18`, `T145/85R18` an
 where live's own specs page spells them bare. Two of the three normalise, because live's width
 control offers 145 and 165. [#496](https://github.com/cloudadoption/contitires/issues/496).
 
-**`T135/70R18` is left exactly as it is.** Live offers 29 widths and 135 is not among them, so
+**`T135/70R18` is left as it is.** Live offers 29 widths and 135 is not among them, so
 correcting that row would put a width on our control that live's does not have. The misspelling is
 what makes `parseSize` reject the row. That rejection is the behaviour we want, so **leaving it is
 the fix rather than the omission**, and our width list is a subset of live's.
