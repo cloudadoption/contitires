@@ -83,7 +83,7 @@ describe('Media gallery leading, the episode live features', () => {
   });
 
   it('names the feature and its followers alike', () => {
-    const names = [...block.querySelectorAll('.media-gallery-caption h3')];
+    const names = [...block.querySelectorAll('.media-gallery-caption h2')];
     expect(names.map((h) => h.textContent)).to.eql([
       'For What You Do: Resin Art',
       'For What You Do: Dog Training',
@@ -161,17 +161,46 @@ describe('Media gallery leading, live\'s measurements', () => {
     // height of its own, so the 16/9 still drove the row: 1200 of container less
     // the 400 column gave an 800 still 450 tall, over live's 430. Live's 1136
     // leaves 736, which is 414, so the row falls back to its own 430 min-height.
-    // #396 is the crop live does and is NOT closed by this; what closed is the
-    // 20px the row read over live at 1440.
     expect(Math.round(cells[0].height), "live's 430, from the min-height").to.equal(430);
     expect(getComputedStyle(block.querySelector('.media-gallery-caption')).padding)
       .to.equal('20px 38px');
   });
 
+  /*
+   * #396 asked for the crop live does, on the reading that the row was 450 and
+   * the still filled it at its own 16/9. It does not reproduce: the container cap
+   * from #219 holds the still to 736 at every width from 769 up, which is 414 at
+   * 16/9, so the 430 min-height sets the row and the tile stretches to it. The
+   * still then takes the tile rather than its own ratio and `object-fit: cover`
+   * crops it, which is what live does with the same photograph. Measured at 769,
+   * 900, 1025, 1200, 1440 and 1600: 430 at all six.
+   *
+   * Pinned rather than fixed, because the number that keeps it true is the
+   * container cap and that lives in styles.css.
+   */
+  it('crops the still into live\'s 430 rather than taking its own ratio', async () => {
+    const rows = [];
+    await setViewport({ width: 769, height: 900 });
+    decorate(block = series());
+    rows.push(boxes());
+    document.body.innerHTML = '';
+    await setViewport({ width: 1440, height: 900 });
+    decorate(block = series());
+    rows.push(boxes());
+    rows.forEach(({ cells, tile }, i) => {
+      const img = block.querySelector('.media-gallery-tile img');
+      expect(Math.round(cells[0].height), `the row at ${i ? 1440 : 769}`).to.equal(430);
+      expect(Math.round(tile.height), 'the still takes the row').to.equal(430);
+      expect(getComputedStyle(img).objectFit, 'so the photograph is cropped').to.equal('cover');
+    });
+    const { tile } = rows[1];
+    expect(Math.round(tile.width), 'live leaves 736 of its 1136').to.equal(736);
+  });
+
   it('sets the feature name to live\'s type at 1440', async () => {
     await setViewport({ width: 1440, height: 900 });
     decorate(block = series());
-    const name = getComputedStyle(block.querySelector('.media-gallery-caption h3'));
+    const name = getComputedStyle(block.querySelector('.media-gallery-caption h2'));
     expect(name.fontSize).to.equal('20px');
     expect(name.lineHeight).to.equal('30px');
     expect(name.fontWeight).to.equal('700');
@@ -182,7 +211,7 @@ describe('Media gallery leading, live\'s measurements', () => {
   it('drops the feature name to 14 over 20 at 900', async () => {
     await setViewport({ width: 900, height: 900 });
     decorate(block = series());
-    const name = getComputedStyle(block.querySelector('.media-gallery-caption h3'));
+    const name = getComputedStyle(block.querySelector('.media-gallery-caption h2'));
     expect(name.fontSize).to.equal('14px');
     expect(name.lineHeight).to.equal('20px');
     expect(name.fontWeight).to.equal('700');

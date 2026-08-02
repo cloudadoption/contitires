@@ -358,9 +358,26 @@ describe('Media gallery, a card that links on', () => {
     const block = highlights();
     decorate(block);
     const caption = block.querySelector('.media-gallery-caption');
-    expect(caption.querySelector('h3').textContent).to.equal('ExtremeContact DWS06 Plus');
+    expect(caption.querySelector('span').textContent).to.equal('ExtremeContact DWS06 Plus');
     // the name comes first, the link on is last
     expect(caption.lastElementChild.querySelector('a')).to.exist;
+  });
+
+  /*
+   * The name on this card is the left half of a label row, with TIRE DETAILS on
+   * the right, and live marks it up as neither a heading nor anything else: its
+   * footer carries the two side by side. A span keeps that, and it is what
+   * leaves /learn/product-highlights with the h1 it authors and nothing under
+   * it. The cards that carry no call to action take an h2. Issue #375.
+   */
+  it('names a card that links on with a span rather than a heading', () => {
+    const block = highlights();
+    decorate(block);
+    const caption = block.querySelector('.media-gallery-caption');
+    expect(caption.firstElementChild.tagName).to.equal('SPAN');
+    expect(caption.firstElementChild.textContent).to.equal('ExtremeContact DWS06 Plus');
+    const headings = block.querySelectorAll('.media-gallery-caption :is(h1, h2, h3, h4, h5, h6)');
+    expect(headings.length, 'live gives this one no heading').to.equal(0);
   });
 
   it('still renders a plain third cell as description text, not a link', () => {
