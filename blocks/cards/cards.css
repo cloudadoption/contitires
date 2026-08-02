@@ -583,15 +583,20 @@ main .section.cards-container:has(.cards.category) > div {
   }
 }
 
+/* live's own arrow, `.tire-category-card__title .icon` at display block and
+   font-size 18px over an `arrow-right-outline` svg at 1em, so an 18 by 18 box
+   starting a line of its own. The 8px chevron this replaces was inline-block,
+   so whether it shared the title's last line depended on the title: at 1440 it
+   sat beside "Light Truck / SUV Tires" and under the other two, and at 769 it
+   sat beside all three. A block takes the line in every tile, which is what
+   live does at 1440, 1200, 900, 769, 768 and 375. Issue #236 */
 .cards.category .cards-card-body a::after {
   content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-inline-start: 10px;
-  border-inline-end: 2px solid currentcolor;
-  border-block-end: 2px solid currentcolor;
-  transform: translateY(-2px) rotate(-45deg);
+  display: block;
+  width: 18px;
+  height: 18px;
+  background-color: currentcolor;
+  mask: url('/icons/arrow-right.svg') no-repeat center / contain;
 }
 
 @media (width >= 900px) {
