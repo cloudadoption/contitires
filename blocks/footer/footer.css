@@ -253,7 +253,13 @@ footer .footer-bottom a:focus-visible {
   text-decoration: underline;
 }
 
-@media (width >= 600px) {
+/* 769 is live's boundary, and everything the footer does at a width does it
+   here. Below it live holds the columns as disclosure rows, stacks the legal
+   bar and runs the calls to action across; from 769 the columns open, the bar
+   goes to one line, and live names each network instead of showing the icon
+   alone, which grows the band 2px, 68 to 70, and opens live's 7px gap beside
+   the icon. Ours opened the columns at 600, three bands early (#138). */
+@media (width >= 769px) {
   footer .footer-links {
     flex-flow: row wrap;
     padding: 40px 32px;
@@ -275,11 +281,7 @@ footer .footer-bottom a:focus-visible {
     justify-content: space-between;
     padding: 20px max(32px, calc(50% - 600px));
   }
-}
 
-/* 769 is where live names each network instead of showing the icon alone. The
-   band grows 2px with it, 68 to 70, and live's 7px gap opens beside the icon. */
-@media (width >= 769px) {
   footer .footer-social a {
     gap: 7px;
     padding: 23px 0;

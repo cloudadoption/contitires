@@ -144,9 +144,10 @@ describe(`Footer, the columns open at ${COLUMNS_FROM} the way live's do (#138)`,
   });
 
   /*
-   * The direction live runs in, and the one number that does not depend on the
-   * fixture's own copy: collapsed rows are shorter than open columns, so the
-   * footer grows across the boundary rather than staying flat through it.
+   * The direction live runs in, 704 collapsed against 783 open. Ours was flat
+   * through the boundary, 1042 against 1044, which is what a band in the wrong
+   * place looks like from outside. The fixture carries five links a column, the
+   * range live's carry, so the two layouts differ the way live's do.
    */
   it(`leaves the footer shorter at ${COLUMNS_FROM - 1} than at ${COLUMNS_FROM}`, async () => {
     await setViewport({ width: COLUMNS_FROM - 1, height: 900 });

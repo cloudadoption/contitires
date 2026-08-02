@@ -71,8 +71,9 @@ function decorateSocialGroup(group) {
 }
 
 /* the columns are a single stack below this width, which is where live shows
-   them as disclosure rows instead */
-const isStacked = window.matchMedia('(width < 600px)');
+   them as disclosure rows instead. 769 is live's own boundary: it holds the
+   rows collapsed to 768 and opens the columns at 769 (#138) */
+const isStacked = window.matchMedia('(width < 769px)');
 
 /**
  * A plain link column, the kind live collapses on mobile. Live keeps the search
