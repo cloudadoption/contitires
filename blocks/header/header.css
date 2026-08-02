@@ -540,6 +540,13 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   }
 }
 
+/* the finder glyphs belong to the desktop panel. Below the breakpoint the same
+   list is the mobile drawer, where the labels start at the drawer's own inset
+   and an empty span would push each one 24px right. #237 */
+header nav .nav-sections [data-tire-finder] .icon {
+  display: none;
+}
+
 /* mega-menu: a multi-column top item (Tires, Experience) is tagged .nav-mega
    in header.js and opens a full-width dark flyout that spans the header, with
    the columns aligned to the 1264px container, matching the live site.
@@ -688,6 +695,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
      labels sit in, so these rows run 3px deeper than the product rows beside
      them, as live's own do. */
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > button .icon {
+    display: block;
     flex: 0 0 auto;
     width: 25px;
     height: 25px;

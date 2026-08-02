@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it before after */
+/* global describe it before after afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
@@ -92,6 +92,13 @@ describe('Header mega panel, the TIRES panel against live', () => {
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, pin];
   });
 
+  // a failed assertion at another width would leave every test after it
+  // reading there, so the width goes back after each rather than at the end of
+  // the ones that move it
+  afterEach(async () => {
+    await setViewport({ width: 1440, height: 900 });
+  });
+
   after(() => {
     document.adoptedStyleSheets = document.adoptedStyleSheets
       .filter((sheet) => !sheets.includes(sheet) && sheet !== pin);
@@ -111,7 +118,6 @@ describe('Header mega panel, the TIRES panel against live', () => {
     await setViewport({ width: 900, height: 900 });
     const nav = document.getElementById('nav');
     expect(getComputedStyle(nav).backgroundColor).to.equal('rgb(29, 29, 29)');
-    await setViewport({ width: 1440, height: 900 });
   });
 
   it('draws one rule under the columns, where live draws one', () => {
@@ -148,7 +154,14 @@ describe('Header mega panel, the TIRES panel against live', () => {
   it('leaves the rows at the drawer\'s left edge below the desktop breakpoint', async () => {
     await setViewport({ width: 900, height: 900 });
     expect(px(headingRows[0], 'marginInlineStart')).to.equal(0);
-    await setViewport({ width: 1440, height: 900 });
+  });
+
+  it('keeps the glyph out of the mobile drawer, where the panel does not exist', async () => {
+    // measured at 375 on the running instance: the drawer's labels start at
+    // x 76, and an empty span left in the flow took each of them to 100
+    await setViewport({ width: 375, height: 812 });
+    const icon = document.querySelector('[data-tire-finder="vehicle"] .icon');
+    expect(getComputedStyle(icon).display).to.equal('none');
   });
 
   it('draws each finder icon at live\'s 25px in the site\'s orange', () => {
