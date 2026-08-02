@@ -184,9 +184,13 @@ main .section.cards-container {
   text-decoration-color: var(--conti-dark-yellow);
 }
 
-/* the uppercase above is for the Tire details link. Live sets the product name
-   in the case the author wrote. */
+/* the rule above is for the Tire details link, and a name that is a link took
+   it whole: the uppercase, the inline-flex box and the 14px, so the heading's
+   own size never reached the glyphs. The name reads the case the author wrote,
+   the heading's size, and the heading's line. (#399) */
 .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) a {
+  display: inline;
+  font-size: inherit;
   text-transform: none;
   text-decoration: none;
 }
