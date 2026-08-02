@@ -254,6 +254,47 @@ main .section.hero-container {
   }
 }
 
+/* Below 1025 live divides this marquee the way it divides the homepage's: the
+   photo is a band in flow and the copy sits under it on black, rather than the
+   copy over a crop of the photo. Both pages this variant serves divide there,
+   read at 1025 and 1024 on /promotion and /ccpromotion, so it belongs to the
+   variant rather than to a page.
+
+   THE STRIP TAKES ITS OWN RATIO OVER LIVE'S 160 FLOOR. Live reads 477 at 1024
+   on /promotion, from an `aspect-ratio: 1024 / 477` its campaign theme puts on a
+   mobile-only product photograph; /ccpromotion reads the bare 160 at every width
+   below the step, so 477 is the campaign's number and not this variant's. One
+   asset is authored here and it is the 1440x400 desktop one.
+
+   No scrim: live's own rule is
+   `@media (max-width: 1024px) { .marquee--mobile-bg-divided .marquee__background::after { display: none } }`,
+   which `stacked` above already quotes. */
+@media (width < 1025px) {
+  .hero.promo {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    background-color: #000;
+  }
+
+  /* `relative` rather than `static` for the reason `stacked` gives: `.hero` is
+     the positioned ancestor, so an `inset: 0` pseudo-element on a static strip
+     would cover the copy under it as well as the photo */
+  .hero.promo .hero-image {
+    position: relative;
+    min-height: 160px;
+  }
+
+  .hero.promo .hero-image::after {
+    content: none;
+  }
+
+  /* live's 28, where the overlay above the step takes 56 */
+  .hero.promo .hero-content {
+    padding-block: 28px;
+  }
+}
+
 @media (width >= 1025px) {
   .hero.promo .hero-content h1 {
     font-size: 42px;
@@ -1115,4 +1156,50 @@ main .section.hero-container {
   .hero.title-left .hero-content {
     text-align: left;
   }
+}
+
+/* ---- /learn's EV band, which live centres and sets in capitals. Of the four
+   in-page bands named at `.hero.left .hero-image::after` above, live gives three
+   `banner-with-image--style-left` and gives /learn's `--style-center`:
+
+     .banner-with-image--style-center .banner-with-image__copy-title {
+       text-transform: uppercase; letter-spacing: 6px }
+     .banner-with-image--style-center .banner-with-image__copy {
+       background: none; text-align: center; margin: 0 auto; max-width: 840px }
+
+   So the capitals are a treatment and not authored copy: live's own markup reads
+   `<h3 class="banner-with-image__copy-title">Continental Tire is EV Compatible</h3>`
+   in sentence case, the same words our document carries. Read off
+   continentaltire.com/learn and its stylesheet on 2026-08-03.
+
+   THE HEADING LEVEL IS THE DISCRIMINATOR, and it is exact rather than
+   incidental: /learn's is the ONE hero block holding an h3 across the 328 paths
+   in the published index. Live's other three bands carry no heading at all, so
+   they have no title treatment to diverge from; ours author an h2 in one and
+   nothing in the other two. `:has()` also outscores the 1025 rule that pins
+   `left`, so the centring holds at every width the way live's does, with no
+   second query.
+
+   The 6px is live's number at live's own size. `--brand22` sets this title 42px,
+   which is what `.hero-content` already renders from 1025, and live keeps the
+   same 6px under its 768 query where the title drops to 32px. Its 56px box is
+   NOT taken: ours runs 30px below the step against live's 42, so a box copied
+   from live's larger type would belong to neither.
+
+   IT SITS AT THE FOOT for the reason the stacked rules do: every other
+   `.hero-content` rule in this file scores 0-3-0 or less, and `:has()` takes this
+   one to 0-3-1, which stylelint reads as descending anywhere above here. ---- */
+.hero.left .hero-content:has(h3) {
+  max-width: 840px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero.left .hero-content:has(h3) h3 {
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+.hero.left .hero-content:has(h3) .hero-ctas {
+  justify-content: center;
 }

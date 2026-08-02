@@ -42,6 +42,20 @@ main .section.columns-container {
   }
 }
 
+/* Live's slide title is 400, so ours is too. Its `.content-slider__slide-title`
+   carries no font-weight of its own and the only `content-slider` rule that sets
+   one is the pager's, so it takes the 400 live leaves every heading it does not
+   name. Ours came off the shared `h1, h2, h3, h4, h5, h6 { font-weight: 300 }`
+   rule in styles.css onto StagSans-Thin, which is what read mid grey.
+
+   One heading moves today. A plain `columns` block holds one on /warranty alone
+   across the 328 paths in the published index; the three on /promotion sit in
+   `columns steps`, on the promo template, where `main .section.steps h2` already
+   declares 400 and outscores this. `feature` restates it below on its own rule. */
+.columns h2 {
+  font-weight: 400;
+}
+
 /* the feature heading keeps the numbers it rendered before #185 moved the h3
    token to live's 24px */
 .columns.feature h2 {
@@ -145,6 +159,20 @@ main .columns.bar .button.secondary:focus-visible {
 
   .columns.product-hero > div > div:last-child {
     flex: 0 0 352px;
+  }
+}
+
+/* The store control, which live runs the width of the column on the same step:
+   `@media screen and (max-width: 768px) { .tire-page__description-cta .btn
+   { width: 100% } }`. Its column there is live's plain `.container`, so the
+   control measures 335 at 375 and 728 at 768, where ours was the same 146px pill
+   it draws at 1440. Above 769 live leaves it a pill and so does this.
+
+   Keyed on the href, the way decorateRebate already keys on /promotion, so the
+   flag and the offer link in the same column keep their own width. */
+@media (width < 769px) {
+  .columns.product-hero a.button[href="/store-finder"] {
+    width: 100%;
   }
 }
 

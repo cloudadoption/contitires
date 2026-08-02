@@ -42,13 +42,20 @@ function titleOf({ picture, link }) {
  * The name live prints under a card, then either the description it prints on
  * the cards it shows one for, or the link it puts on the cards that lead
  * somewhere. Live's product highlight card ends on `Tire details`.
+ *
+ * The name is an h2 on the cards that stand on their own and a plain span on
+ * the ones that end on a call to action. Live gives neither shape a heading,
+ * so the level is ours: a card whose name is the left half of a label row
+ * beside `Tire details` is not a section of the page, and one that names a
+ * video is. h2 rather than h3 because the page above it is an h1 and 2 of the
+ * 7 pages carrying this variant author nothing in between.
  * @param {{picture: Element, link: Element, text: string, cta: Element}} item one item
  * @returns {Element} the caption
  */
 function buildCaption(item) {
   const caption = document.createElement('div');
   caption.className = 'media-gallery-caption';
-  const heading = document.createElement('h3');
+  const heading = document.createElement(item.cta ? 'span' : 'h2');
   heading.textContent = titleOf(item);
   caption.append(heading);
   if (item.text) {
@@ -122,6 +129,79 @@ function buildButton(item, kind) {
 }
 
 /**
+ * Live's mobile pager: `1 of 6` between two arrows, under the strip. Live's own
+ * slider hides every slide but the active one and counts off its own index; the
+ * strip here scroll-snaps, so the count follows the scroll and the arrows move
+ * it. That makes a swipe move the count too, which live's touch handlers also
+ * do. Both wrap, the way live's do.
+ * @param {Element} list the tile strip
+ * @param {number} total how many tiles
+ * @returns {Element} the pager
+ */
+function buildPager(list, total) {
+  const pager = document.createElement('div');
+  pager.className = 'media-gallery-pager';
+  const count = document.createElement('div');
+  count.className = 'media-gallery-pager-count';
+
+  let at = 0;
+  const read = (index) => {
+    at = index;
+    count.textContent = `${index + 1} of ${total}`;
+  };
+  read(0);
+
+  const cells = [...list.children];
+  // the cells snap centred, so the one on screen is the one whose middle is
+  // closest to the middle of the strip
+  const showing = () => {
+    const middle = list.scrollLeft + list.clientWidth / 2;
+    const off = (cell) => Math.abs(cell.offsetLeft + cell.offsetWidth / 2 - middle);
+    return cells.reduce((best, cell, i) => (off(cell) < off(cells[best]) ? i : best), 0);
+  };
+  const step = (delta) => {
+    const index = (at + delta + total) % total;
+    read(index);
+    const cell = cells[index];
+    list.scrollTo({ left: cell.offsetLeft - (list.clientWidth - cell.offsetWidth) / 2 });
+  };
+  list.addEventListener('scroll', () => read(showing()), { passive: true });
+
+  const arrow = (name, delta) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `media-gallery-pager-${name}`;
+    // live's own arrows carry no name at all, and a button with none is a
+    // button a screen reader can only call "button"
+    button.setAttribute('aria-label', name === 'prev' ? 'Previous' : 'Next');
+    button.addEventListener('click', () => step(delta));
+    return button;
+  };
+  pager.append(arrow('prev', -1), count, arrow('next', 1));
+  return pager;
+}
+
+/**
+ * How many tiles the product viewer draws. Live's product grid keeps the rest
+ * of the set for the modal alone, marking those items
+ * `media--hidden-media-gallery-item` and giving them no picture at all.
+ *
+ * Counted on all 56 live tire URLs: 45 carry a viewer and the grid draws 2, 3,
+ * 4, 5 or 6, never more. Hidden items appear on 10 of the 45 and each of those
+ * draws exactly 6, so the 32 hidden assets are items 7 and up on every page
+ * that has any. That is why the cap needs no new row shape and no new cell: an
+ * author writes one photograph per paragraph in the hero's image cell, the way
+ * they always did, and the seventh onwards is modal only.
+ *
+ * The cap is the product viewer's alone. Live's article galleries draw the
+ * whole set and keep nothing back: 14 tiles on
+ * /experience/lingenfelter-performance-engineering, 8 on
+ * /experience/usf-pro-championships, 7 on /learn/continental-science-guy, and 0
+ * hidden on all 26 article pages that carry one. (#319)
+ */
+const PRODUCT_TILES = 6;
+
+/**
  * Media gallery: a grid of square tiles mixing stills and videos, opening on a
  * modal that pages the whole set. The player is the video block's, so a page of
  * videos asks nothing of YouTube until someone asks to watch one.
@@ -155,7 +235,7 @@ export default function decorate(block) {
     return;
   }
 
-  const captions = block.classList.contains('cards');
+  const cards = block.classList.contains('cards');
 
   const modal = document.createElement('dialog');
   modal.className = 'media-gallery-modal';
@@ -266,7 +346,13 @@ export default function decorate(block) {
 
   const list = document.createElement('ul');
   list.className = 'media-gallery-list';
-  items.forEach((item, i) => {
+  // the strip and the stage above took the whole array, so an item the grid
+  // skips is still paged to and still opens. slice keeps the indices, which is
+  // what lets a tile hand its own position straight to show()
+  const drawn = block.classList.contains('product')
+    ? items.slice(0, PRODUCT_TILES)
+    : items;
+  drawn.forEach((item, i) => {
     const cell = document.createElement('li');
     const tile = buildButton(item, 'tile');
     tile.addEventListener('click', () => {
@@ -276,9 +362,15 @@ export default function decorate(block) {
     cell.append(tile);
     // live's card names the video under the still, and the still itself is the
     // whole of the click target
-    if (captions) cell.append(buildCaption(item));
+    if (cards) cell.append(buildCaption(item));
     list.append(cell);
   });
 
-  block.replaceChildren(list, modal);
+  // the strip is one tile at a time below 769 and the pager is what says how
+  // many there are. It counts what the grid DREW rather than the whole set: a
+  // product page keeps its seventh row onwards for the modal, and a count of 11
+  // over a strip of 6 pages to a tile that is not there. The cards grid is a
+  // column below 769 rather than a slider, and live gives it none
+  const pager = !cards && drawn.length > 1 ? buildPager(list, drawn.length) : null;
+  block.replaceChildren(...[list, pager, modal].filter(Boolean));
 }

@@ -63,12 +63,30 @@ describe('Media gallery cards, the name live puts under the still', () => {
 
   it('names every card with the title of its video', () => {
     decorate(block = mls());
-    const names = [...block.querySelectorAll('.media-gallery-caption h3')];
+    const names = [...block.querySelectorAll('.media-gallery-caption h2')];
     expect(names.map((h) => h.textContent)).to.eql([
       'Continental Tire x MLS: 15 Years of Passion, Pride & Partnership',
       "Passionate MLS Fans Are What It's All About!",
       'Opposing MLS Fans & How They Affect the Game',
     ]);
+  });
+
+  /*
+   * The level. Live gives every card after the leading one an h2 and the leading
+   * one an h3, so one level per caption lands on live's for all but the first
+   * card. Ours were all h3, which read straight off the banner h1 on the two
+   * pages of the seven that author no h2 of their own, /emilytalkstires and
+   * /learn/product-highlights. Live has that same skip on /emilytalkstires. Read
+   * off live's seven pages on 2026-08-03 and recorded in
+   * docs/parity-with-live.md. Issue #375.
+   */
+  it('names a card with an h2, so no level is skipped', () => {
+    decorate(block = mls());
+    const names = [...block.querySelectorAll('.media-gallery-caption h2')];
+    expect(names.length).to.equal(3);
+    expect(names[0].textContent)
+      .to.equal('Continental Tire x MLS: 15 Years of Passion, Pride & Partnership');
+    expect(block.querySelectorAll('.media-gallery-caption h3').length, 'no h3 left').to.equal(0);
   });
 
   // live's click target is the still, and its footer is not part of it
@@ -89,7 +107,7 @@ describe('Media gallery cards, the name live puts under the still', () => {
 
   it('names a still from its alt text when no video is authored', () => {
     decorate(block = authored([card('/media/ball.jpg', 'A soccer ball on the pitch', '', '', '')]));
-    expect(block.querySelector('.media-gallery-caption h3').textContent)
+    expect(block.querySelector('.media-gallery-caption h2').textContent)
       .to.equal('A soccer ball on the pitch');
   });
 
@@ -152,7 +170,7 @@ describe('Media gallery cards, live\'s measurements', () => {
 
   it('sets the name to live\'s type', async () => {
     await setViewport({ width: 1440, height: 900 });
-    const name = block.querySelector('.media-gallery-caption h3');
+    const name = block.querySelector('.media-gallery-caption h2');
     const caption = block.querySelector('.media-gallery-caption');
     expect(getComputedStyle(name).fontSize).to.equal('14px');
     expect(getComputedStyle(name).lineHeight).to.equal('20px');
@@ -166,7 +184,7 @@ describe('Media gallery cards, live\'s measurements', () => {
     const caption = block.querySelector('.media-gallery-caption');
     expect(getComputedStyle(block.closest('.section')).backgroundColor).to.equal('rgb(0, 0, 0)');
     expect(getComputedStyle(caption).backgroundColor).to.equal('rgb(255, 255, 255)');
-    expect(getComputedStyle(caption.querySelector('h3')).color).to.equal('rgb(51, 51, 51)');
+    expect(getComputedStyle(caption.querySelector('h2')).color).to.equal('rgb(51, 51, 51)');
     expect(getComputedStyle(caption.querySelector('p')).color).to.equal('rgb(51, 51, 51)');
   });
 

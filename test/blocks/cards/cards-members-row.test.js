@@ -174,6 +174,12 @@ describe('Cards, the hub row scroll controls', () => {
     expect(calls[0].left, 'the other way').to.equal(-step);
   });
 
+  /**
+   * A full step is MORE THAN THE ROW HAS LEFT TO GIVE since the row bleeds to
+   * the page edges: the scrollport is the viewport rather than the 1136 column,
+   * so four 380 tiles overhang it by 292 and the scroll clamps there. It was
+   * exactly one 400 step while the row clipped at 1288.
+   */
   it('really scrolls the row when the behaviour is not animated', async () => {
     await setViewport({ width: 1440, height: 900 });
     const block = buildRow();
@@ -181,7 +187,9 @@ describe('Cards, the hub row scroll controls', () => {
     const step = list.firstElementChild.getBoundingClientRect().width
       + parseFloat(getComputedStyle(list).columnGap);
     list.scrollBy({ left: step, behavior: 'auto' });
-    expect(list.scrollLeft, 'the row is genuinely scrollable').to.equal(step);
+    expect(list.scrollLeft, 'the row moved').to.be.greaterThan(0);
+    expect(list.scrollLeft, 'as far as it goes')
+      .to.equal(list.scrollWidth - list.clientWidth);
   });
 
   /**
