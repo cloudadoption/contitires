@@ -14,6 +14,13 @@ than copied from an issue body, and the command is named where the number carrie
 project's own issues have recorded a wrong count on at least nine occasions in seven days, so a
 count with no provenance is not evidence.
 
+Re-read on 2026-08-03 against fourteen merges and eighteen issues that closed onto rows here. Eight
+of the twelve numbers in the scale table had moved. Eight rows said queued or open for something
+that had shipped or been decided. Fourteen claims in the prose no longer hold, either because the
+site changed under them or because a census reversed them. Each is corrected where it appears rather
+than collected here. A correction filed away from the claim it corrects does not reach the reader who
+trusted the claim.
+
 ## What works
 
 **[`/events`](https://main--contitires--cloudadoption.aem.live/events)** is the closest match on the site. Live closes the page with one black band, Social
@@ -65,18 +72,28 @@ nothing about the rebuild's traffic can be measured the way live's is.
 `/my-first-car-my-first-tires` 404s
 ([#336](https://github.com/cloudadoption/contitires/issues/336)).
 
-**Known rough edges.** Card headings are invisible against the dark section on [`/ev-compatible`](https://main--contitires--cloudadoption.aem.live/ev-compatible)
-([#87](https://github.com/cloudadoption/contitires/issues/87)). The product name scrolls sideways
-at 375 on [`/tires/contipremiumcontact-2`](https://main--contitires--cloudadoption.aem.live/tires/contipremiumcontact-2)
-([#320](https://github.com/cloudadoption/contitires/issues/320)). [`/events`](https://main--contitires--cloudadoption.aem.live/events) stacks six squares
+**Known rough edges.** [`/events`](https://main--contitires--cloudadoption.aem.live/events) stacks six squares
 at 375 where live runs a carousel
 ([#341](https://github.com/cloudadoption/contitires/issues/341)). The [newsletter form](https://main--contitires--cloudadoption.aem.live/newsletter-signup) shell
 stands empty about four seconds
-([#230](https://github.com/cloudadoption/contitires/issues/230)). Six headings rendered 20px
-against live's 30px on the [tire-pressure article](https://main--contitires--cloudadoption.aem.live/learn/how-do-i-check-my-tire-pressure). Fixed by
-[#350](https://github.com/cloudadoption/contitires/pull/350): all six now read 30px, measured at 900. The DA block picker fetches
-all 22 samples up front and takes about 3.5s to become usable
-([#297](https://github.com/cloudadoption/contitires/issues/297)).
+([#230](https://github.com/cloudadoption/contitires/issues/230)). The DA block picker fetches all 22
+samples up front and takes about 3.5s to become usable
+([#297](https://github.com/cloudadoption/contitires/issues/297)), on a component this repo does not
+hold.
+
+**Three edges this section carried and the site no longer has.** Six headings rendered 20px against
+live's 30px on the [tire-pressure article](https://main--contitires--cloudadoption.aem.live/learn/how-do-i-check-my-tire-pressure);
+[#350](https://github.com/cloudadoption/contitires/pull/350) fixed it and all six read live's own
+values at 375, 900 and 1440 ([#442](https://github.com/cloudadoption/contitires/issues/442)). Card
+headings on [`/ev-compatible`](https://main--contitires--cloudadoption.aem.live/ev-compatible) read a
+12.63 contrast ratio against a 4.5 requirement, and a probe over the published pages carrying a dark
+or black section measured 242 headings on 77 pages with none below AA
+([#87](https://github.com/cloudadoption/contitires/issues/87)). The product name on
+[`/tires/contipremiumcontact-2`](https://main--contitires--cloudadoption.aem.live/tires/contipremiumcontact-2)
+does not scroll sideways at a real 375 viewport: `scrollWidth` and `clientWidth` both read 375, and
+the title text measures 299.77 in Stag Sans at 30px, checked at device pixel ratio 1 and 2 with
+mobile emulation on and off ([#320](https://github.com/cloudadoption/contitires/issues/320), open on
+a defect that does not reproduce).
 
 ## Where each thing stands
 
@@ -95,7 +112,10 @@ Each of these says what the approximation rests on.
 **absent** means live has it and we do not have it at all. Unbuilt work, not a wall.
 
 **not knowable from outside** means live resolves it through a system the public site does not
-expose, so no amount of work here reproduces it. One row earns it.
+expose, so no amount of work here reproduces it. Two rows earn it: the accounts behind live's tag
+ids, and the chrome inside live's finder modal, which is a shadow root. The product workbook section
+opens with this verdict in its own prose while the table calls it approximated. Trust the table
+there. A sheet is a visible stand-in for the backend rather than a blank.
 
 In the last column, ⏳ is work yet to come: queued, in flight, or named and not started.
 ✅ is settled: done, deliberate, or decided and needing nothing. ⚙️ needs something from inside live that the public site does not hand out, such as an
@@ -113,13 +133,13 @@ the part that IS doable; the row says which half is which.
 |---|---|---|---|---|
 | Navigation and routing | [Redirects come from a sheet](#redirects-come-from-a-sheet-not-from-server-rules) | differs | ✅ the census is answered; a sheet still cannot match by shape, and two paths cannot be reached at all | [#337](https://github.com/cloudadoption/contitires/issues/337), [#465](https://github.com/cloudadoption/contitires/issues/465) |
 |  | [Live's sports sub-nav is dead on live](#lives-sports-sub-nav-points-at-two-dead-urls) | diverges | ✅ nothing to do | [#252](https://github.com/cloudadoption/contitires/issues/252), [#289](https://github.com/cloudadoption/contitires/issues/289) |
-|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ⏳ queued | [#491](https://github.com/cloudadoption/contitires/issues/491) |
-|  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | ⏳ queued | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [Duplicate addresses, self-rewriting URLs](#duplicate-addresses-and-self-rewriting-category-urls) | differs | ⏳ queued | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
-|  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | ⏳ queued | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
+|  | [Year tabs land on our heading ids](#year-tabs-land-on-our-heading-ids-not-lives) | differs | ✅ the jump row aliases live's `#year2021` and `#year2020` onto the sections holding those years; the generated ids and the authored anchors are untouched | [#491](https://github.com/cloudadoption/contitires/issues/491) |
+|  | [86 absolute links back to live](#86-absolute-links-back-to-live-on-7-pages) | differs | ✅ the census is answered and #213 closed with the sports page; the PDF and press-kit archives are the residue and need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
+|  | [Duplicate addresses, and a category URL that rewrote itself](#duplicate-addresses-and-self-rewriting-category-urls) | differs | ✅ the rewrite is gone; the ten twins are live's own duplication, and what is ours is which of the two each route picks | [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239) |
+|  | [Header, mega menu and footer](#the-header-mega-menu-and-footer) | differs | ✅ the logo, the black panel, the footer boundary and the header row all shipped; the mobile inset and the open panel's own inset are measured and left | [#167](https://github.com/cloudadoption/contitires/issues/167), [#237](https://github.com/cloudadoption/contitires/issues/237) |
 | Product pages | [Product data is a published workbook](#product-data-is-a-published-workbook-not-a-request-time-backend) | approximated | ⚙️ live computes per request | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 |  | [One technology description differs on three pages](#one-technology-description-differs-on-three-pages-because-a-sheet-holds-one-row-per-technology) | diverges | ✅ decided, not outstanding: the sheet holds one row, so the alternative differs from 11 pages instead of 3 | [#380](https://github.com/cloudadoption/contitires/issues/380) |
-|  | [Fit by size](#fit-by-size) | differs | ⏳ queued | [#243](https://github.com/cloudadoption/contitires/issues/243) |
+|  | [Fit by size](#fit-by-size) | differs | ✅ #243 closed as a gap: the fitment banner needs a vehicle this build never keeps, so there is nothing to overclaim on | [#243](https://github.com/cloudadoption/contitires/issues/243) |
 |  | [Star rating and review count](#star-rating-and-review-count) | absent | ⚙️ the corpus needs the account | [#241](https://github.com/cloudadoption/contitires/issues/241) |
 |  | [Live's specs pages redirect onto our product page](#lives-specs-pages-redirect-onto-our-product-page) | differs | ✅ 46 redirect rows shipped; live's size search, print control and all-sizes view are not rebuilt | [#357](https://github.com/cloudadoption/contitires/issues/357), [#463](https://github.com/cloudadoption/contitires/issues/463) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
@@ -127,7 +147,7 @@ the part that IS doable; the row says which half is which.
 |  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ✅ Relevance is our order, Date has no data | [#162](https://github.com/cloudadoption/contitires/issues/162) |
 |  | [The results band reserves height live does not](#the-results-band-reserves-height-live-does-not) | diverges | ✅ decided: 116px recovered, and the reservation buys CLS 0 where live shifts | [#431](https://github.com/cloudadoption/contitires/issues/431) |
 |  | [Our class names are kebab-case where live's are BEM](#our-class-names-are-kebab-case-where-lives-are-bem) | diverges | ✅ decided, not outstanding: the linter rejects BEM and nothing a visitor sees depends on it | [#107](https://github.com/cloudadoption/contitires/issues/107) |
-| Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ⏳ emit Product from the workbook | [#490](https://github.com/cloudadoption/contitires/issues/490) |
+| Markup | [Product JSON-LD is written in the browser](#product-json-ld-is-written-in-the-browser) | differs | ✅ the block emits live's `Product`; a crawler that runs no JavaScript still sees none, which is the delivery model | [#490](https://github.com/cloudadoption/contitires/issues/490) |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
 | Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ⚙️ needs live's GTM container and the accounts its 229 tags report to | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [What live's tags report into](#what-lives-tags-report-into) | not knowable from outside | ⚙️ needs the ad accounts | [#234](https://github.com/cloudadoption/contitires/issues/234) |
@@ -139,24 +159,32 @@ the part that IS doable; the row says which half is which.
 |  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **needs access to the API / data source.** Neither half is ours to build. A plate resolves through a registration lookup live buys and #243 established we do not have it. The vehicle half is different and the difference is recorded rather than hidden: **live's fitment IS publicly readable** — the cascade walks year to make to model to trim on an unauthenticated GET and returns the OE size, measured 2026-08-01, detail in the section below. **We do not take it.** Ruled 2026-08-01, and before that in #234: this site does not depend on, or harvest, a host it does not own. So the gap is real and closed as unresolvable, not parked as pending | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
 |  | [Finder results render in the panel](#vehicle-and-plate-lookup) | differs | ✅ decided: the panel is where the platform's own guidance puts a dynamic result, and **no gear because the limit is ours** | [#483](https://github.com/cloudadoption/contitires/issues/483) |
 |  | [The finder's question heading is wider than live's](#vehicle-and-plate-lookup) | diverges | ✅ recorded: 64px wider above 769, equal below, and the ink lands in the same place | -- |
+|  | [The finder modal's own chrome](#the-finder-modals-chrome-sits-in-a-shadow-root) | not knowable from outside | ⚙️ **needs access to the API / data source**: live's modal is an empty custom element, so its padding and its close button are in a shadow root and in neither live's markup nor its stylesheet. Our step is at 900 where live's boundary is 768, and no reading can say whether the values either side match | [#505](https://github.com/cloudadoption/contitires/issues/505) |
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [The media gallery](#the-media-gallery) | differs | ⏳ queued | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
-|  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ a delete nobody has proved safe | [#330](https://github.com/cloudadoption/contitires/issues/330) |
+|  | [The media gallery](#the-media-gallery) | differs | ⏳ the six-tile product cap shipped; the mobile pager and badge are open, and the reading-column width waits on ten documents taking `Style: partner` | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#327](https://github.com/cloudadoption/contitires/issues/327) |
+|  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ the proof of a safe delete is definable and two of its three surfaces read from outside; the third is DA's unpublished documents, and 39 catalog rows point into the prefix | [#330](https://github.com/cloudadoption/contitires/issues/330) |
 |  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
-|  | [The default share image 404s](#the-default-share-image-404s) | differs | ⏳ ship live's file | [#178](https://github.com/cloudadoption/contitires/issues/178) |
-| Content and editorial | [The homepage title](#the-homepage-title) | differs | ⏳ queued | [#349](https://github.com/cloudadoption/contitires/issues/349) |
-|  | [No result count above the pager](#no-result-count-above-the-pager) | absent | ⏳ queued | [#348](https://github.com/cloudadoption/contitires/issues/348) |
+|  | [The default share image](#the-default-share-image) | differs | ✅ live's artwork at live's size answers 200; the encoding differs because the pipeline hardcodes a `.png` path | [#178](https://github.com/cloudadoption/contitires/issues/178) |
+| Content and editorial | [The homepage title](#the-homepage-title) | differs | ✅ the Title metadata carries live's own `<title>` | [#349](https://github.com/cloudadoption/contitires/issues/349) |
+|  | [The result count, and the listing that prints none](#the-result-count-and-the-listing-that-prints-none) | differs | ⏳ the count prints above LOAD MORE, live's own coupling; a listing holding fewer rows than one batch gets no control and so no count | [#348](https://github.com/cloudadoption/contitires/issues/348) |
+|  | [Live swaps one pill row for a select](#live-swaps-one-pill-row-for-a-select-below-its-breakpoint) | diverges | ✅ decided: it is one listing of three, and live's control moves the page without announcing it | [#347](https://github.com/cloudadoption/contitires/issues/347) |
+|  | [Three facts a consolidation dropped](#three-facts-a-consolidation-dropped) | differs | ✅ two read with curl, and the third needs a byte comparison two re-encodings make silent | [#448](https://github.com/cloudadoption/contitires/issues/448) |
 |  | [Card teaser text](#card-teaser-text) | approximated | ⚙️ live's teaser field is unpublished | -- |
 |  | [Listings behind a service, authored as snapshots](#listings-behind-a-service-authored-as-snapshots) | approximated | ⚙️ live publishes no feed | [#256](https://github.com/cloudadoption/contitires/issues/256), [#257](https://github.com/cloudadoption/contitires/issues/257), [#258](https://github.com/cloudadoption/contitires/issues/258), [#259](https://github.com/cloudadoption/contitires/issues/259) |
 |  | [The scale of what shipped](#the-scale-of-what-shipped) | counts | ✅ this table is the source | [#362](https://github.com/cloudadoption/contitires/issues/362) |
 |  | [Commercial claims and operator identity](#commercial-claims-copyright-and-operator-identity) | diverges | ✅ deliberate | -- |
-| Layout and type | [The heading scale](#the-heading-scale) | differs | ⏳ line boxes match live on the 63 headings measured; the article-template h2 SIZE is still 20px where live is 30 above 769 | [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
+| Layout and type | [The heading scale](#the-heading-scale) | differs | ⏳ the global scale, the line boxes and the article-template h2 all read live's values; block-prefixed headings carry their own sizes | [#381](https://github.com/cloudadoption/contitires/issues/381), [#382](https://github.com/cloudadoption/contitires/issues/382) |
+|  | [The article h2 a fix was blamed for](#the-article-h2-reads-lives-value-at-every-width-measured) | differs | ✅ stale: `article.css` pins live's 30 from 769, and six of six subheads read live's own values at 375, 900 and 1440 | [#442](https://github.com/cloudadoption/contitires/issues/442) |
 |  | [Heading line boxes we are leaving different from live](#heading-line-boxes-we-are-leaving-different-from-live) | diverges | ✅ decided, not outstanding: nine inherited from live, two below the threshold a rule earns | [#382](https://github.com/cloudadoption/contitires/issues/382), [#381](https://github.com/cloudadoption/contitires/issues/381) |
 |  | [Two heading margins we are leaving proportional](#two-heading-margins-we-are-leaving-proportional) | diverges | ✅ decided, not outstanding: one does not reach the page, the other has no single absolute that fits both directions | [#395](https://github.com/cloudadoption/contitires/issues/395) |
-|  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | differs | ⏳ author the same spacing device in DA, or accept the tighter rhythm | [#384](https://github.com/cloudadoption/contitires/issues/384) |
+|  | [Live opens headings and paragraphs with a leading break](#live-opens-headings-and-paragraphs-with-a-leading-break) | diverges | ✅ decided, and the census reversed the reading: 18 of live's 219 learn articles carry the device and the heading form is on one, so it is per-article authoring rather than live's type system | [#384](https://github.com/cloudadoption/contitires/issues/384) |
 |  | [The hero content cap, which changes no wrap](#the-hero-content-cap-which-changes-no-wrap) | diverges | ✅ decided, not outstanding: measured over all 15 pages it reaches and it changes the wrap on none of them | [#409](https://github.com/cloudadoption/contitires/issues/409) |
+|  | [The hero content inset, and what was not read with it](#the-hero-content-inset-is-lives-on-every-variant) | diverges | ✅ the 20px is live's on all 37 hero blocks, from one live declaration against our base rule plus a 1025 override; live's own per-variant block padding is unread here | [#462](https://github.com/cloudadoption/contitires/issues/462) |
+|  | [The marquee band on two pages](#the-marquee-band-on-two-pages-where-a-min-height-cannot-reach-lives-number) | diverges | ✅ decided: three of the five pages read live's number since [#514](https://github.com/cloudadoption/contitires/pull/514), and no `min-height` reproduces an aspect-driven box or live's own 360-against-440 | [#509](https://github.com/cloudadoption/contitires/issues/509), [#217](https://github.com/cloudadoption/contitires/issues/217) |
+|  | [The Learn tab row runs taller than live's](#the-learn-tab-row-runs-taller-than-lives) | differs | ⏳ no owning issue: the type matches live and the box does not | [#248](https://github.com/cloudadoption/contitires/issues/248) |
+|  | [The sports h1 box runs the content width](#the-sports-h1-box-runs-the-content-width) | differs | ✅ recorded: live's box is a flex item sized to content, and the ink lands in the same place at three widths | [#335](https://github.com/cloudadoption/contitires/issues/335) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ⏳ the page gutter steps at live's 769 and the heading scale at live's 1025; 23 block rules at 900 and 7 at 600 are open, unfiled | -- |
 |  | [The article body shift](#the-article-body-shifts-up-51px-after-first-paint) | differs | ⏳ queued, cause not found | [#197](https://github.com/cloudadoption/contitires/issues/197) |
 |  | [Prose link underlines](#prose-links-carry-an-underline-live-paints-transparent) | diverges | ✅ WCAG 1.4.1 | [#240](https://github.com/cloudadoption/contitires/issues/240) |
@@ -164,10 +192,17 @@ the part that IS doable; the row says which half is which.
 | Performance and accessibility | [Delivered HTML weight](#delivered-html-weight) | differs | ✅ nothing to do | -- |
 |  | [Authored heading levels do not follow live's](#authored-heading-levels-do-not-follow-lives) | differs | ⏳ re-level the authored documents | [#371](https://github.com/cloudadoption/contitires/issues/371), [#372](https://github.com/cloudadoption/contitires/issues/372) |
 |  | [Product labels are static text where live's are a disclosure](#product-labels-are-static-text-where-lives-are-a-disclosure) | differs | ⚙️ live's advantage, no counterpart built | -- |
-|  | [Security headers](#security-headers) | differs | ⏳ queued | [#492](https://github.com/cloudadoption/contitires/issues/492) |
-|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ⏳ the runner hang and the 404 noise are fixed; fixture shape is open | [#125](https://github.com/cloudadoption/contitires/issues/125) |
+|  | [Security headers](#security-headers) | differs | ⏳ **neither missing header can be sent from this repo.** `head.html` reaches one node and `metadata.json` has a five-name allowlist, so the lever is the `headers` object in the site configuration | [#492](https://github.com/cloudadoption/contitires/issues/492) |
+|  | [The test suite and repo hygiene](#the-test-suite-and-repo-hygiene) | differs | ⏳ the runner hang, the 404 noise and the fixture shape are all answered; two blocks still read a media query at module scope | [#125](https://github.com/cloudadoption/contitires/issues/125) |
+|  | [Fixtures in the authored shape rather than the delivered shape](#a-p-wrapped-fixture-is-the-delivered-shape-at-decorate-time) | differs | ✅ `wrapTextNodes` runs before any block reads a cell, so the two shapes are the same one at `decorate` time; one narrow case is real and no reader sits in it | [#222](https://github.com/cloudadoption/contitires/issues/222) |
+|  | [Two copies of the breadcrumb rules](#two-copies-of-the-breadcrumb-rules-and-nowhere-to-put-one) | diverges | ✅ two copies rather than three, and the shared half has no home without a build step | [#304](https://github.com/cloudadoption/contitires/issues/304) |
+|  | [The block picker's load](#the-block-pickers-load-belongs-to-a-hosted-component) | diverges | ✅ the fetching is Adobe's hosted module; forking a platform tool into the code bus costs more than the 3.5s | [#297](https://github.com/cloudadoption/contitires/issues/297) |
+|  | [Mobile paint has two modes](#mobile-paint-has-two-modes-and-half-the-swing-is-unexplained) | differs | ⏳ one input found and fixed; FCP going 980 to 2197 on one commit is unexplained, and 253 of 328 paths have never been measured | [#507](https://github.com/cloudadoption/contitires/issues/507) |
+|  | [The eager font request steps on viewport width](#the-eager-font-request-steps-on-viewport-width) | diverges | ✅ ours by choice: live asks at every width, and the cost of dropping the step is unmeasured | [#523](https://github.com/cloudadoption/contitires/issues/523) |
+|  | [The performance gate spends its own re-run budget](#the-performance-gate-spends-its-own-re-run-budget) | differs | ⏳ nothing read from inside the runner, and one badge covers three outcomes | [#525](https://github.com/cloudadoption/contitires/issues/525) |
+|  | [Pre-fix parity screenshots](#pre-fix-parity-screenshots-cannot-be-re-checked) | differs | ✅ the shots are in no commit, and a before shot cannot be cleared by content in any case | [#322](https://github.com/cloudadoption/contitires/issues/322) |
 |  | [The annotated tire diagram](#the-annotated-tire-diagram) | diverges | ✅ live's version is the defect | [#255](https://github.com/cloudadoption/contitires/issues/255) |
-|  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | ⏳ queued | [#116](https://github.com/cloudadoption/contitires/issues/116) |
+|  | [Carousel autoplay and reduced motion](#carousel-autoplay-and-reduced-motion) | differs | ✅ a 24x24 `aria-pressed` toggle in the nav and a `prefers-reduced-motion` check | [#116](https://github.com/cloudadoption/contitires/issues/116) |
 
 ## Navigation and routing
 
@@ -181,8 +216,9 @@ Live serves redirects as server rules, so it handles them by shape. Nine `/taxon
 paths and three `/node/<id>` paths 301 to their real page, and `/ev-ready` 301s to
 `/ev-compatible`.
 
-**The sheet went from 14 rows to 78 across two slices on 2026-08-01**, taking the 46 specs paths
-and then the rest of the 63-path census.
+**The sheet went from 14 rows to 77 across two slices on 2026-08-01**, taking the 46 specs paths
+and then the rest of the 63-path census. `/redirects.json` answers `total` 77 over 77 rows, read
+2026-08-03.
 
 **A row is one literal source path, so the count grows with the site where live's cost is flat.**
 The 42 `/tires/<product>/specs` paths need 42 rows where one live rule covers them. The match is
@@ -231,15 +267,18 @@ diff against live will flag ours as different, and ours is the one that works. [
 
 ### Year tabs land on our heading ids, not live's
 
-**differs.** A shared live URL ending `#year2021` lands at the top of our page.
+**differs, and the inbound link now arrives.** A shared live URL ending `#year2021` used to land at
+the top of our page.
 
 Live's `/cruisingthecontinentalus` tabs are `href="#year2021"` and `href="#year2020"`, landing
 on sections with those ids. Ours point at the pipeline's generated heading ids,
-`#the-2021-cruising-the-continental-us-road-trip` and its 2020 twin. Neither `year2021` nor
-`year2020` is among the three ids the page holds.
+`#the-2021-cruising-the-continental-us-road-trip` and its 2020 twin, and neither `year2021` nor
+`year2020` was among the three ids the page held.
 
-In-page navigation from our own tabs works. What breaks is an inbound link built against live.
-Giving the two h2 elements explicit ids in DA and re-pointing the anchors closes it. [#277](https://github.com/cloudadoption/contitires/issues/277).
+The jump row aliases live's two fragments onto the sections holding those years, which is where
+live carries them, and leaves the generated ids and the authored anchors alone. So the difference
+in kind stands, our ids are the pipeline's rather than live's, and the inbound link resolves.
+[#491](https://github.com/cloudadoption/contitires/issues/491).
 
 A related row is a trap rather than a defect. Neither of live's year tabs is marked current
 either, and `category-tabs` deliberately marks nothing current in the jump variant, because it
@@ -264,15 +303,29 @@ did not ask about is worse than a dead end.
 
 ### Duplicate addresses and self-rewriting category URLs
 
-**differs.** Ten articles have two addresses and nothing says which is canonical.
+**differs.** Ten articles have two addresses and nothing says which is canonical. The category URLs
+are clean again.
 
 13 published paths end in `-0`, and 10 of them have their base twin published as well, with the
-same title in 8 of the 10 and identical body length in 6. `blocks/tire-listing/tire-listing.js`
-derives facet state from the path and then rewrites the URL, so every category page has a second
-address that live never hands out. Live's category URLs stay clean.
+same title in 8 of the 10 and identical body length in 6.
 
-What would close it: unpublish or redirect the ten twins, and drop the `replaceState` call where
-the path already implies the facet. [#332](https://github.com/cloudadoption/contitires/issues/332), [#239](https://github.com/cloudadoption/contitires/issues/239), [#337](https://github.com/cloudadoption/contitires/issues/337).
+**The duplication is live's own and the routing choice is ours.** Live serves the same article at
+both addresses and links the `/news/` form from inside its own body, so the two addresses are
+inherited. What this site adds is which of the two each route picks: our redirect of live's
+`/news/how-tire-rotation-can-extend-life-your-tires` lands on the bare path, while that article's
+own in-body link lands on the `-0` path. The two hold different bodies, 4772 bytes on the `-0`
+against 5241 on the bare one, so a reader arriving from outside and a reader arriving from inside
+read different pages. Both are a real article.
+[#332](https://github.com/cloudadoption/contitires/issues/332).
+
+**The self-rewriting category URL is fixed.** `blocks/tire-listing/tire-listing.js` derived facet
+state from the path and then rewrote the URL, so `/tires/ultra-high-performance` landed on
+`?condition=ultra-high-performance` and every category page had a second address live never hands
+out. A clean path stays clean now, and it reads 15 results with the path's own facet ticked where
+going back to it used to read 46 and push the query on top. The legacy Drupal term-id parameters
+are still read, so an inbound deep link keeps working.
+[#239](https://github.com/cloudadoption/contitires/issues/239),
+[#337](https://github.com/cloudadoption/contitires/issues/337).
 
 ### The header, mega menu and footer
 
@@ -457,8 +510,17 @@ prefixes the path anyway. Live's dead link and ours are not even the same string
 
 **What live still has that we do not.** The size search, the print control, and the accordion that
 opens the sizes together. A reader comparing four sizes side by side can do it on live and cannot do
-it here. Our picker also opens preselected on the first size where live's opens empty with a prompt,
-which is [#463](https://github.com/cloudadoption/contitires/issues/463).
+it here.
+
+**One thing this section claimed and neither site does.** Our picker was recorded as opening
+preselected on the first size where live's opens empty with a prompt. Both open the same way. Both
+print `Make a selection below to view tire specifications.` with the label `Tire size`, a picker
+reading `Select a size`, and the hint `Need Help? Find size by vehicle or plate`. Ours opens on the
+placeholder option with an empty panel and zero definition terms; live opens at `selectedIndex` -1
+with zero tables and paints its own control over a hidden native select, whose visible value reads
+the same string our placeholder shows. Read over the 40 products that have rows, sampled at 119, 16
+and 5 sizes, and it covers the state the page opens in rather than anything a reader produces.
+[#463](https://github.com/cloudadoption/contitires/issues/463).
 
 Filed as [#357](https://github.com/cloudadoption/contitires/issues/357), closed 2026-08-01 with no
 proving commit, because a sheet change produces no commit;
@@ -629,25 +691,30 @@ The double underscores that do appear in our CSS are in comments quoting live's 
 elements to the same values wherever a parity row says they match. The cost is to a reader
 comparing the two stylesheets, who has to map the names by position rather than by name.
 
-### Product pages carry no JSON-LD
+### Product JSON-LD is written in the browser
 
-**absent.** Live's product pages emit a `Product` block with an `AggregateRating`. Ours emit no
-structured data at all.
+**differs.** Live server-renders a `Product` block with an `AggregateRating`. Ours writes the same
+block from the catalog row, in the browser, so a crawler that runs no JavaScript sees none.
 
-Checked on 2026-07-30 against the published hosts, both returning 200:
-`continentaltire.com/tires/extremecontact-sport-02` carries one `application/ld+json` script
-holding `"@type":"Product"` and `"@type":"AggregateRating"`.
-`main--contitires--cloudadoption.aem.live/vancontact-as-ultra` carries zero `application/ld+json`
-scripts.
+Live's `/tires/extremecontact-sport-02` carries one `application/ld+json` script holding
+`"@type":"Product"` and `"@type":"AggregateRating"`, checked 2026-07-30. Ours carried zero.
 
-The data is not the obstacle. The rating and the review count are already in the published
-workbook and the listing already renders them, which is the same source a `Product` block would
-read. What is missing is the block.
+The rating band now writes one script into the head off the catalog row it already reads.
+`/tires/4x4contact` answered 0 scripts and answers 1, with `ratingValue` 3.5 and `reviewCount` 53
+against live's 3.49 and 53. Five of the 46 rows carry no rating and get a `Product` with no
+`aggregateRating` rather than a zero. Live's `brand`, `manufacturer` and canonical URL are left out
+on purpose: this rebuild does not present itself as Continental's site.
 
-What it costs a visitor: nothing on the page. It costs the search engines the rich result live
-gets, which is a rebuild fidelity gap rather than a reader-facing one.
+**What is left is the delivery model rather than the block.** `curl` of the published
+`/tires/4x4contact` returns 0 `application/ld+json`, read 2026-08-03, because the script is written
+after the page arrives. A crawler that executes JavaScript reads it and one that does not reads
+nothing, where live's is in the delivered document either way.
 
-What would close it: emit the block from the workbook row the product page already reads.
+What it costs a visitor: nothing on the page.
+
+What would close it: emitting the block into the delivered HTML, which the workbook cannot do from
+a block. [#490](https://github.com/cloudadoption/contitires/issues/490),
+[#321](https://github.com/cloudadoption/contitires/issues/321).
 
 ### Store and dealer lookup
 
@@ -657,7 +724,7 @@ Live's `/Store-finder` is a real page, 200 at 52,125 bytes. Every "Find a store"
 points at it. The lookup needs a dealer database and a location service, and neither is
 published.
 
-Ours redirects both casings onto `/online-retailers`, two of the 14 rows. That page's Store Near
+Ours redirects both casings onto `/online-retailers`, two of the sheet's 77 rows. That page's Store Near
 You tab reads "Store search is not part of this site" and says why. The Online Retailers tab
 carries the three retailer tiles, which is what live's own `/online-retailers` holds.
 
@@ -690,7 +757,7 @@ the tire finder inputs.
 Our side loads none of it. Zero googletagmanager references on the same six paths. Each of our
 pages ships two script tags, both same-origin, `/scripts/aem.js` and `/scripts/scripts.js`.
 `scripts/delayed.js` is eight lines and imports the widget block only when a page carries a
-`.widget[data-source]`, which is 3 pages of the 327.
+`.widget[data-source]`, which is 3 pages of the 328.
 
 What it costs a visitor: nothing they see. What it costs the demo is that any claim of
 measurement parity is false. If someone asks whether the rebuild tracks what live tracks, the
@@ -789,7 +856,7 @@ That was measured in [#230](https://github.com/cloudadoption/contitires/issues/2
 purpose after the eager alternative was tried and rejected. Live also runs HubSpot tracking via
 `js.hs-scripts.com` from inside its GTM container. We have the form without the tracking.
 
-Three of our 327 published pages carry a widget link: `/newsletter-signup`, `/promotion` and
+Three of our 328 published pages carry a widget link: `/newsletter-signup`, `/promotion` and
 `/offers`.
 
 ### The sponsorship form
@@ -898,6 +965,40 @@ below where the same check works on makes. The field that changes at both levels
 can answer at all. Measured 2026-08-01.
 [#444](https://github.com/cloudadoption/contitires/issues/444).
 
+### The finder modal's chrome sits in a shadow root
+
+**not knowable from outside.** Our finder dialog steps its padding and its close button at 900 where
+live's boundary is 768. What live puts either side of that boundary cannot be read from the public
+site at all.
+
+Three rules in `blocks/perfect-fit/perfect-fit.css` stepped at 900 where live steps at 769. Two are
+fixed and one is left, and the two halves came apart for different reasons.
+
+**The bar is on live's step.** `perfect-fit.css:100` and `:182` are both `@media (width >= 769px)`
+now: the item's direction with the list's 32px column gap, and the bar's direction, gap and
+`12px 32px` padding. They had to move together, because live flips both in one query,
+`.store-finder-nav-banner__item` and `__items` to `column` under `max-width: 768px`, with the bar's
+padding stepping there too, live's 12 against our 22. Between 769 and 899 ours was the column where
+live was the row: the bar read 124 at 900 against live's 56. `test/blocks/perfect-fit/perfect-fit-769-step.test.js`
+pins that 124 at 768 against the 56 row at 769 and 900, on all three authored shapes.
+
+**The dialog is the one that cannot be settled, and the establishment is what settled that.**
+`perfect-fit.css:715` is still `@media (width >= 900px)`, carrying a dialog `padding-top: 80px` and
+a close button at `top: 24px; right: 24px`. Live's counterpart is
+`<con-tire-finder-modal id="tire-finder-modal"></con-tire-finder-modal>`, an empty custom element
+opened by `button.store-finder-nav-banner__item[data-modal-target]`, so its internals are in a
+shadow root and appear in neither live's markup nor its 582,256-byte stylesheet. One rule for it is
+visible and it settles the boundary rather than the values:
+`@media screen and (max-width: 768px) { .tire-finder-modal { --modal-x-padding: 0 } }`.
+
+So the boundary differs by one step and whether the chrome matches live at any width is unreadable.
+Two readings on the way there came back empty and one of them was wrong, which is why both are here:
+a search for `.modal`, `.modal__` and `dialog` on live's sheet returned 0 and read as live having no
+modal, and the markup is what caught it; an earlier `store-finder.*modal` grep reported one hit,
+which was `.*` running greedy across a minified single-line file. The bar's own rules came back on
+every pass as the known-present control.
+[#505](https://github.com/cloudadoption/contitires/issues/505).
+
 ### Real user monitoring, ours only
 
 **diverges.** We sample real user data. Live does not, and measures through GTM instead.
@@ -994,11 +1095,28 @@ Product viewer stills are in DA and served from our host. A sample of 12 product
 to 6 `<picture>` elements each, 53 in total, all same-origin.
 
 Separately, DA holds 98 original images under `/media/original/`, 509.5MB, that no page
-references. They are there because the pipeline refused them. Six run 21 to 41MB and preview
-answered `AEM_BACKEND_DOC_IMAGE_TOO_LARGE`. Nothing renders slower for them and no visitor pays
-for them. [#330](https://github.com/cloudadoption/contitires/issues/330) keeps the delete open, on the grounds that it is not reversible except by
-fetching them from live again, and that proving a media path is unreferenced across DA, the code
-bus and the sheets has not been done.
+references. They are there because the pipeline refused them: preview answered 409 with
+`x-error-code: AEM_BACKEND_DOC_IMAGE_TOO_BIG` and `Images 3, 4, 5 and 7 exceed allowed limit of
+20.00MB`. Six run 21 to 41MB and 23 run over 10MB. The slice shipped on live's `square_medium`
+rendition instead, 9.2MB over the same 98 files. Nothing renders slower for the originals and no
+visitor pays for them.
+
+**A safe proof of the delete is definable, and it cannot be run from the public site.** Three
+surfaces can name a media path: DA's source documents, the published sheets, and the code bus. Two
+read from outside. All 328 published pages fetched as `.plain.html` name `media/original` zero times
+and `content.da.live` zero times, while 301 of them reference media as `media_<41 hex>` over 747
+distinct ids, and `rg media/original` over the repo hits this document alone. The third does not read
+from outside and it is the one that decides: some DA documents are unpublished, only its list API
+sees those, and one naming a deleted path fails on its next preview.
+
+**Two findings cut against the premise that the prefix is inert.** In `/products.json`, products
+sheet, 39 of the 46 rows put an absolute `/media/original/media/image/...` URL in `image`. All 39
+answer 301 to a `media_` sibling that 200s, and `blocks/perfect-fit/perfect-fit.js:283` renders that
+column, so a delete keyed on the prefix takes live references with it. And an id cannot be recomputed
+from what the site serves: sha1 of the bytes behind `media_10163a29c6...jpg` is `8acc347b...` against
+the id's `0163a29c...`, so matching the 98 by hash is out. The delete is also not reversible except
+by fetching them from live again, which is the expensive direction to be wrong in.
+[#330](https://github.com/cloudadoption/contitires/issues/330).
 
 ### The tire-size help icon, a second divergence made on purpose
 
@@ -1082,39 +1200,101 @@ Live truncates some of its own descriptions and we reproduce that too. Live's de
 
 ### og:title on a product page
 
-**differs on all 46 product pages, and no code here changes it.** Ours repeats the whole page
-title where live gives the product name.
+**matches, out of a sheet, and it took a sheet because no code here reaches the tag.** Ours repeated
+the whole page title where live gives the product name.
 
-`/tires/purecontact-ls` heads its share card "PureContact LS Tires | Continental Tire" and live
-heads the same page "PureContact LS". Read 2026-08-02 at the `path` the catalog sheet gives for
-each of the 46: our `og:title` equals our own `<title>` on 46 of 46, and live's equals the
-catalog's plain `name` cell on 46 of 46. A shared link renders that string as its headline, so ours
-spends the headline on the site name and the word Tires.
+`/tires/purecontact-ls` headed its share card "PureContact LS Tires | Continental Tire" where live
+heads the same page "PureContact LS". Read 2026-08-02 at the `path` the catalog sheet gives for each
+of the 46, our `og:title` equalled our own `<title>` on 46 of 46. Read again 2026-08-03: it equals
+the catalog's plain `name` cell on 46 of 46 and the page title on 0 of 46, which is live's value on
+all 46.
 
-The tag is not composed in this repo. The pipeline sets `og:title` from the page title in
-`src/steps/extract-metadata.js`, and the one thing that overrides it is an `og:title` value in the
-page's own metadata, which is authored content. So it closes with 46 rows in a `metadata.json`
-sheet at the content root, keyed on the catalog's `path` column and valued from its `name` column.
-No change under `blocks/` or `scripts/` reaches it. A wildcard row will not do, because the value
-differs per page. Nor will JavaScript: a card crawler reads the delivered HTML and never runs our
-scripts.
+The tag is not composed in this repo, and that is why the fix is content. The pipeline sets
+`og:title` from the page title in `src/steps/extract-metadata.js`, and the one thing that overrides
+it is an `og:title` value in the page's own metadata. `/metadata.json` now answers 46 rows of `URL`
+and `og:title`, keyed on the catalog's `path` and valued from its `name`. No change under `blocks/`
+or `scripts/` would have reached it. A wildcard row would not have done either, because the value
+differs per page, and nor would JavaScript, because a card crawler reads the delivered HTML and never
+runs our scripts.
 
 The page `<title>` is not in question here. [#516](https://github.com/cloudadoption/contitires/issues/516),
 with the spelling of the names themselves at [#515](https://github.com/cloudadoption/contitires/issues/515).
 
-### No result count above the pager
+### The result count, and the listing that prints none
 
-**absent.** Live prints "1-10 of 148 results". We print nothing.
+**differs.** The listings print live's count line. A listing holding fewer rows than one batch gets
+no LOAD MORE, and the count rides with the control.
 
-Live's learn listing prints a count line above its pager. Ours has no count at all, so a reader
-cannot see how many articles exist or how far through the list they are.
+Live prints `1-10 of 148 results` above its pager. Ours prints `1-12 of 150 results` on
+news-and-events, centred 20px above the control at live's 15 on 22. Two numbers stay off live's on
+purpose: the batch is 12 where live pages 10, and the range is cumulative where live's reads the
+fetched page, because live appends rows while replacing the pager wholesale.
 
-A related surplus sits next to it. Our Everything view shows 150 articles against live's 148,
-because our News listing holds two live does not list. Nothing is missing, there is surplus, and
-a reader can reach two articles from the listing here that live does not offer.
+**Where a reader still sees no count.** The count prints where there is a load-more, which is the
+coupling live's own markup enforces, both being one `.load-more-pager` its controller empties on the
+last page. `/learn/corporate` holds 11 rows against a batch of 12, so it draws no control and prints
+nothing where live prints `1-10 of 11 results`.
+[#348](https://github.com/cloudadoption/contitires/issues/348).
 
-Live also swaps its three filter pills for a select below its breakpoint. We keep three pills at
-375. Both reach the same three destinations.
+**Seventeen articles had no card at all and now have one.** A filter dropped any row whose index
+image was missing or was the site's own fallback, 17 of the 219 rows in `/learn/query-index.json`,
+ten of them News and one Corporate. Live keeps those rows and draws `.news-teaser__image-stub`, a
+171x128 tile in `#000000` with a 1rem radius above its 769 and nothing below it. With the filter gone
+`/learn/corporate` renders 11 cards against live's 11 and `/learn/news` 129 against 129. The tile
+ships without live's contiseal mark, which is a raster this repo does not carry. Search needed
+nothing: `thumbnail()` already returned null and kept the row, which is what live's search does too.
+[#346](https://github.com/cloudadoption/contitires/issues/346).
+
+A surplus sits next to the count. news-and-events shows 150 against live's 148 and tips 48 against
+live's 47, which is content this site has and live does not. Nothing is missing, and a reader can
+reach three articles from the listings here that live does not offer.
+
+### Live swaps one pill row for a select below its breakpoint
+
+**diverges.** Live replaces its pill row with a jump menu on one of its three Learn listings. We keep
+three pills at 375 on all of them.
+
+Live serves the select on `/learn/news-and-events` and nowhere else. `/learn/tips` and
+`/learn/technology` return zero `<select>`, because neither taxonomy has sub-terms. So the swap is one
+listing of three rather than a rule of live's.
+
+Live's control below its breakpoint is a `<form class="hidden-desktop">` around
+`<con-jump-menu><con-select>`, with a `label.visually-hidden` reading "Select menu" and a
+`<select id="jumpmenu">` whose three option values are `/learn/news-and-events`, `/learn/news` and
+`/learn/corporate`. The form carries no submit control, so choosing an option moves the page, and the
+label does not say so.
+
+Ours serves the same three links at 375. `blocks/category-tabs/category-tabs.css` records live's pill
+widths at 1440 as 110, 65 and 106, so with two 12px gaps the row is 305px against the 335px a 375
+viewport leaves inside the container, and the list is `overflow-x: auto` under
+`justify-content: safe center`, so a label that grows scrolls rather than clips.
+
+The row fits, and matching live would put navigation behind a change on a control that does not
+announce it. Both reach the same three destinations.
+[#347](https://github.com/cloudadoption/contitires/issues/347).
+
+### Three facts a consolidation dropped
+
+**differs.** Nine of twelve facts dropped in a README and parity-document consolidation were
+recovered earlier. Two of the remaining three read with `curl` and the third does not.
+
+**Learn pagination, and the note's shape was wrong rather than its numbers.** Live's three category
+listings each deliver 10 `article.news-teaser` in the HTML, under a `Load More` anchor to `?page=1`
+in `.load-more-pager`, driven by `con-ajax-controller appendmode`. This build renders 12 per batch,
+`BATCH = 12` at `blocks/article-cards/article-cards.js:5`, behind a `Load more` button, and builds
+the first batch client-side. So 10 against 12 stands. The note read live as replacing rather than
+appending, and live appends too.
+
+**The warranty disclosure marker is stale.** `/tires/4x4contact` here serves one
+`<a href="/warranty">Total Confidence Plan</a>` over live's own three items, 60 Day Trial, 3 Year
+Roadside Assistance and 12 Month Road Hazard Coverage. Live opens that group with its `tcp-logo`
+where this one opens with the words, and `icons/tcp-badge.svg` is in the repo. The disclosure device
+itself is the product-labels row below.
+
+**The homepage carousel is the one a reading cannot settle.** Six of live's seven slides pair with
+ours by subject and in order, and the seventh is live's DWS06 Plus against a customer review here.
+Both sides re-encode their images, so a byte comparison between them says nothing either way.
+[#448](https://github.com/cloudadoption/contitires/issues/448).
 
 ### Card teaser text
 
@@ -1170,18 +1350,22 @@ them. The README takes one, the page count, and links here for the rest.
 
 | Thing | Count | Where the number comes from |
 |---|---:|---|
-| Pages published | 327 | `/query-index.json`, `total` and row count agree |
+| Pages published | 328 | `/query-index.json`, `total` |
 | Learn articles | 219 | `/learn/query-index.json`, `total` |
 | Products | 46 | `/products.json`, products sheet and catalog sheet agree |
 | Size-level spec rows | 1656 | `/products.json`, specs sheet, 483 distinct sizes |
-| Redirect rows | 14 | the redirects sheet |
+| Redirect rows | 77 | `/redirects.json`, `total` and row count agree |
 | Block library samples | 22 | `/tools/sidekick/library.json`, `total` |
 | Block directories | 29 | `blocks/` |
-| Test files | 72 | `find -name '*.test.js'` |
-| Commits | 129 | `git log origin/main`, 2026-07-24 to 2026-07-30 |
-| Issues closed | 161 | `gh issue list --state closed` |
-| Issues open | 79 | `gh issue list --state open`, ordered in [#359](https://github.com/cloudadoption/contitires/issues/359) |
+| Test files | 132 | `git ls-files`, names ending `.test.js` |
+| Commits | 231 | `git log origin/main`, 2026-07-24 to 2026-08-03 |
+| Issues closed | 335 | `gh issue list --state closed` |
+| Issues open | 29 | `gh issue list --state open` |
 | Shipped for the 2026-07-30 checkpoint | 32 | [#302](https://github.com/cloudadoption/contitires/issues/302), closed, the record of what shipped |
+
+Every row above was re-read on 2026-08-03. Eight of the twelve had moved since the table was
+written, and the redirect count and the test-file count had each been contradicted by prose
+elsewhere in this document.
 
 The query-index total is lower than the DA page count because the index excludes the block
 library and the authoring guide. A page has to be published to enter the index at all, so
@@ -1197,7 +1381,7 @@ a parity gap.
 
 Five places.
 
-**The footer, on all 327 pages.** Live's copyright line is gone. Two paragraphs stand in its
+**The footer, on all 328 pages.** Live's copyright line is gone. Two paragraphs stand in its
 place: one attributing Continental's content, images and trademarks to Continental, one
 stating that this is an Adobe engineering proof of concept, not operated by, affiliated with
 or endorsed by Continental.
@@ -1249,7 +1433,7 @@ ruled on 2026-07-30 to leave `/promotion`, `/promotionended` and `/offers` alone
 
 The single rule asks one thing. Does the site read as a real offer, assert Continental's
 copyright, or imply Continental operates it? Site-level disclosure is what answers it. The
-footer's proof-of-concept paragraph is on all 327 pages, and this bar is at the top of every
+footer's proof-of-concept paragraph is on all 328 pages, and this bar is at the top of every
 page. With those in place, live's offer copy inside a campaign page is reproduced surface. It
 is not an offer this site makes.
 
@@ -1323,25 +1507,46 @@ product title is the same cause patched a third time in a third place. A reader 
 scoped rules as symptoms of #373 rather than as a pattern to copy, because copying them puts the
 next heading at 36 behind a fourth scoped rule and leaves the global wrong.
 
-The article template runs the other way. `styles/article.css` pins the default-content h2
-and h3 to 20px at every width with no override in its 769 block, so the six h2 on
-`/learn/how-do-i-check-my-tire-pressure` read 20px where live's six read 30px above 769.
-Live pins 20px only under `max-width: 768`.
+The article template pins its own sizes and it now steps where live steps.
+`styles/article.css:273` sets the default-content h2 to 30px inside the 769 block and `:277` steps
+the h3 line box there, which is live dropping its own `max-width: 768` pin and letting the global
+30 come back.
 
-What it costs a visitor: headings in default content are still the wrong size in places. At
-1440 a reader gets 42px where live gives 30 on `/forwhatyoudo`'s intro sentence, and 20px
-where live gives 30 on the six subheads of the tire-pressure article. The product page no
-longer inverts live's hierarchy. It heads the page at 30px with the band below it at 42,
-which is live's order.
+What it costs a visitor: at 1440 a reader gets 42px where live gives 30 on `/forwhatyoudo`'s intro
+sentence. The product page no longer inverts live's hierarchy. It heads the page at 30px with the
+band below it at 42, which is live's order.
 
 [#368](https://github.com/cloudadoption/contitires/issues/368), the article subheads, closed as
 stale on 2026-07-31 without a line of code. Those rules set font-size and font-weight and no
 line-height, so the global 38 reached them. 63 of 63 readings across the 9 article-template pages
 that author a subhead read 38px on the published host, at all three widths.
 
-What is still open: the article-template SIZES above, a separate defect from the line box, and two
-residues the global fix left behind. Both are recorded rather than silent. The pins were set to the value each rule already
-rendered, not to live's. What was an accident of a ratio is now a decision in the stylesheet.
+What is still open: two residues the global fix left behind, recorded rather than silent. The pins
+were set to the value each rule already rendered, not to live's. What was an accident of a ratio is
+now a decision in the stylesheet.
+
+#### The article h2 reads live's value at every width measured
+
+**differs, and it is stale rather than open.** An earlier fix was reported to have dropped the
+article h2 from 26px to 20px on three pages outside its scope, against live's 30. The issue named
+none of the three, and the heading system was rebuilt underneath it afterwards.
+
+Measured on `/learn/how-do-i-check-my-tire-pressure`, all six authored subheads, ours against live
+on the published host:
+
+    width   ours            live
+    375     20px/38px/400   20px/38px/400
+    900     30px/38px/400   30px/38px/400
+    1440    30px/38px/400   30px/38px/400
+
+Six of six on both sides at all three widths. The 20px below 769 is live's own pin and the 30 above
+is live dropping it. The 42px line box the report quoted is not live's number either: live's box is
+38 at every width and so is ours.
+
+**What was stale was this document rather than the code**, and it was stale in the direction that
+reads as work outstanding: the prose in the opening section recorded the fix while the summary row
+still said the size was 20px where live is 30 above 769.
+[#442](https://github.com/cloudadoption/contitires/issues/442).
 
 [#381](https://github.com/cloudadoption/contitires/issues/381) covers five deltas the fix freezes.
 Three block titles keep a 50.4 line box where live gives 48. `.related-articles-title` reads 14.4
@@ -1456,29 +1661,38 @@ live's rule would make the first of those worse.
 
 ### Live opens headings and paragraphs with a leading break
 
-**differs.** Live authors a literal `<br>` as the first child of a heading or paragraph. It
-renders an empty line box above the text and buys vertical space. This site does not use the
-device, so our article rhythm is tighter than live's.
+**diverges.** Live authors a literal `<br>` as the first child of a heading or paragraph. It
+renders an empty line box above the text and buys vertical space. This site does not use the device
+in that position, so our article rhythm is tighter than live's on the pages where live uses it.
 
 On `/learn/how-do-i-check-my-tire-pressure` live uses it eleven times: two of its six body h2,
 "Conclusion" and "FAQs", plus nine paragraph openings. The seventh h2 on that page is chrome
 rather than a subhead. On a heading live's box is 76px against our 38, at the same 38px
 line-height on both sides. The line-height matches; the extra box is the empty first line.
 
-**This is not a live error, and that distinction is what guardrail 5's exemption turns on.** A
-spacing device used eleven times on a single page is deliberate, or at minimum arguable, and live
-wins where it is arguable. So it is recorded here rather than fixed against live's markup.
+**The census is done and it reversed the reading.** All 219 live learn articles were fetched, each
+200, and counted inside `<main>`: two leading-break headings, both on that one page, 35
+leading-break paragraphs on 18 pages, 475 `<br>` in total, and 134 of the 219 carrying none. The
+method reproduces the hand count on the tire-pressure article, two headings and nine paragraphs. So
+one page holds both of live's leading-break headings and nine of the 35 paragraphs, and on the other
+218 the heading form does not occur.
 
-What it costs a visitor: our article reads denser than live's. The text is unaffected and no
-heading is missing.
+Ours over the same 219 paths: zero in leading position, 358 `<br>` elsewhere. Both sides author
+breaks freely. Live puts 37 of its 475 at the front of a heading or a paragraph and this build puts
+none there.
 
-What would close it: author the same break in DA on the pages that want it. That is a content
-change rather than a code one, under guardrail 6. Deciding against it is also a legitimate
-answer, since the device is live's typography rather than its structure.
+**18 pages of 219 with the heading form on one is per-article authoring rather than live's type
+system.** Eleven uses on one page read like a device because that page is the outlier holding a third
+of the instances. That is what moves this row from work outstanding to a difference recorded: the
+earlier reading treated eleven on one page as a spacing system to reproduce, and the population does
+not support it.
 
-**Scope beyond that one page is UNMEASURED.** The count above is one article. Live's use of the
-device on the other 223 article-template pages has not been checked. Do not read eleven on one
-page as a site-wide figure.
+What it costs a visitor: on 18 of live's 219 learn articles, live's copy reads airier than ours. The
+text is unaffected and no heading is missing.
+
+One thing is untested. Breaks survive DA authoring, since 358 are in our published output, and
+whether the edit canvas keeps one in leading position was not tried.
+[#384](https://github.com/cloudadoption/contitires/issues/384).
 
 ### The hero content cap, which changes no wrap
 
@@ -1486,12 +1700,19 @@ page as a site-wide figure.
 staying, because it was measured over the whole population it reaches and it changes what a reader
 sees on no page.
 
-**The population is 15 pages, established over the authored markup of all 327 indexed paths.** 36
-hero blocks on 32 paths, 20 carrying the `left` class token, and 15 of those with a title. `.hero
-.stacked` is `max-width: none` and the `.hero.stacked.left` cap only applies from 1025, so `/` and
-`/experience` measure an 860 box at 900 and 576 at 1440. `hero breadcrumb title-left` is outside
-the population, because the selector needs the token `left` and `title-left` is a different token,
-which drops `/experience/conti-crew`.
+**The population is 15 pages, established over the authored markup of the indexed paths.** 20 of the
+hero blocks carry the `left` class token and 15 of those have a title. `.hero .stacked` is
+`max-width: none` and the `.hero.stacked.left` cap only applies from 1025, so `/` and `/experience`
+measure an 860 box at 900 and 576 at 1440. `/experience/conti-crew` is outside the population: it is
+authored `hero stacked slim breadcrumb title-left`, the selector needs the token `left`, and
+`title-left` is a different token.
+
+**The block total in this section read 36 on 32 paths and it is 37 on 33.** Two independent reads
+on 2026-08-02 agree, one enumerating `.plain.html` for all 328 indexed paths plus `/`, the other
+counting the variants: 12 `hero left short`, 9 bare `hero`, 4 `hero left`, 2 `hero promo`, 1
+`hero logo` and 9 carrying `stacked`. The root is served as `/index.plain.html` and a bare
+`/.plain.html` answers 404, which drops the homepage out of a sweep in silence. The 15 the cap
+reaches is unaffected.
 
 **THE 900 READINGS BELOW PREDATE #513 AND ARE NOT CURRENT (noted 2026-08-02 18:26).** They were
 taken while `hero.css`'s whole `@media (width >= 900px)` query applied at 900, and #513 moved
@@ -1519,11 +1740,48 @@ lines because it tracks at 6px and we do not track at all**, which is #407 rathe
 live's and no title in the population is long enough for that to force a different number of
 lines.
 
+### The hero content inset is live's on every variant
+
+**diverges in shape rather than in value.** The `.hero-content` horizontal padding is 20px, which is
+live's number on every marquee variant. Live reaches it from one declaration and we reach it from a
+base rule plus a 1025 override.
+
+The 20px was set on the base rule while only the 13 left-variant pages were read, so roughly 19 hero
+blocks in other variants took a 4px change nobody had measured. It came back confirmed. Live declares
+`@media screen and (max-width: 1024px) { .marquee__container { margin: 0 var(--space-20) } }`, and
+`--space-20` is `1.25rem` on live's `font-size: 100%` root, so 20px. No marquee variant overrides it.
+The bands line up too: live's query ends at 1024 and ours hands over at 1025, where `hero.css` takes
+the padding to `96px 32px`.
+
+**What live does per variant and this side does not is the block padding**, 28/28 by default, 8/30 on
+`--events` and 38/38 on `--blank`, with the inline margin left alone in each. Whether ours follows
+those three was not read, so it is a stated bound rather than a match.
+[#462](https://github.com/cloudadoption/contitires/issues/462).
+
 ### The marquee band on two pages, where a min-height cannot reach live's number
 
 **diverges on `/all-new-securecontact-aw`, and is an inherited oddity on `/ev-compatible`.** The
 other five of #217's seven pages are covered by a rule; these two are not, and each for its own
 reason.
+
+**The desktop band, read at 1440 on the published host against live on 2026-08-02:**
+
+    page                        ours   live
+    /experience/soccer          400    400
+    /learn                      345    345
+    /events                     345    345
+    /all-new-securecontact-aw   440    480
+    /ev-compatible              400    360
+
+**Three land on live's number and a prediction about the other two came true.** The band had been
+forecast to read 560 on four pages the moment their documents were authored into the strip variant,
+because `.hero.stacked` sets `min-height: 560px` from 1025 and outscored everything below it. The rule
+that shipped is grouped the way live groups its own: `.hero.stacked.breadcrumb { min-height: 400px }`
+and `.hero.stacked.short { min-height: 345px }`, both 0-3-0 inside the 1025 query against
+`.hero.stacked` at 0-2-0. The three documents carry the classes, so authoring the variant no longer
+ships the 560, and the four content edits that were held on this are unblocked.
+[#509](https://github.com/cloudadoption/contitires/issues/509),
+[#217](https://github.com/cloudadoption/contitires/issues/217).
 
 **`/all-new-securecontact-aw`: live's band is not a fixed height.** It reads 480, 341.66 and 467.33
 across the three widths, which is an aspect-driven box rather than a number. Our band is a
@@ -1539,11 +1797,62 @@ and this is live's own inconsistency rather than a gap in our rebuild.
 desktop marquee band by the breadcrumb: 400 on the three hubs with one, 345 on the pages without.
 That is verified against live's own `marquee--has-breadcrumbs` class across the seven pages, with a
 known-present control on both ends. **Two rules cover five of the seven.** A single-page selector
-for each of the remaining two would key a rule to one document, which is the mistake
-`.hero.stacked.slim` already is. It would leave the aspect box wrong anyway.
+for each of the remaining two would key a rule to one document, and it would leave the aspect box
+wrong anyway.
+
+**One aside in this section was itself wrong and is corrected rather than dropped.** It named
+`.hero.stacked.slim` as a rule keyed to one document. Read off `.plain.html` for all 328 indexed
+paths, that class is on five published pages, and the comment in `hero.css` saying otherwise was
+corrected with it.
 
 **What would close them:** a width-driven box on the securecontact page. For `/ev-compatible`, only
 live resolving its own 360-against-440.
+
+### The Learn tab row runs taller than live's
+
+**differs.** The type on the row is live's to the value. The box around it is not, and no open issue
+holds it.
+
+The two deltas that were measured on this header are closed. The banner heading computes
+`text-transform: uppercase` and `letter-spacing: 6px` at 42px over 48px, weight 300, from
+`blocks/banner/banner.css:82` and `:175`, which is live's painted span on all six of those values,
+and the bands agree at 1440x210 at y=109 on both sides. The tab labels compute 12px, weight 700,
+`letter-spacing: 1.25px`, uppercase, from `blocks/category-tabs/category-tabs.css:28` to `:31`,
+which is live's anchor exactly, and the row is a flex at `justify-content: safe center` so the
+labels centre.
+
+**What is left is the box.** Read at 1440 on the published `/learn/tips` against live: our row is
+55.19 tall against live's 41, our anchors take `padding: 16px 20px` where live's take `10px 0 0`,
+`category-tabs.css:15` draws a 1px rule live draws nowhere, and our active bar is 101.22x3 under
+that padding where live's `a.is-active::after` is 61.22x5 against the label itself.
+
+It is here because the issue that measured the type closed on the type, and the box was never
+filed. [#248](https://github.com/cloudadoption/contitires/issues/248).
+
+### The sports h1 box runs the content width
+
+**differs, and the ink is in the same place.** Our `/experience/sports` h1 box reads 1400x48 against
+live's 833.73x48. Live's box is a flex item sized to its content where ours is a block running the
+content width.
+
+The title's own client rects land at the same x and y on both sides at every width read: 318.06x30
+and 288.19x30 at 375, 617.67x30 at 900, and 833.73x42 at 1440. So a reader comparing the two pages
+sees the words in the same position, which is the same shape as the finder's question heading above
+and it is recorded here for the same reason.
+
+**A `max-width` is the wrong remedy**, because live's number is what its content happens to measure
+rather than a cap it declares. Read at 1440 on the published host on 2026-08-02, after the container
+came to live's 1136.
+
+The other two deltas that were filed with it are closed. `/experience/partners` is authored
+`hero stacked slim breadcrumb` and its band is 1440x400 at y=109 against live's `section.marquee` at
+1440x400 at y=109, and `/experience/sports` draws the band live draws behind its title, a
+`banner uppercase` block at 1440x210 at y=109 against live's 1440x210 at y=109.
+
+**One reading in that set is not current and is flagged rather than repeated as fact.** The partners
+title was read sitting left at x=32 where live centres it at x=720. That read was taken minutes
+before the hero trail moved out of flow, which changes what the copy box pays for, and it has not
+been re-read. [#335](https://github.com/cloudadoption/contitires/issues/335).
 
 ### The content container, now live's
 
@@ -1803,24 +2112,223 @@ set. [#492](https://github.com/cloudadoption/contitires/issues/492).
 code inherits.
 
 All 29 block directories ship a test directory. `fragment` and `library-metadata` were the last
-two without one and got theirs on 2026-08-02. `git ls-files` counts 108 tracked test files.
+two without one and got theirs on 2026-08-02. `git ls-files` counts 132 tracked test files, read
+2026-08-03.
 
-Two of the three things that made the suite prove less than it looks are fixed. #317 and #318
+All three of the things that made the suite prove less than it looks are answered. #317 and #318
 closed in PR #392 on 2026-07-31: an absence assertion whose actual value is a DOM element no
 longer hangs the runner for 120 seconds, and the 25 test files that requested 67 distinct 404ing
-URLs on every run no longer do, so a real 404 is no longer buried in yellow.
+URLs on every run no longer do, so a real 404 is no longer buried in yellow. The third, the fixture
+shape, came back as a false alarm and is below.
 
-**The third is open and it is the one that can hide a production defect.** Fixtures are built in
-the authored shape rather than the delivered shape, so a block can pass its suite and still drop
-content in production.
+**What is left is smaller and it is an import side effect rather than a fixture.**
+`blocks/footer/footer.js:76` and `blocks/columns/columns.js:125` each evaluate
+`window.matchMedia` at module scope, so a test file importing either for a pure helper reads the
+viewport on the way in. `blocks/header/header.js` had the same defect and now takes its query from a
+memoised accessor, reading nothing at import.
 
-What it costs a visitor: nothing. The cost is a green suite that proves less than it looks, and
-two documents that describe a site which changed underneath them.
+What it costs a visitor: nothing. The cost is a suite that proves less than it looks, and documents
+that describe a site which changed underneath them.
+[#125](https://github.com/cloudadoption/contitires/issues/125),
+[#317](https://github.com/cloudadoption/contitires/issues/317),
+[#318](https://github.com/cloudadoption/contitires/issues/318),
+[#126](https://github.com/cloudadoption/contitires/issues/126),
+[#316](https://github.com/cloudadoption/contitires/issues/316),
+[#345](https://github.com/cloudadoption/contitires/issues/345).
 
-What would close it: delivered-shape fixtures across the suite, which the two new block test
-directories use and the older ones do not, a runner fix or a lint rule for the hanging assertion,
-and real fixture files or stubbed requests. [#125](https://github.com/cloudadoption/contitires/issues/125),
-[#222](https://github.com/cloudadoption/contitires/issues/222), [#317](https://github.com/cloudadoption/contitires/issues/317), [#318](https://github.com/cloudadoption/contitires/issues/318), [#126](https://github.com/cloudadoption/contitires/issues/126), [#304](https://github.com/cloudadoption/contitires/issues/304), [#316](https://github.com/cloudadoption/contitires/issues/316), [#345](https://github.com/cloudadoption/contitires/issues/345), [#322](https://github.com/cloudadoption/contitires/issues/322).
+#### A `p`-wrapped fixture is the delivered shape at decorate time
+
+**differs, and the premise does not hold.** Fixtures were reported as built in the authored shape
+rather than the delivered shape, so that a block could pass its suite and still drop content in
+production. A block's `decorate` never receives the bare-text cell.
+
+`scripts/aem.js:561` calls `wrapTextNodes(block)` inside `decorateBlock`. `wrapTextNodes`, at
+`aem.js:388`, wraps a cell's inline text in a `<p>` unless the cell's first element child is `P`,
+`PRE`, `UL`, `OL`, `PICTURE`, `TABLE` or a heading, and `decorateBlocks` runs it over every
+`div.section > div > div` at `aem.js:574`, before any block reads a cell. Measured on the published
+host: `/tires.plain.html` delivers the perfect-fit item cell as `<div>Find your perfect fit</div>`
+with no `p`, and the settled DOM holds `<p>Find your perfect fit</p>` inside `.perfect-fit-item`.
+Nothing is dropped. The events block's own `lines()` fallback arrived in the commit that created the
+block rather than after a drop.
+
+**One narrow case is real and it is not this one.** `wrapTextNodes` reaches `:scope > div > div`
+only, so a block reading a deeper cell, or markup it fetched itself, gets no wrap. None of the six
+readers calling `querySelector('p')` sits there today.
+[#222](https://github.com/cloudadoption/contitires/issues/222).
+
+#### Two copies of the breadcrumb rules, and nowhere to put one
+
+**diverges.** The trail's declarations are written twice, and the shared half has no home in this
+project's structure.
+
+It was recorded as three copies. `blocks/banner/banner.css:96-135` and
+`blocks/hero/hero.css:919-971` hold the same five rule bodies, the `ol`, the `li`, the
+`li + li::before` separator, the type on the link, and the current step. `blocks/crew/crew.css:45-90`
+is a different trail and shares none of them verbatim: it carries the type on the `li` rather than
+the link, uses `inline-flex` for `flex`, draws the separator as a 1px white `border-right` against a
+2px `currentcolor` `border-inline-end`, drops the underline, and is absolutely positioned at every
+width rather than only from 1025.
+
+The two that do overlap differ in the container, and they differ further since the hero trail came
+out of flow: banner's is `display: flex; margin: 0 -8px 31px` with its own 769 and 1025 overrides,
+and hero's is `position: absolute; top: 0; left: 0` with `padding: 12px` going to 20px at 769.
+
+**The shared half has nowhere to live.** Block CSS loads per block, so the common rules go either
+into `styles.css`, which puts 13 pages' rules on all 328 in the LCP path, or into a sheet each
+block's JS loads, which un-scopes selectors `AGENTS.md` requires scoping and adds a request per
+block. `lazy-styles.css` is out, because the trail is above the fold in a marquee. There is no build
+step, so there is no fourth home.
+[#304](https://github.com/cloudadoption/contitires/issues/304).
+
+#### Pre-fix parity screenshots cannot be re-checked
+
+**differs.** The screenshot tool did not bust the cache and did not hard reload before 2026-07-29
+23:40, so any shot it produced until then could be a stale read. The enumeration that would clear
+them cannot be built.
+
+The evidence for it was a before-and-after pair on `/vancontact-as-ultra` where the 1440 and 900
+shots came back byte-identical across two genuinely different page shapes, md5
+`a11c606883726fa213b1248ff2d86a50` on both, and `e58e887a4cb88f6bee9e1feda6bbb743` on the re-take
+after the fix. The 375 shot in the same set did differ in bytes and was also the after page, so a
+byte difference is not proof of a fresh read.
+
+**The shots are in no commit.** `.mossy/` is untracked and the path does not exist in a checkout of
+`main`, so the pre-fix images are not in the repository. The durable copy is the `parity-evidence`
+branch, 86 files across `baseline`, `home` and `pr538`, none of them a pre-fix slice.
+
+**And the second half is permanent whatever the storage was.** A content-based re-check asks whether
+a shot shows something that could only exist after the change it is offered as proof of. That clears
+an after shot. It cannot clear a before shot, because the state a before shot photographed was
+superseded by the change itself, so re-shooting recovers the after half only.
+
+The tool was fixed on 2026-07-29 and `tools/parity/compose.py` and `tools/parity/publish-evidence.sh`
+are the tracked half of that pipeline.
+[#322](https://github.com/cloudadoption/contitires/issues/322).
+
+#### The block picker's load belongs to a hosted component
+
+**diverges.** The DA block picker fetches every sample document up front to draw its previews, so it
+takes about 3.5 seconds to become usable. The fetching is not in this repository.
+
+Measured across the four index sizes the library passed through: 11 rows read mobile performance 91
+at LCP 3213ms on 22 requests, 14 rows 91 at 3158ms on 25, 20 rows 87 at 3581ms on 31, and 22 rows 88
+at 3556ms on 33, with 22 sample fetches at the top. The PSI bot read 83 on the same head where the
+local run read 88, so the trend is the finding and any single number is spread.
+
+`tools/sidekick/library.html` is 30 lines. It loads
+`https://www.aem.live/tools/sidekick/library/index.js` and instantiates `<sidekick-library>` with a
+config naming `/tools/sidekick/library.json` and three viewport buttons. All of `tools/` is six
+files, and there is no vendored copy of the component and no build step to patch one. So the obvious
+fix, drawing the list from the index and fetching a sample when its row opens, is a change to
+Adobe's hosted module. The alternative is forking a platform tool into the site's code bus, which
+costs more than the 3.5 seconds it saves an author, and the index is complete at 22 and stops
+growing.
+
+The picker is author-facing, so the merge gate's 95 does not apply to it, and live has no
+counterpart to be behind. [#297](https://github.com/cloudadoption/contitires/issues/297).
+
+#### Mobile paint has two modes, and half the swing is unexplained
+
+**differs.** Mobile paint on this site has a fast mode near 1s of Speed Index and a slow mode near
+4.3s. One input to the slow mode was found and fixed. What makes the paint chain itself twice as slow
+in that reading is unread.
+
+**The site-wide claim did not hold, and it was this document's neighbour rather than this row.** The
+gap was first written up as mobile paint costing about 4.3s of Speed Index and 2.2s of First
+Contentful Paint site-wide. Read off the psi comment of every merged pull request, 258 mobile rows
+carry a parseable Speed Index across 138 of 157 pull requests: 214 of the 258 are under 1500ms, 33
+between 1500 and 3000, and 11 at or above 3000, min 878ms and max 4354ms. So the norm is about a
+second and roughly one reading in twenty-three lands near 4.3s.
+
+**It is not per-page either.** `/experience/partners` read SI 936, 905 and 1053 on three pull
+requests and then 4322 on a fourth, and it is one of the fastest paths on the site by median. Six
+paths have read both modes, including `/` at 878ms and 4354ms. `/` carries 46 of the 258 readings
+with five above 3000, so it is over-represented in the slow mode rather than alone in it.
+
+**Total blocking time is 0ms in every reading, slow ones included, and every desktop leg reads SI
+0.5 to 0.6s and scores 100 on the same commit and the same minute as a mobile row reading 4.3s.** So
+the cost is when the paint happens rather than work done, and it is not the bytes and not the code.
+
+Three candidate causes were falsified rather than left open. The host is out: preview and published
+interleaved land in the same 24ms band, 3704, 3688, 3700 and 3712 against the same range. Weight is
+out: 35 percent more requests and three more blocks cost 5.7 percent more paint. And the request
+chain does not lengthen on mobile, 37 requests either way, with each hop a round trip more expensive
+and six of them in front of the paint.
+
+**The cause that was found is a tab-history flag.** Below 900 a page had two paint profiles decided
+by whether the tab had seen another page first, with fonts landing FCP+1155ms on a fresh tab and
+FCP-2ms on a reused one. That is the row below and it shipped.
+
+**What is not established, stated because each bounds a conclusion above it.** FCP itself going 980
+to 2197 and LCP 1055 to 2341 on the same commit and URL is unexplained. Tying one PSI reading to one
+font mode is not possible from here, since the local instrument produces no Speed Index. TTFB reads
+13 to 15ms in every throttled run, which is not a throttled fetch, so the document came from cache
+while its subresources did not and the absolute numbers do not travel.
+
+**And the census cannot speak for the site: 253 of 328 published paths have never been measured at
+all.** The 86 that have are the pages slices happened to touch, which is the opposite of a sample.
+One row wants a look and has never had one: `/learn/extremecontact-sport-02-road-trip-challenge`
+read CLS 0.1456 on a pull request merged 2026-07-27 and has not been measured since.
+
+**One instrument finding is the part to carry forward.** The first 21 runs were pinned in one mode by
+their own repetition: 32ms of spread across 21 readings read as the event refusing to reproduce, and
+every run after the first shared a tab whose flag the previous run had set. A repeated measurement in
+one tab cannot see this defect, and a tight spread is not evidence of stability when the measurement
+can set the condition it is measuring.
+[#507](https://github.com/cloudadoption/contitires/issues/507).
+
+#### The eager font request steps on viewport width
+
+**diverges.** The eager phase asks for `fonts.css` at `window.innerWidth >= 769` and skips it below,
+which makes a narrow viewport a proxy for a slow connection. Live has no counterpart.
+
+Live's five `@font-face` rules sit in its render-blocking `styles.css` with `font-display: swap`, no
+preload and no width gate anywhere, so live asks for the typeface at every width. Ours asks at
+`scripts/scripts.js:518` and skips below, which is the boilerplate's device kept and stepped from its
+900 to this project's 769.
+
+The second term of that condition was a `sessionStorage` flag written by an earlier page view in the
+same tab, which made one URL at one width paint two ways with the tab's history picking which, at
+FCP+1155ms against FCP-2ms. That term is gone. The width term stayed, because the flag was a defect
+on its own reading and the width is arguable, and two changes under one gate cannot be told apart.
+
+**What the proxy cannot see is a phone on a fast connection or a desktop on a slow one**, which is
+the standing objection to inferring bandwidth from a viewport. The cost of dropping it is unmeasured,
+and the reading that would settle it is one page and one commit, fonts eager against fonts lazy, at a
+mobile width under throttling, with LCP and Speed Index on both sides. A row does not retire that
+measurement; it records that the site ships without it.
+[#523](https://github.com/cloudadoption/contitires/issues/523).
+
+#### The performance gate spends its own re-run budget
+
+**differs.** The merge gate has produced a row with no score on at least six pull requests, and each
+one costs a re-run the floor rule reserves for a page that is genuinely below the floor.
+
+What it looks like: `output.title` reads `Lighthouse Score: n/a`, the row's badge is
+`img.shields.io/badge/0-orange` with no `PERFORMANCE-` prefix, and the Audits column carries the
+reason. **A badge whose text is the single character `0` reads as a score of zero to any eye and to
+any pattern expecting one**, so counting `PERFORMANCE-` badges against rows is what separates a
+missing score from a scored zero. Counting them still cannot separate `Timeout Exceeded` from
+`Lighthouse returned error: Something went wrong.`, and the remedy differs: a timeout has cleared on
+a single re-run, and the returned error has not.
+
+The record so far. Two pull requests lost `/tires` mobile to a timeout and each came back 100 on one
+re-run. One produced both strings on one head for `/experience/partners`, plus a third run that was
+accepted and produced nothing, readable off two objects rather than off the numbers: the dashboard
+comment's `updated_at` moved to 15:58:00Z while the score comment's stayed at 15:54:40Z. One had
+`/events` desktop never score across two attempts. One opened with `/tires` mobile at 75 and desktop
+timed out, and a single re-run fixed both, mobile Speed Index 4409.95 to 980.04 and FCP 2358.81 to
+980.04. One never produced a complete run across three attempts, each attempt losing a different pair
+of rows.
+
+**The record does not survive its own instrument.** The bot updates its score comment in place rather
+than adding one, so the first table on a head is unrecoverable and a later reader auditing the pull
+request finds one mode where two occurred.
+
+What is not known is the cause, which has not been read from inside the runner. The branch previews
+answer 200 in under 60ms on both legs with a 404 control on the same host, so the pages are up and
+fast when fetched directly.
+[#525](https://github.com/cloudadoption/contitires/issues/525).
 
 ### The annotated tire diagram
 
@@ -1852,22 +2360,24 @@ sets a 460KB photograph behind the black band and this site leaves it black. [#2
 
 ### Carousel autoplay and reduced motion
 
-**differs.** The autoplay variant has no visible pause control and ignores `prefers-reduced-motion`.
+**differs, and it is closed.** The autoplay variant had no visible pause control and ignored
+`prefers-reduced-motion`.
 
-This is not a live comparison. It is a WCAG defect in our own block.
+This is not a live comparison. It was a WCAG defect in our own block. The opt-in autoplay carousel
+advanced with no visible pause or stop control, and pausing on hover and focus alone fails WCAG 2.2.2
+for touch users and for anyone who has asked the system for less motion.
 
-The opt-in autoplay carousel advances with no visible pause or stop control and does not check
-`prefers-reduced-motion`. Pausing on hover and focus alone fails WCAG 2.2.2 for touch users and
-for anyone who has asked the system for less motion.
-
-What would close it: a pause control and a `prefers-reduced-motion` check in
-`blocks/carousel/carousel.js`. [#116](https://github.com/cloudadoption/contitires/issues/116).
+It carries a 24x24 `aria-pressed` toggle in the nav now, and it checks the query: with
+`prefers-reduced-motion` stubbed to `reduce`, sixty seconds of ticks leave the carousel on slide 1 of
+3. The variant is opt-in and default off at `blocks/carousel/carousel.js:102`, so the proof is a
+stubbed query rather than a published page.
+[#116](https://github.com/cloudadoption/contitires/issues/116).
 
 ## What this document does not settle
 
-Five things are open, and each one names what would close it. They are here rather than
+Four things are open, and each one names what would close it. They are here rather than
 smoothed over, because a parity document that reads as complete when it is not is worse than
-no document.
+no document. A fifth was here until 2026-08-03 and is closed at the foot of the section.
 
 **Live's events column width.** [#99](https://github.com/cloudadoption/contitires/issues/99)'s close comment records live at 789px and [#340](https://github.com/cloudadoption/contitires/issues/340) and [#244](https://github.com/cloudadoption/contitires/issues/244)
 restate it. Live declares the same grid track we do and its listing sits in a plain container,
@@ -1877,12 +2387,17 @@ and the cause are unaffected either way, because the whole delta is the containe
 
 **Three claims that need a browser.** The CLS before and after in PR [#329](https://github.com/cloudadoption/contitires/issues/329), the 51px article
 collapse in [#197](https://github.com/cloudadoption/contitires/issues/197), and the 98 accessibility score in [#117](https://github.com/cloudadoption/contitires/issues/117) are all read from their own issues and
-were not re-measured. Every pass in this document was curl only, because the run's capture tool
-refuses to start alongside another automation browser. What would close them: a cold load at
-412x823 with a buffered layout-shift observer, and a fresh audit.
+were not re-measured. What would close them: a cold load at 412x823 with a buffered layout-shift
+observer, and a fresh audit.
+
+**The claim that every pass here was curl only is no longer true**, and the distinction matters for
+which numbers a reader can trust. It held while the capture tool refused to start alongside another
+automation browser. Rendered readings have gone in since, and the sections carrying them name the
+width and the date. The three claims above are still second-hand, which is a different thing from the
+whole document being second-hand.
 
 **Live's own performance numbers.** None are quoted here. The PageSpeed Insights API quota ran
-out at 13:02 today, and measuring live without a browser is not possible. The scores in this
+out at 13:02 on 2026-07-30, and measuring live without a browser is not possible. The scores in this
 document are ours, each with the date and the issue that recorded it. The web UI at
 pagespeed.web.dev runs a separate quota and works, so the links in the opening section are
 live and can be run on the day.
@@ -1891,15 +2406,17 @@ live and can be run on the day.
 page links only by-vehicle paths, so the by-size entry point could not be reconstructed. What
 would close it: find a live page that links a by-size result.
 
-**A band none of our readings sample, which is a fact about the measurements rather than about
-any one page.** Every width in this document is 375, 900 or 1440. Live's tire card steps from
-column to row at `max-width: 768` where ours steps to a grid at 600, so the two agree below 600
-and above 768 and differ only between them. No sampled width falls in that band, so that
-difference is invisible to every reading taken here, including the readings that closed issues.
-It was found by measuring the stylesheets rather than by looking. The card itself is
-[#423](https://github.com/cloudadoption/contitires/issues/423). The same band caught a second thing
-within the hour: live's small heading pair includes 768, so a step at 768 renders our large size at
-the one width live is still small. That is the `769` boundary in
-[#405](https://github.com/cloudadoption/contitires/issues/405). What would close it: a reading at a
-width between 600 and 768. **This is true after both are fixed, because it describes what three
-sampled widths can and cannot see.**
+**The band none of our readings sampled is sampled now, so this item closes.** Every width in this
+document was 375, 900 or 1440, and live's tire card steps from column to row at `max-width: 768`
+where ours stepped to a grid at 600, so the two agreed below 600 and above 768 and differed only
+between them. No sampled width fell in that band, which made the difference invisible to every
+reading taken here, including the readings that closed issues. It was found by measuring the
+stylesheets rather than by looking, and the same band caught live's small heading pair including 768,
+so a step at 768 rendered our large size at the one width live is still small.
+
+Both were filed and both are closed, [#423](https://github.com/cloudadoption/contitires/issues/423)
+and [#405](https://github.com/cloudadoption/contitires/issues/405), and the band is inside the
+sampling now: 599, 600, 700 and 768 all carry readings in this document. **The general point survives
+its own instance and is worth keeping**, which is that a fixed set of sampled widths cannot see a
+difference that exists only between two of them, and no number of readings at those widths changes
+that.
