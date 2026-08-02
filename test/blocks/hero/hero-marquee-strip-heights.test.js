@@ -121,8 +121,20 @@ describe('Hero, live\'s three further marquee strips (#217)', () => {
           await setViewport({ width, height: 900 });
           mount(classes);
           expect(heightOf('.hero-image')).to.equal(`${strip}px`);
+          /* IN FLOW is the claim, and `static` was the letter of it. The strip
+             took `position: relative` under #527, which is in flow exactly as
+             `static` is and gives the /events scrim over the strip something to
+             resolve against: `.hero` is otherwise the closest positioned
+             ancestor, so an `inset: 0` pseudo-element covers the copy too.
+             `absolute` is what would undivide the marquee, and that is what
+             this reads. */
           expect(getComputedStyle(document.querySelector('.hero-image')).position)
-            .to.equal('static');
+            .to.not.equal('absolute');
+          /* and the copy sits BELOW the photo rather than over it, which is
+             what being in flow buys and what a keyword alone cannot show */
+          const image = document.querySelector('.hero-image').getBoundingClientRect();
+          const copy = document.querySelector('.hero-content').getBoundingClientRect();
+          expect(Math.round(copy.top)).to.be.at.least(Math.round(image.bottom));
         });
       });
 

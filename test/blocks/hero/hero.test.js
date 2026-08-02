@@ -121,7 +121,11 @@ describe('Hero, the stacked variant', () => {
   });
 
   it("holds the photo strip to live's 200px", () => {
-    expect(value('.hero.stacked .hero-image', 'position')).to.equal('static');
+    /* `relative` since #527, where `static` stood before. Both are in flow, so
+       the marquee is divided either way; the strip needs to be a positioned
+       ancestor so /events' scrim covers the photo rather than the copy under it.
+       The rendered proof of that is in hero-marquee-strip-heights.test.js. */
+    expect(value('.hero.stacked .hero-image', 'position')).to.equal('relative');
     expect(value('.hero.stacked .hero-image', 'height')).to.equal('200px');
   });
 

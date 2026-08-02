@@ -428,10 +428,40 @@ main .section.hero-container {
   transform: translateY(-1px) rotate(-45deg);
 }
 
+/* THE SCRIM IS LIVE'S PER-MARQUEE VALUE AND NOT A PROPERTY OF THE LAYOUT, which
+   is the finding behind #471, #527 and #528 together. Live's own rules:
+
+     .marquee__background::after { background: rgba(0, 0, 0, var(--marquee-bg-opacity, 0.2)) }
+     .marquee--with-left-backdrop …::after { background: <the two layers below> }
+     .marquee--vertical-shade    …::after { background: <bottom-dark> }
+
+   So flat by default, tuned per marquee through one custom property, with each
+   further treatment on its own variant. Read at 1440 over the 33 pages carrying
+   a hero block on 2026-08-02, live takes six values across them: 0 on nineteen,
+   0.3 on three, 0.4 on two, 0.5 on three, the two layers on three, and a
+   bottom-dark gradient on `/all-new-securecontact-aw`.
+
+   `.hero.left` USED TO CARRY THE TWO LAYERS AND REACHED SEVEN BLOCKS, of which
+   live gives them to ONE. Fixing only the direction #471 filed would have left
+   six painting a gradient live paints nowhere. Live's three are its
+   `marquee--with-left-backdrop` pages, `/experience`, `/experience/conti-crew`
+   and `/experience/partners`, which we author `stacked slim breadcrumb`. Its
+   fourth breadcrumb marquee, `/experience/soccer`, carries the breadcrumb class
+   without the backdrop one and takes the flat value, which is #528.
+
+   THE THREE STACKED-SCOPED RULES ARE DECLARED IN THE 1025 QUERY at the foot of
+   this file rather than here. `stacked` sets `content: none` below the step, so
+   none of them paints anything there and the placement changes nothing they do;
+   what it buys is ascending specificity through the whole file, which stylelint
+   reads and which #526's 0-4-0 rule would otherwise sit the wrong side of. */
+
+/* the in-page band the homepage, /learn, /smart-choice and
+   /all-new-securecontact-aw author `hero left`. Live's counterpart is its
+   `banner-with-image`, and the one instance carrying a photo, /learn's, paints a
+   flat 30%; the other three are authored with no photo at all on live, so they
+   have no value of live's to read. #471 */
 .hero.left .hero-image::after {
-  background:
-    linear-gradient(to right, rgb(0 0 0 / 85%) 0%, rgb(0 0 0 / 45%) 45%, rgb(0 0 0 / 0%) 75%),
-    linear-gradient(to top, rgb(0 0 0 / 60%) 0%, rgb(0 0 0 / 0%) 40%);
+  background: rgb(0 0 0 / var(--hero-scrim-opacity, 30%));
 }
 
 /* section-header variant: the shorter band the listing pages use, with the
@@ -514,13 +544,32 @@ main .section.hero-container {
   background-color: #000;
 }
 
+/* `relative` rather than `static`, so a scrim over the divided strip resolves
+   against the strip. `.hero` is the block's positioned ancestor, so an `inset: 0`
+   pseudo-element on a static strip covers the copy below it as well as the
+   photo. Nothing moves: a relative box with no offsets sits where it sat. #527 */
 .hero.stacked .hero-image {
-  position: static;
+  position: relative;
   height: 200px;
 }
 
 .hero.stacked .hero-image::after {
   content: none;
+}
+
+/* /events is the one divided marquee live still draws over below the step.
+   `.marquee--mobile-bg-divided` hides the scrim there and
+   `.marquee--events.marquee--mobile-bg-divided` puts it back with a bottom-up
+   black, which is why the rule above is right for the other divided pages and
+   wrong for this one. `tall` is the class that tells our two `stacked short`
+   heroes apart, on /events alone, so it is a page hook rather than a reading
+   about strip heights, the same way #526's 0.4 rides it. A third such hero
+   needs its own line here. #527 */
+@media (width < 1025px) {
+  .hero.stacked.tall .hero-image::after {
+    content: '';
+    background: linear-gradient(0deg, rgb(0 0 0) 0%, rgb(0 0 0 / 0%) 100%);
+  }
 }
 
 /* live runs the divided copy the width of the page and centres it, where the
@@ -668,6 +717,19 @@ main .section.hero-container {
     content: '';
   }
 
+  /* the two marquees authored `left stacked`, the homepage and
+     /my-first-car-my-first-tires. Live gives both `--marquee-bg-opacity: 0` and
+     paints nothing over the photo, so the flat value the `left` band takes is
+     wrong for these two.
+
+     IT IS DECLARED BEFORE #526's RULE AND THAT IS WHAT KEEPS /learn RIGHT.
+     `hero left stacked short slimmer` matches both, they both score 0-4-0, and
+     source order is all that separates them: declared after, this would put
+     /learn's marquee back to no scrim and undo #526. #471 */
+  .hero.left.stacked .hero-image::after {
+    background: none;
+  }
+
   /* and it comes back with a background, which is the whole of #519. `.hero.left`
      at :431 and `.hero.short` at :447 both score 0-3-0 and `short` is declared
      second, so on a hero carrying both the background is `none`; the rule above
@@ -706,6 +768,28 @@ main .section.hero-container {
 
   .hero.stacked.short.tall {
     --hero-scrim-opacity: 40%;
+  }
+
+  /* /experience/soccer. Live's `marquee--has-breadcrumbs` is this `breadcrumb`,
+     and its four breadcrumb marquees all take a scrim; the backdrop rule below
+     outscores this one on the three that also carry `slim`. #528 */
+  .hero.stacked.breadcrumb .hero-image::after {
+    background: rgb(0 0 0 / var(--hero-scrim-opacity, 30%));
+  }
+
+  /* /experience, /experience/conti-crew and /experience/partners, which are
+     live's three `marquee--with-left-backdrop` marquees and the only place it
+     paints this gradient. Live's own stops, and THE SECOND LAYER RUNS TOP-DOWN
+     where ours ran bottom-up: on a 400 band that is live's top 49px against our
+     bottom 160px. #471
+
+     Live also draws over these three below 1025, with a third gradient of its
+     own, where `stacked` leaves us painting nothing. That is the same shape as
+     #527 on a different page and it is not fixed here. */
+  .hero.stacked.slim.breadcrumb .hero-image::after {
+    background:
+      linear-gradient(90deg, rgb(0 0 0 / 80%) 10.83%, rgb(0 0 0 / 0%) 59.1%),
+      linear-gradient(rgb(0 0 0 / 60%) 4%, rgb(0 0 0 / 0%) 12.33%);
   }
 
   .hero.stacked .hero-content {

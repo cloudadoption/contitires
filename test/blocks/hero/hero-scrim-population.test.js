@@ -98,9 +98,12 @@ async function scrim(classes, width) {
     image: cs.backgroundImage,
     display: cs.display,
     /* the strip below 1025 is `position: static`, so an `inset: 0` pseudo-element
-       would resolve against `.hero` and cover the copy as well as the photo */
-    covers: image.getBoundingClientRect(),
-    band: block.getBoundingClientRect(),
+       resolves against `.hero` and would cover the copy as well as the photo.
+       The PSEUDO-ELEMENT's own used height is the reading; the `.hero-image` box
+       is 224 either way and would pass without testing anything. */
+    scrimHeight: Math.round(parseFloat(cs.height)),
+    stripHeight: Math.round(image.getBoundingClientRect().height),
+    band: Math.round(block.getBoundingClientRect().height),
   };
 }
 
@@ -209,8 +212,8 @@ describe('Hero scrim, our rules against live\'s per-marquee treatment (#471, #52
       // `inset: 0` pseudo-element resolves against `.hero` and would darken the
       // copy as well as the photo
       const s = await scrim('stacked tall short', 900);
-      expect(s.covers.height).to.be.below(s.band.height);
-      expect(Math.round(s.covers.height)).to.equal(224);
+      expect(s.stripHeight, 'the strip live divides at 224').to.equal(224);
+      expect(s.scrimHeight, `the band is ${s.band}`).to.equal(s.stripHeight);
     });
   });
 
