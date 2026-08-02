@@ -136,6 +136,7 @@ the part that IS doable; the row says which half is which.
 |  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
 |  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. **THAT VERDICT IS #488 AND ONLY #488.** The two halves were one issue until 2026-08-01 and were split so they could stop sharing a verdict: #488 is the submission and closes here, #101 is the form UI — 26 inputs and 2 textareas, submit disabled — and stays OPEN and pickable. Nothing about the missing receiver blocks the rebuild. **A GEARED ROW DOES NOT MAKE EVERY ISSUE ON IT UNRESOLVABLE**, and this row cited #101 alone until the split, which would have closed real work under a verdict about the other half | [#488](https://github.com/cloudadoption/contitires/issues/488), [#101](https://github.com/cloudadoption/contitires/issues/101) |
 |  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **needs access to the API / data source.** Neither half is ours to build. A plate resolves through a registration lookup live buys and #243 established we do not have it. The vehicle half is different and the difference is recorded rather than hidden: **live's fitment IS publicly readable** — the cascade walks year to make to model to trim on an unauthenticated GET and returns the OE size, measured 2026-08-01, detail in the section below. **We do not take it.** Ruled 2026-08-01, and before that in #234: this site does not depend on, or harvest, a host it does not own. So the gap is real and closed as unresolvable, not parked as pending | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
+|  | [Finder results render in the panel](#vehicle-and-plate-lookup) | differs | ✅ decided: the panel is where the platform's own guidance puts a dynamic result, and **no gear because the limit is ours** | [#483](https://github.com/cloudadoption/contitires/issues/483) |
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
@@ -772,9 +773,21 @@ MISSING FITMENT SERVICE — that was this document's answer until 2026-08-01 and
 it is the wildcard limit below, plus our own table's coverage, which is #308 and is a decision.**
 Live publishes a page per make and per
 make-and-model under `/tire-search/by-vehicle/`. Three forms of fix were measured and each is ruled
-out rather than merely unattempted. A wildcard redirect is not available: the redirects sheet holds
-0 wildcards across 77 rows, and Edge Delivery routes wildcard matching to a CDN rule that needs a
-`cdn.yaml` and a custom domain this project does not have. Enumerating the 2229 as real rows would
+out rather than merely unattempted. **A wildcard redirect is not available, and the reason is the routing rule rather than a missing
+CDN.** Every 404 on this host names it in a response header: `failed to load
+/tire-search/by-vehicle/honda/civic/2022.md from content-bus: 404`. A request resolves to one
+document at that exact path. The redirects sheet holds 0 wildcards across 77 rows, **and it does
+not inherit downward either**: `/store-finder` and `/tire-search/by-vehicle` both answer 301 and
+every path below them answers 404, four under the first and one under the second, which is the
+property the sheet's own count cannot show. Edge Delivery does have a mechanism for a path family,
+[folder mapping](https://www.aem.live/developer/folder-mapping), which serves every path below a
+folder from one document. It is feature flagged by Adobe "to prevent accidental misuse", it is not
+configured on this site, and **its own Anti-Patterns section names this exact use**: "Mapping of
+excessively dynamic or infinite URLs like `/search/<query>`, dynamic search results are better
+served via query parameters or URL hash property". So the finder answering in the panel is what the
+platform's own guidance points at, and **the limit is ours rather than something live withholds**.
+Read from the page body: `docpages-index.json` truncates that page to 1401 characters of 2452 and
+drops the Anti-Patterns section, so an index entry is not the page. Enumerating the 2229 as real rows would
 not deliver live's surface today, because live's page is the finder filled from the fitment data
 set and our table covers 6 makes and 17 models, so 2213 of the 2229 would resolve to a page that
 answers nothing. **That last clause is contingent rather than permanent**: it is our table's
