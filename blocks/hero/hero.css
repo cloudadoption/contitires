@@ -595,6 +595,32 @@ main .section.hero-container {
     min-height: 400px;
   }
 
+  /* live's desktop band, and the trail is the only thing that predicts it. Read
+     across all seven of #217's pages on the published host at 1440 and 1025:
+     `marquee--has-breadcrumbs` is on exactly the three that read 400, and the
+     four without it read 345, 345, 360 and 480 from three different mechanisms.
+     So the trail carries 400 and one more class carries the 345 the two hubs
+     without a trail take.
+
+     BOTH CARRY `stacked` FOR SPECIFICITY RATHER THAN FOR STYLE. `.hero.short`
+     and `.hero.stacked` both score 0-2-0 and `.hero.stacked` is later in source,
+     so on a page authored `hero short stacked` the 560 above wins and `short`
+     does nothing. A media query adds no weight. 0-3-0 is what beats it, which is
+     the shape the `slim` rule above already has.
+
+     `/ev-compatible` at live's 360 and `/all-new-securecontact-aw` at 480 are
+     not here: the first runs a 440 container inside a 360 section, which is live
+     contradicting itself, and the second is an aspect-driven box reading 480,
+     341.66 and 467.33 across three widths, which no min-height reproduces. Both
+     go to the parity document. #509 */
+  .hero.stacked.breadcrumb {
+    min-height: 400px;
+  }
+
+  .hero.stacked.short {
+    min-height: 345px;
+  }
+
 
   .hero.stacked .hero-image {
     position: absolute;
