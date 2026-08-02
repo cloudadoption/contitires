@@ -203,9 +203,24 @@ body.article main .section:has(.share-wrapper) {
   row-gap: 32px;
 }
 
+/* live's sharebar is a 45px row at every width, `.sharebar { height: 45px }`
+   over its own border-box, so the 1px rules and the 8px padding come out of the
+   45. The article drops the lower rule and the lower padding, which left 33: 1px
+   of rule, 8px of padding and share.css's 24px floor. 36 puts the row back on
+   live's 45 and leaves that floor, which is the smallest touch target
+   Lighthouse accepts, where the other contexts want it. (#204) */
 body.article main .section:has(.share-wrapper) .share {
   border-bottom: 0;
   padding: 8px 0 0;
+  min-height: 36px;
+}
+
+/* live's related list is a `.panel`, and a panel opens 28px above its title,
+   which `.news-article__related` takes to 38 below 769 where the sidebar
+   follows the body. We had none, and with the 33px bar the title read 43px
+   higher than live's from the top of the sharebar. (#204) */
+body.article main .section:has(.share-wrapper) .related-articles {
+  padding-top: 38px;
 }
 
 body.article main .section:has(.share-wrapper) .related-articles-title {
@@ -310,6 +325,11 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
      moves beside the body (#200) */
   body.article main .section:first-of-type:not(:where(:has(.share-wrapper))) {
     padding-bottom: 60px;
+  }
+
+  /* the panel's own 28, where `.news-article__related` no longer overrides it */
+  body.article main .section:has(.share-wrapper) .related-articles {
+    padding-top: 28px;
   }
 }
 
