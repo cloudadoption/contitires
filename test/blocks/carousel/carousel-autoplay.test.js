@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-expressions */
-/* global describe it beforeEach afterEach */
+/* global describe it before after beforeEach afterEach */
 
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
+import { setViewport } from '@web/test-runner-commands';
 import decorate from '../../../blocks/carousel/carousel.js';
 
 /**
@@ -125,5 +126,63 @@ describe('Carousel autoplay, stopping it', () => {
     const block = build();
     block.querySelector('.carousel-next').click();
     expect(at(block), 'asking for the next slide is not motion they refused').to.equal('2 of 3');
+  });
+});
+
+/** A control a reader cannot see is not a control, so it gets measured too. */
+describe('Carousel autoplay, the control on the page', () => {
+  let block;
+
+  before(async () => {
+    const sheets = await Promise.all(
+      ['/styles/styles.css', '/blocks/carousel/carousel.css'].map(async (path) => {
+        const sheet = new CSSStyleSheet();
+        await sheet.replace(await (await fetch(path)).text());
+        return sheet;
+      }),
+    );
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
+    document.body.classList.add('appear');
+  });
+
+  after(() => { document.body.classList.remove('appear'); });
+
+  beforeEach(async () => {
+    document.body.innerHTML = `<div class="carousel autoplay block">
+      <div><div><picture><img src="/media_a.png" alt="a"></picture></div><div><h3>a</h3></div></div>
+      <div><div><picture><img src="/media_b.png" alt="b"></picture></div><div><h3>b</h3></div></div>
+    </div>`;
+    block = document.querySelector('.carousel.block');
+    decorate(block);
+    // the interval is a real one here, and this test is not about it
+    block.querySelector('.carousel-pause').click();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  it('gives it the chevrons\' own 24px box', () => {
+    const box = block.querySelector('.carousel-pause').getBoundingClientRect();
+    const arrow = block.querySelector('.carousel-next').getBoundingClientRect();
+    expect(box.width, 'as wide as an arrow').to.be.closeTo(arrow.width, 0.5);
+    expect(box.height, 'as tall as an arrow').to.be.closeTo(arrow.height, 0.5);
+    expect(box.width, '24px').to.be.closeTo(24, 0.5);
+  });
+
+  it('draws a mark inside it, and a different one once it is held', () => {
+    const pause = block.querySelector('.carousel-pause');
+    const held = getComputedStyle(pause, '::before');
+    expect(held.content, 'the mark exists').to.equal('""');
+    expect(held.borderLeftWidth, 'a triangle points right while it is held').to.equal('9px');
+
+    pause.click();
+    const running = getComputedStyle(pause, '::before');
+    expect(running.borderLeftWidth, 'two bars while it runs').to.equal('3px');
+    expect(running.borderRightWidth, 'the second bar').to.equal('3px');
+  });
+
+  it('sits on the same row as the counter', () => {
+    const nav = block.querySelector('.carousel-nav').getBoundingClientRect();
+    const box = block.querySelector('.carousel-pause').getBoundingClientRect();
+    expect(box.top, 'in the nav row, not below it').to.be.at.least(nav.top - 0.5);
+    expect(box.bottom, 'and not under it').to.be.at.most(nav.bottom + 0.5);
   });
 });
