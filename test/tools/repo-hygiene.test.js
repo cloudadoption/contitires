@@ -61,7 +61,9 @@ describe('repo hygiene, the scaffold leftovers', () => {
   it('names only files this repo ships in .hlxignore', async () => {
     const body = await read('/.hlxignore');
     expect(body, '.hlxignore is served').to.be.a('string');
-    // gitignore syntax: a line with no `*` and no trailing `/` names one file
+    // gitignore syntax: a line with no `*` and no trailing `/` names one file.
+    // A directory has to carry its slash to be read as one here, which is the
+    // form gitignore wants for a directory anyway.
     const named = body.split('\n').map((line) => line.trim())
       .filter((line) => line && !line.startsWith('#') && !line.includes('*') && !line.endsWith('/'));
     expect(named.length, '.hlxignore names at least one file').to.be.greaterThan(0);

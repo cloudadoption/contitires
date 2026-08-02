@@ -137,7 +137,9 @@ Pages are progressively loaded in three phases to maximize performance. This pro
 
 Your local development server at `http://localhost:3000` serves code from your local working copy (even uncommitted code) and content that has been previewed by authors. You can access this at any time when the development server is running.
 
-For all other environments you need the current branch name (`git branch --show-current`). The owner is `cloudadoption` and the repository is `contitires`, so the preview environment (same content as `localhost:3000`) and the production environment (same content as the live website, approved by authors) are
+For all other environments you need the current branch name (`git branch --show-current`). The owner is `cloudadoption` and the repository is `contitires`.
+
+The preview environment serves the same content as `localhost:3000`. The production environment serves the same content as the live website, approved by authors.
 
 - **Production Preview**: `https://main--contitires--cloudadoption.aem.page/`
 - **Production Live**: `https://main--contitires--cloudadoption.aem.live/`

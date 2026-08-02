@@ -1757,7 +1757,7 @@ Neither is set today.
 code inherits.
 
 All 29 block directories ship a test directory. `fragment` and `library-metadata` were the last
-two without one and got theirs on 2026-08-02, where `git ls-files` counts 108 tracked test files.
+two without one and got theirs on 2026-08-02. `git ls-files` counts 108 tracked test files.
 
 Two of the three things that made the suite prove less than it looks are fixed. #317 and #318
 closed in PR #392 on 2026-07-31: an absence assertion whose actual value is a DOM element no
