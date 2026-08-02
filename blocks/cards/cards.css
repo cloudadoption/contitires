@@ -137,8 +137,12 @@ main .section.cards-container {
   aspect-ratio: 16 / 9;
 }
 
-/* one row wraps both halves at 375, so the footer stacks there. From 769 live
-   puts the name and its link on one row, a single 54px strip under the image. */
+/* the name over its link, which is how live stacks them below 1025. Live's
+   `card__footer` reads flex-direction column and 78 tall at 1024, 1000 and 900,
+   and row at 54 from 1025 up: the 769 this stepped at was the wrong number and
+   the 54 belongs to the wide half alone. At 769 it left an 18px name sharing a
+   row with the Tire details link, which wrapped three of /learn's four names to
+   a 44px box against live's 22. (#399) */
 .cards.highlights .cards-card-body {
   margin: 0;
   padding: 16px 20px;
@@ -148,7 +152,7 @@ main .section.cards-container {
   gap: 8px;
 }
 
-@media (width >= 769px) {
+@media (width >= 1025px) {
   .cards.highlights .cards-card-body {
     flex-direction: row;
     justify-content: space-between;
@@ -186,8 +190,9 @@ main .section.cards-container {
 
 /* the rule above is for the Tire details link, and a name that is a link took
    it whole: the uppercase, the inline-flex box and the 14px, so the heading's
-   own size never reached the glyphs. The name reads the case the author wrote,
-   the heading's size, and the heading's line. (#399) */
+   own size never reached the glyphs. Live's name is a bare span in its
+   `card__footer`. Ours reads the case the author wrote, the heading's size and
+   the heading's line. (#399) */
 .cards.highlights .cards-card-body :is(h1, h2, h3, h4, h5, h6) a {
   display: inline;
   font-size: inherit;
@@ -209,7 +214,10 @@ main .section.cards-container {
   line-height: 22px;
 }
 
-.cards.highlights .cards-card-body a::after {
+/* the chevron belongs to the link in the copy, the Tire details one, which is
+   where live puts its own. On a name it drew a glyph live's span does not carry
+   and pushed the name's box to a second line below 1025. (#399) */
+.cards.highlights .cards-card-body :where(p) a::after {
   content: '';
   display: inline-block;
   width: 6px;
