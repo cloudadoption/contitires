@@ -1,5 +1,6 @@
-import { getMetadata } from '../../scripts/aem.js';
+import { getMetadata, loadCSS } from '../../scripts/aem.js';
 import { buildBreadcrumb, buildHubBreadcrumb } from '../banner/banner.js';
+import decorateVideo, { videoId } from '../video/video.js';
 
 // the width at which the hero stops stacking, so the desktop art starts here
 const DESKTOP_MEDIA = '(min-width: 1025px)';
@@ -31,6 +32,72 @@ function mergePictures(desktop, mobile) {
  */
 function authoredContent(root) {
   return [...root.children].flatMap((el) => (el.tagName === 'DIV' ? authoredContent(el) : [el]));
+}
+
+/**
+ * Live's marquee play control and the modal it opens, on the one page that
+ * carries a video: a badge centred over the photo, and a dialog whose whole
+ * content is the video block's player, so nothing is asked of YouTube until the
+ * click that asked to watch.
+ *
+ * The dialog is a native one shown modally, which is where the focus trap and
+ * Escape come from; media-gallery's is the same shape one block along, and the
+ * half the two genuinely share is the player, which is `blocks/video`. Emptying
+ * the stage is what stops the sound: `close` fires a task later, so the paths we
+ * own empty it first and Escape is caught on `cancel`.
+ * @param {Element} link the authored youtube link
+ * @returns {{control: Element, modal: Element}} the control and its dialog
+ */
+function buildPlayer(link) {
+  const title = link.textContent.trim();
+
+  const control = document.createElement('button');
+  control.type = 'button';
+  control.className = 'hero-play';
+  control.setAttribute('aria-label', title ? `Play ${title}` : 'Play video');
+
+  const modal = document.createElement('dialog');
+  modal.className = 'hero-modal';
+  modal.setAttribute('aria-label', title ? `Play ${title}` : 'Play video');
+
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'hero-close';
+  close.setAttribute('aria-label', 'Close');
+
+  const stage = document.createElement('div');
+  stage.className = 'hero-stage';
+  modal.append(close, stage);
+
+  const dismiss = () => {
+    stage.replaceChildren();
+    modal.close();
+  };
+  close.addEventListener('click', dismiss);
+  modal.addEventListener('cancel', () => stage.replaceChildren());
+  modal.addEventListener('close', () => stage.replaceChildren());
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) dismiss();
+  });
+
+  control.addEventListener('click', () => {
+    loadCSS(`${window.hlx?.codeBasePath ?? ''}/blocks/video/video.css`);
+    const player = document.createElement('div');
+    player.className = 'video block';
+    const cell = document.createElement('div');
+    const inner = document.createElement('div');
+    inner.append(link.cloneNode(true));
+    cell.append(inner);
+    player.append(cell);
+    stage.replaceChildren(player);
+    decorateVideo(player);
+    // the click on the marquee is the request to watch, so the facade behind it
+    // does not need a second one
+    player.querySelector('.video-play')?.click();
+    modal.showModal();
+  });
+
+  return { control, modal };
 }
 
 /**
@@ -69,8 +136,17 @@ export default function decorate(block) {
   const content = document.createElement('div');
   content.className = 'hero-content';
   const ctaWrappers = [];
+  // a youtube link is live's marquee play control rather than a CTA pill: on
+  // /my-first-car-my-first-tires live draws a badge over the photo that opens
+  // the film, and the same link in the copy would read as a fourth button. #468
+  let videoLink = null;
   authoredContent(block).forEach((el) => {
     if (isEmpty(el)) return;
+    const anchor = el.tagName === 'A' ? el : el.querySelector('a[href]');
+    if (!videoLink && anchor && videoId(anchor.href)) {
+      videoLink = anchor;
+      return;
+    }
     if (el.tagName === 'P' && el.classList.contains('button-wrapper')) ctaWrappers.push(el);
     else content.append(el);
   });
@@ -103,10 +179,19 @@ export default function decorate(block) {
     if (trail) trail.className = 'hero-breadcrumb';
   }
 
+  // the control goes in the photo wrap, so it covers the photo at whatever
+  // height the variant divides it to and needs no measurement of its own
+  let modal = null;
+  if (videoLink) {
+    const player = buildPlayer(videoLink);
+    imageWrap.append(player.control);
+    modal = player.modal;
+  }
+
   // the trail is a sibling of the copy, not the first line of it, which is
   // live's own placement: its `nav.breadcrumb` sits at the top left of the
   // marquee over the photo at every width, on all four pages that carry one.
   // Inside the centred copy it added its own line and the gap under it to the
   // band, 40px that live's band does not spend. #470
-  block.replaceChildren(...[trail, imageWrap, content].filter(Boolean));
+  block.replaceChildren(...[trail, imageWrap, content, modal].filter(Boolean));
 }

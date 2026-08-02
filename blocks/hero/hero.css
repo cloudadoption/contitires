@@ -42,6 +42,17 @@ main .section.hero-container {
   z-index: -1;
 }
 
+/* THE WRAP GIVES UP ITS NEGATIVE z-index when it carries a play control, and
+   that is what keeps the control clickable. `.hero-image` at -1 opens a stacking
+   context its children cannot leave, which would trap the badge under the copy
+   box; `auto` opens none, so the badge's own 2 counts in the hero's context and
+   beats the copy's 1 where the two overlap above the step. Declared here rather
+   than beside the control at the foot of this file, where it would sit after the
+   0-4-0 strip rules that stylelint reads as descending specificity. #468 */
+.hero:has(.hero-play) .hero-image {
+  z-index: auto;
+}
+
 .hero .hero-image::after {
   content: '';
   position: absolute;
@@ -956,6 +967,139 @@ main .section.hero-container {
   font-weight: 700;
   letter-spacing: 0.6px;
   text-decoration: underline;
+}
+
+/* ---- the play control live draws over the marquee on the one page that
+   carries a video. Live's `div.marquee__video-overlay` covers the photo, 375x160
+   at 375 and 1440x400 at 1440, with its button centred at (188,80) and (720,200)
+   from the marquee's top left. Read on 2026-08-02.
+
+   Live draws the badge from a stylesheet inside its own custom element, so a
+   probe reads the button as 0x0 and there is no value of live's to copy. The
+   badge here is the one `blocks/video/video.css` already draws on every player
+   on the site, at the size that file uses. #468 ---- */
+
+.hero .hero-play {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.hero .hero-play::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4.5rem;
+  height: 3.25rem;
+  border-radius: 0.75rem;
+  background-color: rgb(0 0 0 / 65%);
+  translate: -50% -50%;
+  transition: background-color 0.2s;
+}
+
+.hero .hero-play::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-top: 0.6rem solid transparent;
+  border-bottom: 0.6rem solid transparent;
+  border-left: 1rem solid var(--conti-white);
+  translate: -35% -50%;
+}
+
+.hero .hero-play:hover::after,
+.hero .hero-play:focus-visible::after {
+  background-color: var(--conti-yellow);
+}
+
+.hero .hero-play:focus-visible {
+  outline: 2px solid var(--conti-yellow);
+  outline-offset: -4px;
+}
+
+.hero .hero-modal {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: 40px;
+  border: 0;
+  background-color: transparent;
+}
+
+/* a dialog is drawn only while it is open, so the layout waits on the attribute
+   rather than overriding the display that keeps it shut */
+.hero .hero-modal[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero .hero-modal::backdrop {
+  background-color: rgb(0 0 0 / 90%);
+}
+
+.hero .hero-stage {
+  display: flex;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero .hero-close {
+  align-self: flex-end;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  color: var(--conti-white);
+  cursor: pointer;
+}
+
+.hero .hero-close::before,
+.hero .hero-close::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background-color: currentcolor;
+}
+
+.hero .hero-close::before {
+  rotate: 45deg;
+}
+
+.hero .hero-close::after {
+  rotate: -45deg;
+}
+
+@media (width >= 769px) {
+  .hero .hero-play::after {
+    width: 5.5rem;
+    height: 3.9rem;
+  }
+
+  .hero .hero-play::before {
+    border-top-width: 0.75rem;
+    border-bottom-width: 0.75rem;
+    border-left-width: 1.25rem;
+  }
 }
 
 /* `title-left`: the marquee title pinned left, and nothing else.
