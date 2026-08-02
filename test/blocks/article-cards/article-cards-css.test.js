@@ -272,3 +272,70 @@ describe('Article cards, the tile a row with no image gets (#346)', () => {
     expect(Math.round(box.height), 'height at 769').to.equal(128);
   });
 });
+
+/**
+ * Live's count and its LOAD MORE share one centred flex column:
+ *
+ *     .load-more-pager { display: flex; flex-direction: column;
+ *       align-items: center; justify-content: center }
+ *     .load-more-pager > * + * { margin-top: var(--space-20) }
+ *     .pager-summary { font-size: var(--font-size-15);
+ *       line-height: var(--line-height-22) }
+ *
+ * so the count is centred with 20px between it and the button. Read off live's
+ * own stylesheet on 2026-08-02. The gap above the count is this block's
+ * existing 40px, which the button carried before the count went in front of it.
+ * Issue #348.
+ */
+describe('Article cards, where the result count sits (#348)', () => {
+  let fetchStub;
+  let sheet;
+  let global;
+
+  before(async () => {
+    sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/blocks/article-cards/article-cards.css')).text());
+    global = new CSSStyleSheet();
+    await global.replace(await (await fetch('/styles/styles.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, global, sheet];
+    document.body.classList.add('appear');
+  });
+
+  after(async () => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets
+      .filter((s) => s !== sheet && s !== global);
+    document.body.classList.remove('appear');
+    document.body.replaceChildren();
+    await setViewport({ width: 1440, height: 900 });
+  });
+
+  afterEach(() => fetchStub?.restore());
+
+  it('centres the count 20px above the button, at live\'s 15 on 22', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(15))));
+    await setViewport({ width: 1440, height: 900 });
+    document.body.innerHTML = `
+      <main>
+        <div class="section article-cards-container">
+          <div class="article-cards-wrapper">
+            <div class="article-cards block"></div>
+          </div>
+        </div>
+      </main>`;
+    const block = document.querySelector('.article-cards');
+    await decorate(block);
+
+    const summary = block.querySelector('.article-cards-summary');
+    const more = block.querySelector('.article-cards-more');
+    const style = getComputedStyle(summary);
+    expect(style.textAlign).to.equal('center');
+    expect(style.fontSize).to.equal('15px');
+    expect(style.lineHeight).to.equal('22px');
+    const gap = more.getBoundingClientRect().top - summary.getBoundingClientRect().bottom;
+    expect(Math.round(gap), 'count to button').to.equal(20);
+    // the 40px the button carried alone still opens the pair
+    const list = block.querySelector('.article-cards-list');
+    const above = summary.getBoundingClientRect().top - list.getBoundingClientRect().bottom;
+    expect(Math.round(above), 'list to count').to.equal(40);
+  });
+});

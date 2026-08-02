@@ -58,6 +58,46 @@ describe('Article cards block', () => {
     expect(!!block.querySelector('.article-cards-more')).to.be.false;
   });
 
+  /*
+   * Live prints "1-10 of 148 results" above LOAD MORE, in
+   * `<div class="load-more-pager"><div class="pager-summary"><b>1-10</b> of 148
+   * results</div><ul class="pager">`, read off /learn/news-and-events. The count
+   * and the control are one element on live, and live's own
+   * `con-ajax-controller` sets `pager=".load-more-pager"` with
+   * `updatePager(e) { ...innerHTML = e ? e.innerHTML : "" }`, so on the last page
+   * the fetched document has no pager and both the count and the button go.
+   *
+   * The range is cumulative here where live's is the fetched page's: live reads
+   * "11-20 of 148" over twenty appended teasers, because `appendmode` appends
+   * rows while the pager region is replaced wholesale. First render, which is
+   * what a visitor lands on, is "1-10" on both. Issue #348.
+   */
+  it('prints the count above load more and moves it as more is shown', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(15))));
+    const block = buildBlock();
+    await decorate(block);
+
+    const summary = block.querySelector('.article-cards-summary');
+    expect(summary).to.exist;
+    expect(summary.textContent).to.equal('1-12 of 15 results');
+    expect(summary.querySelector('b').textContent).to.equal('1-12');
+    // live keeps the count above the control, and adjacent to it
+    expect(summary.nextElementSibling).to.equal(block.querySelector('.article-cards-more'));
+
+    block.querySelector('.article-cards-more').click();
+    expect(!!block.querySelector('.article-cards-more')).to.be.false;
+    expect(!!block.querySelector('.article-cards-summary')).to.be.false;
+  });
+
+  it('prints no count when one batch holds everything', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(10))));
+    const block = buildBlock();
+    await decorate(block);
+
+    expect(!!block.querySelector('.article-cards-more')).to.be.false;
+    expect(!!block.querySelector('.article-cards-summary')).to.be.false;
+  });
+
   it('draws a stub for a row that has no image', async () => {
     const res = indexResponse(3);
     res.data[1].image = '';
@@ -110,6 +150,7 @@ describe('Article cards block', () => {
 
     expect(block.querySelectorAll('.article-card')).to.have.length(3);
     expect(!!block.querySelector('.article-cards-more')).to.be.false;
+    expect(!!block.querySelector('.article-cards-summary')).to.be.false;
   });
 });
 
