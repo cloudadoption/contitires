@@ -160,9 +160,15 @@ describe('Hero, the scrim `short` cancels above 1025 (#519)', () => {
       expect(s.color).to.equal('rgba(0, 0, 0, 0.4)');
     });
 
-    it('generates no pseudo-element at 1024, where live hides its own', async () => {
+    it('draws live\'s own strip scrim at 1024 rather than nothing', async () => {
+      /* THIS ASSERTION READ `content: none` UNTIL #527. `/learn` is the page
+         live hides its scrim on below the step; `/events` is the one it draws
+         over, from its own `.marquee--events.marquee--mobile-bg-divided` rule,
+         and #519 recorded that difference without fixing it. The value is
+         asserted in hero-scrim-population.test.js. */
       const s = await scrim('stacked tall short', 1024);
-      expect(s.content).to.equal('none');
+      expect(s.content).to.not.equal('none');
+      expect(s.image).to.contain('linear-gradient(0deg');
     });
   });
 
@@ -197,19 +203,21 @@ describe('Hero, the scrim `short` cancels above 1025 (#519)', () => {
   });
 
   describe('the two heroes this fix must not reach', () => {
-    it('leaves `hero left` on the #471 gradient it already has', async () => {
-      // restoring what `short` cancelled would put THIS gradient back on
-      // /learn, which is the rule #471 is open against
+    it('leaves `hero left` to its own rule rather than reaching it', async () => {
+      /* THIS ASSERTION READ THE TWO-LAYER GRADIENT UNTIL #471, which took it off
+         `.hero.left` because live paints it on three pages and that rule reached
+         seven. What matters here is unchanged: `short`'s fix does not decide
+         what a `hero left` band paints. */
       const s = await scrim('left', 1440);
-      expect(s.image).to.contain('to right');
-      expect(s.color).to.equal('rgba(0, 0, 0, 0)');
+      expect(s.color).to.equal('rgba(0, 0, 0, 0.3)');
     });
 
-    it('leaves `hero breadcrumb stacked slimmer` alone, which carries no `short`', async () => {
-      // /experience/soccer: same `stacked`, no `short`, so the flat value is
-      // not this rule's to give it
+    it('leaves `hero breadcrumb stacked slimmer` to its own rule', async () => {
+      /* /experience/soccer: same `stacked`, no `short`. It read the base
+         gradient until #528 gave it live's flat 30%, and the point this guards
+         is the same either way: `short`'s rule is not what decides it. */
       const s = await scrim('breadcrumb stacked slimmer', 1440);
-      expect(s.image).to.contain('linear-gradient');
+      expect(s.color).to.equal('rgba(0, 0, 0, 0.3)');
     });
   });
 });
