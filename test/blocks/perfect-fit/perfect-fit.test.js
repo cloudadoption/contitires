@@ -932,7 +932,10 @@ describe('perfect-fit card, the product hero variant', () => {
 // Live's finder bar puts the icon left of the label in one row from 769 up,
 // alongside its heading, and stacks icon over label below that with all three
 // items still on one row. Measured on continentaltire.com at 768 and 769. We
-// open the bar at the project's 900 band, so the row starts there. #113.
+// #113 opened the bar at the project's 900 band. #505 moves it to live's own
+// 769, where live carries the same step in `max-width: 768px` on both
+// `.store-finder-nav-banner__item` and `__items`. The declarations these read
+// are unchanged; only the query they sit in moved.
 describe('Perfect fit bar, live\'s two rows', () => {
   let sheet;
 
@@ -959,9 +962,9 @@ describe('Perfect fit bar, live\'s two rows', () => {
     expect(value('.perfect-fit-items', 'flex-wrap')).to.equal('nowrap');
   });
 
-  it('sets the icon beside its label from 900 up', () => {
-    expect(value('.perfect-fit-item', 'flex-direction', '900px')).to.equal('row');
-    expect(value('.perfect-fit-item', 'align-items', '900px')).to.equal('center');
+  it('sets the icon beside its label from 769 up', () => {
+    expect(value('.perfect-fit-item', 'flex-direction', '769px')).to.equal('row');
+    expect(value('.perfect-fit-item', 'align-items', '769px')).to.equal('center');
   });
 });
 
@@ -971,8 +974,10 @@ describe('Perfect fit bar, live\'s two rows', () => {
  * 56. Read off continentaltire.com at 768 and 769.
  *
  * Ours opened the bar at 700 and its items at 769, so from 700 to 768 it ran a
- * row of stacked items, which live never draws. Both open at 900 now, the
- * project's band, and live's bar from 769 to 899 is what we give up. #113.
+ * row of stacked items, which live never draws. #113 put both at 900, the
+ * project's band, and recorded live's 769 to 899 as given up. **#505 takes it
+ * back**: both open at live's 769 now, and the band this suite used to name as
+ * conceded is the band it now asserts.
  */
 describe('Perfect fit, where the bar opens out', () => {
   let sheet;
@@ -994,14 +999,21 @@ describe('Perfect fit, where the bar opens out', () => {
 
   const dir = (sel) => getComputedStyle(document.querySelector(sel)).flexDirection;
 
-  it('stacks the bar and its items at 899', async () => {
-    await setViewport({ width: 899, height: 900 });
+  it('stacks the bar and its items at 768', async () => {
+    await setViewport({ width: 768, height: 900 });
     expect(dir('.perfect-fit'), 'the bar').to.equal('column');
     expect(dir('.perfect-fit-item'), 'an item').to.equal('column');
   });
 
-  it('sets the heading and the icons on their rows from 900', async () => {
-    await setViewport({ width: 900, height: 900 });
+  it('sets the heading and the icons on their rows from 769', async () => {
+    await setViewport({ width: 769, height: 900 });
+    expect(dir('.perfect-fit'), 'the bar').to.equal('row');
+    expect(dir('.perfect-fit-item'), 'an item').to.equal('row');
+  });
+
+  // the band #113 conceded, asserted rather than given up
+  it('runs both as rows at 899 too', async () => {
+    await setViewport({ width: 899, height: 900 });
     expect(dir('.perfect-fit'), 'the bar').to.equal('row');
     expect(dir('.perfect-fit-item'), 'an item').to.equal('row');
   });
