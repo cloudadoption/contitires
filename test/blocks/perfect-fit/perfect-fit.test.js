@@ -472,7 +472,10 @@ describe('perfect-fit, the cascade gates each field behind the one before it', (
     el.dispatchEvent(new Event('change', { bubbles: true }));
     el.dispatchEvent(new Event('input', { bubbles: true }));
   };
-  const cascadeOf = (id) => [...panelOf(id).querySelectorAll('.perfect-fit-fields select')];
+  // the front row only: the size tab carries a second, closed row for live's
+  // rear size, and that row heads its own cascade. #313 asserts its gating.
+  const cascadeOf = (id) => [...panelOf(id)
+    .querySelectorAll('.perfect-fit-fields:not(.perfect-fit-fields-rear) select')];
   async function open(index = 0) {
     const block = buildBar();
     await decorate(block);
@@ -549,7 +552,10 @@ describe('perfect-fit, the cascade gates each field behind the one before it', (
  */
 describe('perfect-fit, the size fields carry live\'s names', () => {
   let fetchStub;
-  const namesOf = (what) => [...panelOf('tire-size').querySelectorAll('.perfect-fit-field')]
+  // the front row only, the same narrowing the cascade helper above takes: the
+  // rear row repeats these three names and #313 asserts them there
+  const namesOf = (what) => [...panelOf('tire-size')
+    .querySelectorAll('.perfect-fit-fields:not(.perfect-fit-fields-rear) .perfect-fit-field')]
     .map((f) => (what === 'label'
       ? f.querySelector('label').textContent
       : f.querySelector('select').options[0].textContent));

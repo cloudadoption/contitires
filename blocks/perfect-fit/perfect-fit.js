@@ -169,6 +169,8 @@ function termsNote() {
  *   `options` takes the values answered so far and returns what this field may
  *   offer. The first step needs none: it is filled by its caller and never
  *   refilled.
+ * @returns {Function} answers the whole cascade at once, in order, so each
+ *   field is filled from the options the field before it opened
  */
 function wireCascade(steps) {
   const refresh = (from) => {
@@ -181,6 +183,10 @@ function wireCascade(steps) {
   };
   steps.forEach((step, i) => step.field.addEventListener('change', () => refresh(i)));
   refresh(0);
+  return (values) => steps.forEach((step, i) => {
+    step.field.value = values[i];
+    refresh(i);
+  });
 }
 
 /**
@@ -193,7 +199,11 @@ function wireFormState(form) {
   const update = () => {
     fields.forEach((field) => field.closest('.perfect-fit-field')
       .classList.toggle('perfect-fit-field-filled', !!field.value));
-    button.disabled = fields.some((field) => !field.value);
+    // a row the reader has closed asks nothing of them, which is how live reads
+    // its own rear size: the submit waits for the front size and for the rear
+    // one only while that row is open
+    button.disabled = fields.filter((field) => !field.closest('[hidden]'))
+      .some((field) => !field.value);
   };
   form.addEventListener('change', update);
   form.addEventListener('input', update);
@@ -204,7 +214,7 @@ function wireFormState(form) {
  * Assembles one tab's form: live's question, the fields, the terms sentence,
  * and the call to action.
  */
-function buildForm(tabId, headingText, fields, onSubmit, help) {
+function buildForm(tabId, headingText, fields, onSubmit, help, under = []) {
   const form = document.createElement('form');
   form.className = `perfect-fit-form perfect-fit-form-${tabId}`;
   const heading = document.createElement('h2');
@@ -216,7 +226,7 @@ function buildForm(tabId, headingText, fields, onSubmit, help) {
   grid.append(...fields);
   // live sets the size help between the question and the fields, and offers
   // nothing of the kind on the other two tabs
-  form.append(heading, ...(help ? [help] : []), grid, termsNote(), searchButton());
+  form.append(heading, ...(help ? [help] : []), grid, ...under, termsNote(), searchButton());
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     onSubmit();
@@ -327,14 +337,20 @@ function sizeHelp() {
   return help;
 }
 
-function buildTireSizeForm(products, onResults) {
-  const opts = sizeOptions(products);
-  const width = createField('select', 'width', 'Width');
+/**
+ * One size cascade: three gated fields under live's Width, Ratio and Diameter,
+ * built once for the front size and once for the rear (#313, #482).
+ * @param {Object} opts the option lists `sizeOptions` read off the catalogue
+ * @param {string} [prefix] names the rear row's fields `rear-width` and so on,
+ *   which is live's own `rear-sw` convention in this block's names
+ */
+function buildSizeCascade(opts, prefix = '') {
+  const name = (field) => (prefix ? `${prefix}-${field}` : field);
+  const width = createField('select', name('width'), 'Width');
   fillSelect(width.field, opts.widths, 'Width');
-  // live names these three Width, Ratio and Diameter (#482)
-  const aspect = createField('select', 'aspect', 'Ratio');
-  const rim = createField('select', 'rim', 'Diameter');
-  wireCascade([
+  const aspect = createField('select', name('aspect'), 'Ratio');
+  const rim = createField('select', name('rim'), 'Diameter');
+  const set = wireCascade([
     { field: width.field, placeholder: 'Width' },
     {
       field: aspect.field,
@@ -347,17 +363,88 @@ function buildTireSizeForm(products, onResults) {
       options: ([chosenWidth, chosenAspect]) => opts.rimsByWidthAspect[`${chosenWidth}/${chosenAspect}`] || [],
     },
   ]);
+  const fields = [width.field, aspect.field, rim.field];
+  return {
+    wrappers: [width.wrapper, aspect.wrapper, rim.wrapper],
+    size: () => ({ width: width.field.value, aspect: aspect.field.value, rim: rim.field.value }),
+    values: () => fields.map((field) => field.value),
+    complete: () => fields.every((field) => field.value),
+    set,
+  };
+}
+
+/**
+ * Live's rear-size control: a link under the size row that opens a second row
+ * of three fields, and closes it again. Disabled until the front size is
+ * complete, which is live's `?disabled="${!this.hasFrontValues}"`.
+ *
+ * The row opens carrying the FRONT size. Live opens it on a suggested staggered
+ * size from `/api/tire-search/guess-rear-size`, a service this site does not
+ * have; its own `preFillRearSize()` falls back to the front values when that
+ * endpoint returns no options, and that fallback is the branch drawn here.
+ * @param {Element} row the rear row, hidden until this opens it
+ * @param {Object} rear the rear cascade, answered from the front size on open
+ * @param {Function} front reads the front size
+ */
+function rearToggle(row, rear, front) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'perfect-fit-rear-toggle';
+  button.disabled = true;
+  button.setAttribute('aria-expanded', 'false');
+  button.setAttribute('aria-controls', row.id);
+  const icon = document.createElement('span');
+  const label = document.createElement('span');
+  // sentence case in the DOM, uppercased in CSS, as live does it
+  const draw = (open) => {
+    icon.className = `icon icon-${open ? 'minus' : 'plus'}-outline`;
+    label.textContent = open ? 'Remove the rear tire size' : 'Add a different rear tire size';
+  };
+  draw(false);
+  button.append(icon, label);
+
+  button.addEventListener('click', () => {
+    const open = button.getAttribute('aria-expanded') !== 'true';
+    // live re-opens on what the reader last answered rather than on the front
+    // size again: `hasRear || hasRearValues || preFillRearSize()`
+    if (open && !rear.values().some(Boolean)) rear.set(front());
+    row.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+    draw(open);
+    button.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  return button;
+}
+
+function buildTireSizeForm(products, onResults) {
+  const opts = sizeOptions(products);
+  // live names these three Width, Ratio and Diameter (#482)
+  const front = buildSizeCascade(opts);
+  const rear = buildSizeCascade(opts, 'rear');
+
+  const rearRow = document.createElement('div');
+  rearRow.id = 'perfect-fit-rear-size';
+  rearRow.className = 'perfect-fit-fields perfect-fit-fields-rear';
+  rearRow.hidden = true;
+  rearRow.append(...rear.wrappers);
+  const toggle = rearToggle(rearRow, rear, () => front.values());
 
   const form = buildForm(
     'tire-size',
     "What's your tire size?",
-    [width.wrapper, aspect.wrapper, rim.wrapper],
-    () => onResults(findBySize(products, {
-      width: width.field.value, aspect: aspect.field.value, rim: rim.field.value,
-    })),
+    front.wrappers,
+    // a staggered fitment needs the one tire that comes in both sizes, so the
+    // rear size narrows what the front size found
+    () => onResults(rearRow.hidden
+      ? findBySize(products, front.size())
+      : findBySize(findBySize(products, front.size()), rear.size())),
     sizeHelp(),
+    [toggle, rearRow],
   );
   wireFormState(form);
+  form.addEventListener('change', () => {
+    toggle.disabled = !front.complete();
+  });
   return form;
 }
 
