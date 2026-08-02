@@ -366,8 +366,9 @@ main .media-gallery.product .media-gallery-tile img {
  * card takes the column and the rows close to 20px. The footer is padded 16 by
  * 20, the name is 14/20, and the corner is 12px.
  *
- * Our section holds 1200 where live's container holds 1136, so the cards run
- * wider here. That is site-wide rather than this page's.
+ * Our section held 1200 where live's container holds 1136, so the cards ran
+ * wider here. #219 put live's container on the site and they read live's three
+ * numbers: 353.33 at 1440, 264 at 900 and 220.33 at 769.
  */
 main .media-gallery.cards {
   max-width: none;

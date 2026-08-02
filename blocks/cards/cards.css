@@ -223,18 +223,18 @@ main .section.cards-container:has(.cards.highlights) h2 {
 
 /* ---- facts: the Go In-Depth scroller on a Conti Crew page ---- */
 
-/* live runs the scroller and its heading the full width of the page, and
-   measures the teasers itself: 1136 of content with 20 of page padding below
-   769 and 16 above, rather than the site's container */
+/* live runs the scroller and its heading the full width of the page, rather
+   than the site's container */
 main .section.cards-container:has(.cards.facts) > div {
   max-width: none;
   padding: 0;
 }
 
-main .section.cards-container:has(.cards.members) > div {
-  max-width: 1136px;
-  padding: 0 20px;
-}
+/* the members band took live's 1136 of content and its 20/16 of page padding
+   here, because the site's container gave 1200 inside 24 and 32. #219 put live's
+   numbers on the container itself, so this band reads them from there. Repeating
+   the 1136 against a border-box 1168 would subtract the padding twice and cap
+   the band at 1104. */
 
 /* live runs the cards past both edges of the page: the row starts at the
    container's outer edge and keeps a peek of the next card on the right.
@@ -307,10 +307,6 @@ main .section.cards-container:has(.cards.members) > div {
 }
 
 @media (width >= 769px) {
-  main .section.cards-container:has(.cards.members) > div {
-    padding: 0 16px;
-  }
-
   .cards.facts > ul {
     --facts-inset: max(0px, calc(50vw - 584px));
   }
@@ -799,13 +795,9 @@ main .section.cards-container:has(.cards.teaser) {
   color: var(--conti-white);
 }
 
-/* live measures this band itself rather than taking the page's container: 1136
-   of content, with 20 of page padding below 769 and 16 above */
-main .section.cards-container:has(.cards.teaser) > div {
-  max-width: 1136px;
-  padding: 0 20px;
-}
-
+/* live measures this band at 1136 of content inside 20/16 of page padding, which
+   the container itself now gives since #219. Repeating it here would cap the band
+   at 1104 against a border-box 1168. */
 main .section.cards-container:has(.cards.teaser) h2 {
   margin: 0;
   color: var(--conti-white);
@@ -826,10 +818,6 @@ main .section.cards-container:has(.cards.teaser) p {
 @media (width >= 769px) {
   main .section.cards-container:has(.cards.teaser) {
     padding: 80px 0;
-  }
-
-  main .section.cards-container:has(.cards.teaser) > div {
-    padding: 0 16px;
   }
 
   main .section.cards-container:has(.cards.teaser) p {

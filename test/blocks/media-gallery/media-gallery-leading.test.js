@@ -157,11 +157,13 @@ describe('Media gallery leading, live\'s measurements', () => {
     expect(Math.round(caption.left), 'the name is on the left').to.equal(Math.round(cells[0].left));
     expect(Math.round(tile.right), 'the still is on the right').to.equal(Math.round(cells[0].right));
     expect(Math.round(caption.width)).to.equal(400);
-    // 450 is OURS, not live's 430, and it is a gap rather than a target: #396.
-    // The tile has no height of its own here, so the 16/9 still drives the row
-    // where live crops it into a fixed 430. Both hosts render 450 at 1440,
-    // measured in .mossy/parity/391/. Fixing #396 brings this back to 430.
-    expect(Math.round(cells[0].height), 'the still drives the row, #396').to.equal(450);
+    // 430 is live's, and #219 is why it reads live's here now. The tile has no
+    // height of its own, so the 16/9 still drove the row: 1200 of container less
+    // the 400 column gave an 800 still 450 tall, over live's 430. Live's 1136
+    // leaves 736, which is 414, so the row falls back to its own 430 min-height.
+    // #396 is the crop live does and is NOT closed by this; what closed is the
+    // 20px the row read over live at 1440.
+    expect(Math.round(cells[0].height), "live's 430, from the min-height").to.equal(430);
     expect(getComputedStyle(block.querySelector('.media-gallery-caption')).padding)
       .to.equal('20px 38px');
   });
