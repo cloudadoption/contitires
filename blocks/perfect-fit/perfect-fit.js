@@ -49,10 +49,24 @@ const YEARS = range(2015, 2026).reverse();
 
 // --- pure data helpers (exported for tests) ---
 
-/** Parses "225/45ZR17" into its width, aspect and rim, or null. */
+/**
+ * Parses "225/45ZR17" into its width, aspect and rim, or null.
+ *
+ * Live's size vocabulary is LT and digits, which its own Width field states as
+ * `pattern: "[LTlt0-9]", max: 5`, and its control lists 21 bare widths then 8
+ * LT ones. So `LT` is a width of its own, `P` folds onto the bare width and a
+ * trailing `C` folds away, each measured off live's own size endpoint: LT265
+ * offers two ratios where 265 offers ten, P265 answers identically to 265, and
+ * 205/75 offers one diameter with no C anywhere.
+ *
+ * `HL` and `T` return null on purpose. Live's data holds both as widths of
+ * their own, and its control offers neither, so reading them here would show
+ * two width groups live does not have. Issue #495.
+ */
 export function parseSize(str) {
-  const m = String(str).toUpperCase().match(/^(\d{3})\/(\d{2})Z?R(\d{2})$/);
-  return m ? { width: m[1], aspect: m[2], rim: m[3] } : null;
+  const m = String(str).toUpperCase().match(/^(LT|P)?(\d{3})\/(\d{2})Z?R(\d{2})C?$/);
+  if (!m) return null;
+  return { width: m[1] === 'LT' ? `LT${m[2]}` : m[2], aspect: m[3], rim: m[4] };
 }
 
 /** Builds cascading width / aspect / rim option lists from every size. */
@@ -74,8 +88,15 @@ export function sizeOptions(products) {
   const sortEntries = (obj) => Object.fromEntries(
     Object.entries(obj).map(([k, v]) => [k, [...v].sort(num)]),
   );
+  // live lists its 21 bare widths ascending and then its 8 LT ones ascending,
+  // and re-sorts neither. `num` alone cannot do that: Number('LT265') is NaN,
+  // which Array.sort reads as no opinion and leaves in insertion order.
+  const byWidth = (a, b) => {
+    const lt = (w) => (w.startsWith('LT') ? 1 : 0);
+    return lt(a) - lt(b) || num(a.replace('LT', ''), b.replace('LT', ''));
+  };
   return {
-    widths: [...widths].sort(num),
+    widths: [...widths].sort(byWidth),
     aspectsByWidth: sortEntries(aspectsByWidth),
     rimsByWidthAspect: sortEntries(rimsByWidthAspect),
   };
