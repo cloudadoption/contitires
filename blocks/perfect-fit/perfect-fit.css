@@ -18,12 +18,22 @@ main > .section.perfect-fit-host > div {
   padding: 0;
 }
 
+/* live's bar below its item breakpoint is a column of a 12px heading and the
+   list, 16 apart, in 22 of padding either side: 22 + 12 + 16 + 52 + 22 is its
+   124. The 16 is a `margin-top` on live's own `ul` rather than a gap, and it is
+   the last unaccounted part of that 124.
+
+   The 12 either side is not live's, which pads its bar 0 and its container 20.
+   Ours is inside the section's own 24, so 12 here puts the item row in live's
+   303px of room rather than 279, and that is what keeps the labels on one line:
+   they want 270.2 together, so at 279 the middle one turns over and a 12px line
+   box gives 24 rather than 12. Live still fits at 360 and this does too. #176 */
 .perfect-fit {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 24px;
+  gap: 16px;
+  padding: 22px 12px;
   text-align: center;
 }
 
@@ -33,11 +43,15 @@ main > .section.perfect-fit-host > div {
   padding: 13px 24px;
 }
 
+/* live's heading is an h2 at 12px on a 12px line box at every width. Ours read
+   19.19 on the 1.6 it inherits, and below the breakpoint that 7.19 is in the
+   bar's height because the heading is a row of the column. */
 .perfect-fit-label {
   margin: 0;
   font-family: var(--heading-font-family);
   font-size: 12px;
   font-weight: 700;
+  line-height: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
 }
@@ -45,10 +59,13 @@ main > .section.perfect-fit-host > div {
 .perfect-fit-items {
   display: flex;
 
-  /* live keeps the three items on one row all the way down to 375 */
+  /* live keeps the three items on one row all the way down to 375, 16 apart
+     there and 38 at 1440. The 16 is load-bearing: at 32 the row wants 302.2 of
+     the 303 it has and the labels wrap. The desktop 32 is ours and is left
+     where it is, since nothing above the breakpoint turns on it. */
   flex-wrap: nowrap;
   justify-content: center;
-  gap: 8px 32px;
+  gap: 8px 16px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -62,7 +79,10 @@ main > .section.perfect-fit-host > div {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+
+  /* live's label hangs 8 off its icon in both directions, as a margin below the
+     breakpoint and beside it above: 32 + 8 + 12 is its 52 */
+  gap: 8px;
   border: 0;
   background: none;
   padding: 0;
@@ -75,7 +95,10 @@ main > .section.perfect-fit-host > div {
   .perfect-fit-item {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+  }
+
+  .perfect-fit-items {
+    column-gap: 32px;
   }
 }
 
@@ -112,12 +135,45 @@ main > .section.perfect-fit-host > div {
   filter: invert(1);
 }
 
+/* live's bar draws each glyph in a 32 by 32 box and lets preserveAspectRatio
+   fit the drawing inside it, the same as the card does: 32 is the item above
+   the breakpoint, where the row is its tallest child. Ours was 17 with the
+   width left to the drawing, so the three came out at three widths and the row
+   was the LABEL rather than the icon.
+
+   SCOPED TO THE BAR THAT CARRIES A HEADING. The listing pages author the same
+   block as a single CTA with no heading, and that strip's 17px glyph and 19.19
+   label were measured on their own listing page rather than here. The scope is
+   in `:where` so it adds no weight: each of the three refines the rule directly
+   above it by source order and leaves the strip on that rule, where a heavier
+   selector would sort ahead of every later `.icon` in this file. #176 */
+:where(.perfect-fit:has(.perfect-fit-label)) .perfect-fit-items .icon {
+  height: 32px;
+  width: 32px;
+}
+
+:where(.perfect-fit:has(.perfect-fit-label)) .perfect-fit-items .icon img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
+/* the label is already 12px, from `.perfect-fit-items p` above, and it was on
+   the 19.2px line box it inherits because that rule sets no line-height. Live's
+   is 12 on 12, so what moves here is the line box and not the font size. */
+:where(.perfect-fit:has(.perfect-fit-label)) .perfect-fit-items p {
+  line-height: 12px;
+}
+
+/* live pads the bar 12 either side above the breakpoint, on a 32px item: 56.
+   At our 14 the same item gives 60, so the 2px this was within of live's is the
+   4 between the two. */
 @media (width >= 900px) {
   .perfect-fit {
     flex-direction: row;
     justify-content: center;
     gap: 24px;
-    padding: 14px 32px;
+    padding: 12px 32px;
   }
 }
 
@@ -269,8 +325,38 @@ body.perfect-fit-modal-open {
   outline-offset: 2px;
 }
 
+/* Live caps the finder's content and this had none, so above 768 our box was the
+   viewport less 40 where live's is bounded. The rule was read off live rather
+   than taken from the box it produced: its `.container` carries
+   `max-width: 1168px` with side padding that steps, 16px from 769 and 20px
+   below, inside an outer 20px inset that exists only from 769. So live's content
+   is `min(1168, viewport - 40) - 32` above the step, which is 1136, 828 and 697
+   at 1440, 900 and 769, and `viewport - 40` at or below it, which is 728 at 768
+   and 335 at 375.
+
+   That is why the step below narrows rather than widens: live's own content
+   drops from 728 to 697 across 768 to 769, measured on both sides of the
+   boundary rather than inferred from the widths either side.
+
+   36px of padding with a 1136 content cap gives `min(1136, viewport - 72)`,
+   which is the same three numbers without mirroring live's two containers.
+
+   THE CONTAINER IS SHARED. `perfect-fit.js` builds one panels wrapper and
+   appends all three panels into it, so this reaches By Vehicle and By Plate too.
+   Live's three tabs are identical at 1440, 900, 769 and 768, so one cap is what
+   live has. It could not bind on the other two while `.perfect-fit-form` capped
+   them at 400; it binds on all three since #501 moved that 400 onto the fields
+   row, and the tests read the same number off each tab. #499, #501 */
 .perfect-fit-panels {
   padding: 24px 20px 0;
+}
+
+@media (width >= 769px) {
+  .perfect-fit-panels {
+    max-width: 1136px;
+    margin-inline: auto;
+    padding-inline: 36px;
+  }
 }
 
 .perfect-fit-question {
@@ -366,24 +452,51 @@ body.perfect-fit-modal-open {
   height: auto;
 }
 
+/* live gives every tab's form the dialog's content width and puts a narrower
+   island of fields inside it, 400 on By Vehicle and By Plate and 520 on By Tire
+   Size. Capping the FORM took the terms sentence and the call to action down
+   with it, so the terms wrapped to two lines where live's runs on one and the
+   submit sat 20px lower for it (#484, #501). */
 .perfect-fit-form {
   width: 100%;
-  max-width: 400px;
   margin: 0 auto;
 }
 
-.perfect-fit-form-tire-size {
-  max-width: 496px;
-}
-
+/* live's vehicle and plate island. It is DECLARED and not a row filling its
+   parent: `max-width: 400px` reads off live's own element at 1440, 900 and 768
+   alike while the form around it goes 1136, 828 and 728, and it still reads 400
+   while the tab is hidden and has no box. Below 400 the panel is the narrower
+   box and the row falls back to it, which is where all three tabs already
+   agreed at 335. */
 .perfect-fit-fields {
   display: grid;
+  max-width: 400px;
+  margin-inline: auto;
   gap: 20px;
 }
 
+/* the size row is live's own 520 and holds it from 768 up, falling back to the
+   panel's width below. At (0,2,0) it out-specifies the 400 above, which is what
+   keeps that cap on the two tabs it belongs to. */
+.perfect-fit-form-tire-size .perfect-fit-fields,
+.perfect-fit-rear-toggle {
+  box-sizing: border-box;
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+/* live composes that 520 two ways and steps at 769: 3x168 and 2x8 at 768,
+   3x160 and 2x20 above it, so the columns absorb the gap and the row does not
+   move */
 .perfect-fit-form-tire-size .perfect-fit-fields {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+
+@media (width >= 769px) {
+  .perfect-fit-form-tire-size .perfect-fit-fields {
+    gap: 20px;
+  }
 }
 
 /* live's rear-size control, measured at 1440, 900, 800, 768 and 375 and the same
@@ -570,6 +683,24 @@ main .section .perfect-fit-form .perfect-fit-terms a:any-link {
   color: var(--conti-text-grey);
 }
 
+/* live stops stretching the call to action at 769, not at 900, and the
+   rear-size control with it: its submit is 728 wide at 768 and 182 from 769,
+   and its rear control is the row's 520 at 768 and its own 237 above. The two
+   sit beside the fields row and stepping them anywhere else leaves the 769 to
+   899 band half converted (#484, #494). */
+@media (width >= 769px) {
+  .perfect-fit-form .perfect-fit-search {
+    width: auto;
+  }
+
+  .perfect-fit-rear-toggle {
+    width: auto;
+  }
+}
+
+/* the dialog's own chrome keeps the block's 900. Live's padding and close
+   button were not measured at 768 against 769, and an unmeasured value is not
+   moved on the strength of a neighbouring one. */
 @media (width >= 900px) {
   .perfect-fit-dialog {
     padding-top: 80px;
@@ -578,16 +709,6 @@ main .section .perfect-fit-form .perfect-fit-terms a:any-link {
   .perfect-fit-close {
     top: 24px;
     right: 24px;
-  }
-
-  /* live stops stretching the call to action once there is room for it, and
-     the rear-size control with it */
-  .perfect-fit-form .perfect-fit-search {
-    width: auto;
-  }
-
-  .perfect-fit-rear-toggle {
-    width: auto;
   }
 }
 

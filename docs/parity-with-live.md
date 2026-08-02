@@ -124,7 +124,8 @@ the part that IS doable; the row says which half is which.
 |  | [Live's specs pages redirect onto our product page](#lives-specs-pages-redirect-onto-our-product-page) | differs | ✅ 46 redirect rows shipped; live's size search, print control and all-sizes view are not rebuilt | [#357](https://github.com/cloudadoption/contitires/issues/357), [#463](https://github.com/cloudadoption/contitires/issues/463) |
 | Search | [Search ranking](#search-ranking-rebuilt-against-lives-results-rather-than-its-index) | approximated | ⚙️ needs live's Solr config | -- |
 |  | [How many results a query returns](#how-many-results-a-query-returns) | differs | ⚙️ live's exclusions are Solr config | -- |
-|  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ⏳ build the control | [#162](https://github.com/cloudadoption/contitires/issues/162) |
+|  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | ✅ Relevance is our order, Date has no data | [#162](https://github.com/cloudadoption/contitires/issues/162) |
+|  | [The results band reserves height live does not](#the-results-band-reserves-height-live-does-not) | diverges | ✅ decided: 116px recovered, and the reservation buys CLS 0 where live shifts | [#431](https://github.com/cloudadoption/contitires/issues/431) |
 |  | [Our class names are kebab-case where live's are BEM](#our-class-names-are-kebab-case-where-lives-are-bem) | diverges | ✅ decided, not outstanding: the linter rejects BEM and nothing a visitor sees depends on it | [#107](https://github.com/cloudadoption/contitires/issues/107) |
 | Markup | [Product pages carry no JSON-LD](#product-pages-carry-no-json-ld) | absent | ⏳ emit Product from the workbook | [#490](https://github.com/cloudadoption/contitires/issues/490) |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database | [#264](https://github.com/cloudadoption/contitires/issues/264), [#281](https://github.com/cloudadoption/contitires/issues/281) |
@@ -136,6 +137,8 @@ the part that IS doable; the row says which half is which.
 |  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
 |  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. **THAT VERDICT IS #488 AND ONLY #488.** The two halves were one issue until 2026-08-01 and were split so they could stop sharing a verdict: #488 is the submission and closes here, #101 is the form UI — 26 inputs and 2 textareas, submit disabled — and stays OPEN and pickable. Nothing about the missing receiver blocks the rebuild. **A GEARED ROW DOES NOT MAKE EVERY ISSUE ON IT UNRESOLVABLE**, and this row cited #101 alone until the split, which would have closed real work under a verdict about the other half | [#488](https://github.com/cloudadoption/contitires/issues/488), [#101](https://github.com/cloudadoption/contitires/issues/101) |
 |  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **needs access to the API / data source.** Neither half is ours to build. A plate resolves through a registration lookup live buys and #243 established we do not have it. The vehicle half is different and the difference is recorded rather than hidden: **live's fitment IS publicly readable** — the cascade walks year to make to model to trim on an unauthenticated GET and returns the OE size, measured 2026-08-01, detail in the section below. **We do not take it.** Ruled 2026-08-01, and before that in #234: this site does not depend on, or harvest, a host it does not own. So the gap is real and closed as unresolvable, not parked as pending | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
+|  | [Finder results render in the panel](#vehicle-and-plate-lookup) | differs | ✅ decided: the panel is where the platform's own guidance puts a dynamic result, and **no gear because the limit is ours** | [#483](https://github.com/cloudadoption/contitires/issues/483) |
+|  | [The finder's question heading is wider than live's](#vehicle-and-plate-lookup) | diverges | ✅ recorded: 64px wider above 769, equal below, and the ink lands in the same place | -- |
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
@@ -355,6 +358,44 @@ either behind a form post or a path shape the public pages do not link. That one
 rather than settled, and what would settle it is finding a live page that links a by-size
 result.
 
+#### One sContact size keeps its misspelling on purpose
+
+Three sContact rows in the specs sheet are spelled `T135/70R18`, `T145/85R18` and `T165/80R17`,
+where live's own specs page spells them bare. Two of the three normalise, because live's width
+control offers 145 and 165. [#496](https://github.com/cloudadoption/contitires/issues/496).
+
+**`T135/70R18` is left as it is.** Live offers 29 widths and 135 is not among them, so
+correcting that row would put a width on our control that live's does not have. The misspelling is
+what makes `parseSize` reject the row. That rejection is the behaviour we want, so **leaving it is
+the fix rather than the omission**, and our width list is a subset of live's.
+
+Ruled 2026-08-02. `parseSize` in `blocks/perfect-fit/perfect-fit.js` already comments that `HL`
+and `T` return null on purpose and asserts it in a test, so the parser side is protected. This is
+the note for whoever next edits the sheet, who is not the same person.
+
+
+#### The finder's question heading is 64px wider than live's, and the ink is in the same place
+
+Our question heading measures 1136 where live's header measures 1072 above the 769 step, and 828
+against live's 764 at 900. **At and below 768 they are equal.** Both sides centre their text, so a
+visitor comparing the two pages sees the words in the same position and cannot find the difference.
+It is recorded rather than fixed for that reason.
+
+**THE CONTENT CAP IS NOT THE CAUSE, and this sentence exists so the next reader does not reopen
+that question.** Live's panel is 1136 and its heading is 1072, so live insets the heading *inside*
+a panel we now match. The 64px is a within-panel inset on that element, not our cap being wrong.
+#499 capped the panel correctly and #501 moved the form bound to where live puts it; neither
+touched this.
+
+It is pre-existing and identical on the By Tire Size tab, where it has been visible since #484
+released that tab from the form cap. Measured 2026-08-02 while proving #501, and deliberately not
+folded in: different element, different rule, and #501 names neither.
+
+**Written down because an invisible delta with no record is one the next measurement pass
+re-measures and re-argues.** That cost was paid twice on 2026-08-01, on four dead paths a sweep
+will find again and three pending rows that sat for days. One line closes it for the price of one
+line.
+
 ### Star rating and review count
 
 **absent.** Live shows a rating on every product page. We show none, and we already hold a
@@ -467,13 +508,28 @@ would mean copying a defect on purpose.
 
 ### No sort control on the results page
 
-**absent.** Live offers a sort on its results page. We render results in score order with no
-control to change it.
+**absent, and half of it is not a loss.** Live's control offers two options, `created=Date` and
+`search_api_relevance=Relevance`, and it defaults to relevance.
+
+**The Relevance half is already what we render.** Live's no-sort order and its
+`sort_by=search_api_relevance` order read identically, taken twice on
+`keywords=all season tires` at 46 results, and that is the order our results page already
+produces. A visitor who never touches live's control sees the same ordering on both sides.
+
+**What is lost is the Date option alone, and no data this site holds can honour it.** The default
+index has six columns and no date. `learn`'s `lastModified` is our own publish timestamp, and its
+219 values fall on three days, 2026-07-25, 2026-07-30 and 2026-07-31, which are the days this
+migration published. So newest-first would order the articles by our deploy sequence. Neither our
+pages nor live's publish an article date at all, and the prose dateline reaches 29 of 220 pages.
+
+So the gap closes here rather than as work. **A select with one honourable option is worse than no
+select.** [#162](https://github.com/cloudadoption/contitires/issues/162) closes on this line.
+
+Our relevance order is not claimed equal to live's: that is the search-ranking row above, geared
+for needing live's Solr config.
 
 The ranking sections above are about which rows come back and in what order the scan puts them.
-This is the control on top of that, and it is a separate gap: a reader who wants live's newest
-first has no way to ask for it here. It is tracked as
-[#162](https://github.com/cloudadoption/contitires/issues/162).
+This is the control on top of that.
 
 Live also renders its result list server-side, so a reader with JavaScript off sees results on
 live and sees none here. `scripts/search.js` fetches `/query-index.json` and builds the list in
@@ -482,6 +538,69 @@ search is the one page whose whole content is built that way.
 
 What it costs a visitor: a query that would be better read newest-first has to be read in score
 order, and a no-JS client gets an empty results page.
+
+### The results band reserves height live does not
+
+**Live sizes its results band by its content and we reserve height for content that has not
+arrived yet.** Live's band computes `min-height: 0` at every state and width measured. Ours holds
+a floor, so a query with few results leaves dark space below them where live's band stops.
+
+**The measurement, at a 1000px-tall viewport and an 812px one:**
+
+    state          live band   our band
+    many  1440        1766       1855
+    few   1440         713        904
+    one   1440         197        904
+    none  1440         371        904
+    many   375        3409       3162
+    one    375         221        684
+    none   375         222        684
+
+A full page of results is content-bound on both sides and the floor never shows. The short states
+are where it does, and it runs to about 630px at 1440.
+
+**The reason is where the results come from.** Live renders them server-side, so its first paint
+already knows how tall they are and it has no in-flight state to reserve for. Ours are fetched
+from a published index after the page paints, so the band has to hold a height before anything
+has arrived. That is a property of the delivery model rather than a styling miss, and it is the
+honest answer to what live sizes its band by.
+
+**The floor is load-bearing, and the evidence is a measurement taken when it was introduced.**
+The verification taken when it was introduced recorded **CLS 0.687 on mobile before this band
+existed and 0.000 after**. Without the floor the empty state collapses to 253px at 375, putting the band's
+bottom at 497 against a fold of 812, so the footer would sit in view and then be pushed down when
+results land. The route that looks free, dropping the floor once the results arrive, is the same
+move: it shrinks the band in exactly the short states and trades the empty space for the shift the
+floor prevents.
+
+**What was recovered: 116px at every height.** The floor has to hold the band's bottom at or below
+the fold, and from the measured band top and padding that is 496 at 375 and 581 at 1440. The
+narrow width binds, so `calc(100vh - 316px)` is the tightest expression that satisfies both, down
+from `calc(100vh - 200px)`. The remainder is the reservation itself and is not recoverable by
+styling.
+
+**And this is a place where this site beats live.** Our page does not shift at all:
+
+    state          ours    live
+    many  1440       0     0.3864
+    few   1440       0     0.4047
+    one   1440       0     0.0594
+    none  1440       0     0.0041
+    many   375       0     0.1448
+    one    375       0     0.0208
+    none   375       0     0.0046
+
+**Stated in both directions: we pay empty pixels and buy a stable page, and live pays a shifting
+page and buys tight bands.** Live's worst reading is 0.4047, which is well past the 0.1 threshold
+a Core Web Vitals pass allows, and ours is zero in all seven readings. A visitor comparing the two
+sees more dark space on ours and never sees our page move under their cursor.
+
+**What was not measured:** the in-flight state itself. `fillResults` is deferred to the load event
+at `blocks/search/search.js:352` and any probe runs after it, so the browser cannot be caught
+between decoration and the results landing without changing the code. Everything above is the
+settled state plus the buffered layout-shift record, which is what CLS is computed from. The
+counterfactual, what the shift would be with no floor, is arithmetic on measured offsets rather
+than a reading.
 
 ### Our class names are kebab-case where live's are BEM
 
@@ -742,9 +861,21 @@ MISSING FITMENT SERVICE — that was this document's answer until 2026-08-01 and
 it is the wildcard limit below, plus our own table's coverage, which is #308 and is a decision.**
 Live publishes a page per make and per
 make-and-model under `/tire-search/by-vehicle/`. Three forms of fix were measured and each is ruled
-out rather than merely unattempted. A wildcard redirect is not available: the redirects sheet holds
-0 wildcards across 77 rows, and Edge Delivery routes wildcard matching to a CDN rule that needs a
-`cdn.yaml` and a custom domain this project does not have. Enumerating the 2229 as real rows would
+out rather than merely unattempted. **A wildcard redirect is not available, and the reason is the routing rule rather than a missing
+CDN.** Every 404 on this host names it in a response header: `failed to load
+/tire-search/by-vehicle/honda/civic/2022.md from content-bus: 404`. A request resolves to one
+document at that exact path. The redirects sheet holds 0 wildcards across 77 rows, **and it does
+not inherit downward either**: `/store-finder` and `/tire-search/by-vehicle` both answer 301 and
+every path below them answers 404, four under the first and one under the second, which is the
+property the sheet's own count cannot show. Edge Delivery does have a mechanism for a path family,
+[folder mapping](https://www.aem.live/developer/folder-mapping), which serves every path below a
+folder from one document. It is feature flagged by Adobe "to prevent accidental misuse", it is not
+configured on this site, and **its own Anti-Patterns section names this exact use**: "Mapping of
+excessively dynamic or infinite URLs like `/search/<query>`, dynamic search results are better
+served via query parameters or URL hash property". So the finder answering in the panel is what the
+platform's own guidance points at, and **the limit is ours rather than something live withholds**.
+Read from the page body: `docpages-index.json` truncates that page to 1401 characters of 2452 and
+drops the Anti-Patterns section, so an index entry is not the page. Enumerating the 2229 as real rows would
 not deliver live's surface today, because live's page is the finder filled from the fitment data
 set and our table covers 6 makes and 17 models, so 2213 of the 2229 would resolve to a page that
 answers nothing. **That last clause is contingent rather than permanent**: it is our table's
@@ -1041,6 +1172,15 @@ or endorsed by Continental.
 **The homepage hero.** The eyebrow reads `An Adobe engineering proof of concept` where live
 reads `Welcome to`, and the paragraph under the h1 is a disclaimer where live carries a
 rebate offer. The h1 itself is unchanged and still matches live.
+
+**The band is taller than live's, and that is this decision rather than a gap.** The height
+follows from the disclosure copy: live has no counterpart for those paragraphs, so the box
+that holds them has nothing to match. **No change removes the height and keeps the
+paragraphs.** Reaching live's number while keeping the disclosure would mean shrinking the
+type or the padding until it fits, which is styling a disclosure to a target rather than
+letting the copy set its own height, and that is a worse outcome than the difference.
+The measurement is deliberately not quoted here: a pixel pair in this document reads as a
+delta somebody should chase.
 
 **The promo bar, at the top of every page.** Live promises a rebate on a set of tires.
 Ours carries its own copy instead, and that copy is deliberately not live's.

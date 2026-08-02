@@ -196,9 +196,13 @@ header nav[aria-expanded='true'] .nav-brand img {
   filter: invert(1);
 }
 
+/* live's desktop logo is 186 by 34 from 1025 up, against 134 by 24 below it,
+   which #132 already matched. The height follows the asset's own ratio, so the
+   34 comes from the width rather than from a second declaration, and 34 inside
+   a 72px bar leaves the bar where #129 set it. */
 @media (width >= 1025px) {
   header nav .nav-brand img {
-    width: 150px;
+    width: 186px;
   }
 
   header nav[aria-expanded='true'] .nav-brand img {
@@ -447,6 +451,14 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   @media (width < 1200px) {
     header nav {
       padding: 0 20px;
+
+      /* the 186 logo is 36px wider than the 150 it replaced, and at 1025 the
+         row had 5px of slack, so it took the page 5px sideways (#167). Live
+         pays for the same logo by wrapping a label and running an 88px bar
+         there; our items already fill 72, so the row buys the width from its
+         own gutter instead. The outer padding is the page inset and is left
+         where #129 measured it. */
+      gap: 0 20px;
     }
 
     header nav .nav-sections {
