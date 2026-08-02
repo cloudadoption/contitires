@@ -540,6 +540,13 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   }
 }
 
+/* the finder glyphs belong to the desktop panel. Below the breakpoint the same
+   list is the mobile drawer, where the labels start at the drawer's own inset
+   and an empty span would push each one 24px right. #237 */
+header nav .nav-sections [data-tire-finder] .icon {
+  display: none;
+}
+
 /* mega-menu: a multi-column top item (Tires, Experience) is tagged .nav-mega
    in header.js and opens a full-width dark flyout that spans the header, with
    the columns aligned to the 1264px container, matching the live site.
@@ -570,9 +577,24 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
     gap: 24px 48px;
     padding-block: 40px;
     padding-inline: max(32px, calc((100% - 1264px) / 2));
-    background-color: var(--conti-dark-black);
+
+    /* live's dropdown is #000000, and --conti-dark-black is #1d1d1d. The token
+       is not the wrong colour, it is the wrong reader: 13 rules across 8 files
+       take it, among them the mobile drawer above, the tire-specs band, the
+       category card hover and the hero, and none of those is this panel. So the
+       panel carries its own black and the token is left alone. #237 */
+    background-color: #000;
     color: var(--conti-white);
     box-shadow: 0 24px 40px rgb(0 0 0 / 25%);
+
+    /* where the rows under the columns start. Live puts them at its second
+       column, and ours is a flex panel with content-sized columns, so the
+       offset is the finder column's own width plus the column gap: 110 + 48.
+       110 is the finder column measured at 1440 on the published host, where
+       its SEARCH FOR TIRE heading is wider than any of its three buttons, the
+       glyphs included. The test reads the row's left edge against the second
+       column's rather than against this number. */
+    --nav-mega-row-indent: 158px;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega:hover > ul,
@@ -660,7 +682,40 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
      whitespace between two labels, the lower row wins it on paint order, and
      no label's own text goes with it. */
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > button {
+    display: inline-flex;
+    align-items: center;
     margin-block: calc(-1 * var(--nav-mega-item-padding-block));
+  }
+
+  /* live draws a line glyph left of each finder entry, 25 by 25 filled
+     rgb(255, 165, 0), with the label 9px to its right. The three files stroke
+     in currentColor and currentColor cannot reach an img, so the span is left
+     empty and masked with the file, the way the perfect-fit rear toggle draws
+     its plus and minus. The 25px glyph is taller than the 22.4px line box the
+     labels sit in, so these rows run 3px deeper than the product rows beside
+     them, as live's own do. */
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > button .icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 25px;
+    height: 25px;
+    margin-inline-end: 9px;
+    background-color: var(--conti-yellow);
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega .icon-vehicle {
+    mask-image: url("../../icons/vehicle.svg");
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega .icon-tire-size {
+    mask-image: url("../../icons/tire-size.svg");
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega .icon-license-plate {
+    mask-image: url("../../icons/license-plate.svg");
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li > ul > li > :is(a, button):hover,
@@ -668,13 +723,25 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
     color: var(--conti-yellow);
   }
 
-  /* OE / Fleet: bottom headings with no product list render as full-width rows
-     with a top rule, spanning under the columns */
+  /* OE / Fleet: bottom headings with no product list render as rows under the
+     columns. Measured on live at 1440 with the panel open, the only hairline in
+     its TIRES dropdown is Fleet's border-top, 1px starting at x 313.2, which is
+     the left edge of the second column, and running 1084.8 to the panel's right
+     content edge. ORIGINAL EQUIPMENT sits above it and carries none. #237 */
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li:not(:has(> ul)) {
     flex: 1 1 100%;
     margin-top: 4px;
+    margin-inline-start: var(--nav-mega-row-indent);
     padding-top: 20px;
     border-top: 1px solid rgb(255 255 255 / 20%);
+  }
+
+  /* the rule goes BETWEEN the rows, so the first one after the columns has
+     none of its own. Its padding went with it: the 24px row gap plus the 4px
+     margin already put its heading 28px under the columns, which is live's 28. */
+  header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li:has(> ul) + li:not(:has(> ul)) {
+    padding-top: 0;
+    border-top: 0;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul > li:not(:has(> ul)) > p {
@@ -688,6 +755,7 @@ header nav .nav-sections .default-content-wrapper > ul > li > ul > li > :is(a, b
   header nav .nav-sections .default-content-wrapper > ul > li.nav-mega > ul:not(:has(li > ul)) > li {
     flex: 0 1 auto;
     margin-top: 0;
+    margin-inline-start: 0;
     padding-top: 0;
     border-top: 0;
   }
