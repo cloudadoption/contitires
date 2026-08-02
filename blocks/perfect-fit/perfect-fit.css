@@ -91,7 +91,12 @@ main > .section.perfect-fit-host > div {
   cursor: pointer;
 }
 
-@media (width >= 900px) {
+/* live sets the icon beside the label from 769, through
+   `@media screen and (max-width: 768px)` on `.store-finder-nav-banner__item` and
+   `__items`. It steps the bar's own padding at the same place, which is the rule
+   further down, and the two are one change: a row on 22px of padding is a 76px
+   bar where live's is 56. Measured on `/` at 768 and 769 on both sides. #505 */
+@media (width >= 769px) {
   .perfect-fit-item {
     flex-direction: row;
     align-items: center;
@@ -167,8 +172,13 @@ main > .section.perfect-fit-host > div {
 
 /* live pads the bar 12 either side above the breakpoint, on a 32px item: 56.
    At our 14 the same item gives 60, so the 2px this was within of live's is the
-   4 between the two. */
-@media (width >= 900px) {
+   4 between the two (#176).
+
+   The step is live's 769 rather than the project's 900, and it moves with the
+   item's direction above rather than on its own: live carries both in the same
+   `max-width: 768px` query, and splitting them would flip the bar to a row at
+   one width and give it its row padding at another. #505 */
+@media (width >= 769px) {
   .perfect-fit {
     flex-direction: row;
     justify-content: center;
