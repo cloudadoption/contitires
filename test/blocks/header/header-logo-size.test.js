@@ -3,6 +3,11 @@
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
+import styleSheet from '../../helpers/stylesheet.js';
+
+/** The two sheets these measurements stand on, parsed once for the file. */
+const HEADER_CSS = '/blocks/header/header.css';
+const GLOBAL_CSS = '/styles/styles.css';
 
 /*
  * The desktop logo rendered 150px wide where live's is 186. #132 fixed the
@@ -96,12 +101,7 @@ describe('Header, the desktop logo takes live\'s 186 by 34 (#167)', () => {
   before(async () => {
     window.hlx = window.hlx || {};
     if (!window.hlx.codeBasePath) window.hlx.codeBasePath = '';
-    sheets = await Promise.all(['/styles/styles.css', '/blocks/header/header.css']
-      .map(async (path) => {
-        const sheet = new CSSStyleSheet();
-        await sheet.replace(await (await fetch(path)).text());
-        return sheet;
-      }));
+    sheets = await Promise.all([GLOBAL_CSS, HEADER_CSS].map((path) => styleSheet(path)));
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...sheets];
     // styles.css holds `body { display: none }` until `.appear`, and an
     // undisplayed body gives every element a 0 box. A 0 compares as not-equal
