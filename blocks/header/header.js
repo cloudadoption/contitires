@@ -31,6 +31,17 @@ const UTILITY_LINKS = [
   },
 ];
 
+// live draws a line glyph left of each entry in the header's Search For Tire
+// column. The DA edit canvas drops an empty span on save, so an authored
+// `:icon:` there disappears the next time anyone edits the nav page, and
+// nav.plain.html carries the three labels as plain text today: inject them
+// here, the way the utility row and the search trigger get theirs.
+const FINDER_ICONS = {
+  vehicle: 'vehicle',
+  'tire-size': 'tire-size',
+  plate: 'license-plate',
+};
+
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
     const nav = document.getElementById('nav');
@@ -96,6 +107,24 @@ export function wireNavDisclosures(navSections, applies = () => isDesktop.matche
       if (!item.contains(e.relatedTarget)) report(false);
     });
     return control;
+  }).filter(Boolean);
+}
+
+/**
+ * Prepends the glyph live sets beside each header finder entry. The span is
+ * left empty and header.css masks it, because an img cannot take the colour
+ * beside it and live's glyph is the site's orange.
+ * @param {Element[]} triggers the finder triggers, as markFinderTriggers left them
+ * @returns {Element[]} the glyphs added
+ */
+export function addFinderIcons(triggers) {
+  return triggers.map((trigger) => {
+    const name = FINDER_ICONS[trigger.dataset.tireFinder];
+    if (!name || trigger.querySelector('.icon')) return null;
+    const icon = document.createElement('span');
+    icon.className = `icon icon-${name}`;
+    trigger.prepend(icon);
+    return icon;
   }).filter(Boolean);
 }
 
@@ -334,7 +363,7 @@ export default async function decorate(block) {
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
     // the "Search For Tire" submenu opens the finder, the way live opens it
-    markFinderTriggers(navSections);
+    addFinderIcons(markFinderTriggers(navSections));
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
       if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
       if (isMegaMenu(navSection)) navSection.classList.add('nav-mega');
