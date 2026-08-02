@@ -28,6 +28,11 @@ const TABS = [
 // icon). Injecting keeps the labels plain text in the authored content.
 const TAB_ICONS = ['vehicle', 'tire-size', 'license-plate'];
 
+// the listing pages author one label-less cell that opens the vehicle tab but is
+// none of the three, so it takes live's own glyph for that strip: #tire-outline,
+// which `icons/tire-size.svg` carries viewBox and paths alike. #267
+const STRIP_ICON = 'tire-size';
+
 // A small curated vehicle set. Each model maps to a coarse class that lines
 // up with the vehicleTypes recorded in products.json.
 const VEHICLES = {
@@ -833,6 +838,9 @@ export default function decorate(block) {
   const [labelRow, itemsRow] = [...block.children];
   const label = labelRow ? labelRow.querySelector('p') : null;
   if (label) label.className = 'perfect-fit-label';
+  // the label's absence is the listing-page strip, and it is the discriminator
+  // the CSS already reads at `:not(.card, :has(.perfect-fit-label))`
+  const strip = !label;
 
   const list = document.createElement('ul');
   list.className = 'perfect-fit-items';
@@ -844,12 +852,15 @@ export default function decorate(block) {
     button.className = 'perfect-fit-item';
     button.dataset.tab = tabId;
     // inject the search icon unless the content already carries one, so the
-    // labels round-trip as plain text in DA without a raw :token: in the editor
-    const iconName = TAB_ICONS[index];
+    // labels round-trip as plain text in DA without a raw :token: in the editor.
+    // live's strip renders `<span>{label}</span>` and then its glyph, so on the
+    // strip the icon goes behind the label rather than in front of it
+    const iconName = strip ? STRIP_ICON : TAB_ICONS[index];
     if (iconName && !cell.querySelector('.icon')) {
       const icon = document.createElement('span');
       icon.className = `icon icon-${iconName}`;
-      cell.prepend(icon);
+      if (strip) cell.append(icon);
+      else cell.prepend(icon);
     }
     while (cell.firstElementChild) button.append(cell.firstElementChild);
     decorateIcons(button);
