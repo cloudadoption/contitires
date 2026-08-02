@@ -288,8 +288,9 @@ body.perfect-fit-modal-open {
    THE CONTAINER IS SHARED. `perfect-fit.js` builds one panels wrapper and
    appends all three panels into it, so this reaches By Vehicle and By Plate too.
    Live's three tabs are identical at 1440, 900, 769 and 768, so one cap is what
-   live has. It cannot bind on the other two here because `.perfect-fit-form`
-   caps them at 400, and the tests assert they do not move. #499 */
+   live has. It could not bind on the other two while `.perfect-fit-form` capped
+   them at 400; it binds on all three since #501 moved that 400 onto the fields
+   row, and the tests read the same number off each tab. #499, #501 */
 .perfect-fit-panels {
   padding: 24px 20px 0;
 }
@@ -395,28 +396,32 @@ body.perfect-fit-modal-open {
   height: auto;
 }
 
+/* live gives every tab's form the dialog's content width and puts a narrower
+   island of fields inside it, 400 on By Vehicle and By Plate and 520 on By Tire
+   Size. Capping the FORM took the terms sentence and the call to action down
+   with it, so the terms wrapped to two lines where live's runs on one and the
+   submit sat 20px lower for it (#484, #501). */
 .perfect-fit-form {
   width: 100%;
-  max-width: 400px;
   margin: 0 auto;
 }
 
-/* live's size form is the dialog's content width and its fields row is a 520
-   island inside it, centred: 1136 and 520 at 1440, 828 and 520 at 900, 335 and
-   335 at 375. Capping the form at 496 took the terms sentence and the call to
-   action down with it, so the terms wrapped to two lines where live's runs on
-   one and the submit sat 20px lower for it (#484). */
-.perfect-fit-form-tire-size {
-  max-width: none;
-}
-
+/* live's vehicle and plate island. It is DECLARED and not a row filling its
+   parent: `max-width: 400px` reads off live's own element at 1440, 900 and 768
+   alike while the form around it goes 1136, 828 and 728, and it still reads 400
+   while the tab is hidden and has no box. Below 400 the panel is the narrower
+   box and the row falls back to it, which is where all three tabs already
+   agreed at 335. */
 .perfect-fit-fields {
   display: grid;
+  max-width: 400px;
+  margin-inline: auto;
   gap: 20px;
 }
 
-/* the row holds live's 520 from 768 up and falls back to the panel's width
-   below that, which is where the two already agreed at 335 */
+/* the size row is live's own 520 and holds it from 768 up, falling back to the
+   panel's width below. At (0,2,0) it out-specifies the 400 above, which is what
+   keeps that cap on the two tabs it belongs to. */
 .perfect-fit-form-tire-size .perfect-fit-fields,
 .perfect-fit-rear-toggle {
   box-sizing: border-box;
