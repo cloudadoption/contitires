@@ -3,6 +3,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import { setViewport } from '@web/test-runner-commands';
+import decorateTabs from '../../../blocks/category-tabs/category-tabs.js';
 
 /**
  * The gap live leaves under the title band, read off continentaltire.com's own
@@ -68,15 +69,23 @@ describe('Banner block, the gap under the title band', () => {
 
   const bodyCopy = () => page('', '<div class="default-content-wrapper"><h2>Use of Website</h2><p>This page states the Terms.</p></div>');
 
-  const tabRow = () => page('category-tabs-container', `
-    <div class="category-tabs-wrapper">
-      <div class="category-tabs block">
-        <div><div><ul><li><a href="/learn/tips">Tire tips</a></li><li><a href="/learn/technology">Technology</a></li></ul></div></div>
-      </div>
-    </div>`);
+  // the row has to be decorated: `.category-tabs-list { margin: 0 }` is what
+  // stops the bare `ul { margin-top: 0.8em }` collapsing 14px through the
+  // section and swallowing live's 8
+  const tabRow = () => {
+    const sections = page('category-tabs-container', `
+      <div class="category-tabs-wrapper">
+        <div class="category-tabs block">
+          <div><div><ul><li><a href="/learn/tips">Tire tips</a></li><li><a href="/learn/technology">Technology</a></li></ul></div></div>
+        </div>
+      </div>`);
+    decorateTabs(document.querySelector('.category-tabs.block'));
+    return sections;
+  };
 
   /** What a reader sees between the band and the thing under it. */
-  const gap = (band, next) => next.getBoundingClientRect().top - band.getBoundingClientRect().bottom;
+  const gap = (band, next) => next.getBoundingClientRect().top
+    - band.getBoundingClientRect().bottom;
 
   it('opens body copy 60 under the band from 769 up', async () => {
     const [band, next] = bodyCopy();
@@ -113,7 +122,7 @@ describe('Banner block, the gap under the title band', () => {
     // the claim is that the new rule does not outrank cards-container's zero,
     // which is a margin reading rather than a gap: what the cards block puts
     // inside the section is the cards block's business
-    expect(getComputedStyle(next).marginTop, "cards-container keeps its deliberate 0").to.equal('0px');
+    expect(getComputedStyle(next).marginTop, 'cards-container keeps its deliberate 0').to.equal('0px');
   });
 
   it('leaves the band itself flush to the header', async () => {
