@@ -190,15 +190,19 @@ describe('Hero, the scrim `short` cancels above 1025 (#519)', () => {
   });
 
   describe('a hero carrying neither class', () => {
-    it('keeps the block\'s own bottom-up gradient at 1440', async () => {
+    /* THIS PAIR READ THE BOTTOM-UP GRADIENT UNTIL #531, which took it off the
+       base rule: live paints nothing on four of the blocks that rule reached and
+       an authored value on the others, so the base is flat and transparent now.
+       What matters to #519 is unchanged, that `short`'s fix decides nothing for
+       a hero carrying neither class. */
+    it('paints nothing of its own at 1440', async () => {
       const s = await scrim('', 1440);
-      expect(s.image).to.contain('linear-gradient');
-      expect(s.image).to.contain('to top');
+      expect(BARE(s), `painted ${s.color} over ${s.image}`).to.be.true;
     });
 
-    it('keeps it at 1024 as well', async () => {
+    it('paints nothing at 1024 either', async () => {
       const s = await scrim('', 1024);
-      expect(s.image).to.contain('linear-gradient');
+      expect(BARE(s), `painted ${s.color} over ${s.image}`).to.be.true;
     });
   });
 

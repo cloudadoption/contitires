@@ -67,10 +67,10 @@ plate nor the state.
 its own cookie popup. Neither is here, so the two sites differ in the first screenshot and
 nothing about the rebuild's traffic can be measured the way live's is.
 
-**Two pages are missing outright.** [`/racer-tire-program`](https://main--contitires--cloudadoption.aem.live/racer-tire-program) has no form
-([#101](https://github.com/cloudadoption/contitires/issues/101)) and
-`/my-first-car-my-first-tires` 404s
+**One page is missing outright.** `/my-first-car-my-first-tires` 404s
 ([#336](https://github.com/cloudadoption/contitires/issues/336)).
+`/racer-tire-program` had no form until #559; it now carries live's 20 fields with the submit
+disabled ([#101](https://github.com/cloudadoption/contitires/issues/101)).
 
 **Known rough edges.** [`/events`](https://main--contitires--cloudadoption.aem.live/events) stacks six squares
 at 375 where live runs a carousel
@@ -155,7 +155,7 @@ the part that IS doable; the row says which half is which.
 |  | [Bazaarvoice](#bazaarvoice) | absent | ⚙️ reviews need the account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [EmbedSocial](#embedsocial) | absent | ⚙️ needs the EmbedSocial account | [#234](https://github.com/cloudadoption/contitires/issues/234) |
 |  | [The newsletter form](#the-newsletter-form) | diverges | ✅ the delay is deliberate | [#230](https://github.com/cloudadoption/contitires/issues/230) |
-|  | [The sponsorship form](#the-sponsorship-form) | absent | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. **THAT VERDICT IS #488 AND ONLY #488.** The two halves were one issue until 2026-08-01 and were split so they could stop sharing a verdict: #488 is the submission and closes here, #101 is the form UI — 26 inputs and 2 textareas, submit disabled — and stays OPEN and pickable. Nothing about the missing receiver blocks the rebuild. **A GEARED ROW DOES NOT MAKE EVERY ISSUE ON IT UNRESOLVABLE**, and this row cited #101 alone until the split, which would have closed real work under a verdict about the other half | [#488](https://github.com/cloudadoption/contitires/issues/488), [#101](https://github.com/cloudadoption/contitires/issues/101) |
+|  | [The sponsorship form](#the-sponsorship-form) | the UI shipped in #559, the submission cannot | ⚙️ **needs access to the API / data source: there is no receiver for a submission**, and no work here makes one. That verdict is #488, and #488 alone. The UI was the other half and it shipped in #559: live's 20 authored fields on live's band, with the submit disabled and a note saying why. A receiver needs the Drupal endpoint on a host we do not own. A form that accepted a submission and dropped it would be worse than a disabled one, because a racer would believe they had applied | [#488](https://github.com/cloudadoption/contitires/issues/488), [#101](https://github.com/cloudadoption/contitires/issues/101) |
 |  | [Vehicle and plate lookup](#vehicle-and-plate-lookup) | approximated | ⚙️ **needs access to the API / data source.** Neither half is ours to build. A plate resolves through a registration lookup live buys and #243 established we do not have it. The vehicle half is different and the difference is recorded rather than hidden: **live's fitment IS publicly readable** — the cascade walks year to make to model to trim on an unauthenticated GET and returns the OE size, measured 2026-08-01, detail in the section below. **We do not take it.** Ruled 2026-08-01, and before that in #234: this site does not depend on, or harvest, a host it does not own. So the gap is real and closed as unresolvable, not parked as pending | [#308](https://github.com/cloudadoption/contitires/issues/308), [#309](https://github.com/cloudadoption/contitires/issues/309), [#437](https://github.com/cloudadoption/contitires/issues/437) |
 |  | [Finder results render in the panel](#vehicle-and-plate-lookup) | differs | ✅ decided: the panel is where the platform's own guidance puts a dynamic result, and **no gear because the limit is ours** | [#483](https://github.com/cloudadoption/contitires/issues/483) |
 |  | [The finder's question heading is wider than live's](#vehicle-and-plate-lookup) | diverges | ✅ recorded: 64px wider above 769, equal below, and the ink lands in the same place | -- |
@@ -862,16 +862,19 @@ Three of our 328 published pages carry a widget link: `/newsletter-signup`, `/pr
 
 ### The sponsorship form
 
-**absent.** Live posts a 26-field Drupal webform. We serve the page with no form at all.
+**the UI is here as of #559 and nothing sends.** Live posts a Drupal webform. We render the same
+fields and disable the submit.
 
-Live's `/racer-tire-program` is 71,785 bytes and carries a
-`webform-submission-sponsorships-form` with 26 `<input>` elements covering name, contact,
-address and the series and stage dropdowns. It posts back to live's own Drupal.
+Live's `/racer-tire-program` carries a `webform-submission-sponsorships-form`: 26 `<input>`
+elements over name, contact and address, two textareas, the state select with 51 options, four
+social fieldsets and a consent checkbox. It posts back to live's own Drupal.
 
-The same path here is 200 and 2,796 bytes with the same title. It carries zero forms and zero
-inputs. The only `<form>` anywhere in our blocks is the header search, a GET to `/search`.
+The `form` block reads that shape from authored rows, one row per field, and builds it on live's
+grey band. The submit is disabled and a note beside it says the form is a design shell, which a
+screen reader reaches through the button's `aria-describedby`.
 
-What it costs a visitor: a racer cannot apply. The page explains the programme and then stops.
+What it costs a visitor: a racer still cannot apply. The form looks like live's and goes nowhere,
+which is why the button cannot be pressed and says so.
 
 What would close it, and what would not. **The two halves were split on 2026-08-01 so a verdict
 about one could not close the other.** The UI is buildable and
