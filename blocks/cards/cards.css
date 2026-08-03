@@ -1356,3 +1356,95 @@ main .section.cards-container:has(.cards.members.row) .default-content-wrapper h
 main .section.dark.cards-container:has(.cards.coverage) .default-content-wrapper h2 + p {
   margin-top: 0;
 }
+
+/* ---- news on a light band: live's promo teaser list, which is /offers ----
+
+   Two live components share this variant. On a dark band it is a row of plain
+   text teasers, handled above; on a light band it is the promo teaser list, and
+   `/offers` is the only published page carrying it. Live stacks that one as wide
+   rows: `.view-rows` caps at 940 and each `article.promo-teaser` is a flex row
+   with the still in a fixed 270 column and the copy beside it.
+
+   The light-band prefix keeps the dark band on the tile and the title size it
+   was measured for. The whole set sits at the foot of the file for the reason
+   the paragraph rule above it does: it is more specific than the dark-band
+   rules it has to beat, and a more specific rule ahead of them is what
+   no-descending-specificity refuses.
+
+   Six of those warnings survive the move, and each names a rule for `plain`,
+   `highlights` or a band's own copy. A card carries one variant, so no news
+   card can also be one of those and their order carries no cascade meaning,
+   which is what the `members.row` tile says further up for the same reason.
+   #209 */
+/* stylelint-disable no-descending-specificity */
+main .section:not(.dark, .black) .cards.news > ul {
+  grid-template-columns: 1fr;
+  max-width: 940px;
+  margin-inline: auto;
+}
+
+main .section:not(.dark, .black) .cards.news > ul > li {
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 0 40px 0 rgb(0 0 0 / 10%);
+}
+
+/* the li now carries the inset, so the body drops the 16 it holds on a tile */
+main .section:not(.dark, .black) .cards.news .cards-card-body {
+  margin: 0;
+}
+
+/* the 28 live keeps between the still and the copy, above it while the card is
+   stacked and beside it once the row engages */
+main .section:not(.dark, .black) .cards.news .cards-card-image {
+  margin-bottom: 28px;
+}
+
+main .section:not(.dark, .black) .cards.news .cards-card-body p {
+  font-size: var(--body-font-size-m);
+  line-height: 26px;
+  margin: 8px 0 16px;
+}
+
+/* live's title is an h2 at 30/38 weight 400 and its tag line is `span.tag` at
+   14/26 weight 700 uppercase. The news rule above gives the tag treatment to
+   the heading, which is live's two values on live's other element, so both are
+   named here. #383's rule holds: the line box is pinned with the size. */
+main .section:not(.dark, .black) .cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  font-size: var(--heading-font-size-xl);
+  line-height: 38px;
+  font-weight: 400;
+  letter-spacing: normal;
+  margin: 0;
+}
+
+/* the title is a link here and live's is not, so it reads at the heading's
+   weight rather than at the bold the variant gives a card's links */
+main .section:not(.dark, .black) .cards.news .cards-card-body :is(h1, h2, h3, h4, h5, h6) a {
+  font-weight: inherit;
+}
+
+main .section:not(.dark, .black) .cards.news .cards-card-body p:first-child {
+  font-size: var(--body-font-size-xs);
+  line-height: 26px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+@media (width >= 769px) {
+  main .section:not(.dark, .black) .cards.news > ul > li {
+    display: flex;
+    padding: 28px;
+  }
+
+  main .section:not(.dark, .black) .cards.news .cards-card-image {
+    flex: 0 0 270px;
+    margin: 0 28px 0 0;
+  }
+
+  main .section:not(.dark, .black) .cards.news .cards-card-body {
+    flex: 1;
+  }
+}
