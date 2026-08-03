@@ -67,8 +67,11 @@ plate nor the state.
 its own cookie popup. Neither is here, so the two sites differ in the first screenshot and
 nothing about the rebuild's traffic can be measured the way live's is.
 
-**One page is missing outright.** `/my-first-car-my-first-tires` 404s
-([#336](https://github.com/cloudadoption/contitires/issues/336)).
+**No page is missing now.** `/my-first-car-my-first-tires` answers 200 and carries live's h1 and
+both of its gallery headings, so the 404 recorded under
+[#336](https://github.com/cloudadoption/contitires/issues/336) is gone. One page was genuinely
+absent, live's twelfth tire facet: the nav linked `/tires/fleet` while a redirects row sent that
+path to `/tires`. It now answers 200 and renders live's own 3 results in live's order.
 `/racer-tire-program` had no form until #559; it now carries live's 20 fields with the submit
 disabled ([#101](https://github.com/cloudadoption/contitires/issues/101)).
 
