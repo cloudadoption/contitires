@@ -76,6 +76,7 @@ async function read(classes, width, subtitle) {
   return {
     fontSize: cs.fontSize,
     lineHeight: cs.lineHeight,
+    fontWeight: cs.fontWeight,
     marginTop: cs.marginTop,
     band: px(block.getBoundingClientRect().height),
     strip: px(block.querySelector('.hero-image').getBoundingClientRect().height),
@@ -121,6 +122,13 @@ describe('Hero, live\'s smaller subtitle on the three backdrop hubs (#470)', () 
       const s = await read('left stacked slim breadcrumb', width);
       expect(s.marginTop).to.equal('8px');
     });
+
+    /* live's smaller subtitle is also bold, read at 375 on /experience against
+       the 400 its own default subtitle takes on /experience/soccer */
+    it(`reads live's bold subtitle at ${width}`, async () => {
+      const s = await read('left stacked slim breadcrumb', width);
+      expect(s.fontWeight).to.equal('700');
+    });
   });
 
   it('lands on live\'s 318 band at 1024, on live\'s own copy', async () => {
@@ -142,6 +150,8 @@ describe('Hero, live\'s smaller subtitle on the three backdrop hubs (#470)', () 
       const s = await read('breadcrumb stacked slimmer', 375);
       expect(s.fontSize).to.equal('18px');
       expect(s.marginTop).to.equal('16px');
+      // live's own default subtitle is 400 there, which is what this reads
+      expect(s.fontWeight).to.equal('400');
     });
 
     it('/events keeps the block\'s own 18px subtitle', async () => {
