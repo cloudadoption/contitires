@@ -86,10 +86,12 @@ describe('Rise into view: the stylesheet', () => {
   });
 
   it('rises from below over 1s with a per-item delay', () => {
-    const anim = anyRule('.rise-in', 'animation').join(' ');
-    expect(anim, 'animation').to.contain('--rise-duration');
-    expect(anim, 'the fill holds the from-frame through the delay').to.contain('both');
-    expect(anim, "live's easing").to.contain('ease');
+    // longhands rather than the shorthand: a shorthand holding a var() reads
+    // back out of the CSSOM as its initial values.
+    expect(anyRule('.rise-in', 'animation-name'), 'animation-name').to.include('rise-up');
+    expect(anyRule('.rise-in', 'animation-duration').join(' '), 'animation-duration').to.contain('--rise-duration');
+    expect(anyRule('.rise-in', 'animation-fill-mode'), 'the fill holds the from-frame through the delay').to.include('both');
+    expect(anyRule('.rise-in', 'animation-timing-function'), "live's easing").to.include('ease');
     const delay = anyRule('.rise-in', 'animation-delay').join(' ');
     expect(delay, 'animation-delay').to.contain('--rise-order');
     expect(delay, 'animation-delay').to.contain('--rise-stagger');
@@ -127,10 +129,11 @@ describe('Rise into view: the stylesheet', () => {
 
 describe('Rise into view: what the script arms', () => {
   let riseIntoView;
+  let playBatch;
   let observer;
 
   before(async () => {
-    ({ default: riseIntoView } = await import('../../scripts/rise.js'));
+    ({ default: riseIntoView, playBatch } = await import('../../scripts/rise.js'));
     await setViewport({ width: 1440, height: 900 });
   });
 
@@ -140,42 +143,46 @@ describe('Rise into view: what the script arms', () => {
   });
 
   /**
-   * Three sections the way decorateSections leaves them: a section holds
+   * Six sections the way decorateSections leaves them: a section holds
    * wrappers, and a wrapper holds either default content or one block. The
-   * first two stand inside a 900px viewport and the third starts at 1600px.
+   * viewport is 900 tall.
+   *
+   * 0 to 400 is the eager section. 400 to 600 stands wholly inside the fold.
+   * 600 to 1400 straddles it, four 200px cards with two of them showing, which
+   * is the shape `/learn/news` has. A spacer holds the listing at 3000, far
+   * enough down that reaching it takes the cards back off the screen, and a
+   * trailing section gives the document the room to scroll that far.
    */
   function mount() {
+    const cards = (n, h) => `<ul>${Array.from({ length: n }, (unused, i) => `<li style="height: ${h}px">card ${i}</li>`).join('')}</ul>`;
     const main = document.createElement('main');
     main.innerHTML = `
       <div class="section" style="height: 400px">
         <div class="default-content-wrapper"><h1>Engineering and technology</h1></div>
       </div>
-      <div class="section" style="height: 1200px">
+      <div class="section" style="height: 200px">
         <div class="default-content-wrapper"><h2>In the fold</h2><p>copy</p></div>
       </div>
-      <div class="section" style="height: 2000px">
+      <div class="section">
         <div class="cards-wrapper">
-          <div class="cards block">
-            <ul><li>one</li><li>two</li><li>three</li></ul>
+          <div class="cards block">${cards(4, 200)}</div>
+        </div>
+      </div>
+      <div class="section" style="height: 1600px">
+        <div class="default-content-wrapper"><p>spacer</p></div>
+      </div>
+      <div class="section">
+        <div class="article-cards-wrapper">
+          <div class="article-cards block">
+            ${cards(10, 20)}
+            <div class="article-cards-summary">1-10 of 148 results</div>
           </div>
         </div>
       </div>
-      <div class="section" style="height: 900px">
-        <div class="default-content-wrapper"><h2>Last</h2><p>copy</p></div>
-      </div>`;
+      <div class="section" style="height: 900px"></div>`;
     document.body.replaceChildren(main);
     window.scrollTo(0, 0);
     return main;
-  }
-
-  /** Waits for `test` to hold, up to 2s of frames. */
-  async function until(test, what) {
-    for (let i = 0; i < 120; i += 1) {
-      if (test()) return;
-      // eslint-disable-next-line no-await-in-loop
-      await new Promise((resolve) => { requestAnimationFrame(resolve); });
-    }
-    expect.fail(`timed out waiting for ${what}`);
   }
 
   it('leaves the first section alone, so LCP is never behind the fade', async () => {
@@ -192,30 +199,53 @@ describe('Rise into view: what the script arms', () => {
     expect(second.querySelectorAll('.rise'), 'the second section is in the fold').to.have.length(0);
   });
 
-  it('arms what is below the fold, one item per card rather than the grid', async () => {
+  it('arms card by card rather than by the grid holding them', async () => {
     const main = mount();
     observer = riseIntoView(main);
-    const items = [...main.querySelectorAll('.rise')];
+    // the grid starts inside the fold and runs 800px past it. Its own box is a
+    // group, and arming that group is what left `/learn/news` with nothing
+    // animated at all: 1202px of cards behind a top edge at 454.
     const cards = [...main.querySelectorAll('.cards li')];
-    expect(cards.every((li) => li.classList.contains('rise')), 'each card armed').to.be.true;
-    expect(items).to.include.members(cards);
+    expect(cards.map((li) => li.classList.contains('rise')))
+      .to.eql([false, false, true, true]);
     expect(main.querySelector('.cards').classList.contains('rise'), 'not the grid itself').to.be.false;
+    expect(main.querySelector('.cards-wrapper').classList.contains('rise'), 'not the wrapper').to.be.false;
   });
 
-  it('plays on entry, staggered down the DOM, and only once', async () => {
+  it('waits until an item is a tenth of a screen inside the viewport', async () => {
     const main = mount();
     observer = riseIntoView(main);
-    const cards = [...main.querySelectorAll('.cards li')];
-    window.scrollTo(0, 1800);
-    await until(() => cards[0].classList.contains('rise-in'), 'the cards to play');
+    // the trigger itself is Chrome's to deliver, and it will not: a callback is
+    // delivered in the rendering lifecycle, and a page that is not in front
+    // runs no frames at all under the concurrency the whole suite uses. Not one
+    // rAF fired in 20s. So what is asserted here is the configuration, and
+    // playBatch below is called the way the callback calls it.
+    expect(observer.thresholds, 'threshold').to.eql([0]);
+    expect(observer.rootMargin, 'rootMargin').to.equal('0px 0px -10% 0px');
+  });
+
+  it('plays a batch staggered down the page, and takes the hidden state off', async () => {
+    const main = mount();
+    riseIntoView(main);
+    const cards = [...main.querySelectorAll('.cards li')].slice(2);
+    playBatch(cards);
     cards.forEach((li, i) => {
       expect(li.classList.contains('rise'), `card ${i} no longer armed`).to.be.false;
       expect(li.classList.contains('rise-in'), `card ${i} playing`).to.be.true;
       expect(li.style.getPropertyValue('--rise-order'), `card ${i} order`).to.equal(String(i));
     });
-    window.scrollTo(0, 0);
-    await new Promise((resolve) => { setTimeout(resolve, 100); });
-    expect(main.querySelectorAll('.cards li.rise'), 'not re-armed on the way back up').to.have.length(0);
+  });
+
+  it("holds the cascade to live's own ceiling when a screenful arrives at once", async () => {
+    const main = mount();
+    riseIntoView(main);
+    const items = [...main.querySelectorAll('.article-cards li')];
+    playBatch(items);
+    // live's order classes stop at `animated-order-7`, six steps of 100ms. Ten
+    // rows arriving together would otherwise leave the last one hidden for a
+    // second after the reader had reached it.
+    expect(items.map((li) => li.style.getPropertyValue('--rise-order')))
+      .to.eql(['0', '1', '2', '3', '4', '5', '6', '6', '6', '6']);
   });
 
   it('adds nothing at all under prefers-reduced-motion', async () => {
