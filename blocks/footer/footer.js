@@ -73,7 +73,15 @@ function decorateSocialGroup(group) {
 /* the columns are a single stack below this width, which is where live shows
    them as disclosure rows instead. 769 is live's own boundary: it holds the
    rows collapsed to 768 and opens the columns at 769 (#138) */
-const isStacked = window.matchMedia('(width < 769px)');
+const STACKED_MEDIA_QUERY = '(width < 769px)';
+
+// created on first use rather than at import, so a module that imports one of
+// the helpers below does not read the viewport on the way in
+let stackedQuery;
+function stacked() {
+  if (!stackedQuery) stackedQuery = window.matchMedia(STACKED_MEDIA_QUERY);
+  return stackedQuery;
+}
 
 /**
  * A plain link column, the kind live collapses on mobile. Live keeps the search
@@ -231,6 +239,6 @@ export default async function decorate(block) {
 
   const links = block.querySelector('.footer-links');
   if (!links) return;
-  setFooterDisclosures(links, isStacked.matches);
-  isStacked.addEventListener('change', () => setFooterDisclosures(links, isStacked.matches));
+  setFooterDisclosures(links, stacked().matches);
+  stacked().addEventListener('change', () => setFooterDisclosures(links, stacked().matches));
 }

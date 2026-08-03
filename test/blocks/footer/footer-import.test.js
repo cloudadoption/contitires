@@ -117,20 +117,22 @@ describe('Footer, the step it subscribes to', () => {
 
     const links = block.querySelector('.footer-links');
     expect(links, 'the footer fixture decorated').to.exist;
+    // the fixture's own count, so the assertion cannot drift from it. Four of the
+    // five groups are plain link columns; the fifth carries icons and stays open.
+    const columns = navLists(block).length;
+    expect(columns, 'the fixture has plain link columns to collapse').to.be.at.least(4);
     expect(driver.subscriptions(), 'one change subscription').to.equal(1);
     expect(links.classList.contains('footer-links-stacked'), 'open to begin with').to.be.false;
     expect(block.querySelectorAll('.footer-links-toggle'), 'no control to begin with').to.have.length(0);
 
     driver.change(true);
     expect(links.classList.contains('footer-links-stacked'), 'stacked when the step fires').to.be.true;
-    expect(block.querySelectorAll('.footer-links-toggle'), 'a control per plain column').to.have.length(5);
-    expect(navLists(block).map((ul) => ul.hidden), 'every plain column closed')
-      .to.eql([true, true, true, true, true]);
+    expect(block.querySelectorAll('.footer-links-toggle'), 'a control per plain column').to.have.length(columns);
+    expect(navLists(block).filter((ul) => !ul.hidden), 'no plain column open').to.eql([]);
 
     driver.change(false);
     expect(links.classList.contains('footer-links-stacked'), 'open again above it').to.be.false;
     expect(block.querySelectorAll('.footer-links-toggle'), 'no control above it').to.have.length(0);
-    expect(navLists(block).map((ul) => ul.hidden), 'every plain column open')
-      .to.eql([false, false, false, false, false]);
+    expect(navLists(block).filter((ul) => ul.hidden), 'no plain column closed').to.eql([]);
   });
 });
