@@ -321,6 +321,30 @@ body.article main .section:has(.share-wrapper) .related-articles-list a:focus-vi
     margin-inline: -17%;
   }
 
+  /* a gallery authored into the copy takes the copy's measure, because live has
+     no gallery rule on a default article at all: the block is a child of
+     `.news-article__body` and takes the 13% inset that column already carries.
+     Measured on /learn/continental-tire-launches-truecontact-tour-54, where the
+     gallery and the body report one box: 558.7 at 1440, 478.8 at 1024, 387 at
+     900 and 290.1 at 769, on tiles of 269.4, 229.4, 183.5 and 135. Ours read
+     750 and 365 at every width from 769 up, which is the partner column the
+     block was first measured in.
+
+     On the BLOCK, which is a normal box in the wrapper, so the auto margins the
+     block sheet sets centre it. The same 74% on the wrapper collapses it to the
+     list's 20px gap: the wrapper is a grid item, auto margins turn the stretch
+     off, and a list of two tiles has no max-content of its own. That is the
+     mechanism #194 met on the copy wrapper, which is why the copy takes a width
+     there and the gallery takes a maximum here.
+
+     `:not(.partner)` holds this off the 13 pages where live does give the
+     gallery a column. Nothing caps it there: `minmax(0, 750px)` is the partner
+     track and a partner section carrying no share block is not a grid at all,
+     so the block cannot outgrow what it sits in. (#326) */
+  body.article main .section:has(.share-wrapper):not(.partner) .media-gallery {
+    max-width: 74%;
+  }
+
   /* the sidebar is one item, in the row the body starts in, so the list it
      holds sits under the sharebar rather than below the article (#193) */
   body.article main .section:has(.share-wrapper) .share-wrapper {
