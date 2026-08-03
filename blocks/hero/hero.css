@@ -53,11 +53,65 @@ main .section.hero-container {
   z-index: auto;
 }
 
+/* THE SCRIM IS AUTHORED PER MARQUEE and nothing about the page predicts it,
+   which is the whole of #531. Live's rule is one flat colour behind one custom
+   property its editor sets on the section:
+
+     .marquee__background::after { background: rgba(0, 0, 0, var(--marquee-bg-opacity, 0.2)) }
+
+   Read on 2026-08-03, the computed `::after` at 1440 beside the inline property
+   each page carries, over the eleven blocks this rule used to reach:
+
+     /forwhatyoudo /lightscameratraction /smart-choice   0.0   nothing
+     /ev-compatible /cruisingthecontinentalus            0.0   nothing
+     /customer-support/technical-documents               0.3
+     /emilytalkstires                                    0.4
+     /promotionended                                      .5
+     /all-new-securecontact-aw          0.0 + marquee--vertical-shade
+     /racer-tire-program /warranty      live opens neither with a marquee
+
+   So the nine blocks the issue names are indistinguishable in our markup and
+   differ only in the number live's author picked. A selector cannot separate
+   them; the value has to be authored here too, which is the four `scrim-*`
+   classes below. ZERO IS THE DEFAULT rather than live's own 0.2, because eight
+   of the nineteen marquees read carry 0.0 and no block here wants a scrim
+   nobody asked for. The two pages with no live marquee author no photograph
+   either, so this paints over their own background and is invisible on both. */
 .hero .hero-image::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgb(0 0 0 / 80%) 0%, rgb(0 0 0 / 0%) 60%);
+  background: rgb(0 0 0 / var(--hero-scrim-opacity, 0%));
+}
+
+/* the four values live's editors picked across the marquees this base rule
+   reaches. The property is the one `.hero.left` and the two `stacked` scrim
+   rules already read, so a page authored `left scrim-40` takes 40% through the
+   rule it already had rather than through a second one. */
+.hero.scrim-0 {
+  --hero-scrim-opacity: 0%;
+}
+
+.hero.scrim-30 {
+  --hero-scrim-opacity: 30%;
+}
+
+.hero.scrim-40 {
+  --hero-scrim-opacity: 40%;
+}
+
+.hero.scrim-50 {
+  --hero-scrim-opacity: 50%;
+}
+
+/* live's `marquee--vertical-shade`, on /all-new-securecontact-aw alone: its own
+   stops, top-down, where the base gradient this replaces ran bottom-up. Live
+   hides it below 1025 because it divides that marquee there into a strip over
+   copy on black; ours is not divided, so the copy is over the photograph at
+   every width and the shade holds. That structural difference is already in the
+   parity document for the same page's desktop band. #531 */
+.hero.vertical-shade .hero-image::after {
+  background: linear-gradient(rgb(0 0 0 / 0%) 0%, rgb(0 0 0 / 60%) 75%, rgb(0 0 0 / 80%) 90%);
 }
 
 .hero .hero-image picture,
@@ -1298,5 +1352,46 @@ main .section.hero-container {
 
 .hero.left .hero-content:has(h3) .hero-ctas {
   justify-content: center;
+}
+
+/* ---- live's smaller subtitle, and it is the whole of what was left of #470.
+   The trail is already out of the copy and pinned to the band, which took 40 of
+   the 68 that issue measured. What remained, read on 2026-08-03 through an
+   iframe at the width against the published host:
+
+     width   live   ours     delta
+     375     362    390.39   +28.39
+     769     318    332.8    +14.8
+     1024    318    332.8    +14.8
+     1440    400    400      0
+
+   Both bands are the strip plus the copy box and the strip is 160 on both sides,
+   so the difference is inside the copy. LIVE'S COPY PADDING IS 28px TOP AND
+   BOTTOM, WHICH IS OURS EXACTLY, so padding is not it:
+
+     element                    live              ours
+     title, 375 and 1024        30/36, 2 lines    30/36, 2 lines
+     subtitle                   16px/22px         18px/28.8px
+     gap above the subtitle     8px               16px
+
+   72 + 8 + 22 is live's 102 at 1024 against our 116.8, and 72 + 8 + 66 its 146
+   at 375 against our 174.39. Both deltas are the subtitle and its gap, to the
+   pixel.
+
+   Live carries a class for it, `marquee--with-smaller-subtitle`, on exactly the
+   three pages we author `stacked slim breadcrumb`: /experience,
+   /experience/partners and /experience/conti-crew. It holds 16px/22px at 1440
+   too, so this is unbounded rather than shut inside the query below the step;
+   the desktop band is a 400 min-height on both sides and does not move with the
+   type. /experience/soccer carries live's breadcrumb class without the backdrop
+   one and keeps the block's own 18px, which is why `slim` is in the selector.
+
+   IT SITS AT THE FOOT because it scores 0-4-0 on a `p` and every other
+   `.hero-content p` rule in this file is 0-3-0 or less, including the two inside
+   the 1025 query, which stylelint reads as descending in the other order. ---- */
+.hero.stacked.slim.breadcrumb .hero-content p {
+  margin-top: 8px;
+  font-size: 16px;
+  line-height: 22px;
 }
 
