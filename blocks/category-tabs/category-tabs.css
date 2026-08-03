@@ -108,6 +108,22 @@
    row is centred and 32 tall, its items 12 apart, each a 2px #333 outline at a
    26px radius on white with 8px 12px of padding. Typography is the base strip's
    and already matches. Widths came out 110, 65 and 106. Issue #246. */
+
+/* The air over the row. Live carries it on the row itself, `.nav-subtabs
+   { margin-top: 38px }`, and the pages that hold pills hold the base tab bar
+   directly above them in the same section, so with nothing here the pills sat
+   against that bar and its rule.
+   Read off continentaltire.com/learn/news-and-events on 2026-08-03, bottom of
+   `.nav-tabs` to top of `.nav-subtabs`: 38 at 1440, 1024, 769 and 375, so no
+   breakpoint. /learn/news reads the same 38 at 1440. Below live's own
+   breakpoint the row holds a select instead of the pills and takes the same 38,
+   which is why the number belongs to the row rather than to the pills.
+   It stays scoped to `pills`: the base, `compact` and `jump` strips each stand
+   alone in their section, and a margin there would push the row off live's y. */
+.category-tabs.pills {
+  margin-top: 38px;
+}
+
 .category-tabs.pills .category-tabs-list {
   width: fit-content;
   max-width: 100%;
