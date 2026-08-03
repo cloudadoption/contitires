@@ -709,6 +709,41 @@ main .media-gallery.cards .media-gallery-cta a:any-link::after {
   }
 }
 
+/* ---- no leading: the card treatment live gives a band with no feature card ---- */
+
+/*
+ * Live runs two card treatments and names them on the band itself:
+ * `card-list--no_leading` on /my-first-car-my-first-tires against
+ * `card-list--single_leading` and `--double_leading` on /experience/soccer and
+ * the four video listings. The two variants above are the second kind, so no
+ * leading is the absence of both and nothing is authored for it.
+ *
+ * Read off continentaltire.com at 1440, 1024 and 375 on 2026-08-03, my-first-car
+ * against soccer as the control. Live's name there is 12px on a 16px box at
+ * weight 700 and 0.6px tracking, in caps, left at all three widths. Soccer's is
+ * 20/30 on its teaser and 14/20 on a follower, centred on the teaser. Ours was
+ * 14/20 at 400 on both, centred below 1025, so the same block rendered two of
+ * live's components alike. #467
+ *
+ * `/learn/product-highlights` authors this block bare as well and is NOT live's
+ * card-list: live builds it as `news-category-page-grid-3` and closes each card
+ * on a CTA, which #244 measured at 18px. So the `:has()` keeps this off it, the
+ * same discriminator the CTA rules above already use.
+ */
+main .media-gallery.cards:not(.leading, .leading-pair, :has(.media-gallery-cta))
+  .media-gallery-caption {
+  text-align: left;
+}
+
+main .media-gallery.cards:not(.leading, .leading-pair, :has(.media-gallery-cta))
+  .media-gallery-caption > :is(h2, span) {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
 /* ---- the leading variant: the episode live features on a video listing ---- */
 
 /*
@@ -798,4 +833,41 @@ main .media-gallery.cards.leading-pair .media-gallery-list > li:nth-child(n + 3)
     grid-column: span 3;
     align-self: stretch;
   }
+}
+
+/* Live centres the one card in a band that holds a single card, through a third
+   class its editor sets, `card-list--centered`. `:only-child` is that condition
+   read off the markup instead. It starts at 769 because below it the card takes
+   the column on both sides: live reads x=20 at 375 and so do we.
+   The residual against live's x=508.66 at 1440 is the container, 1136 here and
+   1344 there, which #278 holds; at 1024 both are 992 and the card lands on
+   live's 359.33 exactly. */
+@media (width >= 769px) {
+  main .media-gallery.cards:not(.leading, .leading-pair, :has(.media-gallery-cta))
+    .media-gallery-list > li:only-child {
+    grid-column: 2;
+  }
+}
+
+/* ---- the hairline between one card band and the next ---- */
+
+/*
+ * Live's own rule is `* + .card-list { border-top: 1px solid var(--yellow) }`, so
+ * a band with any band above it takes a line and the first on the page does not.
+ * `--yellow` is #ffa500, which is `--conti-yellow`.
+ *
+ * Read at 1440 on 2026-08-03 over the three pages that run more than one band:
+ * /my-first-car-my-first-tires 0 then 1px, /experience/soccer 0 then 1px three
+ * times, /cruisingthecontinentalus 0 then 1px. Six with it and three without, and
+ * the one without is the first on its page every time.
+ *
+ * IT GOES ON THE SECTION RATHER THAN THE BLOCK, which is the one place in this
+ * file that reaches outside it. Live paints the line full bleed, 1440 wide at
+ * x=0 with the band's own title under it, and the block inside our section is
+ * capped at the container, so a border there would draw a 1136 line where live
+ * draws a 1440 one. `:has()` keeps it to a section that holds one of these
+ * galleries.
+ */
+main .section:has(.media-gallery.cards) ~ .section:has(.media-gallery.cards) {
+  border-top: 1px solid var(--conti-yellow);
 }

@@ -213,6 +213,31 @@ main .columns.bar .button.secondary:focus-visible {
 }
 
 /*
+ * The highlights list, which live sets off with a rule above AND below rather
+ * than with a name. #306 took the Highlights label off the 23 product pages that
+ * printed one, and this is what live draws in its place. Its own rules:
+ *
+ *   .tire-page__description > * + * { margin-top: 1rem }
+ *   .tire-page__top-right .tire-page__description hr {
+ *     background-color: var(--grey); height: 1px; border: none }
+ *
+ * so the box reads paragraph, hr, list, hr. Read as computed on
+ * continentaltire.com/tires/4x4contact at 1440 on 2026-08-03: the sentence 130
+ * tall, an hr of 1 at margin-top 16 in rgb(205, 205, 205), the list 126 at
+ * margin-top 16, then a second hr the same. 16 + 1 + 16 is 33 from the sentence
+ * to the first row, where ours ran 14.4 with no line at either end.
+ *
+ * A border rather than two `hr` elements: nothing a product page loads carries an
+ * `hr` selector, so an authored one would not look like live's, and it would be
+ * two more things for an author to keep in place.
+ */
+.columns.product-hero .product-hero-highlights {
+  margin-top: 16px;
+  padding-block: 16px;
+  border-block: 1px solid var(--conti-grey);
+}
+
+/*
  * The disclosure live collapses both groups into below its own 768 step. The
  * class is on the label only while the block has closed it, so these rules and
  * the markup that needs them arrive and leave together. (#432)

@@ -168,12 +168,16 @@ describe('Media gallery cards, live\'s measurements', () => {
     expect((box.width / box.height).toFixed(2), '16/9').to.equal('1.78');
   });
 
+  /* The fixture is a BARE `cards` block, which #467 made live's `no_leading`
+     treatment: 12px on a 16px box. Soccer's own bands each carry `leading` or
+     `leading-pair` and keep 20/30 and 14/20, which their own tests read. Live's
+     footer padding is 16 by 20 on every one of them. */
   it('sets the name to live\'s type', async () => {
     await setViewport({ width: 1440, height: 900 });
     const name = block.querySelector('.media-gallery-caption h2');
     const caption = block.querySelector('.media-gallery-caption');
-    expect(getComputedStyle(name).fontSize).to.equal('14px');
-    expect(getComputedStyle(name).lineHeight).to.equal('20px');
+    expect(getComputedStyle(name).fontSize).to.equal('12px');
+    expect(getComputedStyle(name).lineHeight).to.equal('16px');
     expect(getComputedStyle(caption).padding).to.equal('16px 20px');
   });
 
