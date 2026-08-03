@@ -2,7 +2,11 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import { categoryNames } from '../../scripts/categories.js';
 
 const DEFAULT_SOURCE = '/learn/query-index.json';
-const BATCH = 12;
+// live's page and its step, both 10: /learn/news-and-events delivers 10
+// `article.news-teaser` under a Load More anchor to `?page=1`, and clicking it
+// leaves 20 on the page. A page of ten also gives /learn/corporate its count,
+// since 11 rows fit inside a batch of 12 and the count rides with the control.
+const BATCH = 10;
 
 /** Drops the " | Continental Tire" suffix the article <title> carries. */
 function cleanTitle(title) {
