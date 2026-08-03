@@ -565,6 +565,11 @@ async function loadLazy(doc) {
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
   initFinderTriggers(doc);
+
+  // the scroll-in animation, imported here rather than at the top so it costs
+  // the eager phase nothing. It hides only what is below the fold, so the LCP
+  // element is never behind it. (#247)
+  import('./rise.js').then(({ default: riseIntoView }) => riseIntoView(main));
 }
 
 /**

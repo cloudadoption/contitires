@@ -49,12 +49,31 @@ describe('Article cards block', () => {
     const block = buildBlock();
     await decorate(block);
 
-    expect(block.querySelectorAll('.article-card')).to.have.length(12);
+    expect(block.querySelectorAll('.article-card')).to.have.length(10);
     const more = block.querySelector('.article-cards-more');
     expect(more).to.exist;
 
     more.click();
     expect(block.querySelectorAll('.article-card')).to.have.length(15);
+    expect(!!block.querySelector('.article-cards-more')).to.be.false;
+  });
+
+  /*
+   * Live pages ten and steps ten. Its /learn/news-and-events delivers 10
+   * `article.news-teaser` with a Load More anchor to `?page=1`, and clicking it
+   * in a browser on 2026-08-03 left 20 teasers on the page. `?page=14` holds the
+   * last 8 of 148 and no pager at all. Issue #348.
+   */
+  it('steps ten at a time, the page live pages', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(25))));
+    const block = buildBlock();
+    await decorate(block);
+
+    expect(block.querySelectorAll('.article-card')).to.have.length(10);
+    block.querySelector('.article-cards-more').click();
+    expect(block.querySelectorAll('.article-card')).to.have.length(20);
+    block.querySelector('.article-cards-more').click();
+    expect(block.querySelectorAll('.article-card')).to.have.length(25);
     expect(!!block.querySelector('.article-cards-more')).to.be.false;
   });
 
@@ -79,8 +98,8 @@ describe('Article cards block', () => {
 
     const summary = block.querySelector('.article-cards-summary');
     expect(summary).to.exist;
-    expect(summary.textContent).to.equal('1-12 of 15 results');
-    expect(summary.querySelector('b').textContent).to.equal('1-12');
+    expect(summary.textContent).to.equal('1-10 of 15 results');
+    expect(summary.querySelector('b').textContent).to.equal('1-10');
     // live keeps the count above the control, and adjacent to it
     expect(summary.nextElementSibling).to.equal(block.querySelector('.article-cards-more'));
 
@@ -96,6 +115,21 @@ describe('Article cards block', () => {
 
     expect(!!block.querySelector('.article-cards-more')).to.be.false;
     expect(!!block.querySelector('.article-cards-summary')).to.be.false;
+  });
+
+  /*
+   * `/learn/corporate` holds 11 rows, one over a page of ten, and live prints
+   * `1-10 of 11 results` there. A batch of 12 swallowed the whole listing, so it
+   * drew no control and the count rides with the control. Issue #348.
+   */
+  it('prints the count for a listing one row over a page', async () => {
+    fetchStub = sinon.stub(window, 'fetch').resolves(new Response(JSON.stringify(indexResponse(11))));
+    const block = buildBlock();
+    await decorate(block);
+
+    expect(block.querySelectorAll('.article-card')).to.have.length(10);
+    expect(block.querySelector('.article-cards-summary').textContent).to.equal('1-10 of 11 results');
+    expect(block.querySelector('.article-cards-more')).to.exist;
   });
 
   it('draws a stub for a row that has no image', async () => {
