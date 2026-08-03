@@ -188,6 +188,131 @@ main > .section.perfect-fit-host > div {
   }
 }
 
+/* banner variant: live runs a SECOND finder component and the difference is not
+   a width. The homepage, /ev-compatible and /smart-choice carry the strip above,
+   `store-finder-nav-banner`. /all-new-securecontact-aw carries
+   `find-your-perfect-fit-banner`, a band of its own with three bordered boxes
+   and the page's own calls to action inside it. Probed at 1440:
+
+     band       1440 x 326.8   padding 38px 0, bg #1d1d1d, 2px yellow rule
+     container  1168 x 248.8   padding 0 16px, gap 20, column
+     title       311.91 x 32   24px/32px weight 300, 0.12em, uppercase
+     option      240 x 124     padding 20, gap 4, 2px yellow, radius 12
+     icon         60 x 60      label 12px on 16
+
+   The 375 values are live's own declarations under `max-width: 768px`: the row
+   turns into a column, the box goes to `max-width: 280px` on `12px 20px 16px`
+   and `gap: 8px`, and the glyph halves to 40. 2 + 12 + 40 + 8 + 16 + 16 + 2
+   is its 96.
+
+   The band is the SECTION's, the way the strip's `padding: 0` at the top of this
+   file is, and it outweighs that rule on the extra class rather than on order.
+   Every rule here does: the strip flips to a row and takes its row padding at
+   769, and the band is a column at every width, so `.perfect-fit.banner` beats
+   `.perfect-fit` inside that query without a query of its own. #85 */
+main .section:has(.perfect-fit.banner) {
+  margin: 0;
+  padding: 38px 0;
+  border-top: 2px solid var(--conti-yellow);
+  background-color: var(--conti-dark-black);
+  color: var(--conti-white);
+  text-align: center;
+}
+
+/* the reach out of the block goes in `:where` from here down, so it adds no
+   weight and sorts ahead of no later rule in this file, the same as the
+   label-carrying scope above */
+:where(main .section:has(.perfect-fit.banner)) a:any-link:not(.button) {
+  color: var(--conti-white);
+}
+
+/* live sets the calls to action 8 under the options, on top of the container's
+   own 20 */
+:where(main .section:has(.perfect-fit.banner)) > .default-content-wrapper {
+  margin: 28px 0 0;
+}
+
+:where(main .section:has(.perfect-fit.banner)) > .default-content-wrapper p {
+  margin: 0;
+}
+
+.perfect-fit.banner {
+  flex-direction: column;
+  gap: 20px;
+  padding: 0;
+}
+
+.perfect-fit.banner .perfect-fit-label {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+}
+
+.perfect-fit.banner .perfect-fit-items {
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+/* live's options hold the buttons directly and ours hold a list item each, so
+   the box is the button's and the track is the item's */
+.perfect-fit.banner .perfect-fit-items li {
+  display: flex;
+  width: 100%;
+  max-width: 280px;
+}
+
+.perfect-fit.banner .perfect-fit-item {
+  box-sizing: border-box;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px 16px;
+  border: 2px solid var(--conti-yellow);
+  border-radius: 12px;
+}
+
+:where(.perfect-fit.banner) .perfect-fit-items .icon {
+  height: 40px;
+  width: 40px;
+}
+
+:where(.perfect-fit.banner) .perfect-fit-items p {
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 1.25px;
+}
+
+@media (width >= 769px) {
+  .perfect-fit.banner .perfect-fit-label {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .perfect-fit.banner .perfect-fit-items {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .perfect-fit.banner .perfect-fit-items li {
+    flex: 1;
+    min-width: 160px;
+    max-width: 240px;
+  }
+
+  .perfect-fit.banner .perfect-fit-item {
+    gap: 4px;
+    padding: 20px;
+  }
+
+  :where(.perfect-fit.banner) .perfect-fit-items .icon {
+    height: 60px;
+    width: 60px;
+  }
+}
+
 /* card variant: live's product hero offers the same three searches in a white
    card in the right column, 352 wide, under the question */
 .perfect-fit.card {
