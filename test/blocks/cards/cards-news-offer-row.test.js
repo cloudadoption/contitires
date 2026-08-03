@@ -178,6 +178,14 @@ describe("Cards, live's stacked offer row", () => {
     expect(cs.letterSpacing).to.equal('normal');
   });
 
+  it("holds the title's link at the heading's own weight", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const link = build().querySelector('.cards-card-body h2 a');
+    const cs = getComputedStyle(link);
+    expect(cs.fontSize).to.equal('30px');
+    expect(cs.fontWeight).to.equal('400');
+  });
+
   it("gives the tag line above it live's uppercase 14/26", async () => {
     await setViewport({ width: 1440, height: 900 });
     const tag = build().querySelector('.cards-card-body p');
