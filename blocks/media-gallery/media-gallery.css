@@ -24,6 +24,15 @@ main .section > .media-gallery-wrapper {
 main .media-gallery {
   min-width: 0;
   margin-inline: auto;
+
+  /* Live's expand badge, its rule and its drawing both: a 21px white circle
+     stroked #ffa500 with a #333 plus. It is what marks a still as something
+     that opens, and live draws it below 769 on the product viewer, the article
+     gallery and the Social row alike. A data URI for the same reason the play
+     badge below is one, and a custom property because two rules paint it: a
+     `::before` on a tile that is a button, and a button of its own where the
+     tile is a link. */
+  --media-gallery-expand: url("data:image/svg+xml,%3Csvg height='21' viewBox='0 0 21 21' width='21' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd' transform='translate(1 1)'%3E%3Ccircle cx='9.5' cy='9.5' fill='%23fff' r='9.5' stroke='%23ffa500'/%3E%3Cpath d='m6 9.5h8m-4-4v8' stroke='%23333' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 main .media-gallery .media-gallery-list {
@@ -168,11 +177,8 @@ main .media-gallery :is(.media-gallery-pager-prev, .media-gallery-pager-next):fo
     margin: 16px auto 0;
   }
 
-  /* Live's expand badge, its rule and its drawing both: a 21px white circle
-     stroked #ffa500 with a #333 plus, at bottom 10 right 10 over the still. It
-     is what marks a tile as something that opens, and live draws it on the
-     product viewer and the article gallery alike. A data URI for the same
-     reason the play badge above is one. */
+  /* live's badge at bottom 10 right 10 over the still, where its own `:before`
+     turns from `content: none` to `content: ""` at 768 */
   main .media-gallery:not(.cards) .media-gallery-tile::before {
     content: '';
     position: absolute;
@@ -181,7 +187,7 @@ main .media-gallery :is(.media-gallery-pager-prev, .media-gallery-pager-next):fo
     bottom: 10px;
     width: 21px;
     height: 21px;
-    background-image: url("data:image/svg+xml,%3Csvg height='21' viewBox='0 0 21 21' width='21' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd' transform='translate(1 1)'%3E%3Ccircle cx='9.5' cy='9.5' fill='%23fff' r='9.5' stroke='%23ffa500'/%3E%3Cpath d='m6 9.5h8m-4-4v8' stroke='%23333' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: var(--media-gallery-expand);
     background-repeat: no-repeat;
     background-position: center center;
   }
@@ -459,26 +465,53 @@ main .media-gallery.cards {
 }
 
 /* social: live's /events Social row. Six square tiles, each the whole of a link
-   out to an Instagram post, three across from 769 and one below. Live's own rule
-   is `grid-template-columns: repeat(3, 1fr)` with a `1.25rem` gap, dropping to
-   `1fr` at 768 and under, so the variant undoes the base row's mobile scroller
-   rather than inheriting it. Measured on live at 1440: 177x177 tiles, 20px gap,
-   10px radius, #f3f3f3 bed, no shadow. Issue #188. */
-main .media-gallery.social .media-gallery-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  margin-inline: 0;
-  padding-inline: 0;
-  overflow-x: visible;
-}
+   out to an Instagram post, three across from 769. Live's own rule is
+   `grid-template-columns: repeat(3, 1fr)` with a `1.25rem` gap. Measured on live
+   at 1440: 177x177 tiles, 20px gap, 10px radius, #f3f3f3 bed, no shadow.
+   Issue #188.
 
+   Below 769 live slides them one at a time through the same `con-column-slider`
+   the base row already emulates: a 367 square bleeding to 4px of each edge in a
+   375 viewport, with the pager under it. So the variant's grid starts at 769 and
+   the mobile row is the base row's. It stacked all six before #341. */
 main .media-gallery.social .media-gallery-list > li {
   position: relative;
-  flex: none;
   aspect-ratio: 1;
   border-radius: 10px;
   background-color: var(--conti-lightest-grey);
   overflow: hidden;
+}
+
+/* The `+` live paints in the corner of a Social tile. It carries no `::before`
+   of its own because the tile it stands on is a LINK: live gives the still no
+   other way to open, so this is a button rather than a decoration on one.
+   Painted below 769 alone, where live's own badge rule stops. */
+main .media-gallery.social .media-gallery-zoom {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  right: 10px;
+  bottom: 10px;
+  width: 21px;
+  height: 21px;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  background-image: var(--media-gallery-expand);
+  background-repeat: no-repeat;
+  background-position: center center;
+  cursor: pointer;
+}
+
+main .media-gallery.social .media-gallery-zoom:focus-visible {
+  outline: 2px solid var(--conti-yellow-contrast);
+  outline-offset: 2px;
+}
+
+@media (width < 769px) {
+  main .media-gallery.social .media-gallery-zoom {
+    display: block;
+  }
 }
 
 /* The Instagram glyph live marks every Social tile with. The file is live's
@@ -516,7 +549,15 @@ main .media-gallery.social .media-gallery-link img {
 
 @media (width >= 769px) {
   main .media-gallery.social .media-gallery-list {
+    display: grid;
     grid-template-columns: repeat(3, 1fr);
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow-x: visible;
+  }
+
+  main .media-gallery.social .media-gallery-list > li {
+    flex: none;
   }
 }
 
@@ -720,5 +761,37 @@ main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-ga
   main .media-gallery.cards.leading .media-gallery-list > li:first-child .media-gallery-caption > :is(h2, span) {
     font-size: 20px;
     line-height: 30px;
+  }
+}
+
+/* ---- the leading pair: the two cards live features on the soccer page ---- */
+
+/*
+ * Live's fourth soccer section is `card-list--double_leading` rather than the
+ * `single_leading` the three above it take: the first TWO cards are half the row
+ * each and the rest a third, so six columns carry both and a wide card spans
+ * three of them. Read off continentaltire.com/experience/soccer on 2026-08-03 in
+ * live's 1136 container: 549x431 twice with the 38 gap between them, then
+ * 353x271 on the row under. All three stack at 335 wide at 375.
+ *
+ * The description is the other half of the variant. Live authors one on each of
+ * the three and paints it on the pair alone, which is the choice its
+ * `single_leading` teaser makes too. (#278)
+ */
+main .media-gallery.cards.leading-pair .media-gallery-list > li:nth-child(n + 3) .media-gallery-caption p {
+  display: none;
+}
+
+@media (width >= 769px) {
+  main .media-gallery.cards.leading-pair .media-gallery-list {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  main .media-gallery.cards.leading-pair .media-gallery-list > li {
+    grid-column: span 2;
+  }
+
+  main .media-gallery.cards.leading-pair .media-gallery-list > li:nth-child(-n + 2) {
+    grid-column: span 3;
   }
 }

@@ -19,7 +19,7 @@ import decorate from '../../../blocks/media-gallery/media-gallery.js';
  * | slider | 335x399 at x=20 |
  * | the tile showing | 335x367, one of six, the other five at 0x0 |
  * | its picture | 367x367 at x=4, so the still bleeds to 4px of each edge |
- * | pager | `<button class="prev">`, `1 of 6`, `<button class="next">` in the slider's shadow root |
+ * | pager | `prev`, `1 of 6`, `next` in the slider's own shadow root |
  * | expand badge | `:before`, 21x21 at right 10 bottom 10, and `content: none` at 1440 |
  * | Instagram glyph | `:after`, 28x28 at top 8 right 8, at both widths |
  *
