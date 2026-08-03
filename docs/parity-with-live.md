@@ -163,7 +163,7 @@ the part that IS doable; the row says which half is which.
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [The media gallery](#the-media-gallery) | differs | ⏳ the six-tile product cap and the mobile counter and badge both shipped. The 10 documents took `Style: partner`, so #326's reading-column width is unblocked; #319 waits on a content pass for the 32 assets, which live carries in its own delivered HTML | [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326) |
+|  | [The media gallery](#the-media-gallery) | differs | ⏳ the six-tile product cap, the mobile counter and badge, and #326's reading-column width have all shipped; #319 waits on a content pass for the 32 assets, which live carries in its own delivered HTML | [#319](https://github.com/cloudadoption/contitires/issues/319) |
 |  | [The gallery caption takes a level live does not](#the-gallery-caption-takes-a-level-live-does-not) | diverges | ✅ decided: one level per caption, which is live's on every card but the leading one | [#375](https://github.com/cloudadoption/contitires/issues/375) |
 |  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ the proof of a safe delete is definable and two of its three surfaces read from outside; the third is DA's unpublished documents, and 39 catalog rows point into the prefix | [#330](https://github.com/cloudadoption/contitires/issues/330) |
 |  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
@@ -1087,8 +1087,11 @@ product viewer's: live's article galleries keep back nothing and draw up to 14, 
 `con-media-gallery-modal src` in live's delivered page, so a curl reads them without driving
 live's modal.
 
-Our inline gallery is 750 wide at x=155 at 1440, so it breaks out of the reading column and
-starts further left than the copy above it.
+Our inline gallery is on live's measure as of #326. It was 750 wide at x=155 at 1440, which is
+live's partner track and not its reading column. So it started left of the copy above it, on 365px
+tiles against live's 269. The 750 came off `/learn/continental-science-guy`, a partner page. Both
+groups are measured against live at 1440. The 13 inline pages read 558.7 at x=250 on 269.3 tiles,
+and the 13 partner pages read 750 at x=152 on 365.
 
 The counter and the badge are here as of #327, both taken from live's own source rather than from
 a screenshot: the pager geometry and the two chevrons off the `con-column-slider` component, the
@@ -1101,9 +1104,8 @@ strip below 769 holds what the grid drew.
 What it costs a visitor: on those 10 product pages our modal pages 6 slides where live pages 7 to
 11, so images live shows cannot be reached here.
 
-What would close it: the 32 assets authored as rows 7 and up, a width tied to the reading column,
-and a carousel for the `/events` Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#326](https://github.com/cloudadoption/contitires/issues/326), [#341](https://github.com/cloudadoption/contitires/issues/341),
-[#199](https://github.com/cloudadoption/contitires/issues/199).
+What would close it: the 32 assets authored as rows 7 and up, and a carousel for the `/events`
+Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#341](https://github.com/cloudadoption/contitires/issues/341), [#199](https://github.com/cloudadoption/contitires/issues/199).
 
 ### The gallery caption takes a level live does not
 
@@ -1138,12 +1140,14 @@ it leaves no skip on any of the seven.
 The 14px size and the 20px line box are pinned in the block, so the promoted level does not take
 the global h2 box of 30 over 38. [#375](https://github.com/cloudadoption/contitires/issues/375).
 
-`#326` is blocked on authoring rather than on code. 26 published article pages have a gallery.
-Live draws 13 of them through `news-article__partners` and 13 through `news-article__default`,
-and 3 of the first 13 have `Style: partner` here. Tying the gallery to the reading column reaches
-the other 10 as well, taking them from 750, which is live's partner track, to 559. No DOM signal
-separates those 10 from the 13. Each group has pages whose share block is authored into the first
-section, and pages that take the built sidebar.
+`#326` was blocked on authoring rather than on code, and the authoring landed. 26 published
+article pages have a gallery. Live draws 13 through `news-article__partners` and 13 through
+`news-article__default`, and the two splits now agree: the 13 live draws as partners are the 13
+carrying `Style: partner` here, with no page on the wrong side. That class is the only signal
+separating them. Each group has pages whose share block is authored into the first section and
+pages that take the built sidebar, so the width is keyed off `Style: partner` alone. The 13 inline
+pages went from 750 to 558.7 at 1440 and from 523 to 387 at 900. Below 769 the geometry did not
+move: 335 wide at 375 and 571 at 768, on both sides of the change.
 
 ### Leftover originals in DA
 

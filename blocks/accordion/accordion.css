@@ -1,0 +1,182 @@
+/* Live's own numbers, read off continentaltire.com/ev-compatible and its
+   stylesheet at 1440 and 375 on 2026-08-03:
+
+     .faqs                 padding 80px 0, 38px 0 under max-width 768
+     .faqs > * > * + *     margin-top 38px
+     .faqs__list           max-width 890, margin-inline auto
+     .faqs__list > * + *   margin-top 24px
+     .faqs__title          42/48, weight 300, 6px tracking, uppercase, centred,
+                           30/36 under max-width 1024
+     .faq .faq__question   24/32, padding-left 24, list-style none, pointer,
+                           18/26 under max-width 768
+     ::before              16x16 at left 0 top 7, a #c27e00 plus, top 4 under 768
+     [open] ::before       the same box holding a 16x2 bar of the same colour
+     .faq .faq__answer     18/26, padding-left 24, margin-top 8,
+                           15/22 under max-width 768
+
+   Eight rows at 32 with 24 between them is 488, and 80 + 48 + 38 + 488 + 80 is
+   the 734 live measures. Issue #88. */
+
+/* the column live centres under the band's title */
+.accordion {
+  max-width: 890px;
+  margin-inline: auto;
+}
+
+.accordion > details + details {
+  margin-top: 24px;
+}
+
+/* `position: relative` for the marker, which is drawn out of flow so the
+   question's own text can wrap under itself rather than around it.
+
+   THE TYPE IS ON THE SUMMARY AND NOT ON THE HEADING, which is where live sets
+   it. Live's question steps to 18/26 below the tablet bound where the site's h3
+   holds 24 at every width, so the value has to be declared, and declaring it on
+   an inline heading leaves the summary's own strut in the line box: at 24px
+   inside an 18px summary the collapsed row measured 33 against live's 32. */
+.accordion .accordion-question {
+  position: relative;
+  padding-inline-start: 24px;
+  font-size: 18px;
+  line-height: 26px;
+  cursor: pointer;
+
+  /* the UA's own triangle, which live drops the same way. `list-style` covers
+     current Chrome and Safari and the webkit pseudo-element covers the older
+     ones live still names. */
+  list-style: none;
+}
+
+.accordion .accordion-question::-webkit-details-marker {
+  display: none;
+}
+
+/* the heading keeps its level, takes the summary's type and gives up its
+   margins, which would otherwise open the collapsed row past live's 32.
+
+   The weight is live's 400 and not the site's 300 for headings. Live's own
+   question is a span in a summary and computes 400 in Stag Sans at #333, read on
+   a rendered /ev-compatible at 1440; moving the authored h3 in here brought the
+   global `h1, h2, h3, h4, h5, h6 { font-weight: 300 }` with it, and the two read
+   visibly apart side by side. */
+.accordion .accordion-question :is(h1, h2, h3, h4, h5, h6) {
+  display: inline;
+  margin: 0;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: inherit;
+}
+
+/* the marker is DRAWN, two bars rather than a fetched file, the way cards.css
+   draws live's scroll arrow and columns.css its plus. Live's own is an inline
+   data URI in its stylesheet and not a symbol in its sprite, so there is no
+   asset to take: a 16 by 16 box holding a cross of two 2px arms with a 1px
+   radius, in its --dark-yellow. */
+.accordion .accordion-question::before,
+.accordion .accordion-question::after {
+  position: absolute;
+  border-radius: 1px;
+  background-color: var(--conti-dark-yellow);
+  content: '';
+}
+
+/* the bar across, which both states keep */
+.accordion .accordion-question::before {
+  inset-block-start: 11px;
+  inset-inline-start: 0;
+  width: 16px;
+  height: 2px;
+}
+
+/* and the upright the open row loses */
+.accordion .accordion-question::after {
+  inset-block-start: 4px;
+  inset-inline-start: 7px;
+  width: 2px;
+  height: 16px;
+}
+
+.accordion > details[open] .accordion-question::after {
+  display: none;
+}
+
+.accordion .accordion-answer {
+  margin-top: 8px;
+  padding-inline-start: 24px;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.accordion .accordion-answer > :first-child {
+  margin-top: 0;
+}
+
+.accordion .accordion-answer > :last-child {
+  margin-bottom: 0;
+}
+
+/* live's own indent on a list inside an answer */
+.accordion .accordion-answer :is(ol, ul) {
+  margin-inline-start: 28px;
+}
+
+@media (width >= 769px) {
+  .accordion .accordion-question {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  /* the box the marker centres in grows with the question's line, so both bars
+     move with it: live sets its own 16 by 16 box at top 7 here and top 4 below */
+  .accordion .accordion-question::before {
+    inset-block-start: 14px;
+  }
+
+  .accordion .accordion-question::after {
+    inset-block-start: 7px;
+  }
+
+  .accordion .accordion-answer {
+    font-size: 18px;
+    line-height: 26px;
+  }
+}
+
+/* ---- the band the questions sit on: live's 80 of room, its title centred in
+   letter-spaced capitals, and 38 between that title and the first row. The
+   section's shared 40 of margin goes, because a band that pays its own room
+   would otherwise carry both. ---- */
+main .section.accordion-container {
+  margin: 0;
+  padding: 38px 0;
+}
+
+/* live's title carries no margin of its own; the 38 belongs to the gap below it,
+   which the block's wrapper opens */
+main .section.accordion-container h2 {
+  margin: 0;
+  font-weight: 300;
+  font-size: 30px;
+  line-height: 36px;
+  letter-spacing: 6px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+main .section.accordion-container .accordion-wrapper {
+  margin-top: 38px;
+}
+
+@media (width >= 769px) {
+  main .section.accordion-container {
+    padding: 80px 0;
+  }
+}
+
+@media (width >= 1025px) {
+  main .section.accordion-container h2 {
+    font-size: 42px;
+    line-height: 48px;
+  }
+}

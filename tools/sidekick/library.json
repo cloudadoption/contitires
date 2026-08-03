@@ -1,7 +1,7 @@
 {
-  "total": 23,
+  "total": 24,
   "offset": 0,
-  "limit": 23,
+  "limit": 24,
   "data": [
     {
       "name": "Hero",
@@ -94,6 +94,10 @@
     {
       "name": "Form",
       "path": "/tools/sidekick/blocks/form"
+    },
+    {
+      "name": "Accordion",
+      "path": "/tools/sidekick/blocks/accordion"
     }
   ],
   "columns": [
