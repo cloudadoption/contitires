@@ -339,13 +339,41 @@ service would live, so these three arrive together.
 
 ## Web fonts
 
-`styles/fonts.css` loads the Stag Sans faces from continentaltire.com's own URLs, which works because
-live serves them with an open CORS header. The file says so in a comment.
+**Live** serves the licensed Stag Sans faces from its own theme directory, as four woff files with
+`access-control-allow-origin: *` on them.
 
-A production build licenses the family and self-hosts it. Serving a font from a host you do not
-control is a dependency and, depending on the licence, a violation. Self-hosting also lets the faces
-be subset and preloaded, which is the difference between the type arriving with the first paint and
-arriving after it.
+**This build** points `styles/fonts.css` at those same URLs. `head.html` preloads three of them and
+links that stylesheet render-blocking, so the type is on the first paint. That combination took cold
+CLS on the article pages to 0, and it is the wrong shape twice over. A render-blocking font stylesheet
+and a preload are both what [keeping it 100](https://www.aem.live/developer/keeping-it-100) tells you
+not to add. The faces come from an origin this project does not own, which puts a DNS lookup and a TLS
+handshake before the Largest Contentful Paint. It also makes the type here depend on live being up.
+[docs/architecture.md](architecture.md#the-webfont-on-the-critical-path) has the measurements, and why
+the exception was taken.
+
+**Access needed:** the Stag Sans licence and the font files. No other part of this is blocked.
+
+**Shape.** Four steps, and the result is less code than there is today.
+
+Convert the licensed faces to woff2 and commit them under [`fonts/`](../fonts). Repoint the four `src`
+URLs in `fonts.css` at `../fonts/`, which is what the boilerplate's own `fonts.css` does with its
+Roboto files. Subset each face with a `unicode-range`, again as the boilerplate does. That takes the
+third-party origin off the critical path on its own.
+
+Then generate the metric-matched fallback from the real face. The mechanism is already in
+`styles/styles.css`, a `Stag Sans Fallback` family declared with `size-adjust`, `ascent-override` and
+`descent-override` at each weight over `src: local('Arial')`. Today's ratios were measured with canvas
+`measureText` over 70,041 characters of rendered text, because a font this repo cannot open leaves no
+other route. A generator reading the file gets the advance widths and the vertical metrics from the
+source. With those, `font-display: swap` costs no shift and the swap can land whenever it lands.
+
+Then delete the four lines #570 added to `head.html`: the three preloads and the `fonts.css`
+stylesheet link. `loadFonts()` already requests the file in the lazy phase and needs no change to
+resume owning it. Confirm CLS is still 0 on the article pages afterwards, because that is the number
+the current shape was bought with.
+
+Do not repoint `fonts.css` at a font service instead. That trades one third-party origin for another,
+and the guidance above names the second connection rather than the host as the cost.
 
 ## Media still on the old host
 
