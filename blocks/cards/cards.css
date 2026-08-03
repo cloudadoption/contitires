@@ -1002,6 +1002,26 @@ main .section.black.cards-container .cards.plain .cards-card-body :is(h1, h2, h3
   color: var(--conti-black);
 }
 
+/* live's `.card__footer` runs the name and the call to action on one row, and
+   it reads `padding: var(--space-16) var(--space-20); display: flex; flex-grow:
+   1; justify-content: space-between; align-items: flex-start;
+   font-size: var(--font-size-18)`. Ours stacked them, which made each tile
+   taller than live's. Read off live's own stylesheet. */
+main .section.dark.cards-container .cards.plain .cards-card-body,
+main .section.black.cards-container .cards.plain .cards-card-body {
+  display: flex;
+  flex-grow: 1;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px;
+  font-size: 18px;
+}
+
+main .section.dark.cards-container .cards.plain .cards-card-body > *,
+main .section.black.cards-container .cards.plain .cards-card-body > * {
+  margin: 0;
+}
+
 /* live's `.link-button`, read off its own stylesheet: 12px bold uppercase in an
    inline-flex box at 1.25px tracking, and `.card__cta` underlines it in
    `--dark-yellow` rather than in the text colour. The arrow follows the words at
