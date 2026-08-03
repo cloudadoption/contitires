@@ -184,6 +184,7 @@ the part that IS doable; the row says which half is which.
 |  | [The hero content cap, which changes no wrap](#the-hero-content-cap-which-changes-no-wrap) | diverges | ✅ decided, not outstanding: measured over all 15 pages it reaches and it changes the wrap on none of them | [#409](https://github.com/cloudadoption/contitires/issues/409) |
 |  | [The hero content inset, and what was not read with it](#the-hero-content-inset-is-lives-on-every-variant) | diverges | ✅ the 20px is live's on all 37 hero blocks, from one live declaration against our base rule plus a 1025 override; live's own per-variant block padding is unread here | [#462](https://github.com/cloudadoption/contitires/issues/462) |
 |  | [The marquee band on two pages](#the-marquee-band-on-two-pages-where-a-min-height-cannot-reach-lives-number) | diverges | ✅ decided: three of the five pages read live's number since [#514](https://github.com/cloudadoption/contitires/pull/514), and no `min-height` reproduces an aspect-driven box or live's own 360-against-440 | [#509](https://github.com/cloudadoption/contitires/issues/509), [#217](https://github.com/cloudadoption/contitires/issues/217) |
+|  | [The hero band below the step on three divided pages](#the-hero-band-below-the-step-on-three-divided-pages-where-lives-height-is-its-own-copy) | differs | ✅ decided, not outstanding: /learn now reads live's 294 and 222 exactly, and what is left on /events and /experience/soccer is live's own line count plus a share bar we do not build. Deltas -18 and -54 on /events, -59.61 and -65.2 on soccer | [#529](https://github.com/cloudadoption/contitires/issues/529), [#217](https://github.com/cloudadoption/contitires/issues/217) |
 |  | [The Learn tab row runs taller than live's](#the-learn-tab-row-runs-taller-than-lives) | differs | ⏳ no owning issue: the type matches live and the box does not | [#248](https://github.com/cloudadoption/contitires/issues/248) |
 |  | [The sports h1 box runs the content width](#the-sports-h1-box-runs-the-content-width) | differs | ✅ recorded: live's box is a flex item sized to content, and the ink lands in the same place at three widths | [#335](https://github.com/cloudadoption/contitires/issues/335) |
 |  | [Breakpoints](#breakpoints-half-of-them-lives) | differs | ⏳ the page gutter steps at live's 769 and the heading scale at live's 1025; 23 block rules at 900 and 7 at 600 are open, unfiled | -- |
@@ -1898,6 +1899,51 @@ corrected with it.
 
 **What would close them:** a width-driven box on the securecontact page. For `/ev-compatible`, only
 live resolving its own 360-against-440.
+
+### The hero band below the step on three divided pages, where live's height is its own copy
+
+**differs on `/events` and `/experience/soccer`, and `/learn` is now exact.** Below 1025 this band has
+no floor. `.hero.stacked` sets `min-height: 0` and stacks the photo strip over the copy box, so the
+height is the strip plus what the copy makes. The strip reads live's number on the three pages, six of
+six. The difference is inside the copy.
+
+**Read on the published host against live at 375 and 900 on 2026-08-03:**
+
+    page                width   live   ours     delta
+    /learn              375     294    294        0
+    /learn              900     222    222        0
+    /events             375     370    352      -18
+    /events             900     370    316      -54
+    /experience/soccer  375     384    324.39   -59.61
+    /experience/soccer  900     332    266.8    -65.2
+
+**`/learn` closed on its own.** #529 measured -36 at 375 on 2026-08-02. The copy inset and the title tracking that
+shipped since put both readings on live's number. 130 + 28 + 108 + 28 at 375 and 130 + 28 + 36 + 28 at
+900, the same arithmetic on both sides.
+
+**What is left on `/events` is live's authored break.** Live's title is
+`<span class="text-color-yellow">SEE US AT</span><br>Upcoming Events`, three lines of 36 at both
+widths. Ours is `See Us At Upcoming Events` with no break, two lines at 375 and one at 900. Live's copy
+padding there is 8 top and 30 bottom against our 28 and 28. So ours pads 18px MORE and still runs
+short: 108 + 38 is live's 146 against our 72 + 56 = 128. The band follows the line count, and the line
+count is the words.
+
+**On `/experience/soccer` it is the same break plus a component we do not build.** Live's h1 is
+`For the Love of<br>Soccer`, 72 tall against our 36. Its copy box also opens on a `marquee__sharebar`,
+20px of social buttons 20px under the copy, so 40 of the 65.2 at 900 is a share bar. Two smaller terms
+run the other way and are ours. Live's gap above the marquee copy is 8 where ours is 16, and its line
+box is 26 where ours is 28.8. Both are live's own base values, and **taking either one moves this band
+FURTHER from live's number**, because ours is already short. 36 - 8 - 2.8 + 40 is the 65.2, and
+36 - 8 - 8.39 + 40 is the 59.61.
+
+**Why no rule closes it.** A `min-height` per authored shape would reach the pages: `.hero.stacked.short`
+is /events and /learn alone and `.hero.stacked.slimmer` is /learn and /experience/soccer alone, swept
+over all 328 indexed paths plus `/`. The value would be live's line count written down as a number.
+`/learn` at both widths already reads live's, so a floor on either selector breaks a match to buy one.
+The share bar is a feature rather than a style.
+
+**What would close them:** live's authored breaks in the two titles, which is content. Then a share bar
+on the soccer marquee, which is its own piece of work.
 
 ### The Learn tab row runs taller than live's
 

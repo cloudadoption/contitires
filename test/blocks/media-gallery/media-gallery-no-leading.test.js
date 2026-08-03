@@ -113,8 +113,8 @@ describe("Media gallery, live's no-leading card treatment (#467)", () => {
     const list = block.querySelector('.media-gallery-list').getBoundingClientRect();
     const cell = block.querySelector('.media-gallery-list > li').getBoundingClientRect();
     const px = (v) => Math.round(v * 100) / 100;
-    expect(px(cell.left + cell.width / 2), 'the card sits on the row centre')
-      .to.equal(px(list.left + list.width / 2));
+    expect(Math.round(cell.left + cell.width / 2), 'the card sits on the row centre')
+      .to.equal(Math.round(list.left + list.width / 2));
     expect(px(cell.width), 'a third of the row, not the whole of it').to.equal(353.33);
   });
 
