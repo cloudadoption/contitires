@@ -161,6 +161,17 @@ describe("Cards, live's stacked offer row", () => {
     expect(cs.boxShadow).to.equal('rgba(0, 0, 0, 0.1) 0px 0px 40px 0px');
   });
 
+  // live's card bottom is its own 28 below the button: the teaser is 266.8 tall
+  // at 1440 with a 210.8 copy column, and ours read 282.8 on a 226.8 column
+  // while the call to action carried the copy paragraph's 16 underneath it.
+  it('closes the card at the padding below the call to action', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const block = build();
+    const { li } = parts(block);
+    const cta = [...li.querySelectorAll('.cards-card-body p')].pop();
+    expect(box(li).bottom - box(cta).bottom).to.equal(28);
+  });
+
   it("spaces the teasers by live's 20", async () => {
     await setViewport({ width: 1440, height: 900 });
     const block = build();
