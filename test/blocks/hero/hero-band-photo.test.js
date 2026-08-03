@@ -38,22 +38,25 @@ import decorate from '../../../blocks/hero/hero.js';
  *       }
  *     }
  *
- * And the same values read as COMPUTED on both pages at 1440, 769, 768 and 375
- * on 2026-08-02, which is what settles the parts the stylesheet leaves to a
- * custom property:
+ * And the same values read as COMPUTED on 2026-08-02, which is what settles the
+ * parts the stylesheet leaves to a custom property:
  *
- *     page                        width  height  background-position  ::before
- *     /all-new-securecontact-aw    1440     333        100% 0%         content: none
- *     /all-new-securecontact-aw     375     205        100% 0%         the gradient
- *     /smart-choice                1440     392        100% 0%         content: none
- *     /smart-choice                 375     325        100% 0%         the gradient
+ *     page                        width  height  padding  background-position  ::before
+ *     /all-new-securecontact-aw    1440     333    80/80        100% 0%         content: none
+ *     /all-new-securecontact-aw    1025     333    80/80        100% 0%         content: none
+ *     /all-new-securecontact-aw    1024     253    80/0         100% 0%         content: none
+ *     /all-new-securecontact-aw     900     253    80/0         100% 0%         content: none
+ *     /all-new-securecontact-aw     375     205    125/0        100% 0%         the gradient
+ *     /smart-choice                1440     392    80/80        100% 0%         content: none
+ *     /smart-choice                 900     312    80/0         100% 0%         content: none
+ *     /smart-choice                 375     325    125/0        100% 0%         the gradient
  *
  * Both `--background-position` and `--mobile-background-position` read unset at
  * every one of those widths, so `top right` is in force and the indirection
  * buys nothing here. The band has NO min-height of its own on live: 333 is
  * 80 + 173 + 80 and 205 is 125 + 80 + 0. Ours took `.hero.left`'s 560 floor at
- * 1440 on both pages, cover-scaled the photograph 1.4x to fill it, and laid a
- * flat 30% black over it that live paints nowhere above 768. #446
+ * 1440 on all three pages, cover-scaled the photograph 1.4x to fill it, and laid
+ * a flat 30% black over it that live paints nowhere above 768. #446
  */
 
 /* a photograph at the band's own ratio, inline so nothing waits on the network */
@@ -224,6 +227,11 @@ describe('Hero, the in-page band live builds as banner-with-image (#446)', () =>
     });
 
     it('takes them at 769 too, where live has already left its mobile rule', async () => {
+      /* live drops its own bottom 80 between 769 and 1024 and this keeps it, a
+         deviation the CSS comment carries the numbers for: our copy block is
+         30/36 over an 18px link row against live's 42/56 over 45px pills, so at
+         900 the band reads 241 against live's 253 with the 80 and 161 without
+         it. */
       const s = await read('left band', 769);
       expect(s.padTop).to.equal('80px');
       expect(s.padBottom).to.equal('80px');

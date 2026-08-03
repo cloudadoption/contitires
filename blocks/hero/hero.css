@@ -1327,14 +1327,18 @@ main .section.hero-container {
      &::before { content: ""; position: absolute; inset: 0;
        background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,0) 70%) }
 
-   Read as COMPUTED on both pages at 1440, 769, 768 and 375 on 2026-08-02, which
-   is what settles the parts live leaves to a custom property:
+   Read as COMPUTED on 2026-08-02, which is what settles the parts live leaves to
+   a custom property:
 
-     page                        width  height  background-position  ::before
-     /all-new-securecontact-aw    1440     333        100% 0%         content: none
-     /all-new-securecontact-aw     375     205        100% 0%         the gradient
-     /smart-choice                1440     392        100% 0%         content: none
-     /smart-choice                 375     325        100% 0%         the gradient
+     page                        width  height  padding  background-position  ::before
+     /all-new-securecontact-aw    1440     333    80/80        100% 0%         content: none
+     /all-new-securecontact-aw    1025     333    80/80        100% 0%         content: none
+     /all-new-securecontact-aw    1024     253    80/0         100% 0%         content: none
+     /all-new-securecontact-aw     900     253    80/0         100% 0%         content: none
+     /all-new-securecontact-aw     375     205    125/0        100% 0%         the gradient
+     /smart-choice                1440     392    80/80        100% 0%         content: none
+     /smart-choice                 900     312    80/0         100% 0%         content: none
+     /smart-choice                 375     325    125/0        100% 0%         the gradient
 
    `--background-position` and `--mobile-background-position` are unset at every
    one of those widths, so `top right` is what is in force and the indirection is
@@ -1342,6 +1346,14 @@ main .section.hero-container {
    both content-driven, so THE BAND HAS NO FLOOR OF ITS OWN and `.hero.left`'s
    560 was what scaled the 1400x400 photograph 1.4x and cut a quarter of its
    width away. #446
+
+   LIVE HAS A THIRD STATE BETWEEN 769 AND 1024 AND ITS BOTTOM 0 IS NOT TAKEN.
+   The two rules above do not show it; it comes off the rendered page, on both
+   pages. Ours keeps 80 there, because live's 173px copy block is a 42/56 heading
+   over 45px pills where ours is 30/36 over an 18px link row: at 900 the band
+   reads 241 against live's 253 with the 80 kept and 161 without it. The heading
+   box and the pills each have their own owner, and a padding copied from live's
+   larger copy would belong to neither band.
 
    IT SITS AT THE FOOT OF THE FILE because it outscores what it overrides in
    every group: 0-4-1 against `.hero.short .hero-image img`, 0-4-1 against
@@ -1374,7 +1386,8 @@ main .section.hero-container {
 
   /* live pins the copy at `start` from 769 up and centres it below. The rest of
      this file moves `.hero.left` at 1025, which is its marquee's step and 256px
-     late for the band. */
+     late for the band. The 80 below is live's own from 1025 and is held down to
+     769 for the reason in the comment above. */
   .hero.left.band .hero-content {
     padding-block: 80px;
     text-align: left;
