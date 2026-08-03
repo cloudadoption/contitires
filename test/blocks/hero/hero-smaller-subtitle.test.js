@@ -159,9 +159,14 @@ describe('Hero, live\'s smaller subtitle on the three backdrop hubs (#470)', () 
       expect(s.fontSize).to.equal('18px');
     });
 
-    it('/my-first-car-my-first-tires keeps it too, carrying `slim` without `breadcrumb`', async () => {
+    /* This page carries `slim` without `breadcrumb` and live gives it 16px of its
+       own, through `marquee--my-1st-car` rather than through the smaller-subtitle
+       class: same size, weight 400 and no 8px gap. So the reading that proves this
+       rule stops short of it is the weight and the gap rather than the size. #467 */
+    it('/my-first-car-my-first-tires takes neither the weight nor the gap', async () => {
       const s = await read('left stacked slim', 375);
-      expect(s.fontSize).to.equal('18px');
+      expect(s.fontWeight).to.equal('400');
+      expect(s.marginTop).to.equal('16px');
     });
   });
 });

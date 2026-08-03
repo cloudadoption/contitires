@@ -1396,8 +1396,29 @@ main .section.hero-container {
   line-height: 22px;
 }
 
+/* ---- and live's own copy size on /my-first-car-my-first-tires, which is a page
+   treatment rather than a layout one. Live's rule:
 
+     .marquee--my-1st-car .marquee__text {
+       font-size: 16px; line-height: 22px; letter-spacing: 0.4px }
 
+   against a base `.marquee__text` of 18px on a 26px box. Read on the rendered
+   page at 1440, 1024 and 375 on 2026-08-03: 16px/22px at 0.4px and weight 400 at
+   all three, where ours read 20px/32px at 1440 and 18px/28.8px below.
+
+   `left stacked slim` without `breadcrumb` is this page alone, out of the 37 hero
+   blocks on 33 paths. /experience carries the same three with `breadcrumb` and
+   takes the rule above; /ev-compatible carries `stacked slim` with no `left` and
+   authors no copy at all. `> p` keeps it off a CTA row, which lives in
+   `.hero-ctas`. Live sets 0.4px on the smaller subtitle too and the rule above
+   does not: tracking moves the wrap at 375 and that band is #470's reading.
+
+   IT SITS BELOW that rule because it scores 0-6-1 against its 0-4-1. #467 ---- */
+.hero.left.stacked.slim:not(.breadcrumb) .hero-content > p {
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.4px;
+}
 
 /* ---- THE IN-PAGE BAND, which live builds as `banner-with-image` rather than as
    a marquee, so it steps at 768 where every other rule in this file steps at

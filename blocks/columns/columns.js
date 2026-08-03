@@ -105,7 +105,18 @@ function decorateProductHero(block) {
       return;
     }
 
-    if (!BEST_FOR_LABEL.test(above.textContent.trim())) return;
+    if (!BEST_FOR_LABEL.test(above.textContent.trim())) {
+      // The highlights list, which is the one live introduces with no words at
+      // all: it rules it off with a hairline above and below instead, and the
+      // Highlights label #306 took off these 23 pages was where the name used to
+      // be. So it is named here for the stylesheet to reach, the same as the
+      // three groups above, and the first unlabelled list is the one: the plan,
+      // Best for and Technology each announce themselves in the row above.
+      if (!block.querySelector('.product-hero-highlights')) {
+        list.classList.add('product-hero-highlights');
+      }
+      return;
+    }
     above.classList.add('product-hero-best-for-label');
     list.classList.add('product-hero-best-for');
     list.querySelectorAll(':scope > li').forEach((item) => {
