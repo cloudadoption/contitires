@@ -122,7 +122,15 @@ function decorateProductHero(block) {
 /* Live collapses both trailing groups below its own 768 step and draws them
    open with no control above it. Bracketed on /tires/crosscontact-lx25: 61px
    with no row at 767 and 768, 258px and 144px with their rows at 769. (#432) */
-const isNarrow = window.matchMedia('(width <= 768px)');
+const NARROW_MEDIA_QUERY = '(width <= 768px)';
+
+// created on first use rather than at import, so every page that authors a plain
+// two-column row does not read the viewport for a hero it does not have
+let narrowQuery;
+function narrow() {
+  if (!narrowQuery) narrowQuery = window.matchMedia(NARROW_MEDIA_QUERY);
+  return narrowQuery;
+}
 
 /* the label element and the list it introduces, in the order live rules them
    off. The plan summary is not here: live leaves it outside con-details. */
@@ -349,8 +357,8 @@ export default function decorate(block) {
 
   if (block.classList.contains('product-hero')) {
     decorateProductHero(block);
-    setHeroDisclosures(block, isNarrow.matches);
-    isNarrow.addEventListener('change', () => setHeroDisclosures(block, isNarrow.matches));
+    setHeroDisclosures(block, narrow().matches);
+    narrow().addEventListener('change', () => setHeroDisclosures(block, narrow().matches));
     // not awaited: the hero is the first section, so awaiting a fetch here
     // would put the tooltip in front of LCP
     whenLoaded().then(() => addTechnologyTooltips(block));
