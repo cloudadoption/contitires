@@ -163,7 +163,7 @@ the part that IS doable; the row says which half is which.
 |  | [Real user monitoring, ours only](#real-user-monitoring-ours-only) | diverges | ✅ ours by choice | -- |
 | Media and assets | [Web fonts hotlinked from live](#web-fonts-are-hotlinked-from-live) | differs | ⚙️ needs a font licence | -- |
 |  | [PDFs and press-kit downloads](#pdfs-and-press-kit-downloads-still-on-the-old-host) | differs | ⚙️ zips need a host | [#213](https://github.com/cloudadoption/contitires/issues/213) |
-|  | [The media gallery](#the-media-gallery) | differs | ⏳ the six-tile product cap, the mobile counter and badge, and #326's reading-column width have all shipped; #319 waits on a content pass for the 32 assets, which live carries in its own delivered HTML | [#319](https://github.com/cloudadoption/contitires/issues/319) |
+|  | [The media gallery](#the-media-gallery) | diverges | ✅ the six-tile product cap, the mobile counter and badge, #326's reading-column width, the 32 modal-only assets on the 10 product pages and the /events Social carousel have all shipped. Two details stay ours by choice: the arrows carry an accessible name where live's carry none, and the count follows the scroll where live's follows its own slide index | [#319](https://github.com/cloudadoption/contitires/issues/319), [#341](https://github.com/cloudadoption/contitires/issues/341) |
 |  | [The gallery caption takes a level live does not](#the-gallery-caption-takes-a-level-live-does-not) | diverges | ✅ decided: one level per caption, which is live's on every card but the leading one | [#375](https://github.com/cloudadoption/contitires/issues/375) |
 |  | [Leftover originals in DA](#leftover-originals-in-da) | differs | ✅ the proof of a safe delete is definable and two of its three surfaces read from outside; the third is DA's unpublished documents, and 39 catalog rows point into the prefix | [#330](https://github.com/cloudadoption/contitires/issues/330) |
 |  | [The chevron sprite](#the-chevron-sprite) | approximated | ✅ DA strips the authored span | [#277](https://github.com/cloudadoption/contitires/issues/277) |
@@ -1072,7 +1072,8 @@ reader reaches a dead link from our side. What a reader loses is the file, reach
 
 ### The media gallery
 
-**differs.** The block now has live's hidden set. The 32 assets that fill it are not authored.
+**diverges on two details, both ours by choice.** The block has live's hidden set and the 32
+assets that fill it are authored.
 
 Live's product grid shows 2 to 6 tiles and its modal pages up to 11, keeping the rest as
 `media--hidden-media-gallery-item` at height 0. Counted on the 56 live tire URLs: 45 have a
@@ -1085,10 +1086,21 @@ counter with arrows and a `+` expand badge.
 the whole set. So a seventh row onwards is modal only, and no new cell is needed. The cap is the
 product viewer's: live's article galleries keep back nothing and draw up to 14, on
 `/experience/lingenfelter-performance-engineering`. Our hero cells have 2 to 6 stills on the same
-45 pages live does, in the same distribution. Nothing on the site draws differently today, and the
-32 assets are what the third state waits for. They are reachable: each one is on a
-`con-media-gallery-modal src` in live's delivered page, so a curl reads them without driving
-live's modal.
+45 pages live does, in the same distribution.
+
+The 32 assets are authored as rows 7 and up, one photograph per paragraph in the hero's image
+cell the way the six above them are. They came off live's own delivered HTML, where each is a
+`con-media-gallery-modal src` on the `modal` image style, so a curl read them without driving
+live's modal. Each takes the tire's name for its alt, which is what live's visible stills carry.
+A hidden item has no `img` and so no alt of its own, and a file name is not a description.
+
+The one hidden VIDEO is the exception on the asset too, `Zbn0xviN7A4` on
+`/tires/truecontact-tour54`. Live puts a video item on the 100x56 `thumbnail` style, because its
+modal shows the player rather than the poster, and an `itok` is per style so a bigger one cannot be
+asked for. That still came off the unstyled original at 1920x1080.
+
+Read off the 10 published pages on 2026-08-03: 6 tiles each, and 11, 11, 11, 10, 10, 9, 8, 8, 7
+and 7 slides, which is live's count. No image 404s, and the seventh slide renders 987 or 833 wide.
 
 Our inline gallery is on live's measure as of #326. It was 750 wide at x=155 at 1440, which is
 live's partner track and not its reading column. So it started left of the copy above it, on 365px
@@ -1104,11 +1116,25 @@ slide index where this strip scroll-snaps, so the count reads the scroll positio
 moves it. On a product page the count is the drawn tiles rather than the whole set, because the
 strip below 769 holds what the grid drew.
 
-What it costs a visitor: on those 10 product pages our modal pages 6 slides where live pages 7 to
-11, so images live shows cannot be reached here.
+The `/events` Social row slides below 769 as of #341. Live runs it through the same
+`con-column-slider` as the rest of the block, so it takes the strip and the counter the other
+variants already had. At 375 that is a 367 square bleeding to 4px of each edge, `1 of 6` under it,
+and the 21px `+` in the corner opening the still on the modal. The row measured 335x2110 before and
+335x399 after, which is live's slider box. Its own CSS had been stacking the six, so there was
+nothing to page. The tile is still the link out to the post: live's item holds the anchor and the
+modal target both.
 
-What would close it: the 32 assets authored as rows 7 and up, and a carousel for the `/events`
-Social row at 375. [#319](https://github.com/cloudadoption/contitires/issues/319), [#341](https://github.com/cloudadoption/contitires/issues/341), [#199](https://github.com/cloudadoption/contitires/issues/199).
+The soccer page's fourth card section is on live's treatment as of #278. Three of its four are
+`card-list--single_leading`, the full-width teaser the block took in #276. The fourth is
+`card-list--double_leading`: the first two cards half the row each and the rest a third, which is
+six columns with a wide card spanning three. Read in live's 1136 container at 1440: 549x431 twice
+with the 38 gap, then 353x271. Live authors a description on each of those three cards and paints it
+on the pair, so the variant hides the rest. It also gives the pair one height, where each of ours
+ran to its own text at 435 and 413.
+
+What it costs a visitor: nothing on the paging. The two details above are the residue, and both
+are ours.
+[#319](https://github.com/cloudadoption/contitires/issues/319), [#341](https://github.com/cloudadoption/contitires/issues/341), [#199](https://github.com/cloudadoption/contitires/issues/199).
 
 ### The gallery caption takes a level live does not
 

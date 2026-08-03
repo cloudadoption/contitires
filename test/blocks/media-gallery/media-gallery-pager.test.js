@@ -127,12 +127,20 @@ describe('Media gallery, the counter live puts under the mobile slider', () => {
     expect(!!pagerOf(block)).to.be.false;
   });
 
-  it('gives the social row no counter', () => {
+  /*
+   * The Social row DOES take the counter, and this assertion had it the other
+   * way until #341. Live slides that row through the same `con-column-slider`
+   * as the rest and prints `1 of 6` under it below 769, read off
+   * continentaltire.com/events at 375 on 2026-08-03. The variant was reading as
+   * an exception because its own CSS stacked the tiles, so there was nothing to
+   * page and no counter to print over it.
+   */
+  it('counts the social row, which live pages one post at a time', () => {
     decorate(block = authored([
       tile('/media/social-1.jpg', 'a post', 'https://www.instagram.com/p/CHOw2STBQYL/'),
       tile('/media/social-2.jpg', 'another', 'https://www.instagram.com/p/CUYqS3FMtlE/'),
     ], 'social'));
-    expect(!!pagerOf(block)).to.be.false;
+    expect(countOf(block)).to.equal('1 of 2');
   });
 });
 

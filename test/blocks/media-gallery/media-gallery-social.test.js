@@ -83,8 +83,21 @@ describe('Media gallery social, the tiles live links out to Instagram', () => {
     expect(block.querySelectorAll('.media-gallery-tile').length, 'modal-opening buttons').to.equal(0);
   });
 
-  it('builds no modal at all', () => {
-    expect(block.querySelectorAll('dialog').length, 'dialogs').to.equal(0);
+  /*
+   * This read `builds no modal at all` until #341, on the reading that a tile
+   * which leaves the site has nothing to open. That is what the ANCHOR does and
+   * live carries both: every item holds a `data-modal-target` and its
+   * `con-media-gallery-modal` shares one `gallery` attribute with the other
+   * five, so live's `+` opens the still and pages the set. The tile stays a
+   * link out, which is what the assertion above still holds.
+   */
+  it('opens the still on the modal from the badge live puts in the corner', () => {
+    expect(block.querySelectorAll('dialog').length, 'dialogs').to.equal(1);
+    block.querySelector('.media-gallery-zoom').click();
+    const modal = block.querySelector('dialog');
+    expect(modal.open).to.be.true;
+    expect(modal.querySelector('.media-gallery-stage img').getAttribute('src'))
+      .to.equal(POSTS[0][0]);
   });
 
   it('leaves the video variants alone: a linked row still plays in the modal', () => {

@@ -12,10 +12,16 @@ import decorateVideo from '../video/video.js';
  * /learn/product-highlights writes the tire's page. An anchor is a structure
  * and not a guess about a string, so the two cannot be confused the way a
  * category of digits and a limit can.
+ *
+ * A linked row is a video everywhere but the `social` variant, where live's
+ * link leaves the site for an Instagram post, so the caller says which it is
+ * reading and the item carries the answer.
  * @param {Element} row an authored row
- * @returns {{picture: Element, link: Element, text: string, cta: Element}|null} the item
+ * @param {boolean} social whether the block is live's Social row
+ * @returns {{picture: Element, link: Element, text: string, cta: Element,
+ *   video: boolean}|null} the item
  */
-function readRow(row) {
+function readRow(row, social) {
   const picture = row.querySelector('picture');
   const cells = [...row.children];
   const link = cells[1]?.querySelector('a[href]') || row.querySelector('a[href]');
@@ -24,17 +30,19 @@ function readRow(row) {
   const cta = third?.querySelector('a[href]') || null;
   const text = cta ? '' : third?.textContent.trim() || '';
   return {
-    picture, link, text, cta,
+    picture, link, text, cta, video: !!link && !social,
   };
 }
 
 /**
- * What the item is called: the video's title, or what the still shows.
- * @param {{picture: Element, link: Element}} item one item
+ * What the item is called: the video's title, or what the still shows. A Social
+ * post's link text is its own URL, which is an address rather than a name, so
+ * that one is named by its still like any other photograph.
+ * @param {{picture: Element, link: Element, video: boolean}} item one item
  * @returns {string} the title
  */
-function titleOf({ picture, link }) {
-  if (link) return link.textContent.trim();
+function titleOf({ picture, link, video }) {
+  if (video) return link.textContent.trim();
   return picture?.querySelector('img')?.getAttribute('alt') || '';
 }
 
@@ -102,29 +110,44 @@ function buildLinkTile({ picture, link }) {
 
 /**
  * What opening an item does, for whoever cannot see the still.
- * @param {{picture: Element, link: Element}} item one item
+ * @param {{picture: Element, link: Element, video: boolean}} item one item
  * @returns {string} the label
  */
 function label(item) {
   const title = titleOf(item);
-  if (item.link) return title ? `Play ${title}` : 'Play video';
+  if (item.video) return title ? `Play ${title}` : 'Play video';
   return title ? `View ${title}` : 'View image';
 }
 
 /**
  * The grid tile and the strip thumbnail are the same button at two sizes.
- * @param {{picture: Element, link: Element}} item one item
+ * @param {{picture: Element, link: Element, video: boolean}} item one item
  * @param {string} kind `tile` or `thumb`
  * @returns {Element} the button
  */
 function buildButton(item, kind) {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = item.link
+  button.className = item.video
     ? `media-gallery-${kind} media-gallery-${kind}-video`
     : `media-gallery-${kind}`;
   button.setAttribute('aria-label', label(item));
   if (item.picture) button.append(item.picture.cloneNode(true));
+  return button;
+}
+
+/**
+ * Live's expand badge, the `+` in the corner of a Social tile. It is on that
+ * variant alone because that is the one variant whose tile is a link out: live
+ * gives the still no other way to open, and marks the corner it opens from.
+ * @param {{picture: Element, link: Element, video: boolean}} item one item
+ * @returns {Element} the button
+ */
+function buildZoom(item) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'media-gallery-zoom';
+  button.setAttribute('aria-label', label(item));
   return button;
 }
 
@@ -210,6 +233,10 @@ const PRODUCT_TILES = 6;
  * page: a wider still with the video's name under it, and the description on
  * the cards live shows one for.
  *
+ * The `social` variant is live's /events row of Instagram posts. It is the one
+ * place a linked row is not a video: the tile is an anchor that leaves the
+ * site, and the `+` beside it is what opens the still here. (#341)
+ *
  * The modal is a native dialog shown modally, which is where the focus trap,
  * Escape and the handoff back to the tile come from. Live gives none of the
  * three: its dialog is a div, it has no close control, and its thumbnail strip
@@ -217,23 +244,11 @@ const PRODUCT_TILES = 6;
  * @param {Element} block the media-gallery block
  */
 export default function decorate(block) {
-  const items = [...block.children].map(readRow).filter(Boolean);
+  const social = block.classList.contains('social');
+  // a Social row is a set of posts, so a row that links nowhere is not one
+  const items = [...block.children].map((row) => readRow(row, social))
+    .filter((item) => item && (!social || item.link));
   if (!items.length) return;
-
-  // The `social` variant is the one place a linked row is NOT a video. Live's
-  // /events Social row links out to Instagram, so the tile is an anchor and
-  // there is no player, no modal and nothing to page through.
-  if (block.classList.contains('social')) {
-    const links = document.createElement('ul');
-    links.className = 'media-gallery-list';
-    items.filter((item) => item.link).forEach((item) => {
-      const cell = document.createElement('li');
-      cell.append(buildLinkTile(item));
-      links.append(cell);
-    });
-    block.replaceChildren(links);
-    return;
-  }
 
   const cards = block.classList.contains('cards');
 
@@ -282,7 +297,7 @@ export default function decorate(block) {
   const show = (index, play) => {
     const item = items[index];
     current = index;
-    if (item.link) {
+    if (item.video) {
       // hand the selection to the video block: it owns the facade and the
       // click-to-load
       loadCSS(`${window.hlx?.codeBasePath ?? ''}/blocks/video/video.css`);
@@ -354,15 +369,26 @@ export default function decorate(block) {
     : items;
   drawn.forEach((item, i) => {
     const cell = document.createElement('li');
-    const tile = buildButton(item, 'tile');
-    tile.addEventListener('click', () => {
-      show(i, true);
-      modal.showModal();
-    });
-    cell.append(tile);
-    // live's card names the video under the still, and the still itself is the
-    // whole of the click target
-    if (cards) cell.append(buildCaption(item));
+    if (social) {
+      // the whole tile is the post's link, so the badge in its corner is what
+      // opens the still, the way live's own does
+      const zoom = buildZoom(item);
+      zoom.addEventListener('click', () => {
+        show(i, false);
+        modal.showModal();
+      });
+      cell.append(buildLinkTile(item), zoom);
+    } else {
+      const tile = buildButton(item, 'tile');
+      tile.addEventListener('click', () => {
+        show(i, true);
+        modal.showModal();
+      });
+      cell.append(tile);
+      // live's card names the video under the still, and the still itself is
+      // the whole of the click target
+      if (cards) cell.append(buildCaption(item));
+    }
     list.append(cell);
   });
 
