@@ -235,10 +235,14 @@ describe('Hero scrim, our rules against live\'s per-marquee treatment (#471, #52
       expect(bare(s), `painted ${s.color} over ${s.image}`).to.be.true;
     });
 
-    it('leaves a hero carrying no variant on the block\'s base gradient', async () => {
+    /* the base rule was still the bottom-up gradient when this file was
+       written, and #531 is what took it off: live paints nothing on four of the
+       blocks it reached and a value of its author's on the rest, so the base is
+       now flat, transparent, and keyed on `--hero-scrim-opacity`. The values
+       themselves are read in hero-scrim-authored.test.js. */
+    it('leaves a hero carrying no variant painting nothing, which is live\'s', async () => {
       const s = await scrim('', 1440);
-      expect(s.image).to.contain('linear-gradient');
-      expect(s.image).to.contain('to top');
+      expect(bare(s), `painted ${s.color} over ${s.image}`).to.be.true;
     });
   });
 });
