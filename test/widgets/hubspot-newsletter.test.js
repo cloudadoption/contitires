@@ -82,3 +82,69 @@ describe('The room the newsletter form takes', () => {
     expect(Math.round(widget.getBoundingClientRect().height)).to.equal(1176);
   });
 });
+
+/**
+ * The room above holds from the first paint and the form reaches it at 3.4s,
+ * measured on the published page at 412: the delayed phase starts at 3s and
+ * `js.hsforms.net/forms/embed/48908421.js` finishes at 3329ms. On a page whose
+ * only content is the form, 2051px of nothing for that long reads as broken
+ * rather than as loading, which is issue #230.
+ *
+ * So the empty box shows the shape of what is coming: a 10px label bar and a
+ * 44px field box on an 89px pitch, read off the rendered form at 375, tiled over
+ * the room. No text, so nothing is announced and no copy live does not have
+ * appears, and `:empty` retires it the moment HubSpot puts its iframe in.
+ */
+describe('The newsletter form while it is still coming', () => {
+  let widget;
+  let frame;
+
+  const pseudo = (prop) => getComputedStyle(widget, '::before').getPropertyValue(prop);
+
+  before(async () => {
+    const sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/widgets/hubspot/newsletter.css')).text());
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    const main = document.createElement('main');
+    main.innerHTML = '<div class="widget newsletter"><div class="hs-form-frame"></div></div>';
+    document.body.append(main);
+    widget = main.firstElementChild;
+    frame = widget.firstElementChild;
+    await setViewport({ width: 375, height: 800 });
+  });
+
+  after(() => {
+    document.adoptedStyleSheets = document.adoptedStyleSheets.slice(0, -1);
+    widget.closest('main').remove();
+  });
+
+  afterEach(() => frame.replaceChildren());
+
+  it('draws the field rows while the frame is empty', () => {
+    expect(pseudo('content'), 'the placeholder').to.equal('""');
+    expect(pseudo('background-image')).to.contain('gradient');
+  });
+
+  it('covers the whole room it is waiting in', () => {
+    expect(pseudo('position')).to.equal('absolute');
+    expect(pseudo('top')).to.equal('0px');
+    expect(pseudo('bottom')).to.equal('0px');
+    expect(getComputedStyle(widget).position).to.equal('relative');
+  });
+
+  it('announces nothing, because it says nothing', () => {
+    expect(pseudo('content')).to.equal('""');
+    expect(widget.textContent.trim()).to.equal('');
+  });
+
+  it('goes when the form arrives', () => {
+    frame.append(document.createElement('iframe'));
+    expect(pseudo('content'), 'the placeholder once the iframe is in').to.equal('none');
+  });
+
+  it('takes none of the room the form will need', () => {
+    expect(Math.round(widget.getBoundingClientRect().height)).to.equal(2051);
+    frame.append(document.createElement('iframe'));
+    expect(Math.round(widget.getBoundingClientRect().height)).to.equal(2051);
+  });
+});
