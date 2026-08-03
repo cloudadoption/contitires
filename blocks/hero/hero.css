@@ -1158,6 +1158,102 @@ main .section.hero-container {
   }
 }
 
+/* ---- bottom: live's `marquee--bottom`, the copy centred and sitting at the
+   foot of the band rather than centred in it, with `marquee--has-jumplink`'s
+   arrow under it. /ev-compatible is the one page carrying either today.
+
+   Read at 1440 on 2026-08-03 on continentaltire.com/ev-compatible:
+
+     section.marquee marquee--bottom marquee--has-jumplink   1440x360
+     h1 459.39x96 at x=490.3, so two 48px lines centred on the page
+     .marquee--bottom            justify-content flex-end
+     .marquee--bottom .marquee__content
+                                 max-width none, align-items center,
+                                 text-align center
+     .marquee--bottom.marquee--has-jumplink .marquee__content
+                                 padding-bottom 70, 62 under max-width 1024
+     a.marquee__jump-link        28x35 at x=710 y=409.69, absolute, bottom 20,
+                                 8 under max-width 1024, animation bounce 1s
+                                 infinite, its svg 28x28 at stroke-width 1
+
+   THE TWO-LINE BREAK IS AUTHORED AND THE CENTRING IS NOT. Live's own h1 holds a
+   literal `<br>` between the two lines, so they are in live's document, and
+   `.marquee--bottom .marquee__content` is what centres them. Ours is the mirror
+   image: the break goes in the document and the centring comes from here.
+   `.hero.stacked .hero-content` sets `text-align: left` above 1025 for the
+   desktop overlay, which is what pinned this title left of centre.
+
+   IT IS BOUNDED ABOVE AND BELOW IN SOURCE ORDER. `.hero.stacked .hero-content`
+   inside the 1025 query scores 0-3-0 and is declared earlier, so a `bottom` rule
+   of equal weight has to follow it; the `:has(h3)` band that closes this file
+   scores 0-3-1, which stylelint reads as descending in the other order. So this
+   section goes between the two rather than at the foot. Issue #245 ---- */
+.hero.bottom .hero-content {
+  text-align: center;
+}
+
+@media (width >= 1025px) {
+  /* `align-self` rather than the band's own `justify-content`, because
+     `.hero.stacked` turns into a row here and its main axis is the horizontal
+     one; the copy's cross-axis end is the foot of the band either way. */
+  .hero.bottom .hero-content {
+    align-self: flex-end;
+    padding-block: 0 70px;
+    text-align: center;
+  }
+}
+
+/* live's arrow, its `icon__arrow-down-outline` at 28px over an 18 by 27 viewBox,
+   masked the way cards.css masks live's own scroll arrow. Live's sits 4px right
+   of centre, `left: calc(50% - 10px)` under a 28px box; ours is centred, because
+   a 4px lean reads as a defect rather than as live. */
+.hero .hero-jump {
+  position: absolute;
+  z-index: 1;
+  bottom: 8px;
+  left: calc(50% - 14px);
+  width: 28px;
+  height: 28px;
+  background-color: currentcolor;
+  mask: url('../../icons/arrow-down.svg') no-repeat center / contain;
+  animation: hero-bounce 1s infinite;
+}
+
+@media (width >= 1025px) {
+  .hero .hero-jump {
+    bottom: 20px;
+  }
+}
+
+/* live's own keyframes, `@keyframes bounce` in its stylesheet, at its
+   `--animate-duration` of 1s */
+@keyframes hero-bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-10px);
+  }
+
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* an arrow that never stops moving is what this query exists for, and live runs
+   its own on `animation-iteration-count: infinite` with no such stop */
+@media (prefers-reduced-motion: reduce) {
+  .hero .hero-jump {
+    animation: none;
+  }
+}
+
+
 /* ---- /learn's EV band, which live centres and sets in capitals. Of the four
    in-page bands named at `.hero.left .hero-image::after` above, live gives three
    `banner-with-image--style-left` and gives /learn's `--style-center`:
@@ -1203,3 +1299,4 @@ main .section.hero-container {
 .hero.left .hero-content:has(h3) .hero-ctas {
   justify-content: center;
 }
+

@@ -101,6 +101,32 @@ function buildPlayer(link) {
 }
 
 /**
+ * Live's `marquee--has-jumplink`: an arrow at the foot of the band that scrolls
+ * to the section under it.
+ *
+ * Live points its own at `<section class="tab-anchor" id="evready">`, an empty
+ * anchor its editor places. Ours reads the id the pipeline slugs onto the next
+ * section's first heading, so nothing has to be authored for the target. No
+ * heading or no id means no arrow, because a control that scrolls nowhere is
+ * worse than none.
+ *
+ * Live's arrow carries no accessible name at all, an aria-hidden svg inside a
+ * bare link. This one names its destination.
+ * @param {Element} block the hero block
+ * @returns {Element|null} the link, or null when there is nothing to reach
+ */
+function buildJumpLink(block) {
+  const target = block.closest('.section')?.nextElementSibling
+    ?.querySelector('h1, h2, h3, h4, h5, h6');
+  if (!target?.id) return null;
+  const link = document.createElement('a');
+  link.className = 'hero-jump';
+  link.href = `#${target.id}`;
+  link.setAttribute('aria-label', `Skip to ${target.textContent.trim()}`);
+  return link;
+}
+
+/**
  * Reuses whatever the author placed in the block: up to two pictures
  * (desktop + optional mobile art direction), a heading, subcopy paragraphs
  * and CTA links. Authoring order is preserved (an eyebrow line can precede
@@ -188,10 +214,12 @@ export default function decorate(block) {
     modal = player.modal;
   }
 
+  const jump = block.classList.contains('jump') ? buildJumpLink(block) : null;
+
   // the trail is a sibling of the copy, not the first line of it, which is
   // live's own placement: its `nav.breadcrumb` sits at the top left of the
   // marquee over the photo at every width, on all four pages that carry one.
   // Inside the centred copy it added its own line and the gap under it to the
   // band, 40px that live's band does not spend. #470
-  block.replaceChildren(...[trail, imageWrap, content, modal].filter(Boolean));
+  block.replaceChildren(...[trail, imageWrap, content, jump, modal].filter(Boolean));
 }

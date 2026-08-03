@@ -126,6 +126,29 @@ main .section.cards-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
+
+  /* THE COUNT DECIDES THIS ROW AND THE VARIANT CANNOT, because `highlights`
+     stands in for four different live components and live gives them three
+     different column counts. Censused over the 327 published paths in
+     `.mossy/parity/395/block-census.txt`, five rows carry the variant:
+
+       /ev-compatible   3 tiles  live tiles__list_col_3                3 across
+       /ev-compatible   3 tiles  live cards-carousel--grid             3 across
+       /smart-choice    3 tiles  live tiles__list_col_3                3 across
+       /smart-choice    4 tiles  live tiles__list_col_4                4 across
+       /smart-choice   13 tiles  live cards-carousel, a scroller       -
+       /learn           4 tiles  live product-highlights-block__grid   2 across
+
+     So every three-tile row on live is three across, and four tiles is 4 on one
+     page and 2 on another. Live collapses all of them to one column under
+     `max-width: 768px`, which the base rule above already does. Taking the count
+     off the variant would put /learn's four on a column live does not give it,
+     and the two on /ev-compatible left a third tile alone beside an empty
+     half-row at 1440 and 900. Read at 1440 on 2026-08-03: live's three columns
+     are 439.328px inside a 1358 container, ours were 558px 558px. #245 */
+  .cards.highlights > ul:has(> li:nth-child(3):last-child) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .cards.highlights > ul > li {
@@ -1072,8 +1095,30 @@ main .section.black.cards-container .cards.plain > ul > li img {
    A rule on the section alone would repaint /smart-choice's four photo tiles,
    which live leaves on white at #333. Authoring the row as `highlights marks`
    would say the same thing in the variant, and this reads it off the file
-   until then. Issue #398 ---- */
+   until then. Issue #398
+
+   AND THE MARK GOES BESIDE ITS LABEL, at the size its own file asks for. Read at
+   1440 on 2026-08-03:
+
+     live  .cards-carousel__item        flex row, align-items flex-start,
+                                        padding 20 20 26 20, 439.33x204
+           .cards-carousel__item__icon  56 wide, flex-shrink 0, 20 to its right
+           its img                      56x56
+           .cards-carousel__item__texts left-aligned, at x = icon + 56 + 20
+     ours  the Weight mark 558x313.88, a full-width crop over centred copy
+
+   The shared card image is `aspect-ratio: 16 / 9` with `object-fit: cover`,
+   which is right for a photograph and 5.6 times too wide for a 600 by 600
+   pictogram: the three marks read about ten times live's box. The layout shares
+   the ground's rule rather than opening a second one on the same selector, which
+   is what no-duplicate-selectors asks for. #245 ---- */
 main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg']) {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  /* live's own room, and the tile pays it now rather than the copy box */
+  padding: 20px 20px 26px;
   background-color: var(--conti-dark-black);
 }
 
@@ -1081,6 +1126,35 @@ main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.sv
   :is(.cards-card-body, .cards-card-body :is(h1, h2, h3, h4, h5, h6),
   .cards-card-body a:any-link) {
   color: var(--conti-white);
+}
+
+main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg'])
+  .cards-card-image {
+  flex: none;
+  width: 56px;
+  margin-inline-end: 20px;
+}
+
+/* `contain` rather than `cover`: the mark keeps its whole drawing inside the box
+   instead of having the parts that do not fit thrown away */
+main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg'])
+  .cards-card-image img {
+  width: 56px;
+  height: 56px;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+/* the label over the copy, both read left, which is live's `__texts`. The band
+   centres its own heading, and the shared copy box turns into a row above 1025
+   for the `Tire details` link a photo tile carries and this one does not. */
+main .section.dark.cards-container .cards.highlights > ul > li:has(img[src*='.svg'])
+  .cards-card-body {
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0;
+  padding: 0;
+  text-align: left;
 }
 
 /* ---- the band the benefits sit on: #333, edge to edge, with the intro above

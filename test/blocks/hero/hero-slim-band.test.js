@@ -36,7 +36,7 @@ describe("Hero, live's 400px slim marquee band", () => {
       ? [...sheet.cssRules].filter((r) => r instanceof CSSMediaRule
         && r.conditionText.includes(media)).flatMap((r) => [...r.cssRules])
       : [...sheet.cssRules].filter((r) => !(r instanceof CSSMediaRule));
-    const matches = (r) => r.selectorText.split(',').map((s) => s.trim()).includes(selector);
+    const matches = (r) => r.selectorText?.split(',').map((s) => s.trim()).includes(selector);
     const rule = [...rules].reverse().find((r) => matches(r) && r.style.getPropertyValue(prop));
     return rule ? rule.style.getPropertyValue(prop).trim() : null;
   }
