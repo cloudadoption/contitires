@@ -6,6 +6,21 @@
  * them with `access-control-allow-origin: *`, so no font binary is
  * redistributed in this repo. A production build must license and self-host
  * the fonts. Arial/Helvetica are the fallback in the font stack.
+ *
+ * head.html PRELOADS the three upright URLs below and loads this file as a
+ * stylesheet, so the faces are registered and their bytes are in hand when the
+ * page paints and Stag Sans is on the first paint rather than swapped in after
+ * it. Both halves are needed and either alone does nothing, measured cold on
+ * /learn/how-do-smokey-burnout at 412: preloads alone read CLS 0.0515 with the
+ * font in hand at 149ms and no face asking for it, this file eager alone read
+ * 0.0552 with the woff requested at 2485ms because a woff is fetched when layout
+ * first needs it, and the two together read 0. `loadFonts()` still calls
+ * `loadCSS` for this file in the lazy phase and finds the link already in the
+ * head, so it resolves without a second request.
+ *
+ * A URL edited here has to be edited in head.html too, or the preload fetches
+ * 26 to 29KB that nothing uses. test/styles/fonts.test.js asserts the pairing
+ * both ways.
  */
 
 @font-face {
@@ -50,12 +65,15 @@
 
 /*
  * The metric-matched fallback that goes with these faces is NOT here. It is in
- * styles.css, which head.html loads render-blocking, because a fallback can only
- * prevent a shift if it exists at the FIRST paint. This file is loaded lazily by
- * loadFonts(), so a fallback declared here is an unknown family until it
- * arrives, the first paint falls through to plain arial, and the swap shifts the
- * page exactly as it did before. Measured: with the faces in this file,
- * /accessibility-statement still read CLS 0.2761 with its paragraphs moving 29px
- * at 81ms, while the same paragraphs measured AFTER the load showed the fallback
+ * styles.css, and it stays there. When this file was lazy, a fallback declared
+ * here was an unknown family until it arrived, the first paint fell through to
+ * plain arial, and the swap shifted the page exactly as it did before: measured,
+ * /accessibility-statement read CLS 0.2761 with its paragraphs moving 29px at
+ * 81ms, while the same paragraphs measured AFTER the load showed the fallback
  * holding every line count. The declarations were right and they were too late.
+ *
+ * head.html now loads this file render-blocking as well, so that reason no longer
+ * bites. The fallback still belongs in styles.css: it is what renders when a
+ * preload is slow or the origin above is unreachable, so it has to be in the one
+ * sheet the page cannot paint without.
  */

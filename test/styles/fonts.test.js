@@ -148,3 +148,83 @@ describe('The metric-matched fallback behind Stag Sans', () => {
     });
   });
 });
+
+/**
+ * Stag Sans on the FIRST paint, which is what closes the shift the fallback
+ * above only shrinks. Issue #197.
+ *
+ * The fallback removed 47 of the 55 article titles that changed line count when
+ * the webfont replaced Arial. Eight are left at 412 and 19 at 375, each moving
+ * the body by one h1 line, 36px, and the ratio cannot take them: swept from 90%
+ * to 95% in 0.1 steps over 220 real titles at four widths, the best value leaves
+ * 31 line-count changes against the shipped value's 33. Two typefaces do not
+ * wrap alike and no advance-width ratio makes them.
+ *
+ * So the swap has to stop landing after the paint, and BOTH of these are needed
+ * for that. Measured cold on /learn/how-do-smokey-burnout at 412:
+ *
+ *   nothing                     CLS 0.0552, the body moving 36px at 5336ms
+ *   the three preloads alone    CLS 0.0515, the font in hand at 149ms and unused
+ *   fonts.css eager alone       CLS 0.0552, the woff requested at 2485ms
+ *   both                        CLS 0
+ *
+ * A preload alone fails because loadFonts() fetches fonts.css in the LAZY phase
+ * below 769, so the faces are not registered when the page paints and the bytes
+ * sit in the cache with nothing asking for them. fonts.css eager alone fails
+ * because a woff is requested when layout first needs it, which is the paint.
+ *
+ * The preloads name their URLs a second time, so the pairing is asserted rather
+ * than trusted: a src edited in fonts.css and not here would fetch 82KB of woff
+ * that nothing uses and leave the swap where it was.
+ */
+describe('Stag Sans on the first paint (#197)', () => {
+  let head;
+  let faceUrls;
+
+  before(async () => {
+    head = await (await fetch('/head.html')).text();
+    const sheet = new CSSStyleSheet();
+    await sheet.replace(await (await fetch('/styles/fonts.css')).text());
+    faceUrls = [...sheet.cssRules]
+      .filter((rule) => rule instanceof CSSFontFaceRule)
+      .map((rule) => ({
+        style: rule.style.getPropertyValue('font-style') || 'normal',
+        url: (rule.cssText.match(/url\(["']?([^"')]+)["']?\)/) || [])[1],
+      }))
+      .filter((face) => face.url);
+  });
+
+  /** Every font preload head.html declares. */
+  const preloads = () => [...head.matchAll(/<link[^>]*>/g)]
+    .map((m) => m[0])
+    .filter((tag) => /rel="preload"/.test(tag) && /as="font"/.test(tag))
+    .map((tag) => ({ tag, href: (tag.match(/href="([^"]+)"/) || [])[1] }));
+
+  it('loads fonts.css render-blocking, so the faces exist when the page paints', () => {
+    expect(head, 'a stylesheet link for fonts.css in head.html')
+      .to.match(/<link[^>]+rel="stylesheet"[^>]+href="\/styles\/fonts\.css"/);
+  });
+
+  it('preloads a woff per upright face, with as=font and crossorigin', () => {
+    // italic is left out deliberately: it is one face of the five, and a preload
+    // costs its bytes on every page while the italic copy that would use it is
+    // on none of the pages this issue measured
+    const upright = [...new Set(faceUrls.filter((f) => f.style === 'normal').map((f) => f.url))];
+    expect(upright, 'upright faces in fonts.css').to.have.length.greaterThan(0);
+    const declared = preloads().map((p) => p.href);
+    upright.forEach((url) => {
+      expect(declared, `a preload for ${url.split('/').pop()}`).to.contain(url);
+    });
+    preloads().forEach(({ tag }) => {
+      expect(tag, tag).to.contain('as="font"');
+      expect(tag, tag).to.contain('crossorigin');
+    });
+  });
+
+  it('preloads nothing fonts.css does not ask for', () => {
+    const known = new Set(faceUrls.map((f) => f.url));
+    preloads().forEach(({ href }) => {
+      expect(known.has(href), `${href} is a src in fonts.css`).to.be.true;
+    });
+  });
+});
