@@ -5,6 +5,12 @@
  * continentaltire.com/learn/continental-science-guy: 750px wide at 1440 with
  * 365px tiles, 518px at 900 with 249px tiles, 20px gap throughout, 10px corners
  * on a #f3f3f3 field, and a 72px play badge on the video tiles.
+ *
+ * That page is a PARTNER page, where live gives the gallery a column of its own,
+ * so the 750 read there is the partner column rather than a property of the
+ * block, and it belongs to the partner grid track in article.css. The 13 pages
+ * that author a gallery inline take the copy's measure instead, which article.css
+ * sets too. The block takes the width it is given. (#326)
  */
 
 /* The article body section is a grid, and a grid item's automatic minimum size
@@ -17,7 +23,6 @@ main .section > .media-gallery-wrapper {
 
 main .media-gallery {
   min-width: 0;
-  max-width: 750px;
   margin-inline: auto;
 }
 
