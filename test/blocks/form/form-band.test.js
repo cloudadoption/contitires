@@ -127,10 +127,45 @@ describe("Form block, live's grey band", () => {
     expect(top(label)).to.be.below(top(input));
   });
 
+  /*
+   * Live's field box is 66 tall and its textarea box 175: 7 above a 10px label,
+   * 6 more, then the 43 or 152 of the control. A control left inline puts a line
+   * box under itself and the textarea box read 184.8, which is where live's own
+   * `textarea { display: block }` comes in.
+   */
+  it("stands each field in live's box, 66 tall and 175 for a textarea", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    expect(round(field(block, 'First Name').getBoundingClientRect().height)).to.equal(66);
+    expect(round(field(block, 'Phone').getBoundingClientRect().height)).to.equal(66);
+    expect(round(field(block, 'Events Scheduled').getBoundingClientRect().height)).to.equal(175);
+  });
+
+  /*
+   * Live's consent row is 50 tall: a 22 help line over 15px of type on 22 of
+   * line, 8 of margin, then the 20 box. Read off live at 1440, where the row
+   * measures 50 and its own description reads `font-size: 14.88px;
+   * line-height: 22px`, upright rather than the italic its help lines take.
+   */
+  it("gives the consent help line live's 15 over 22, in a 50 row", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const consent = block.querySelector('.form-field-checkbox');
+    const help = consent.querySelector('.form-help');
+    const style = getComputedStyle(help);
+    expect(style.fontSize).to.equal('15px');
+    expect(style.lineHeight).to.equal('22px');
+    expect(style.fontStyle).to.equal('normal');
+    expect(round(consent.getBoundingClientRect().height)).to.equal(50);
+  });
+
   it('rounds the select to a pill and the textarea to 10', async () => {
     await setViewport({ width: 1440, height: 900 });
     expect(getComputedStyle(field(block, 'Select A State').querySelector('select')).borderRadius)
       .to.equal('25px');
+    // live's own control is a custom element 44 tall where its inputs are 43,
+    // which puts the select's field box at 67
+    expect(round(field(block, 'Select A State').querySelector('select').getBoundingClientRect().height))
+      .to.equal(44);
+    expect(round(field(block, 'Select A State').getBoundingClientRect().height)).to.equal(67);
     const area = field(block, 'Events Scheduled').querySelector('textarea');
     expect(getComputedStyle(area).borderRadius).to.equal('10px');
     expect(round(area.getBoundingClientRect().height)).to.equal(152);

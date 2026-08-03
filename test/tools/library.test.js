@@ -21,7 +21,7 @@ const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 /** Every block with a sample document under /tools/sidekick/blocks/. */
 const SAMPLED = [
   'Article Cards', 'Banner', 'Cards', 'Carousel', 'Category Tabs', 'Columns',
-  'Crew', 'Events', 'Hero', 'Media Gallery', 'Perfect Fit', 'Promo Bar',
+  'Crew', 'Events', 'Form', 'Hero', 'Media Gallery', 'Perfect Fit', 'Promo Bar',
   'Related Articles', 'Retailers', 'Search', 'Share', 'Size List',
   'Store Locator', 'Tire Features', 'Tire Listing', 'Tire Specs', 'Video',
 ];

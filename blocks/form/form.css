@@ -109,20 +109,25 @@ main .section.form-container > div {
   text-decoration: underline;
 }
 
+/* live's own consent help line: 15 over 22, upright, with the 8 below it coming
+   off the row rather than the line */
 .form .form-field-checkbox .form-help {
   flex: 1 0 100%;
   margin: 0 0 8px;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 15px;
+  line-height: 22px;
 }
 
 .form .form-field-checkbox .form-help a {
   text-decoration: underline;
 }
 
+/* live's own `display: block` on a control, which is what keeps a line box from
+   forming under the textarea and reading 184.8 in a 175 field */
 .form .form-field input:not([type='checkbox'], [type='file']),
 .form .form-field select,
 .form .form-field textarea {
+  display: block;
   box-sizing: border-box;
   width: 100%;
   height: 43px;
@@ -135,8 +140,10 @@ main .section.form-container > div {
 }
 
 /* live rounds a select to a pill and a textarea to 10, and sets the textarea a
-   point larger over 22 of line */
+   point larger over 22 of line. live's select control is its own element and
+   stands 44 where its inputs stand 43, which puts that field box at 67. */
 .form .form-field select {
+  height: 44px;
   border-radius: 25px;
 }
 
