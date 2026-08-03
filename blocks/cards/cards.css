@@ -982,6 +982,81 @@ main .section.cards-container .cards.highlights .cards-card-body a:any-link {
   color: var(--conti-black);
 }
 
+/* ---- a plain tile on a dark band, which is what /dealers is. Live's
+   `.card-list` sets `--background-color: var(--black)` at #333 and pads 80 over
+   and under, which is a section `Style` here, so the band is authored. The
+   stylesheet's job is what `.cards.highlights` already does one variant along:
+   the band paints its headings and links white, and a white tile needs its own
+   dark text back. #261 ---- */
+main .section.dark.cards-container .cards.plain > ul > li,
+main .section.black.cards-container .cards.plain > ul > li {
+  background-color: var(--conti-white);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+main .section.dark.cards-container .cards.plain .cards-card-body,
+main .section.black.cards-container .cards.plain .cards-card-body,
+main .section.dark.cards-container .cards.plain .cards-card-body :is(h1, h2, h3, h4, h5, h6),
+main .section.black.cards-container .cards.plain .cards-card-body :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--conti-black);
+}
+
+/* live's `.card__footer` runs the name and the call to action on one row, and
+   it reads `padding: var(--space-16) var(--space-20); display: flex; flex-grow:
+   1; justify-content: space-between; align-items: flex-start;
+   font-size: var(--font-size-18)`. Ours stacked them, which made each tile
+   taller than live's. Read off live's own stylesheet. */
+main .section.dark.cards-container .cards.plain .cards-card-body,
+main .section.black.cards-container .cards.plain .cards-card-body {
+  display: flex;
+  flex-grow: 1;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px;
+  font-size: 18px;
+}
+
+main .section.dark.cards-container .cards.plain .cards-card-body > *,
+main .section.black.cards-container .cards.plain .cards-card-body > * {
+  margin: 0;
+}
+
+/* live's `.link-button`, read off its own stylesheet: 12px bold uppercase in an
+   inline-flex box at 1.25px tracking, and `.card__cta` underlines it in
+   `--dark-yellow` rather than in the text colour. The arrow follows the words at
+   the 0.5em live gives an icon that is not first. */
+main .section.dark.cards-container .cards.plain .cards-card-body a:any-link,
+main .section.black.cards-container .cards.plain .cards-card-body a:any-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--conti-black);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  text-decoration-line: underline;
+  text-decoration-color: #c27e00;
+}
+
+main .section.dark.cards-container .cards.plain .cards-card-body a:any-link .icon,
+main .section.black.cards-container .cards.plain .cards-card-body a:any-link .icon {
+  margin-inline-start: 0.5em;
+  width: 19px;
+  height: 13px;
+}
+
+/* the authored photograph is 752x423, which is 16:9, and the base rule crops
+   every plain card to 4:3, so a logo loses both of its ends. Live's card media
+   is 16:9. Scoped to the dark band rather than put on the base rule, because
+   what live does on the other pages carrying a plain `cards` block is
+   unmeasured and the base rule reaches all of them. */
+main .section.dark.cards-container .cards.plain > ul > li img,
+main .section.black.cards-container .cards.plain > ul > li img {
+  aspect-ratio: 16 / 9;
+}
+
 /* ---- the same variant over live's other component: a drawn mark on a dark
    ground rather than a photograph on a white one.
 

@@ -1,4 +1,4 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import { createOptimizedPicture, decorateIcons } from '../../scripts/aem.js';
 
 /**
  * Adds live's Previous and Next controls to a `row` variant that overflows.
@@ -57,6 +57,31 @@ export function addScrollControls(block) {
   return controls;
 }
 
+// the ten treatments the stylesheet gives this block. A block carrying none of
+// them is the plain card, and it takes `plain` so a rule can name it: a
+// `:not()` chain over ten classes has to be edited when an eleventh appears,
+// and `:not([class*=" "])` cannot work at all, because the decorated block
+// always reads `class="cards block"`. #261
+const VARIANTS = ['benefits', 'category', 'coverage', 'facts', 'highlights',
+  'logos', 'marks', 'members', 'news', 'teaser'];
+
+/**
+ * Appends live's arrow to a plain tile's call to action, on a dark band.
+ * Live's markup is `<div class="link-button card__cta"><span>Website</span>
+ * <span class="icon icon__arrow-right-outline">`, so the mark follows the words.
+ * It is injected rather than authored because the DA edit canvas drops an empty
+ * span on save. #261
+ * @param {Element} block the cards block
+ */
+function addCtaArrow(block) {
+  block.querySelectorAll(':scope > ul > li > .cards-card-body a').forEach((link) => {
+    if (link.querySelector('.icon')) return;
+    const icon = document.createElement('span');
+    icon.className = 'icon icon-arrow-right';
+    link.append(icon);
+  });
+}
+
 export default function decorate(block) {
   /* change to ul, li */
   const ul = document.createElement('ul');
@@ -72,4 +97,14 @@ export default function decorate(block) {
   ul.querySelectorAll('picture > img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
   block.replaceChildren(ul);
   if (block.classList.contains('row')) addScrollControls(block);
+
+  const plain = !VARIANTS.some((v) => block.classList.contains(v));
+  if (plain) {
+    block.classList.add('plain');
+    const section = block.closest('.section');
+    if (section && (section.classList.contains('dark') || section.classList.contains('black'))) {
+      addCtaArrow(block);
+      decorateIcons(block);
+    }
+  }
 }
