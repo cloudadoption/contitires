@@ -1,6 +1,6 @@
 {
-  "total": 23,
-  "limit": 23,
+  "total": 24,
+  "limit": 24,
   "offset": 0,
   "data": [
     {
@@ -90,6 +90,10 @@
     {
       "name": "Store Locator",
       "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/store-locator"
+    },
+    {
+      "name": "Form",
+      "path": "https://content.da.live/cloudadoption/contitires/tools/sidekick/blocks/form"
     },
     {
       "name": "Accordion",
