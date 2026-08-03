@@ -1396,3 +1396,97 @@ main .section.hero-container {
   line-height: 22px;
 }
 
+
+
+
+/* ---- THE IN-PAGE BAND, which live builds as `banner-with-image` rather than as
+   a marquee, so it steps at 768 where every other rule in this file steps at
+   1025. Two published pages author it, /smart-choice and
+   /all-new-securecontact-aw, each `hero left` with a desktop photograph and a
+   mobile one; hero.js derives the class from that pair and from the block
+   sitting below the first section, so nothing is authored for it.
+
+   Live's desktop state, out of its own stylesheet:
+
+     .banner-with-image--brand22 .banner-with-image__inner-wrapper {
+       background-color: #000000; background-repeat: no-repeat;
+       background-position: var(--background-position, top right);
+       padding: var(--space-80) 0;
+       background-image: var(--default-background-image);
+       background-size: cover; position: relative }
+
+   and its mobile one, on the same selector under `max-width: 768`, with a scrim
+   the desktop state does not have and the copy cleared above it through
+   `.banner-with-image__inner { position: relative; z-index: 2 }`:
+
+     padding: 125px 0 0; text-align: center;
+     background-image: var(--mobile-background-image, var(--default-background-image));
+     background-position: var(--mobile-background-position, top right);
+     &::before { content: ""; position: absolute; inset: 0;
+       background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,0) 70%) }
+
+   Read as COMPUTED on 2026-08-02, which is what settles the parts live leaves to
+   a custom property:
+
+     page                        width  height  padding  background-position  ::before
+     /all-new-securecontact-aw    1440     333    80/80        100% 0%         content: none
+     /all-new-securecontact-aw    1025     333    80/80        100% 0%         content: none
+     /all-new-securecontact-aw    1024     253    80/0         100% 0%         content: none
+     /all-new-securecontact-aw     900     253    80/0         100% 0%         content: none
+     /all-new-securecontact-aw     375     205    125/0        100% 0%         the gradient
+     /smart-choice                1440     392    80/80        100% 0%         content: none
+     /smart-choice                 900     312    80/0         100% 0%         content: none
+     /smart-choice                 375     325    125/0        100% 0%         the gradient
+
+   `--background-position` and `--mobile-background-position` are unset at every
+   one of those widths, so `top right` is what is in force and the indirection is
+   not worth carrying. Live's 333 is 80 + 173 + 80 and its 205 is 125 + 80 + 0,
+   both content-driven, so THE BAND HAS NO FLOOR OF ITS OWN and `.hero.left`'s
+   560 was what scaled the 1400x400 photograph 1.4x and cut a quarter of its
+   width away. #446
+
+   LIVE HAS A THIRD STATE BETWEEN 769 AND 1024 AND ITS BOTTOM 0 IS NOT TAKEN.
+   The two rules above do not show it; it comes off the rendered page, on both
+   pages. Ours keeps 80 there, because live's 173px copy block is a 42/56 heading
+   over 45px pills where ours is 30/36 over an 18px link row: at 900 the band
+   reads 241 against live's 253 with the 80 kept and 161 without it. The heading
+   box and the pills each have their own owner, and a padding copied from live's
+   larger copy would belong to neither band.
+
+   IT SITS AT THE FOOT OF THE FILE because it outscores what it overrides in
+   every group: 0-4-1 against `.hero.short .hero-image img`, 0-4-1 against
+   `.hero.left .hero-image::after`, and 0-4-0 against the `:has(h3)` band above,
+   which stylelint reads as descending in any earlier position. ---- */
+.hero.left.band {
+  min-height: 0;
+}
+
+.hero.left.band .hero-image img {
+  object-position: top right;
+}
+
+/* the scrim is under the copy rather than over the whole photograph, and it
+   clears 10 percentage points higher than the block's base gradient does */
+.hero.left.band .hero-image::after {
+  background: linear-gradient(to top, rgb(0 0 0 / 80%) 0%, rgb(0 0 0 / 0%) 70%);
+}
+
+.hero.left.band .hero-content {
+  padding-block: 125px 0;
+}
+
+@media (width >= 769px) {
+  /* live generates no pseudo-element here at all, so the photograph carries the
+     copy on its own dark left side the way live's does */
+  .hero.left.band .hero-image::after {
+    background: none;
+  }
+
+  /* live pins the copy at `start` from 769 up and centres it below. The rest of
+     this file moves `.hero.left` at 1025, which is its marquee's step and 256px
+     late for the band. The 80 below is live's own from 1025 and is held down to
+     769 for the reason in the comment above. */
+  .hero.left.band .hero-content {
+    padding-block: 80px;
+    text-align: left;
+  }}
