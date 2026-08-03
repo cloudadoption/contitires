@@ -53,34 +53,41 @@ describe('Cards on a dark band', () => {
     return rules.map((r) => r.style.getPropertyValue(prop)).filter(Boolean).pop();
   }
 
-  /** Every rule in the sheet whose selector list holds `selector`, media queries included. */
+  /**
+   * Every value `prop` takes in a rule whose selector list holds `selector`,
+   * media queries included. Selectors are compared with their whitespace
+   * collapsed, because a serialised selector does not always spell its
+   * combinators the way the source does.
+   */
   function anyRule(selector, prop) {
+    const norm = (t) => t.replace(/\s+/g, ' ').trim();
+    const want = norm(selector);
     const out = [];
     const walk = (rules) => [...rules].forEach((r) => {
       if (r.cssRules) walk(r.cssRules);
-      else if (r.selectorText && r.selectorText.split(',').map((s) => s.trim()).includes(selector)) {
-        const v = r.style.getPropertyValue(prop);
-        if (v) out.push(v);
-      }
+      if (!r.selectorText) return;
+      if (!r.selectorText.split(',').map(norm).includes(want)) return;
+      const v = r.style.getPropertyValue(prop);
+      if (v) out.push(norm(v));
     });
     walk(sheet.cssRules);
     return out;
   }
 
   it('keeps the tile body dark on a dark section, the way the highlights tile does', () => {
-    ['main .section.dark .cards.plain .cards-card-body',
-      'main .section.black .cards.plain .cards-card-body'].forEach((sel) => {
+    ['main .section.dark.cards-container .cards.plain .cards-card-body',
+      'main .section.black.cards-container .cards.plain .cards-card-body'].forEach((sel) => {
       expect(declared(sel, 'color'), sel).to.contain('--conti-black');
     });
   });
 
   it('keeps the tile itself white where the band is dark', () => {
-    const bg = declared('main .section.dark .cards.plain > ul > li', 'background-color');
+    const bg = declared('main .section.dark.cards-container .cards.plain > ul > li', 'background-color');
     expect(bg).to.contain('--conti-white');
   });
 
   it("gives the call to action live's link-button treatment", () => {
-    const sel = 'main .section.dark .cards.plain .cards-card-body a:any-link';
+    const sel = 'main .section.dark.cards-container .cards.plain .cards-card-body a:any-link';
     expect(declared(sel, 'text-transform'), 'uppercase').to.equal('uppercase');
     expect(declared(sel, 'font-weight'), 'bold').to.equal('700');
     expect(declared(sel, 'font-size'), '12px').to.equal('12px');
@@ -89,20 +96,22 @@ describe('Cards on a dark band', () => {
   });
 
   it("underlines it in live's dark yellow rather than in the text colour", () => {
-    const sel = 'main .section.dark .cards.plain .cards-card-body a:any-link';
+    const sel = 'main .section.dark.cards-container .cards.plain .cards-card-body a:any-link';
     expect(declared(sel, 'text-decoration-line')).to.equal('underline');
-    expect(declared(sel, 'text-decoration-color')).to.contain('#c27e00');
+    // Chrome serialises a hex colour as rgb(), so read the channel triple live's
+    // #c27e00 resolves to rather than the hex the sheet spells.
+    expect(declared(sel, 'text-decoration-color')).to.equal('rgb(194, 126, 0)');
   });
 
   it('spaces the arrow after the words, at the gap live uses', () => {
-    const sel = 'main .section.dark .cards.plain .cards-card-body a:any-link .icon';
+    const sel = 'main .section.dark.cards-container .cards.plain .cards-card-body a:any-link .icon';
     expect(declared(sel, 'margin-inline-start')).to.equal('0.5em');
   });
 
   it("holds the photograph at live's 16:9 rather than cropping it to 4:3", () => {
     const base = anyRule('.cards > ul > li img', 'aspect-ratio');
     expect(base, 'the base rule still crops to 4/3').to.include('4 / 3');
-    const dark = anyRule('main .section.dark .cards.plain > ul > li img', 'aspect-ratio');
+    const dark = anyRule('main .section.dark.cards-container .cards.plain > ul > li img', 'aspect-ratio');
     expect(dark, 'the dark band takes 16/9').to.include('16 / 9');
   });
 });
