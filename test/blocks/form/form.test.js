@@ -57,10 +57,20 @@ function buildForm(rows = ROWS, variant = '') {
   return document.querySelector('.form.block');
 }
 
+/**
+ * The words of a label, without the asterisk element. The consent label ends in
+ * an asterisk an author wrote and the rest end in one the block appends, so a
+ * trailing `*` alone does not tell the two apart.
+ */
+function labelText(label) {
+  const clone = label.cloneNode(true);
+  clone.querySelectorAll('[aria-hidden="true"]').forEach((el) => el.remove());
+  return clone.textContent.trim();
+}
+
 /** The control of the field whose label reads `text`. */
 function control(block, text) {
-  const label = [...block.querySelectorAll('label')]
-    .find((l) => l.textContent.trim().replace(/\s*\*$/, '') === text);
+  const label = [...block.querySelectorAll('label')].find((l) => labelText(l) === text);
   return label && block.querySelector(`#${label.getAttribute('for')}`);
 }
 
@@ -88,7 +98,8 @@ describe('Form block, the controls', () => {
   it('ties every label to its own control', () => {
     decorate(block);
     const labels = [...block.querySelectorAll('label')];
-    expect(labels.length).to.equal(19);
+    // 14 rows that build a field, the two members of the group, and the consent
+    expect(labels.length).to.equal(17);
     labels.forEach((label) => {
       const id = label.getAttribute('for');
       expect(id, `${label.textContent.trim()} names a control`).to.be.a('string');
@@ -105,7 +116,7 @@ describe('Form block, the controls', () => {
     const first = control(block, 'First Name');
     expect(first.required).to.be.true;
     const label = block.querySelector(`label[for="${first.id}"]`);
-    expect(label.textContent.trim()).to.equal('First Name *');
+    expect(label.textContent.trim()).to.equal('First Name*');
     const star = label.querySelector('[aria-hidden="true"]');
     expect(star, 'the asterisk is hidden from a reader').to.exist;
     expect(star.textContent.trim()).to.equal('*');
@@ -116,7 +127,7 @@ describe('Form block, the controls', () => {
     const ctl = control(block, 'Other Sponsors (optional)');
     expect(ctl.required).to.be.false;
     const label = block.querySelector(`label[for="${ctl.id}"]`);
-    expect(label.querySelector('[aria-hidden="true"]')).to.not.exist;
+    expect(!!label.querySelector('[aria-hidden="true"]'), 'no asterisk').to.be.false;
     expect(label.textContent.trim()).to.equal('Other Sponsors (optional)');
   });
 
@@ -150,7 +161,7 @@ describe('Form block, the controls', () => {
     decorate(block);
     const box = block.querySelector('input[type="checkbox"]');
     const label = block.querySelector(`label[for="${box.id}"]`);
-    expect(box.compareDocumentPosition(label) & Node.DOCUMENT_POSITION_FOLLOWING).to.be.ok;
+    expect(box.nextElementSibling, 'the label follows the box').to.equal(label);
     const help = block.querySelector(`#${box.getAttribute('aria-describedby')}`);
     expect(help, 'the help line').to.exist;
     expect(help.textContent.trim()).to.equal('Please read and accept the Terms and Conditions.');
@@ -173,12 +184,12 @@ describe('Form block, the controls', () => {
   it('keeps a field after a group out of it', () => {
     decorate(block);
     const ctl = control(block, 'Featured in Media (optional)');
-    expect(ctl.closest('fieldset')).to.be.null;
+    expect(!!ctl.closest('fieldset'), 'it is in no fieldset').to.be.false;
   });
 
   it('holds the fields in the order they were authored', () => {
     decorate(block);
-    const labels = [...block.querySelectorAll('label, legend')].map((l) => l.textContent.trim().replace(/\s*\*$/, ''));
+    const labels = [...block.querySelectorAll('label, legend')].map(labelText);
     expect(labels).to.eql([
       'First Name', 'Last Name', 'Address', 'Select A State', 'City', 'Phone',
       'Email', 'Type of Vehicle', 'Current Tires', 'Other Sponsors (optional)',
@@ -221,7 +232,7 @@ describe('Form block, the submit that cannot submit', () => {
     expect(note, 'the note').to.exist;
     expect(note.textContent.trim()).to.have.length.greaterThan(20);
     expect(note.textContent).to.match(/design/i);
-    expect(button.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_PRECEDING).to.be.ok;
+    expect(note.nextElementSibling, 'the note comes first').to.equal(button);
   });
 
   it('takes the note an author wrote over its own', () => {

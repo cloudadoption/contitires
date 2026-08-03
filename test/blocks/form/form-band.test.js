@@ -171,18 +171,35 @@ describe("Form block, live's grey band", () => {
     expect(round(top(consent) - media.getBoundingClientRect().bottom)).to.equal(38);
   });
 
-  it("sets the submit in live's yellow capitals", async () => {
+  it("takes the site's pill shape, in capitals like live's", async () => {
     await setViewport({ width: 1440, height: 900 });
     const button = block.querySelector('button[type="submit"]');
     const style = getComputedStyle(button);
-    expect(style.backgroundColor).to.equal('rgb(255, 165, 0)');
-    expect(style.color).to.equal('rgb(51, 51, 51)');
     expect(style.borderRadius).to.equal('26px');
     expect(style.fontSize).to.equal('12px');
     expect(style.fontWeight).to.equal('700');
     expect(style.textTransform).to.equal('uppercase');
     expect(style.letterSpacing).to.equal('1.25px');
     expect(round(button.getBoundingClientRect().width)).to.be.below(200);
+  });
+
+  /*
+   * Live's submit is #ffa500 and it posts. Ours cannot post, so it does not
+   * borrow the look of a button that does: a yellow control that swallows a
+   * click says a request went somewhere. The site's own disabled treatment is
+   * #f3f3f3 on #f3f3f3, which is this band, so the fill goes white and the edge
+   * grey and the control keeps a shape.
+   */
+  it('wears the disabled treatment rather than the yellow of a live submit', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const button = block.querySelector('button[type="submit"]');
+    const style = getComputedStyle(button);
+    expect(button.disabled).to.be.true;
+    expect(style.backgroundColor).to.not.equal('rgb(255, 165, 0)');
+    expect(style.backgroundColor).to.equal('rgb(255, 255, 255)');
+    expect(style.borderTopColor).to.equal('rgb(205, 205, 205)');
+    expect(style.color).to.equal('rgb(117, 117, 117)');
+    expect(style.cursor).to.equal('not-allowed');
   });
 
   it('runs the submit the full column at 375, the way live does', async () => {
