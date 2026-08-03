@@ -144,7 +144,7 @@ describe("Accordion, live's collapsed questions", () => {
     expect(cs.lineHeight, 'box').to.equal('32px');
     expect(cs.paddingLeft, 'the marker column').to.equal('24px');
     expect(cs.cursor).to.equal('pointer');
-    expect(cs.listStyleType, "the UA triangle live also drops").to.equal('none');
+    expect(cs.listStyleType, 'the UA triangle live also drops').to.equal('none');
   });
 
   it('collapses a one-line row to 32 and spaces the rows 24 apart', async () => {
