@@ -21,7 +21,7 @@ import { setViewport } from '@web/test-runner-commands';
  *     /cruisingthecontinentalus             0.0               rgba(0, 0, 0, 0)
  *     /customer-support/technical-documents  0.3              rgba(0, 0, 0, 0.3)
  *     /emilytalkstires                      0.4               rgba(0, 0, 0, 0.4)
- *     /promotionended                        .5               rgba(0, 0, 0, 0.5)
+ *     /promotionended                        .5               rgba(0, 0, 0, 0.5), 1440 only
  *     /all-new-securecontact-aw             0.0 + shade       the gradient below
  *
  * Live's rule, out of its own stylesheet:
@@ -136,17 +136,24 @@ describe('Hero scrim, authored per marquee the way live authors it (#531)', () =
 
   describe('the values live\'s authors picked', () => {
     [
-      ['/customer-support/technical-documents', 'scrim-30', 'rgba(0, 0, 0, 0.3)'],
-      ['/emilytalkstires', 'left scrim-40', 'rgba(0, 0, 0, 0.4)'],
-      ['/promotionended', 'scrim-50', 'rgba(0, 0, 0, 0.5)'],
-    ].forEach(([page, classes, colour]) => {
+      ['/customer-support/technical-documents', 'scrim-30', 'rgba(0, 0, 0, 0.3)', true],
+      ['/emilytalkstires', 'left scrim-40', 'rgba(0, 0, 0, 0.4)', true],
+      ['/promotionended', 'scrim-50', 'rgba(0, 0, 0, 0.5)', false],
+    ].forEach(([page, classes, colour, paintedAt375]) => {
       it(`${page} reads live's ${colour} at 1440`, async () => {
         const s = await scrim(classes, 1440);
         expect(s.color).to.equal(colour);
         expect(s.image).to.equal('none');
       });
 
-      it(`${page} holds that value at 375, where live's is still painted`, async () => {
+      /* live divides /promotionended's marquee below 1025 and hides its own
+         scrim there, `display: none` on the pseudo-element. Ours is not divided,
+         so the copy is over the photograph at 375 and the value holds. The same
+         structural difference as the shade below. */
+      const where = paintedAt375
+        ? 'where live\'s is painted too'
+        : 'where live divides its own marquee and hides it';
+      it(`${page} holds that value at 375, ${where}`, async () => {
         const s = await scrim(classes, 375);
         expect(s.color).to.equal(colour);
       });
