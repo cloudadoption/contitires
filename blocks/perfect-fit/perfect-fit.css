@@ -7,6 +7,23 @@ main .section:has(> .perfect-fit-wrapper) {
   padding: 0;
 }
 
+/* live rules the bar off the band above it with 4px of yellow, and drops that
+   rule where the promo bar sits directly on the bar, which is the homepage:
+   `.promo-bar--yellow + .store-finder-nav-banner { border-top: 0 }`. Its bar
+   reads 60 on /ev-compatible against our 56 and the 4 is the whole of it.
+
+   Keyed on the heading, so it reaches the bar and not the listing strip, whose
+   own band was measured against live in #267 and is left where it is. #85 */
+main .section:has(.perfect-fit-label) {
+  border-top: 4px solid var(--conti-yellow);
+}
+
+/* the promo bar goes in `:where` so this weighs the same as the band variant
+   further down rather than more, and the two sort by source order */
+main .section:has(:where(.promo-bar)) + .section:has(.perfect-fit-label) {
+  border-top: 0;
+}
+
 /* pages with no bar host the modal in a section of their own, so the block
    styles still reach it; that section carries nothing else and adds no band */
 main > .section.perfect-fit-host {
