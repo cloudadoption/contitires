@@ -791,7 +791,11 @@ main .media-gallery.cards.leading-pair .media-gallery-list > li:nth-child(n + 3)
     grid-column: span 2;
   }
 
+  /* the base cards rule starts a cell at the top of its row, because a leading
+     card carries a description its neighbours do not. The pair is the one row
+     where live gives the two the same height, 431 on both. */
   main .media-gallery.cards.leading-pair .media-gallery-list > li:nth-child(-n + 2) {
     grid-column: span 3;
+    align-self: stretch;
   }
 }
