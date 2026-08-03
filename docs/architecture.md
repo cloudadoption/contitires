@@ -196,12 +196,14 @@ under `styles/`: `article`, `promo`, `crew`, `documents`, `finder`. A product pa
 for the article layout. Then `decorateMain` runs over `<main>`, and `revealPage` adds
 `body.appear` once the template stylesheet is in effect, so an article does not paint at the
 default page width and reflow afterwards. Last, `loadSection` loads the blocks of the first
-section and waits for its first image. Fonts load in this phase at a viewport of 769px or wider,
-which `loadsFontsEagerly` decides.
+section and waits for its first image. The fonts are on their way before any of this runs, because
+`head.html` links `styles/fonts.css` itself, so `loadsFontsEagerly` no longer decides whether they
+are fetched. [The webfont on the critical path](#the-webfont-on-the-critical-path) is why.
 
 **Lazy** loads the header block, which fetches `/nav` and `/fragments/promo-bar` as fragments.
 Then the remaining sections in order, a scroll to the URL hash if there is one, the footer block
-fetching `/footer`, `styles/lazy-styles.css`, fonts unconditionally, and the finder triggers.
+fetching `/footer`, `styles/lazy-styles.css`, and the finder triggers. `loadFonts()` runs here too.
+It finds its stylesheet already in the head and resolves without a second request.
 
 **Delayed** is a 3,000 ms timeout that imports [scripts/delayed.js](../scripts/delayed.js). That
 file is eight lines. It queries for `.widget[data-source]` and imports the widget loader when one
@@ -221,6 +223,95 @@ There is no tag manager. Grep the delivered HTML of any page for `googletagmanag
 is zero. The measurement in place is `sampleRUM` inside `aem.js`, at the default weight of 100:
 roughly 1 view in 100 posts to `https://ot.aem.live/.rum/100`. A tag container belongs in the
 delayed phase, and adding one is open work.
+
+## The webfont on the critical path
+
+Stag Sans is on the first paint, and putting it there is a deliberate exception to the platform's
+font guidance. `head.html` preloads three of the faces and links `styles/fonts.css` as a stylesheet,
+so the parser waits on the font stylesheet before it paints:
+
+```html
+<link rel="preload" href="https://continentaltire.com/.../StagSans-Thin.woff" as="font" type="font/woff" crossorigin/>
+<link rel="preload" href="https://continentaltire.com/.../StagSans-Light.woff" as="font" type="font/woff" crossorigin/>
+<link rel="preload" href="https://continentaltire.com/.../StagSans-Book.woff" as="font" type="font/woff" crossorigin/>
+<link rel="stylesheet" href="/styles/fonts.css"/>
+```
+
+The three faces are 26,172, 28,508 and 29,080 bytes, 81.8KB together. `fonts.css` is 79 lines and
+answers 1,292 bytes brotli. The italic face is one of the five and is not preloaded. Its bytes would
+land on each page, while the italic copy that reads it was absent from the pages measured.
+
+The reason is a shift the metric-matched fallback could not take. Arial sets wider than Stag Sans, so
+a title wrapping to three lines in the fallback wraps to two in Stag Sans. The article body under it
+then rises 51px when the swap lands. [The design system](design-system.md) covers the fallback that
+removed most of it, 47 of the 55 article titles that changed line count. The remainder does not tune
+away. The sweep went from 90% to 95% in 0.1 steps, over 220 real titles at four widths. The best
+`size-adjust` leaves 31 line-count changes against the shipped value's 33. Two typefaces do not wrap
+alike, and no advance-width ratio makes them.
+
+So the swap had to stop landing after the paint, and it takes both halves to move it. Measured cold
+on `/learn/how-do-smokey-burnout` at 412 wide:
+
+| in the head | CLS |
+| --- | --- |
+| neither | 0.0552, the body moving 36px at 5336ms |
+| the three preloads alone | 0.0515, the font in hand at 149ms and unused |
+| `fonts.css` render-blocking alone | 0.0552, the woff requested at 2485ms |
+| both | 0 |
+
+A preload on its own does little, because a preload registers no face. The bytes land in the cache
+and no rule asks for them until `fonts.css` arrives, which was the lazy phase below 769px. The
+stylesheet on its own fails the other way. A woff is requested when layout first needs it, which is
+the paint it was meant to precede. Across the article pages, cold CLS went from 0.055, 0.075 and
+0.039 to 0, 0 and 0.0015. The pull request gate read 97 to 100, with LCP 2.1 to 2.3s on mobile.
+
+### Why this is not the shape to keep
+
+Two things about it run against [keeping it 100](https://www.aem.live/developer/keeping-it-100) and
+[the font fallback article](https://www.aem.live/developer/font-fallback). Whoever takes this forward
+should have both in view.
+
+A render-blocking font stylesheet in `head.html` is what that guidance tells you not to add. It says
+fonts are "loaded right after" the LCP, because getting them there before it is "largely impossible".
+Of preloading, it says the technique "has a significant negative impact". The font fallback article
+asks you to "defer the custom font loading or at least make it non-blocking in the loading sequence".
+The boilerplate does that. Its `head.html` links `styles.css` and no font stylesheet, and
+`loadFonts()` requests one from JavaScript after the first section has loaded. The page has painted
+by then.
+
+The faces are fetched from `continentaltire.com`, which `fonts.css` already did before the preloads
+were added. The guidance is explicit here too. Connecting to a second origin before the LCP "is
+strongly discouraged as establishing a second connection (TLS, DNS, etc.) adds a significant delay".
+Connect plus TLS to that host measured 23ms from a machine with a warm resolver, and a visitor's own
+first lookup costs more. The dependency is the heavier half of it. The type here renders while live
+is up and answering `access-control-allow-origin: *`, and falls to Arial when it is not.
+
+`font-display: swap` means the paint does not wait for a woff. What the two halves buy is the face
+registered and its bytes in hand before layout runs, so no swap happens. When the third-party fetch
+loses the race to the paint, the swap is back and the blocking stylesheet was paid for anyway.
+
+### What access closes it
+
+The licensed font files, and the rest follows from that.
+
+With the files, the faces are woff2 under [`fonts/`](../fonts), served from this site's own origin off
+the code bus, and `fonts.css` points at `../fonts/` the way the boilerplate's does. One origin, no
+handshake, no host outside this project. woff2 also subsets, which the boilerplate does with a
+`unicode-range` per face. This site cannot subset a file it does not have.
+
+The fallback then comes off the real face instead of off measurements of rendered text. The mechanism
+is the boilerplate's own, and this project already runs it. It is a fallback family declared with
+`size-adjust` and `src: local('Arial')` in `styles/styles.css`, and this site adds `ascent-override`
+and `descent-override` at each weight. Today's ratios were read with canvas `measureText` over 70,041
+characters of the site's own running text. A font this repo cannot open leaves no other route. A
+generator reading the file gets those numbers from the source, so they are exact and reproducible
+rather than fitted, and `font-display: swap` costs no shift.
+
+The end state is a smaller thing than what is there now. Self-hosted woff2 in `fonts/`, and
+`fonts.css` back in the lazy phase. A fallback generated from the real face, no preload, and no
+third-party origin on the critical path. CLS still 0. It deletes the four lines in `head.html` rather
+than adding to them. [Completing the migration](completing-the-migration.md#web-fonts) lists it as a
+gap with the access it needs.
 
 ## Autoblocking
 
