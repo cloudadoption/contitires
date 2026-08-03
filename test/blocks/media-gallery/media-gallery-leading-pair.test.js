@@ -111,6 +111,21 @@ describe('Media gallery leading pair, the two cards live features on the soccer 
     expect(Math.round(cells[1].left - cells[0].right), "live's 38 gap").to.equal(38);
   });
 
+  /*
+   * Live's pair is 431 on both cards where each of ours was as tall as its own
+   * description, 435 against 413. The base cards rule starts every cell at the
+   * top of its row on purpose, because a leading card carries a description its
+   * neighbours do not, and the pair is the one row where live gives the two the
+   * same height.
+   */
+  it('gives the pair one height, the way live gives both 431', async () => {
+    await setViewport({ width: 1440, height: 900 });
+    decorate(block = charity());
+    const { cells } = boxes();
+    expect(Math.round(cells[1].height), 'both cards run to the row')
+      .to.equal(Math.round(cells[0].height));
+  });
+
   it('drops the card after the pair to a third of the row', async () => {
     await setViewport({ width: 1440, height: 900 });
     decorate(block = charity());
