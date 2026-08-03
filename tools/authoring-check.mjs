@@ -19,6 +19,7 @@ import {
   SPECS_COLUMNS, missingColumns, sizeKey, sizesBySlug, sheetRows,
 } from '../scripts/products.js';
 import { CATEGORIES, categoryNames, isKnownCategory } from '../scripts/categories.js';
+import { libraryRows, sampleUrl } from './library-index.js';
 
 const LIVE = 'https://main--contitires--cloudadoption.aem.live';
 const hostArg = process.argv.indexOf('--host');
@@ -132,10 +133,54 @@ async function checkCategories() {
   console.log(`categories: ${rows.length} indexed rows, ${named}`);
 }
 
+/*
+ * The block library index. Each row points at a sample document, and both
+ * pickers drop a row whose sample they cannot read without saying anything, so
+ * an unpublished or misnamed sample takes its block out of the picker while the
+ * index still lists it. #297 measured the picker's load and found nothing here
+ * to win; this is the failure that was hiding behind it.
+ *
+ * It reads the Sidekick index, which is the one served off this host. The DA
+ * picker reads a copy kept in DA at library/blocks.json, which is behind a token
+ * and 404s here, so nothing unauthenticated can compare the two. That copy has
+ * to be pushed by hand whenever library-da.json changes.
+ */
+async function checkLibrary() {
+  const rows = libraryRows(await read('/tools/sidekick/library.json'));
+  if (!rows.length) {
+    note('library', 'the index lists no rows, so the picker offers nothing to insert');
+    return;
+  }
+
+  const readable = await Promise.all(rows.map(async (row) => {
+    const url = sampleUrl(row.path, HOST);
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      note('library', `${row.name} points at ${row.path}, which answers ${resp.status}, so the picker does not list ${row.name}`);
+      return 0;
+    }
+    const html = await resp.text();
+    // #285: the name, description and search terms all come off this block
+    if (!html.includes('library-metadata')) {
+      note('library', `the ${row.name} sample carries no library-metadata, so the picker lists it without a description and no search finds it`);
+    }
+    return 1;
+  }));
+
+  const count = readable.reduce((n, ok) => n + ok, 0);
+  console.log(`library: ${rows.length} rows, ${count} with a sample the picker can read`);
+}
+
 try {
   await checkProducts();
 } catch (error) {
   note('products', error.message);
+}
+
+try {
+  await checkLibrary();
+} catch (error) {
+  note('library', error.message);
 }
 
 try {
