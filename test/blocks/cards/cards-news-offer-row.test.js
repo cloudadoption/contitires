@@ -36,6 +36,12 @@ import styleSheet from '../../helpers/stylesheet.js';
  * separate live component with its own flattened tile and its own 14/20 title,
  * and the rules for it further down the stylesheet still hold. Issue #209.
  */
+/**
+ * One authored row. The call to action is written here the way the page holds
+ * it once `decorateButtons` has run, because live's 28 below the button was
+ * read against live's `a.btn` and an undecorated link is 18px tall where the
+ * pill is 45.
+ */
 const CARD = (tag, title, body) => `
   <div>
     <div><picture><img src="/icons/search.svg" alt="Offer thumbnail"></picture></div>
@@ -43,7 +49,7 @@ const CARD = (tag, title, body) => `
       <p>${tag}</p>
       <h2 id="t"><a href="/promotion">${title}</a></h2>
       <p>${body}</p>
-      <p><em><a href="/promotion">See details</a></em></p>
+      <p class="button-wrapper"><a class="button secondary" href="/promotion">See details</a></p>
     </div>
   </div>`;
 
@@ -168,7 +174,7 @@ describe("Cards, live's stacked offer row", () => {
     await setViewport({ width: 1440, height: 900 });
     const block = build();
     const { li } = parts(block);
-    const cta = [...li.querySelectorAll('.cards-card-body p')].pop();
+    const cta = li.querySelector('.cards-card-body a.button');
     expect(box(li).bottom - box(cta).bottom).to.equal(28);
   });
 
