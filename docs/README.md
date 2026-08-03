@@ -13,7 +13,8 @@ and the completion plan are the two that answer "what is left".
 [**architecture.md**](architecture.md) is the place to start. Content comes from one place and code
 from another, and they do not wait for each other. It covers the two buses, what a DA document turns
 into, how a block decorates it, the eager, lazy and delayed phases, which blocks this site builds
-without an author asking, and where the data lives. Read it before changing anything.
+without an author asking, and where the data lives. It also says why the webfont is on the critical
+path against the platform's own advice. Read it before changing anything.
 
 [**blocks.md**](blocks.md) is the reference for the 29 directories under `blocks/`. One entry each:
 what the block is for, what an author writes in DA, what the decorator builds from it, which variant
