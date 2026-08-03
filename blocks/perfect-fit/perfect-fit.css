@@ -227,9 +227,11 @@ main .section:has(.perfect-fit.banner) {
 }
 
 /* live sets the calls to action 8 under the options, on top of the container's
-   own 20 */
-:where(main .section:has(.perfect-fit.banner)) > .default-content-wrapper {
-  margin: 28px 0 0;
+   own 20. `main > .section > div` centres every wrapper with `margin: auto`, so
+   this one carries the weight rather than sitting in `:where` with the rest: at
+   1440 that shorthand computes to `0 136px` and takes the 28 with it. */
+main .section:has(.perfect-fit.banner) > .default-content-wrapper {
+  margin-top: 28px;
 }
 
 :where(main .section:has(.perfect-fit.banner)) > .default-content-wrapper p {
