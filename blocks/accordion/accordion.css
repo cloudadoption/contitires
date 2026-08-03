@@ -53,11 +53,18 @@
 }
 
 /* the heading keeps its level, takes the summary's type and gives up its
-   margins, which would otherwise open the collapsed row past live's 32 */
+   margins, which would otherwise open the collapsed row past live's 32.
+
+   The weight is live's 400 and not the site's 300 for headings. Live's own
+   question is a span in a summary and computes 400 in Stag Sans at #333, read on
+   a rendered /ev-compatible at 1440; moving the authored h3 in here brought the
+   global `h1, h2, h3, h4, h5, h6 { font-weight: 300 }` with it, and the two read
+   visibly apart side by side. */
 .accordion .accordion-question :is(h1, h2, h3, h4, h5, h6) {
   display: inline;
   margin: 0;
   font-size: inherit;
+  font-weight: 400;
   line-height: inherit;
 }
 

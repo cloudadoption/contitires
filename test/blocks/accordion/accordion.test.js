@@ -156,6 +156,17 @@ describe("Accordion, live's collapsed questions", () => {
     expect(Math.round(second.top - first.bottom), 'the gap').to.equal(24);
   });
 
+  // live's question renders at 400 and the site's headings at 300, so moving the
+  // authored h3 into the summary brought a lighter question with it. Read off a
+  // rendered /ev-compatible at 1440 on 2026-08-03: live's summary and its span
+  // both compute 400 in Stag Sans at #333, and ours computed 400 on the summary
+  // with 300 on the h3 inside it.
+  it("sets the question at live's own weight rather than the heading's", async () => {
+    await setViewport({ width: 1440, height: 900 });
+    const heading = buildFlat().querySelector('summary h3');
+    expect(getComputedStyle(heading).fontWeight).to.equal('400');
+  });
+
   it("steps the question to live's 18 by 26 below the tablet bound", async () => {
     await setViewport({ width: 375, height: 900 });
     const cs = getComputedStyle(buildFlat().querySelector('summary'));
