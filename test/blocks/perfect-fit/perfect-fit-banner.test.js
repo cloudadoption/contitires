@@ -184,6 +184,11 @@ describe('Perfect fit banner, live\'s band on /all-new-securecontact-aw', () => 
       .to.deep.equal({ w: LIVE_COLUMN.icon, h: LIVE_COLUMN.icon });
   });
 
+  it('sets the calls to action 28 under the options, inside the band', () => {
+    const wrapper = wide.querySelector('.default-content-wrapper');
+    expect(wide.defaultView.getComputedStyle(wrapper).marginTop).to.equal('28px');
+  });
+
   it('leaves the strip a row at 1440, on no band of its own', async () => {
     const plain = await renderAt(1440, markup(''));
     frames.push(...document.querySelectorAll('iframe'));
