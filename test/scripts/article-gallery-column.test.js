@@ -27,14 +27,18 @@ import decorateGallery from '../../blocks/media-gallery/media-gallery.js';
  *
  * 13 of the site's 26 bare galleries sit inline like this. The other 13 are
  * partner pages, where live DOES give the gallery a column of its own and the
- * 750 is right, so the cap moves onto `.partner` rather than going away.
+ * 750 is right, so the narrowing excludes them.
  */
+/** viewport, reading column, gallery, tile */
 const LIVE = [
-  { vw: 1440, column: 755, gallery: 558.7, tile: 269.4 },
-  { vw: 1024, column: 647, gallery: 478.8, tile: 229.4 },
-  { vw: 900, column: 523, gallery: 387, tile: 183.5 },
-  { vw: 769, column: 392, gallery: 290.1, tile: 135 },
+  [1440, 755, 558.7, 269.4],
+  [1024, 647, 478.8, 229.4],
+  [900, 523, 387, 183.5],
+  [769, 392, 290.1, 135],
 ];
+
+/** a partner section's own column, at the two ends of article-partner.test.js */
+const PARTNER = [[1440, 750], [900, 518]];
 
 async function adopt(...paths) {
   const sheets = await Promise.all(paths.map(async (p) => {
@@ -112,7 +116,7 @@ describe("An article's inline gallery", () => {
     await setViewport({ width: 1440, height: 900 });
   });
 
-  LIVE.forEach(({ vw, column, gallery, tile: tileW }) => {
+  LIVE.forEach(([vw, column, gallery, tileW]) => {
     it(`takes live's ${gallery}px of a ${column}px column at ${vw}`, async () => {
       buildArticle();
       const m = await measure(vw);
@@ -135,13 +139,24 @@ describe("An article's inline gallery", () => {
     });
   });
 
-  // A partner section gets a column of its own, and live's gallery fills it.
-  // `:not(.partner)` is what keeps the narrowing off these 13 pages, so the
-  // block is measured here rather than the wrapper article-partner.test.js reads.
-  it("leaves a partner gallery on live's 750 at 1440", async () => {
-    buildArticle('partner');
-    const m = await measure(1440);
-    expect(m.gallery.width, 'partner gallery').to.be.closeTo(750, 1);
+  /*
+   * A partner section gets a column of its own and live's gallery fills it, so
+   * `:not(.partner)` keeps the narrowing off those 13 pages. The block is
+   * measured here rather than the wrapper article-partner.test.js reads, because
+   * the wrapper is what that file already covers.
+   *
+   * No cap of its own: `minmax(0, 750px)` is the partner track, and a section
+   * with no share block is not a grid at all and takes the 571px measure, so
+   * there is no state where the block outgrows the column it sits in. That makes
+   * the partner track the thing to protect, and it is pinned next door.
+   */
+  PARTNER.forEach(([vw, gallery]) => {
+    it(`leaves a partner gallery on live's ${gallery} at ${vw}`, async () => {
+      buildArticle('partner');
+      const m = await measure(vw);
+      expect(m.gallery.width, `partner gallery at ${vw}`).to.be.closeTo(gallery, 1);
+      expect(m.gallery.width, `fills the column at ${vw}`).to.be.closeTo(m.column.width, 1);
+    });
   });
 
   // below 769 live shows one tile at a time, and the list bleeds to 4px of each
