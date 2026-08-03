@@ -883,3 +883,42 @@ main .section.two-columns .button {
   }
 }
 
+/* ---- the title a band puts over a gallery of cards. Live calls that band
+   `section.card-list` and gives its title a treatment of its own: 42 on a 48 box
+   above 1024 and 30 on 36 below it, tracked out 6, centred, in capitals, with 38
+   under it. Read off continentaltire.com/experience/soccer at 375, 900, 1024 and
+   1440, and again on /my-first-car-my-first-tires and /cruisingthecontinentalus,
+   which carry the same band. Ours read the site h2, 30 on 38, left, untracked and
+   in the case it was authored in.
+
+   SCOPED, because live's h2 is not 42/48: the card titles inside these same bands
+   are h2 at 14/20, and my-first-car's are 12/16, so the size belongs to the
+   band's title and not to the level. The counterpart here is the default content
+   of a section that names a gallery of CARDS, 8 titles on 3 pages across the 327
+   published paths. `.cards` is what keeps /events out: its gallery is the
+   `social` variant, and `main .section.two-columns h2` above already gives those
+   two titles live's own treatment there, which goes left from 769 where this one
+   stays centred.
+
+   Both margins are PINS at what renders today rather than live's numbers. Live
+   pads the band 80 and leaves the title no top margin; ours pads 56 and the
+   shared 0.8em adds 24, so the title lands 80 into the band on both sides at
+   1440. Left proportional it would resolve to 33.6 once the size steps to 42 and
+   break a match that holds. Below 769 live pads that band 38 against our 56, so
+   the space above the title is 42px wider here at 375; that is the band's padding
+   and not the title's. Issue #278. ---- */
+main .section:has(.media-gallery.cards) > .default-content-wrapper h2 {
+  margin: 24px 0 38px;
+  line-height: 36px;
+  letter-spacing: 6px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@media (width >= 1025px) {
+  main .section:has(.media-gallery.cards) > .default-content-wrapper h2 {
+    font-size: 42px;
+    line-height: 48px;
+  }
+}
+
