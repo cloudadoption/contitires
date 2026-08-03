@@ -1,1 +1,54 @@
 /* add global styles that can be loaded post LCP here */
+
+/* Blocks rise into place as the reader reaches them. Live's numbers, read off
+   its own stylesheet and its rendered pages: one `fadeInUp` for everything,
+   `--animate-duration: 1s`, `ease`, `animation-fill-mode: both`, and 100ms of
+   `animation-delay` between neighbours. scripts/rise.js decides what takes
+   them and when, and it is the only thing that ever sets `rise`, so a page
+   with no JavaScript shows all of its content. */
+:root {
+  --rise-duration: 1s;
+  --rise-stagger: 100ms;
+
+  /* live translates by 100% of the element's own height, which is 24px on a
+     list item and past 1000px on a grid container. Capped, so a tall block
+     does not slide a whole screen. */
+  --rise-distance: min(100%, 120px);
+}
+
+@keyframes rise-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--rise-distance), 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  opacity: 0;
+  transform: translate3d(0, var(--rise-distance), 0);
+}
+
+.rise-in {
+  animation-name: rise-up;
+  animation-duration: var(--rise-duration);
+  animation-timing-function: ease;
+
+  /* `both` holds the from-frame through the delay, which is how live keeps a
+     staggered item hidden until its turn */
+  animation-fill-mode: both;
+  animation-delay: calc(var(--rise-order, 0) * var(--rise-stagger));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .rise-in {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
