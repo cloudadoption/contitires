@@ -1371,7 +1371,7 @@ main .section.hero-container {
 
      element                    live              ours
      title, 375 and 1024        30/36, 2 lines    30/36, 2 lines
-     subtitle                   16px/22px         18px/28.8px
+     subtitle                   16px/22px at 700  18px/28.8px at 400
      gap above the subtitle     8px               16px
 
    72 + 8 + 22 is live's 102 at 1024 against our 116.8, and 72 + 8 + 66 its 146
@@ -1392,6 +1392,7 @@ main .section.hero-container {
 .hero.stacked.slim.breadcrumb .hero-content p {
   margin-top: 8px;
   font-size: 16px;
+  font-weight: 700;
   line-height: 22px;
 }
 
