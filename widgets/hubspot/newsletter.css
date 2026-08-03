@@ -14,8 +14,49 @@
    change to the form is a change to these. Issues #108, #109. */
 main .newsletter {
   display: block;
+  position: relative;
   margin: 2rem 0;
   min-height: 2051px;
+}
+
+/* The room above holds from the first paint and the form reaches it at 3.4s,
+   measured on the published page at 412: the delayed phase starts at 3s and
+   `js.hsforms.net/forms/embed/48908421.js` finishes at 3329ms. On a page whose
+   only content is the form, that long a wait in front of 2051px of nothing
+   reads as broken rather than as loading. So the empty room shows the shape of
+   what is coming.
+
+   Two tiled layers on an 89px pitch: a 96px label bar over a full-width field
+   box, 10px and 44px tall, at the offsets HubSpot's own rows take. Read off the
+   rendered form at 375, where four consecutive labels sit at 469, 558, 647 and
+   736 and each field box measures 43. No text, so nothing is announced and no
+   copy live does not have appears.
+
+   `:empty` is the whole switch. The embed puts its iframe inside
+   `.hs-form-frame`, so the rows retire the moment the form is in, and the
+   overlay never takes part in layout, so the reserved height is untouched
+   either way. Issue #230. */
+main .newsletter:has(.hs-form-frame:empty)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      var(--conti-light-grey, #e9e9e9) 0,
+      var(--conti-light-grey, #e9e9e9) 10px,
+      transparent 10px,
+      transparent 89px
+    ),
+    linear-gradient(
+      transparent 0,
+      transparent 22px,
+      var(--conti-lightest-grey, #f3f3f3) 22px,
+      var(--conti-lightest-grey, #f3f3f3) 66px,
+      transparent 66px,
+      transparent 89px
+    );
+  background-repeat: repeat-y;
+  background-size: 96px 89px, 100% 89px;
 }
 
 @media (width >= 480px) {
@@ -27,5 +68,24 @@ main .newsletter {
 @media (width >= 768px) {
   main .newsletter {
     min-height: 1176px;
+  }
+
+  /* From 768 HubSpot lays the fields out in two columns inside an 878px band
+     centred in the container, measured at 1440, so the rows take that band
+     rather than the container's own width. The label bar goes with them: a bar
+     pinned to the container's left edge would sit outside the band. The pitch
+     and the 44px box are the same up here as at 375. */
+  main .newsletter:has(.hs-form-frame:empty)::before {
+    background-image:
+      linear-gradient(
+        transparent 0,
+        transparent 22px,
+        var(--conti-lightest-grey, #f3f3f3) 22px,
+        var(--conti-lightest-grey, #f3f3f3) 66px,
+        transparent 66px,
+        transparent 89px
+      );
+    background-position: center top;
+    background-size: min(878px, 100%) 89px;
   }
 }
