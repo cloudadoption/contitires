@@ -52,13 +52,22 @@ describe('the default share image', () => {
     expect([...bytes.slice(0, 8)], 'the file signature').to.eql([137, 80, 78, 71, 13, 10, 26, 10]);
   });
 
-  it("decodes at live's card size", async () => {
-    const image = new Image();
-    image.src = URL.createObjectURL(new Blob([bytes], { type: 'image/png' }));
-    await image.decode();
-    expect(image.naturalWidth, 'the intrinsic width').to.equal(1200);
-    expect(image.naturalHeight, 'the intrinsic height').to.equal(630);
-    URL.revokeObjectURL(image.src);
+  // The size comes out of the PNG header rather than out of a decode.
+  // `image.decode()` never settled here: it exceeded mocha's 2000ms default on
+  // five of the eight main runs after this file landed, and it still hung at
+  // 15000ms, so it is starving rather than running slowly. 144 test files share
+  // one browser and decoding is the browser's work, not this repo's.
+  //
+  // IHDR is the first chunk of every PNG and its width and height are two
+  // big-endian 32-bit integers at byte 16 and byte 20. That is the same fact the
+  // decode was asserting, read from the bytes the repo ships.
+  it("is 1200 by 630, live's card size, by its IHDR chunk", () => {
+    // arithmetic rather than shifts, because the lint config forbids bitwise
+    const be32 = (at) => bytes[at] * 2 ** 24 + bytes[at + 1] * 2 ** 16
+      + bytes[at + 2] * 256 + bytes[at + 3];
+    expect(String.fromCharCode(...bytes.slice(12, 16)), 'the first chunk is IHDR').to.equal('IHDR');
+    expect(be32(16), 'the intrinsic width').to.equal(1200);
+    expect(be32(20), 'the intrinsic height').to.equal(630);
   });
 
   it("stays under live's 46,926 bytes", () => {
