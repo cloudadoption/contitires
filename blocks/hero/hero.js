@@ -5,18 +5,24 @@ import decorateVideo, { videoId } from '../video/video.js';
 // the width at which the hero stops stacking, so the desktop art starts here
 const DESKTOP_MEDIA = '(min-width: 1025px)';
 
+// live's in-page band swaps its two photographs at `max-width: 768`, which is
+// this boundary from the other side. Its marquee swaps at 1025, so the two
+// components this block builds do not share a step. #446
+const BAND_MEDIA = '(min-width: 769px)';
+
 /**
  * Folds an authored desktop and mobile picture into one, so a viewport
  * downloads a single image. The desktop sources lead, behind the breakpoint,
  * because a picture takes the first source that matches.
  * @param {Element} desktop the first authored picture
  * @param {Element} mobile the second authored picture
+ * @param {string} media the width above which the desktop art is wanted
  * @returns {Element} the merged picture
  */
-function mergePictures(desktop, mobile) {
+function mergePictures(desktop, mobile, media = DESKTOP_MEDIA) {
   // only the wide sources are worth keeping above the breakpoint
   [...desktop.querySelectorAll('source[media]')].reverse().forEach((source) => {
-    source.media = DESKTOP_MEDIA;
+    source.media = media;
     mobile.prepend(source);
   });
   desktop.remove();
@@ -140,17 +146,30 @@ export default function decorate(block) {
 
   const isEmpty = (el) => !el.textContent.trim() && el.children.length === 0;
 
+  // WHERE THE BLOCK SITS DECIDES WHICH OF LIVE'S TWO COMPONENTS IT IS. Live
+  // builds the page-opening art as `section.marquee` and an in-page band as
+  // `section.banner-with-image`, and the band steps at 768 where the marquee
+  // steps at 1025. An in-page hero the author gave both a desktop and a mobile
+  // photograph is the band, which is live's own discriminator: its band element
+  // carries `--mobile-background-image` only there, and the rule consuming it
+  // is the 768 one. Two published pages author it, /smart-choice and
+  // /all-new-securecontact-aw. hero.css hangs the band's own treatment on the
+  // class. #446
+  const section = block.closest('.section');
+  const opensPage = !!section && section === section.parentElement.firstElementChild;
+  const isBand = pictures.length > 1 && !opensPage;
+  if (isBand) block.classList.add('band');
+
   const imageWrap = document.createElement('div');
   imageWrap.className = 'hero-image';
   const picture = pictures.length > 1
-    ? mergePictures(pictures[0], pictures[1])
+    ? mergePictures(pictures[0], pictures[1], isBand ? BAND_MEDIA : DESKTOP_MEDIA)
     : pictures[0];
   if (picture) {
     imageWrap.append(picture);
     // the hero that opens the page holds the LCP image, and it is the only
     // image in it now, so it can be asked for first
-    const section = block.closest('.section');
-    if (section && section === section.parentElement.firstElementChild) {
+    if (opensPage) {
       const img = picture.querySelector('img');
       img.setAttribute('loading', 'eager');
       img.setAttribute('fetchpriority', 'high');
