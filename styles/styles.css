@@ -654,6 +654,23 @@ main > .section:first-of-type {
   margin-top: 0;
 }
 
+/* Live leaves air between the header and a product page's gallery, and it does
+   it on the page rather than on the block: `.tire-page { padding-top: 20px }`
+   from 769 up, dropped under its `max-width: 768`. Header bottom to the top of
+   the tire image measures 44 on live against our 24 at 1440, 1024 and 769, and
+   24 on both sides at 768 and 375. The 24 we share is the gallery tile's own
+   `padding-top`, so live's 20 on the page is the whole difference.
+
+   Padding rather than margin, because the rule above zeroes the first section's
+   top margin to sit the page against the header, and padding neither collapses
+   nor loses to it. The selector is the one the h1 rule already uses to reach the
+   46 product pages and nothing else in the index. */
+@media (width >= 769px) {
+  main:has(.columns.product-hero, .tire-specs) > .section:first-of-type {
+    padding-top: 20px;
+  }
+}
+
 @media (width >= 769px) {
   main > .section > div {
     padding: 0 16px;
