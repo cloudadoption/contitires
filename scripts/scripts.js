@@ -494,8 +494,18 @@ export function loadTemplateStyles() {
  * @param {Promise} templateStyles the template's stylesheet
  */
 export async function revealPage(templateStyles) {
-  await templateStyles;
-  document.body.classList.add('appear');
+  try {
+    await templateStyles;
+  } finally {
+    document.body.classList.add('appear');
+  }
+}
+
+export async function loadAboveFold(section, templateStyles) {
+  await Promise.all([
+    revealPage(templateStyles),
+    loadSection(section, waitForFirstImage),
+  ]);
 }
 
 /**
@@ -531,8 +541,7 @@ async function loadEager(doc) {
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
-    await revealPage(templateStyles);
-    await loadSection(main.querySelector('.section'), waitForFirstImage);
+    await loadAboveFold(main.querySelector('.section'), templateStyles);
   }
 
   try {
