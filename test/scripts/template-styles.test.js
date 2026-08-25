@@ -2,7 +2,11 @@
 /* global describe it afterEach */
 
 import { expect } from '@esm-bundle/chai';
-import { loadTemplateStyles, revealPage } from '../../scripts/scripts.js';
+import {
+  loadAboveFold,
+  loadTemplateStyles,
+  revealPage,
+} from '../../scripts/scripts.js';
 
 // styles/article.css sets the whole article layout: the reading column, the
 // title scale, and now the sidebar grid. loadEager fired it off without
@@ -109,6 +113,25 @@ describe('Page reveal', () => {
     try {
       await revealPage(Promise.reject(new Error('stylesheet failed')));
     } catch { /* expected */ }
+    expect(document.body.classList.contains('appear')).to.be.true;
+  });
+
+  it('loads the first section while template styles are pending', async () => {
+    const section = document.createElement('div');
+    section.dataset.sectionStatus = 'initialized';
+    section.style.display = 'none';
+    let resolveStyles;
+    const templateStyles = new Promise((resolve) => { resolveStyles = resolve; });
+
+    const loading = loadAboveFold(section, templateStyles);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(section.dataset.sectionStatus).to.equal('loaded');
+    expect(document.body.classList.contains('appear')).to.be.false;
+
+    resolveStyles();
+    await loading;
     expect(document.body.classList.contains('appear')).to.be.true;
   });
 });
