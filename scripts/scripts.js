@@ -501,13 +501,6 @@ export async function revealPage(templateStyles) {
   }
 }
 
-export async function loadAboveFold(section, templateStyles) {
-  await Promise.all([
-    revealPage(templateStyles),
-    loadSection(section, waitForFirstImage),
-  ]);
-}
-
 /**
  * Whether the eager phase requests fonts.css, which decides whether a page
  * paints in Stag or paints in the fallback and changes into Stag afterwards.
@@ -541,7 +534,10 @@ async function loadEager(doc) {
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
-    await loadAboveFold(main.querySelector('.section'), templateStyles);
+    await Promise.all([
+      revealPage(templateStyles),
+      loadSection(main.querySelector('.section'), waitForFirstImage),
+    ]);
   }
 
   try {
