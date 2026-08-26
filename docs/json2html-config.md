@@ -56,9 +56,10 @@ what it actually answers to the 46 product paths and 404s on everything else, ha
 requests straight back to the fallback. Get *this* document wrong — absent entirely — and nothing
 renders through json2html at all, no error, just the 46 product pages served as whatever DA
 currently holds for them (their pre-migration content, or a 404 if that document was already
-removed). Get *json2html's* document wrong — too broad, or missing the `path` filter it relies on —
-and this document is where the blast radius would actually land, because this is the level with no
-narrowing of its own.
+removed). Get *json2html's* document wrong — absent entirely, rather than merely too broad — and
+this document is where the blast radius actually lands, and it is worse than a missing narrowing:
+see "What breaks if only one configuration exists" below, which was measured directly against this
+site rather than assumed.
 
 ## Configuration 2 — json2html's per-path mapping
 
@@ -135,19 +136,33 @@ to render it into.
 
 ## What breaks if only one configuration exists
 
-Both failure modes resolve to the same shape: `404` from the missing half, and `admin.hlx.page`'s
-fallback rule sends the request on to DA. There is no 500 and no blank page in either direction.
+The two halves fail differently, and only one of them is the silent, harmless kind. This was
+measured directly against this site rather than assumed from the worker's own documentation, which
+describes the per-path case only.
 
-- **Configuration 1 without configuration 2:** the site config names an overlay URL, but json2html's
-  KV has no mapping rule for this org/site/branch, so it 404s on every path it is asked about,
-  including `/tires/<slug>`. `admin.hlx.page` falls back to DA every time, and the 46 product pages
-  are served as whatever DA currently holds for them — pre-migration content if it is still there,
-  or DA's own 404 if it has already been removed.
 - **Configuration 2 without configuration 1:** json2html has a correct mapping rule and would answer
   `/tires/<slug>` correctly if asked, but nothing ever asks it — `admin.hlx.page` has no overlay
   configured for this site at all, so every request, including `/tires/<slug>`, goes straight to DA
-  and json2html is never consulted.
+  and json2html is never consulted. This half alone changes nothing a visitor or an author would
+  notice.
 
-Either way, the failure is silent and falls back to the pre-migration behaviour; there is nothing
-for a visitor to notice beyond stale or missing product content, which is what makes checking both
-configurations explicitly, rather than assuming one implies the other, worth doing after any change.
+- **Configuration 1 without configuration 2 breaks preview for the whole site, not just
+  `/tires/*`.** This is the order the two configurations must not be applied in, and it was hit
+  directly while building this feature: with the overlay named in configuration 1 and no matching
+  entry yet in json2html's KV for this org/site/branch, `admin.hlx.page` returned `502 error from
+  content-bus` on **every** path tried, including `/`, `/learn` and `/tires/passenger`, not only the
+  46 product paths. `getSiteConfig` inside json2html only answers a clean `404` when its KV holds an
+  entry for the org/site/branch and no rule inside it matches the requested path — the per-path case
+  the worker's own docs describe. When the KV holds no entry at all for the org/site/branch, the same
+  function throws, and json2html answers `500`. `admin.hlx.page`'s documented fallback (treating
+  `401`/`403`/`404` from an overlay the same as "not found, try the primary source") does not extend
+  to `500`; it surfaced as `502` instead, and no path rendered. Previously published pages already in
+  the live partition were unaffected — this breaks `preview`, not what is already published — but no
+  author could preview anything on this site while the two configurations were split. Restoring the
+  site config to drop `overlay` fixed it immediately, and preview was confirmed working again on
+  `/`, `/tires` and `/tires/crosscontact-lx25` before configuration 1 was reapplied together with a
+  now-complete configuration 2.
+
+**The order that is safe: write configuration 2 first, confirm a `GET` on it returns the mapping
+rule, and only then write configuration 1.** Never leave the site with an overlay named and no
+matching json2html KV entry behind it, even briefly.
