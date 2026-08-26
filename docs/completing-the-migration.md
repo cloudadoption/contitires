@@ -287,6 +287,22 @@ publishes them, which is the same two-step every content change takes here.
 Move to request time only for something that is per-request, such as stock or price. Then it
 is a fetch from the block, and the page's cached HTML holds a placeholder the block fills.
 
+### A gap between the `products` sheet and json2html's `catalog` endpoint
+
+The json2html mapping documented in [docs/json2html-config.md](json2html-config.md) fetches
+`/products.json?sheet=catalog` as its only per-product data source, and the catalog sheet does not
+carry `galleryImages`, `limitedWarrantyMiles`, `videoUrl`, `videoLabel`, `tagline`, `technology`, or
+`features` — those live in the `products` sheet, which json2html's current mapping never reads.
+
+The four columns added by the products-sheet-extension work in this session
+(`galleryImages`, `limitedWarrantyMiles`, `videoUrl`, `videoLabel`) landed in `products`, matching
+that task's own instructions, and `/templates/tire-product.html` was written assuming they, plus
+`tagline`/`technology`/`bestForList`/`technologyList`, arrive in its Mustache context. Until either
+json2html's mapping is changed to also read (or merge in) the `products` sheet, or these fields are
+copied into `catalog` too, the template will render those sections empty for every product. This is
+a real integration gap to close before the template goes live, not a template defect — flagged here
+rather than guessed around, since site configuration is out of scope for that session's task.
+
 ## Editorial fields live does not publish
 
 Three smaller gaps share a cause: live holds a field its public pages do not expose.

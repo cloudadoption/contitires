@@ -1,1 +1,111 @@
-<!doctype html><html><body>codebus-probe</body></html>
+<!--
+  Mustache template for a single tire product page, driven by one row of the
+  `products` sheet in /products.json joined with the matching `catalog` row
+  (for rating/reviews/promo/promoPath). This file is served verbatim by the
+  code bus and rendered at request time by the json2html Cloudflare Worker
+  overlay - it is not a DA document and does not go through preview/publish.
+
+  Escaping strategy:
+  - Everywhere in the page body, plain double-mustache ({{field}}) is used on
+    purpose: Mustache's default HTML-entity escaping is what keeps a stray
+    quote or ampersand in authored copy from breaking an attribute or tag,
+    and browsers decode the entities back to plain text/URLs when parsing,
+    so this is safe for hrefs, src, alt and body text alike.
+  - `nameHtml` is the one exception: it deliberately carries real markup
+    (e.g. "CrossContact LX<sup>25</sup>") and must stay triple-mustache so
+    the tags are not re-escaped.
+  - Inside the JSON-LD <script> block, HTML-entity escaping would corrupt
+    the JSON (a JSON parser does not decode &quot; etc.), so every field
+    there is triple-mustache AND must be a JSON-string-escaped variant
+    (quotes/backslashes escaped) rather than the raw field. At least one
+    product's description contains a literal double quote (a rim-diameter
+    figure like 16-22" rim diameter), which breaks the JSON if the raw
+    field is used unescaped. The worker must supply nameJson/imageJson/
+    descriptionJson/bestForJson alongside the plain fields for this reason.
+
+  Field notes for the worker's context object:
+  - galleryImages: array of {src, alt} (parsed from the products sheet's
+    JSON-encoded `galleryImages` column).
+  - bestForList / technologyList: arrays produced by splitting the sheet's
+    comma-separated `bestFor` / `technology` strings on ", ". Mustache has no
+    string split, so the worker must supply these arrays.
+  - nameJson / imageJson / descriptionJson / bestForJson: JSON-string-safe
+    (quote/backslash-escaped) copies of name/image/description/bestFor, for
+    the JSON-LD block only. See escaping note above.
+  - limitedWarrantyMiles, videoUrl, videoLabel: from the products sheet,
+    empty string when a product has none.
+  - rating, reviews, promo, promoPath: from the joined catalog row.
+
+  Known gap: real page <title> values are hand-authored per product and do
+  not follow one formula (about a third of the 46 pages diverge from
+  "{name} Tires | Continental Tire"), so the title below is a best-effort
+  default, not an exact reproduction. See the migration notes for details.
+-->
+<body>
+<header></header>
+<main>
+<div>
+<div class="columns product-hero">
+<div>
+<div>
+{{#galleryImages}}
+<p><img alt="{{alt}}" src="{{src}}"/></p>
+{{/galleryImages}}
+{{#videoUrl}}
+<p><a href="{{videoUrl}}">{{videoLabel}}</a></p>
+{{/videoUrl}}
+</div>
+<div>
+{{#promo}}
+<p><em><a href="{{promoPath}}">{{promo}}</a></em></p>
+{{/promo}}
+<h1>{{{nameHtml}}}</h1>
+<p>{{tagline}} {{description}}</p>
+<p><strong><a href="/store-finder">Find a store</a></strong></p>
+<p><a href="/warranty">Total Confidence Plan</a></p>
+<ul>
+{{#limitedWarrantyMiles}}
+<li>Up To {{limitedWarrantyMiles}} Limited Warranty</li>
+{{/limitedWarrantyMiles}}
+<li>60 Day Trial</li>
+<li>3 Year Roadside Assistance</li>
+<li>12 Month Road Hazard Coverage</li>
+</ul>
+<p><strong>Best for</strong></p>
+<ul>
+{{#bestForList}}
+<li>{{.}}</li>
+{{/bestForList}}
+</ul>
+<p><strong>Technology</strong></p>
+<ul>
+{{#technologyList}}
+<li>{{.}}</li>
+{{/technologyList}}
+</ul>
+<p><a href="/perfect-fit">Find your size</a></p>
+</div>
+</div>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","brand":"Continental","manufacturer":"Continental","name":"{{{nameJson}}}","image":"{{{imageJson}}}","description":"{{{descriptionJson}}}","category":"{{{bestForJson}}}"{{#rating}}{{#reviews}},"aggregateRating":{"@type":"AggregateRating","ratingValue":{{{rating}}},"reviewCount":{{{reviews}}}}{{/reviews}}{{/rating}}}</script>
+</div>
+</div>
+<div>
+<div class="tire-specs">
+<div><div>{{slug}}</div></div>
+</div>
+</div>
+<div><div class="section-metadata"><div><div><p>Style</p></div><div><p>dark</p></div></div></div><p>:tcp-badge:</p><h2>CONFIDENCE ON THE ROAD</h2><p>Every tire you purchase is backed by our Total Confidence Plan warranty.</p><div class="cards coverage"><div><div><p>:limited-warranty:</p><p><strong>Limited Warranty</strong></p></div></div><div><div><p>:mileage-warranty:</p><p><strong>Mileage Warranty</strong></p></div></div><div><div><p>:satisfaction-trial:</p><p><strong>Customer Satisfaction Trial</strong></p></div></div><div><div><p>:road-hazard:</p><p><strong>Road Hazard Coverage</strong></p></div></div><div><div><p>:roadside-assistance:</p><p><strong>Flat Tire Roadside Assistance</strong></p></div></div><div><div><p>:trip-interruption:</p><p><strong>Emergency Trip Interruption Coverage</strong></p></div></div></div><p><a href="/warranty"><strong>Learn More</strong></a></p></div>
+<div><div class="section-metadata"><div><div><p>Style</p></div><div><p>black</p></div></div></div>
+<h2>Store search is not part of this site</h2>
+<p>This site is a rebuild of continentaltire.com on Adobe Edge Delivery Services. Store search needs a dealer database and a location service, and the rebuild has neither.</p>
+<p>The <a href="/online-retailers">online retailers</a> page lists retailers who sell Continental tires online.</p>
+</div>
+<div>
+<div class="metadata">
+<div><div>title</div><div>{{name}} Tires | Continental Tire</div></div>
+<div><div>description</div><div>{{description}}</div></div>
+</div>
+</div>
+</main>
+<footer></footer>
+</body>
