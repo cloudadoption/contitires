@@ -6,41 +6,55 @@
   bus and rendered at request time by the json2html Cloudflare Worker
   overlay - it is not a DA document and does not go through preview/publish.
 
-  Escaping strategy:
-  - Everywhere in the page body, plain double-mustache ({{field}}) is used on
-    purpose: Mustache's default HTML-entity escaping is what keeps a stray
-    quote or ampersand in authored copy from breaking an attribute or tag,
-    and browsers decode the entities back to plain text/URLs when parsing,
-    so this is safe for hrefs, src, alt and body text alike.
-  - `nameHtml` is the one exception: it deliberately carries real markup
-    (e.g. "CrossContact LX<sup>25</sup>") and must stay triple-mustache so
-    the tags are not re-escaped.
-  - Inside the JSON-LD <script> block, HTML-entity escaping would corrupt
-    the JSON (a JSON parser does not decode &quot; etc.), so every field
-    there is triple-mustache AND must be a JSON-string-escaped variant
-    (quotes/backslashes escaped) rather than the raw field. At least one
-    product's description contains a literal double quote (a rim-diameter
-    figure like 16-22" rim diameter), which breaks the JSON if the raw
-    field is used unescaped. The worker must supply nameJson/imageJson/
-    descriptionJson/bestForJson alongside the plain fields for this reason.
+  IMPORTANT: json2html does zero server-side data transformation. It is
+  literally Mustache.render(this file, <the raw sheet row JSON>) - no array
+  splitting, no JSON parsing of JSON-encoded string columns, no per-request
+  HTML- or JSON-escaping. Confirmed by rendering this template live through
+  json2html: a Mustache section over a column that is really a JSON-encoded
+  string (not a real array) renders its block exactly once, with any plain
+  field lookups inside resolving to nothing; a Mustache section over a
+  column that does not exist at all renders nothing. So every field this
+  template touches (other than the plain rating/reviews truthiness check
+  below) must already BE the final, fully-escaped
+  HTML string, precomputed and stored as a plain sheet column - the same
+  pattern the pre-existing `nameHtml` column already uses.
 
-  Field notes for the worker's context object:
-  - galleryImages: array of {src, alt} (parsed from the products sheet's
-    JSON-encoded `galleryImages` column).
-  - bestForList / technologyList / featuresList: arrays produced by splitting
-    the sheet's `bestFor` / `technology` (comma-separated) and `features`
-    (pipe-separated, " | ") strings. Mustache has no string split, so the
-    worker must supply these arrays. `featuresList` is only rendered when the
-    plain `features` string is non-empty (about 22% of products have none) -
-    the template wraps the featuresList loop in a `features` truthy section
-    so an empty features field draws no empty `<ul>`.
-  - nameJson / imageJson / descriptionJson / bestForJson: JSON-string-safe
-    (quote/backslash-escaped) copies of name/image/description/bestFor, for
-    the JSON-LD block only. See escaping note above.
-  - limitedWarrantyMiles, videoUrl, videoLabel: from the products sheet,
-    empty string when a product has none.
-  - rating, reviews, promo, promoPath: from the products sheet (copied in
-    from the catalog sheet at write time; the endpoint reads only `products`).
+  Every field below is therefore referenced with plain triple-mustache
+  (`{{{field}}}`) and inserted with no further logic: the sheet is
+  responsible for correctness (HTML-escaping in body markup, JSON-string
+  escaping in the JSON-LD block), not the template.
+
+  Sheet columns this template expects (all in the `products` sheet,
+  precomputed once at sheet-write time, not per-request):
+  - galleryHtml: `<p><img alt="..." src="..."/></p>` sequence for all of a
+    product's gallery images (already HTML-escaped), empty string if none.
+  - videoHtml: `<p><a href="...">...</a></p>` fragment, empty string when a
+    product has no video.
+  - promoHtml: `<p><em><a href="...">...</a></em></p>` fragment (built from
+    the catalog-sourced promo/promoPath fields), empty string when none.
+  - nameHtml: real markup (e.g. "CrossContact LX<sup>25</sup>"), pre-existing
+    column, unrelated to this round of changes.
+  - featuresHtml: full `<ul>...</ul>` (including its own wrapper, since the
+    whole block is genuinely optional for about 22% of products), empty
+    string when a product has no `features`.
+  - limitedWarrantyHtml: `<li>Up To Xk Limited Warranty</li>` fragment,
+    empty string when a product has no limited-warranty figure.
+  - bestForHtml, technologyHtml: `<li>...</li>` sequences with no outer
+    `<ul>` (the template supplies that), built from the comma-separated
+    `bestFor`/`technology` columns.
+  - nameJson, imageJson, descriptionJson, bestForJson: JSON-string-escaped
+    (quotes/backslashes escaped) copies of name/image/description/bestFor,
+    for the JSON-LD block only - a JSON parser does not decode HTML
+    entities, so these must be their own precomputed, JSON-safe strings
+    rather than the plain (HTML-escaped) fields. At least one product's
+    description contains a literal double quote (a rim-diameter figure
+    like 16-22" rim diameter), which is why this precomputed variant
+    exists instead of reusing `description` directly.
+  - rating, reviews: plain numeric sheet columns (copied in from catalog).
+    These are the one place a Mustache section still appears in this
+    template, since Mustache's plain truthiness check on a real number
+    works correctly with no transformation needed - confirmed live via
+    json2html for both a rated and an unrated product.
 
   Known gap: real page <title> values are hand-authored per product and do
   not follow one formula (about a third of the 46 pages diverge from
@@ -54,47 +68,29 @@
 <div class="columns product-hero">
 <div>
 <div>
-{{#galleryImages}}
-<p><img alt="{{alt}}" src="{{src}}"/></p>
-{{/galleryImages}}
-{{#videoUrl}}
-<p><a href="{{videoUrl}}">{{videoLabel}}</a></p>
-{{/videoUrl}}
+{{{galleryHtml}}}
+{{{videoHtml}}}
 </div>
 <div>
-{{#promo}}
-<p><em><a href="{{promoPath}}">{{promo}}</a></em></p>
-{{/promo}}
+{{{promoHtml}}}
 <h1>{{{nameHtml}}}</h1>
 <p>{{tagline}} {{description}}</p>
-{{#features}}
-<ul>
-{{#featuresList}}
-<li>{{.}}</li>
-{{/featuresList}}
-</ul>
-{{/features}}
+{{{featuresHtml}}}
 <p><strong><a href="/store-finder">Find a store</a></strong></p>
 <p><a href="/warranty">Total Confidence Plan</a></p>
 <ul>
-{{#limitedWarrantyMiles}}
-<li>Up To {{limitedWarrantyMiles}} Limited Warranty</li>
-{{/limitedWarrantyMiles}}
+{{{limitedWarrantyHtml}}}
 <li>60 Day Trial</li>
 <li>3 Year Roadside Assistance</li>
 <li>12 Month Road Hazard Coverage</li>
 </ul>
 <p><strong>Best for</strong></p>
 <ul>
-{{#bestForList}}
-<li>{{.}}</li>
-{{/bestForList}}
+{{{bestForHtml}}}
 </ul>
 <p><strong>Technology</strong></p>
 <ul>
-{{#technologyList}}
-<li>{{.}}</li>
-{{/technologyList}}
+{{{technologyHtml}}}
 </ul>
 <p><a href="/perfect-fit">Find your size</a></p>
 </div>
