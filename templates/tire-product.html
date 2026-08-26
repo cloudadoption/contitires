@@ -26,9 +26,13 @@
   Field notes for the worker's context object:
   - galleryImages: array of {src, alt} (parsed from the products sheet's
     JSON-encoded `galleryImages` column).
-  - bestForList / technologyList: arrays produced by splitting the sheet's
-    comma-separated `bestFor` / `technology` strings on ", ". Mustache has no
-    string split, so the worker must supply these arrays.
+  - bestForList / technologyList / featuresList: arrays produced by splitting
+    the sheet's `bestFor` / `technology` (comma-separated) and `features`
+    (pipe-separated, " | ") strings. Mustache has no string split, so the
+    worker must supply these arrays. `featuresList` is only rendered when the
+    plain `features` string is non-empty (about 22% of products have none) -
+    the template wraps the featuresList loop in a `features` truthy section
+    so an empty features field draws no empty `<ul>`.
   - nameJson / imageJson / descriptionJson / bestForJson: JSON-string-safe
     (quote/backslash-escaped) copies of name/image/description/bestFor, for
     the JSON-LD block only. See escaping note above.
@@ -61,6 +65,13 @@
 {{/promo}}
 <h1>{{{nameHtml}}}</h1>
 <p>{{tagline}} {{description}}</p>
+{{#features}}
+<ul>
+{{#featuresList}}
+<li>{{.}}</li>
+{{/featuresList}}
+</ul>
+{{/features}}
 <p><strong><a href="/store-finder">Find a store</a></strong></p>
 <p><a href="/warranty">Total Confidence Plan</a></p>
 <ul>
