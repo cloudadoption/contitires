@@ -287,21 +287,28 @@ publishes them, which is the same two-step every content change takes here.
 Move to request time only for something that is per-request, such as stock or price. Then it
 is a fetch from the block, and the page's cached HTML holds a placeholder the block fills.
 
-### A gap between the `products` sheet and json2html's `catalog` endpoint
+### The `products` sheet now carries a `path` column, closing the endpoint gap
 
-The json2html mapping documented in [docs/json2html-config.md](json2html-config.md) fetches
-`/products.json?sheet=catalog` as its only per-product data source, and the catalog sheet does not
-carry `galleryImages`, `limitedWarrantyMiles`, `videoUrl`, `videoLabel`, `tagline`, `technology`, or
-`features` — those live in the `products` sheet, which json2html's current mapping never reads.
+The json2html mapping documented in [docs/json2html-config.md](json2html-config.md) originally
+fetched `/products.json?sheet=catalog` as its only per-product data source, and the catalog sheet
+did not carry `galleryImages`, `limitedWarrantyMiles`, `videoUrl`, `videoLabel`, `tagline`,
+`technology`, or `features` — those live in the `products` sheet, which that mapping never read.
 
-The four columns added by the products-sheet-extension work in this session
-(`galleryImages`, `limitedWarrantyMiles`, `videoUrl`, `videoLabel`) landed in `products`, matching
-that task's own instructions, and `/templates/tire-product.html` was written assuming they, plus
-`tagline`/`technology`/`bestForList`/`technologyList`, arrive in its Mustache context. Until either
-json2html's mapping is changed to also read (or merge in) the `products` sheet, or these fields are
-copied into `catalog` too, the template will render those sections empty for every product. This is
-a real integration gap to close before the template goes live, not a template defect — flagged here
-rather than guessed around, since site configuration is out of scope for that session's task.
+The fix: `products` now has a `path` column too, copied verbatim from `catalog`'s `path` for each
+matching `slug` (the two sheets' slug sets are identical, confirmed). With `path` in place,
+json2html's `pathKey: "path"` lookup works the same way against `/products.json?sheet=products` as
+it did against `catalog`, so the mapping's `endpoint` can point at `products` directly and every
+field `/templates/tire-product.html` needs — `galleryImages`, `limitedWarrantyMiles`, `videoUrl`,
+`videoLabel`, `tagline`, `technology`, `features`, plus the pre-existing product fields — arrives in
+one fetch, no merge logic required.
+
+**One field gap this does not close:** `rating`, `reviews`, `promo` and `promoPath` live only in
+`catalog`, not `products` — they were never part of the products-sheet-extension work and are not
+duplicated here. If json2html's `endpoint` is switched to `products` alone, the template's
+conditional `aggregateRating` and the promo banner (`{{#promo}}`/`{{#rating}}` sections) will not
+render for any product until those four fields are also copied into `products`, or the mapping
+keeps a second read of `catalog` for them. This is flagged rather than silently worked around,
+since changing json2html's actual KV mapping is site configuration, out of scope here.
 
 ## Editorial fields live does not publish
 
