@@ -378,6 +378,16 @@ sheet and `205/55R16` on the products sheet are one size.
 [Spreadsheets](https://www.aem.live/developer/spreadsheets) covers the JSON shapes and the query
 parameters.
 
+### The 46 product pages are generated from `catalog`, not authored in DA
+
+`/tires/<slug>` is no longer a DA document for the 46 real products. A Cloudflare Worker,
+`helix-json2html`, sits in front of DA as a content overlay: it reads the `catalog` sheet above,
+looks the requested path up in its `path` column, and renders the matching row through a Mustache
+template. Only when it finds no matching row does the request fall through to DA, which is how the
+twelve facet pages under `/tires/` keep coming from their existing documents.
+[docs/json2html-config.md](json2html-config.md) has the mechanism, both pieces of configuration
+behind it, and why neither appears in this repo.
+
 ### The query indexes
 
 A query index is a sheet the platform builds from the site's own pages, one row per page a

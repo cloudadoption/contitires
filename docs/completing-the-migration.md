@@ -287,6 +287,47 @@ publishes them, which is the same two-step every content change takes here.
 Move to request time only for something that is per-request, such as stock or price. Then it
 is a fetch from the block, and the page's cached HTML holds a placeholder the block fills.
 
+### The `products` sheet is now self-sufficient for json2html's per-product data
+
+The json2html mapping documented in [docs/json2html-config.md](json2html-config.md) originally
+fetched `/products.json?sheet=catalog` as its only per-product data source, and the catalog sheet
+did not carry `galleryImages`, `limitedWarrantyMiles`, `videoUrl`, `videoLabel`, `tagline`,
+`technology`, or `features` — those live in the `products` sheet, which that mapping never read.
+
+The fix: `products` now carries `path`, `rating`, `reviews`, `promo` and `promoPath` too, each
+copied verbatim from the `catalog` sheet's matching column for the same `slug` (the two sheets'
+slug sets are identical, confirmed before every write). With `path` in place, json2html's
+`pathKey: "path"` lookup works the same way against `/products.json?sheet=products` as it did
+against `catalog`. json2html's `endpoint` can point at `products` exclusively; no merge logic or
+second `catalog` read is required.
+
+A second, more fundamental gap surfaced once this data was in place and rendering was tested
+directly against the live json2html endpoint rather than assumed from its documented mapping
+example: **json2html performs no server-side data transformation of its own.** It calls
+`Mustache.render(templateFile, rawEndpointRowJson)` with the endpoint's row passed through exactly
+as fetched — no array-splitting of comma- or pipe-joined columns, no parsing of JSON-encoded string
+columns into real arrays, no per-request HTML- or JSON-string-escaping. A Mustache section over a
+column that is a JSON-encoded string (not a real array) renders its block exactly once with every
+field lookup inside resolving to nothing; a section over a column that plain doesn't exist renders
+nothing at all — both silent, no error, so it is easy to ship a template that looks reasonable in a
+Mustache unit test and renders visibly blank sections in production.
+
+The `products` sheet now carries the fix directly, following the precedent the pre-existing
+`nameHtml` column already set: several columns hold the already-rendered HTML fragment as a plain
+string, computed once at sheet-write time rather than left to the template — `galleryHtml`,
+`videoHtml`, `promoHtml`, `featuresHtml`, `limitedWarrantyHtml`, `bestForHtml`, `technologyHtml`,
+and the JSON-string-escaped `nameJson`/`imageJson`/`descriptionJson`/`bestForJson` used only in the
+JSON-LD block. `/templates/tire-product.html` references every one of these with plain
+triple-mustache and no section/loop logic of its own, except the legitimate
+`{{#rating}}{{#reviews}}` guard around the JSON-LD `aggregateRating`, which works unmodified because
+`rating`/`reviews` are plain numeric columns and Mustache's truthiness check needs no
+precomputation for those.
+
+This is now fully resolved, verified by rendering several real products directly through
+`json2html.adobeaem.workers.dev` (not just local Mustache.js) and checking the output, including
+edge cases: a product with the most gallery images, a product with none of the optional fields, and
+a product whose description contains a literal double quote.
+
 ## Editorial fields live does not publish
 
 Three smaller gaps share a cause: live holds a field its public pages do not expose.

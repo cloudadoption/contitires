@@ -1,0 +1,120 @@
+<!--
+  Mustache template for a single tire product page, driven by one row of the
+  `products` sheet in /products.json - that sheet alone is sufficient, it
+  also carries rating/reviews/promo/promoPath, copied in from `catalog` so
+  no second sheet read is needed. This file is served verbatim by the code
+  bus and rendered at request time by the json2html Cloudflare Worker
+  overlay - it is not a DA document and does not go through preview/publish.
+
+  IMPORTANT: json2html does zero server-side data transformation. It is
+  literally Mustache.render(this file, <the raw sheet row JSON>) - no array
+  splitting, no JSON parsing of JSON-encoded string columns, no per-request
+  HTML- or JSON-escaping. Confirmed by rendering this template live through
+  json2html: a Mustache section over a column that is really a JSON-encoded
+  string (not a real array) renders its block exactly once, with any plain
+  field lookups inside resolving to nothing; a Mustache section over a
+  column that does not exist at all renders nothing. So every field this
+  template touches (other than the plain rating/reviews truthiness check
+  below) must already BE the final, fully-escaped
+  HTML string, precomputed and stored as a plain sheet column - the same
+  pattern the pre-existing `nameHtml` column already uses.
+
+  Every field below is therefore referenced with plain triple-mustache
+  markup and inserted with no further logic: the sheet is
+  responsible for correctness (HTML-escaping in body markup, JSON-string
+  escaping in the JSON-LD block), not the template.
+
+  Sheet columns this template expects (all in the `products` sheet,
+  precomputed once at sheet-write time, not per-request):
+  - galleryHtml: `<p><img alt="..." src="..."/></p>` sequence for all of a
+    product's gallery images (already HTML-escaped), empty string if none.
+  - videoHtml: `<p><a href="...">...</a></p>` fragment, empty string when a
+    product has no video.
+  - promoHtml: `<p><em><a href="...">...</a></em></p>` fragment (built from
+    the catalog-sourced promo/promoPath fields), empty string when none.
+  - nameHtml: real markup (e.g. "CrossContact LX<sup>25</sup>"), pre-existing
+    column, unrelated to this round of changes.
+  - featuresHtml: full `<ul>...</ul>` (including its own wrapper, since the
+    whole block is genuinely optional for about 22% of products), empty
+    string when a product has no `features`.
+  - limitedWarrantyHtml: `<li>Up To Xk Limited Warranty</li>` fragment,
+    empty string when a product has no limited-warranty figure.
+  - bestForHtml, technologyHtml: `<li>...</li>` sequences with no outer
+    `<ul>` (the template supplies that), built from the comma-separated
+    `bestFor`/`technology` columns.
+  - nameJson, imageJson, descriptionJson, bestForJson: JSON-string-escaped
+    (quotes/backslashes escaped) copies of name/image/description/bestFor,
+    for the JSON-LD block only - a JSON parser does not decode HTML
+    entities, so these must be their own precomputed, JSON-safe strings
+    rather than the plain (HTML-escaped) fields. At least one product's
+    description contains a literal double quote (a rim-diameter figure
+    like 16-22" rim diameter), which is why this precomputed variant
+    exists instead of reusing `description` directly.
+  - rating, reviews: plain numeric sheet columns (copied in from catalog).
+    These are the one place a Mustache section still appears in this
+    template, since Mustache's plain truthiness check on a real number
+    works correctly with no transformation needed - confirmed live via
+    json2html for both a rated and an unrated product.
+
+  Known gap: real page <title> values are hand-authored per product and do
+  not follow one formula (about a third of the 46 pages diverge from
+  "{name} Tires | Continental Tire"), so the title below is a best-effort
+  default, not an exact reproduction. See the migration notes for details.
+-->
+<body>
+<header></header>
+<main>
+<div>
+<div class="columns product-hero">
+<div>
+<div>
+{{{galleryHtml}}}
+{{{videoHtml}}}
+</div>
+<div>
+{{{promoHtml}}}
+<h1>{{{nameHtml}}}</h1>
+<p>{{tagline}} {{description}}</p>
+{{{featuresHtml}}}
+<p><strong><a href="/store-finder">Find a store</a></strong></p>
+<p><a href="/warranty">Total Confidence Plan</a></p>
+<ul>
+{{{limitedWarrantyHtml}}}
+<li>60 Day Trial</li>
+<li>3 Year Roadside Assistance</li>
+<li>12 Month Road Hazard Coverage</li>
+</ul>
+<p><strong>Best for</strong></p>
+<ul>
+{{{bestForHtml}}}
+</ul>
+<p><strong>Technology</strong></p>
+<ul>
+{{{technologyHtml}}}
+</ul>
+<p><a href="/perfect-fit">Find your size</a></p>
+</div>
+</div>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"{{{nameJson}}}","image":"{{{imageJson}}}","description":"{{{descriptionJson}}}","category":"{{{bestForJson}}}"{{#rating}}{{#reviews}},"aggregateRating":{"@type":"AggregateRating","ratingValue":{{{rating}}},"reviewCount":{{{reviews}}}}{{/reviews}}{{/rating}}}</script>
+</div>
+</div>
+<div>
+<div class="tire-specs">
+<div><div>{{slug}}</div></div>
+</div>
+</div>
+<div><div class="section-metadata"><div><div><p>Style</p></div><div><p>dark</p></div></div></div><p>:tcp-badge:</p><h2>CONFIDENCE ON THE ROAD</h2><p>Every tire you purchase is backed by our Total Confidence Plan warranty.</p><div class="cards coverage"><div><div><p>:limited-warranty:</p><p><strong>Limited Warranty</strong></p></div></div><div><div><p>:mileage-warranty:</p><p><strong>Mileage Warranty</strong></p></div></div><div><div><p>:satisfaction-trial:</p><p><strong>Customer Satisfaction Trial</strong></p></div></div><div><div><p>:road-hazard:</p><p><strong>Road Hazard Coverage</strong></p></div></div><div><div><p>:roadside-assistance:</p><p><strong>Flat Tire Roadside Assistance</strong></p></div></div><div><div><p>:trip-interruption:</p><p><strong>Emergency Trip Interruption Coverage</strong></p></div></div></div><p><a href="/warranty"><strong>Learn More</strong></a></p></div>
+<div><div class="section-metadata"><div><div><p>Style</p></div><div><p>black</p></div></div></div>
+<h2>Store search is not part of this site</h2>
+<p>This site is a rebuild of continentaltire.com on Adobe Edge Delivery Services. Store search needs a dealer database and a location service, and the rebuild has neither.</p>
+<p>The <a href="/online-retailers">online retailers</a> page lists retailers who sell Continental tires online.</p>
+</div>
+<div>
+<div class="metadata">
+<div><div>title</div><div>{{name}} Tires | Continental Tire</div></div>
+<div><div>description</div><div>{{description}}</div></div>
+</div>
+</div>
+</main>
+<footer></footer>
+</body>

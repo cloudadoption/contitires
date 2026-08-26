@@ -19,12 +19,14 @@ holding its detail.
 matching live would reproduce one of live's own defects or break a standard this project keeps.
 **approximated** means a visible stand-in for something out of reach, and the section says what the
 stand-in rests on. **absent** means live has it and this site does not. **not knowable from
-outside** means live resolves it through a system its public pages do not expose.
+outside** means live resolves it through a system its public pages do not expose. **closed** means
+a row that was one of these and was resolved by work landing since; the row stays in this table
+because the section still records what the gap was and what closed it.
 
 The last column says whether the difference closes. ⏳ is work that could close it. 🔒 is a
 difference that is decided and staying. ⚙️ needs something from inside live that the public site
 does not hand out, such as an API, a vendor account or an index configuration. It marks a gap this
-side cannot close as against one it can.
+side cannot close as against one it can. ✅ is work that already closed it.
 
 | Bucket | Item | State | Will it be fixed |
 |---|---|---|---|
@@ -46,7 +48,7 @@ side cannot close as against one it can.
 |  | [No sort control on the results page](#no-sort-control-on-the-results-page) | absent | 🔒 relevance is the order this site already renders, and no data here can honour Date: the 219 learn timestamps fall on three publish days |
 |  | [The results band reserves height live does not](#the-results-band-reserves-height-live-does-not) | diverges | 🔒 the floor keeps the band's bottom at the fold and buys CLS 0 in seven readings where live runs to 0.4047 |
 |  | [Our class names are kebab-case where live's are BEM](#our-class-names-are-kebab-case-where-lives-are-bem) | diverges | 🔒 `stylelint-config-standard` accepts kebab-case only, so no selector here is written BEM-style. A visitor sees the same elements styled to the same values |
-|  | [Product JSON-LD is written in the browser](#product-json-ld-is-written-in-the-browser) | differs | 🔒 the delivery model rather than the block. A curl of `/tires/4x4contact` reads 1 `ld+json` script on live and 0 here, and a crawler that executes JavaScript reads ours |
+|  | [Product JSON-LD is written in the browser](#product-json-ld-is-written-in-the-browser) | closed | ✅ json2html now server-renders the block from the catalog row for 45 of the 46 products, so a curl of `/tires/4x4contact` reads the same `ld+json` script on both sides |
 |  | [Store and dealer lookup](#store-and-dealer-lookup) | absent | ⚙️ needs a dealer database and a geocoder, and neither is published |
 | Forms and third parties | [Tag management and analytics](#tag-management-and-analytics) | absent | ⚙️ needs live's GTM container id and the accounts its 149 tags report into |
 |  | [What live's tags report into](#what-lives-tags-report-into) | not knowable from outside | ⚙️ needs the GA4, Bing and ad accounts behind the tag ids |
@@ -462,20 +464,25 @@ stylesheets has to map the names by position.
 
 ### Product JSON-LD is written in the browser
 
-**differs.** Live server-renders a `Product` block with an `AggregateRating`. Ours writes the same
-block from the catalog row after the page arrives, so a crawler that runs no JavaScript sees none.
+**closed.** Live server-renders a `Product` block with an `AggregateRating`. This used to be a
+client-side write, done from the catalog row after the page arrived, so a crawler that runs no
+JavaScript saw none. json2html's Mustache template now emits the block into the delivered HTML for
+45 of the 46 products, off the same catalog row the rating band reads.
 
 Live's `/tires/4x4contact` delivers one `application/ld+json` script with `"@type":"Product"`,
-`ratingValue` 3.49 and `reviewCount` 53. A curl of ours returns zero. In a browser ours writes one
-script into the head, `@type` `Product` with `ratingValue` 3.5 and `reviewCount` 53, off the same
-catalog row the rating band reads. Five of the 46 catalog rows have no rating and get a `Product`
-with no `aggregateRating` rather than a zero. Live's `brand`, `manufacturer` and canonical URL are
-left out on purpose: this rebuild does not present itself as Continental's site.
+`ratingValue` 3.49 and `reviewCount` 53. A curl of ours now returns the same shape: `@type`
+`Product`, `ratingValue` 3.5 and `reviewCount` 53, present with no JavaScript run. Five of the 46
+catalog rows have no rating and get a `Product` with no `aggregateRating` rather than a zero. Live's
+`brand`, `manufacturer` and canonical URL are left out on purpose: this rebuild does not present
+itself as Continental's site. `vancontact-as-ultra` is the one row json2html does not cover — its
+catalog `path` is `/vancontact-as-ultra`, not under `/tires/`, so it stays on its existing DA
+document and this gap remains open there alone.
 
-What it costs a visitor: nothing on the page.
+What it costs a visitor: nothing on the page, on either side of the fix.
 
-What would close it: emitting the block into the delivered HTML, which a block reading a workbook in
-the browser cannot do.
+What closed it: [docs/json2html-config.md](json2html-config.md) — a request-time overlay renders
+the product page from the `catalog` sheet through a server-side template, rather than a block
+reading the same sheet in the browser after the page arrives.
 
 ### Store and dealer lookup
 

@@ -287,6 +287,39 @@ IMS token, `admin.hlx.page` for preview and publish with a site API key.
 forwards the DA token, and why publish follows preview. The
 [Admin API documentation](https://www.aem.live/docs/admin.html) is the full surface.
 
+### The json2html product pages are baked in, not read live
+
+The client-side blocks that read the products workbook — `tire-specs`, `tire-rating`,
+`perfect-fit` — fetch `/products.json` on every visitor's page load, so a sheet edit is live the
+moment it is published, with no preview or publish step for the pages that display it.
+
+The 46 product pages under `/tires/<slug>` do not work that way any more.
+[docs/json2html-config.md](json2html-config.md) covers the mechanism: a Cloudflare Worker overlay
+renders those pages from the `catalog` sheet, but it does so at preview and publish time, the same
+as any ordinary BYOM page. The rendered HTML lands in the content bus and sits there until the path
+is re-previewed and re-published. A corrected rating, a new size, or any other edit to the
+`products`, `specs` or `catalog` sheets does not reach a live product page by itself — the sheet
+changes immediately, but the page a visitor requests is whatever was baked in at the last
+preview/publish of that path, until someone runs it again.
+
+Refreshing one path after a sheet edit is the same two calls
+[docs/content-model.md#the-da-admin-api](content-model.md#the-da-admin-api) already documents for
+any DA page, run against the product's own path:
+
+```bash
+curl -X POST -H "authorization: token $ADMIN_KEY" \
+  https://admin.hlx.page/preview/cloudadoption/contitires/main/tires/purecontact-ls
+
+curl -X POST -H "authorization: token $ADMIN_KEY" \
+  https://admin.hlx.page/live/cloudadoption/contitires/main/tires/purecontact-ls
+```
+
+Adding a new product is two steps, not one: add its row to the `products` and `catalog` sheets, and
+then preview and publish its `/tires/<slug>` path once. Nothing serves that path from either side
+before the first preview: json2html has no row to answer with while the sheet write has not gone
+through a publish the overlay's own fetch can see, and DA has no document there either, so the path
+404s until that first preview/publish pair runs.
+
 ## The block library
 
 An author inserts a block from a picker rather than typing its table from memory, and the picker
