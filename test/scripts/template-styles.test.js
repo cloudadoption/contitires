@@ -104,4 +104,11 @@ describe('Page reveal', () => {
     expect(document.body.classList.contains('appear')).to.be.true;
     expect(!!document.head.querySelector(LINK)).to.be.false;
   });
+
+  it('reveals the page when its template stylesheet fails', async () => {
+    try {
+      await revealPage(Promise.reject(new Error('stylesheet failed')));
+    } catch { /* expected */ }
+    expect(document.body.classList.contains('appear')).to.be.true;
+  });
 });
