@@ -128,17 +128,51 @@ passes a local Mustache.js unit test can still render visibly blank sections onc
 
 The fix lives entirely in the sheet, following the precedent the project's pre-existing `nameHtml`
 column already set: every field the template needs that is not a plain scalar is precomputed as a
-finished HTML (or JSON-string-escaped) fragment and written to `products` as its own column —
-`galleryHtml`, `videoHtml`, `promoHtml`, `featuresHtml`, `limitedWarrantyHtml`, `bestForHtml`,
-`technologyHtml`, `nameJson`, `imageJson`, `descriptionJson`, `bestForJson` — each referenced in
-`/templates/tire-product.html` with plain triple-mustache and no section/loop logic. The one
-exception is the JSON-LD `aggregateRating`'s `{{#rating}}{{#reviews}}` guard, which needs no
+finished HTML fragment and written to `products` as its own column — `galleryHtml`, `videoHtml`,
+`promoHtml`, `featuresHtml`, `limitedWarrantyHtml`, `bestForHtml`, `technologyHtml`, and
+`jsonLdHtml` (the entire finished JSON-LD object as one already-valid JSON string) — each
+referenced in `/templates/tire-product.html` with plain triple-mustache and no section/loop logic.
+The one exception is the JSON-LD `aggregateRating`'s `{{#rating}}{{#reviews}}` guard, which needs no
 precomputation because `rating`/`reviews` are already plain numeric columns and Mustache's
 truthiness check works correctly against a real number with nothing further to do.
 
 Any future column this template (or its eventual successor) needs must follow the same rule: if it
 is not already a single scalar value ready to drop straight into HTML or into a JSON string, compute
 it once when the sheet is written, not in the template.
+
+### Getting `ld+json` into the rendered page's `<head>`, and the div-balance trap that broke it once
+
+This template is not a DA document, but its rendered HTML output goes through AEM's normal
+html2md → markdown-storage → html-pipeline-render cycle exactly like a real DA document would (the
+overlay only replaces *where* the markup comes from, not how the rest of the pipeline treats it).
+That pipeline only turns a `<script type="application/ld+json">` in the *source* HTML into a real
+`<script>` tag in the *rendered* page's `<head>` when it arrives via this project's `metadata` div
+convention — a `div class="metadata"` containing `<div><div>json-ld</div><div>{{{jsonLdHtml}}}</div></div>`
+alongside the existing `title`/`description` rows. A `<script>` tag placed directly in the template's
+`<body>` is silently dropped; html2md never even looks at it there.
+
+This mechanism depends on `div.metadata` being recognized as a real content block by html2md's
+`createBlocks`, which only inspects **direct children of `<main>`** — a classed div nested one level
+deeper (e.g. still inside a `<div>` from a previous, unclosed section) has its class silently ignored
+and its rows become plain paragraphs instead of a `Metadata` grid table, so `json-ld` never reaches
+`extract-metadata.js` and no error is ever raised. This exact bug shipped once: a missing `</div>`
+after the "Store search is not part of this site" section merged it and the following metadata div
+into a single top-level child of `<main>`. The fix was one closing tag; the lesson is that **any
+edit to this template must keep every top-level section's divs balanced** — a quick
+`python3 -c "print(open('templates/tire-product.html').read().count('<div'), open('templates/tire-product.html').read().count('</div>'))"`
+sanity check (equal counts) is a fast way to catch a regression before it reaches preview.
+
+### The overlay only serves paths the primary DA source doesn't already have
+
+The site-level overlay (Configuration 1 below) is not consulted for a path at all if that path
+already resolves in the primary DA content source — `helix-admin`'s preview job only retries an
+overlay fetch for paths that 404'd on the first pass. This means simply adding the overlay
+configuration does **nothing** for a `/tires/<slug>` product page while its hand-authored DA
+document at `/tires/<slug>.html` still exists: DA's copy always wins. The 45 legacy product
+documents in DA had to be deleted (via `DELETE /source/...` on `admin.da.live`, then
+unpublished/unpreviewed and re-previewed on `admin.hlx.page`) before json2html was ever actually
+invoked for any of them in production. This is why "retire the old pages" was never optional cleanup
+for this migration — it is a hard prerequisite for the overlay to take effect at all.
 
 
 
