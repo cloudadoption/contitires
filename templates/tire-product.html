@@ -4,7 +4,10 @@
   also carries rating/reviews/promo/promoPath, copied in from `catalog` so
   no second sheet read is needed. This file is served verbatim by the code
   bus and rendered at request time by the json2html Cloudflare Worker
-  overlay - it is not a DA document and does not go through preview/publish.
+  overlay - it is not a DA document and does not go through preview/publish
+  itself, but its rendered HTML output goes through the normal AEM
+  html2md/render pipeline just like a real DA document would (that is why
+  this template still ends in a metadata div rather than a <head>).
 
   IMPORTANT: json2html does zero server-side data transformation. It is
   literally Mustache.render(this file, <the raw sheet row JSON>) - no array
@@ -15,14 +18,26 @@
   field lookups inside resolving to nothing; a Mustache section over a
   column that does not exist at all renders nothing. So every field this
   template touches (other than the plain rating/reviews truthiness check
-  below) must already BE the final, fully-escaped
-  HTML string, precomputed and stored as a plain sheet column - the same
-  pattern the pre-existing `nameHtml` column already uses.
+  used when the sheet builds jsonLdHtml) must already BE the final,
+  fully-escaped HTML string, precomputed and stored as a plain sheet
+  column - the same pattern the pre-existing `nameHtml` column already
+  uses.
 
   Every field below is therefore referenced with plain triple-mustache
-  markup and inserted with no further logic: the sheet is
-  responsible for correctness (HTML-escaping in body markup, JSON-string
-  escaping in the JSON-LD block), not the template.
+  markup and inserted with no further logic: the sheet is responsible for
+  correctness (HTML-escaping in body markup), not the template.
+
+  IMPORTANT (ld+json placement): a <script type="application/ld+json"> tag
+  placed in <body> is silently dropped by AEM's html2md/render pipeline -
+  html2md only turns such a tag into page metadata when it is a direct
+  child of <head> in the source HTML, and the metadata div below is this
+  project's only channel for that, not a body-level <script> tag. So the
+  full, finished JSON-LD object is precomputed as one sheet column
+  (jsonLdHtml, a plain JSON string, e.g. via a real JSON encoder) and
+  emitted as a "json-ld" row in the metadata div. extract-metadata.js reads
+  that cell's raw string verbatim (it special-cases the "json-ld" key),
+  and render.js parses it and re-emits the real <script type=
+  "application/ld+json"> tag inside <head> for the final page.
 
   Sheet columns this template expects (all in the `products` sheet,
   precomputed once at sheet-write time, not per-request):
@@ -42,19 +57,14 @@
   - bestForHtml, technologyHtml: `<li>...</li>` sequences with no outer
     `<ul>` (the template supplies that), built from the comma-separated
     `bestFor`/`technology` columns.
-  - nameJson, imageJson, descriptionJson, bestForJson: JSON-string-escaped
-    (quotes/backslashes escaped) copies of name/image/description/bestFor,
-    for the JSON-LD block only - a JSON parser does not decode HTML
-    entities, so these must be their own precomputed, JSON-safe strings
-    rather than the plain (HTML-escaped) fields. At least one product's
-    description contains a literal double quote (a rim-diameter figure
-    like 16-22" rim diameter), which is why this precomputed variant
-    exists instead of reusing `description` directly.
-  - rating, reviews: plain numeric sheet columns (copied in from catalog).
-    These are the one place a Mustache section still appears in this
-    template, since Mustache's plain truthiness check on a real number
-    works correctly with no transformation needed - confirmed live via
-    json2html for both a rated and an unrated product.
+  - jsonLdHtml: the entire finished JSON-LD object as one already-valid
+    JSON string (name/image/description/category from bestFor, plus a
+    conditional aggregateRating when the sheet's rating and reviews are
+    both truthy), produced with a real JSON encoder so quoting/escaping
+    (e.g. a literal double quote in a description, such as a rim-diameter
+    figure like 16-22" rim diameter) is handled correctly. Referenced with
+    triple-mustache in the metadata div so it reaches the pipeline as raw,
+    unescaped JSON text.
 
   Known gap: real page <title> values are hand-authored per product and do
   not follow one formula (about a third of the 46 pages diverge from
@@ -95,8 +105,6 @@
 <p><a href="/perfect-fit">Find your size</a></p>
 </div>
 </div>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"{{{nameJson}}}","image":"{{{imageJson}}}","description":"{{{descriptionJson}}}","category":"{{{bestForJson}}}"{{#rating}}{{#reviews}},"aggregateRating":{"@type":"AggregateRating","ratingValue":{{{rating}}},"reviewCount":{{{reviews}}}}{{/reviews}}{{/rating}}}</script>
-</div>
 </div>
 <div>
 <div class="tire-specs">
@@ -113,6 +121,7 @@
 <div class="metadata">
 <div><div>title</div><div>{{name}} Tires | Continental Tire</div></div>
 <div><div>description</div><div>{{description}}</div></div>
+<div><div>json-ld</div><div>{{{jsonLdHtml}}}</div></div>
 </div>
 </div>
 </main>
