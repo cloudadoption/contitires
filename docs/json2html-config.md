@@ -114,7 +114,33 @@ product continues to be served from its existing DA document. This is a pre-exis
 catalog sheet's data, not a gap in this configuration to work around; it would take a change to the
 sheet, not to json2html, to bring that product under the overlay.
 
-### Why the site token appears twice
+### The template must receive pre-rendered fields; json2html does no templating logic of its own
+
+`generateHtml` in json2html's source is exactly `Mustache.render(templateFile, endpointRow)` — the
+row fetched from `endpoint` is handed to Mustache completely unprocessed. There is no array-splitting
+of a comma- or pipe-joined column, no parsing of a JSON-encoded string column into a real array, and
+no per-request HTML- or JSON-string-escaping. This was assumed otherwise at first and caught only by
+rendering a real request through `json2html.adobeaem.workers.dev` directly: a Mustache section over a
+column holding a JSON-encoded string (rather than an actual array) renders its block exactly once
+with every field lookup inside it resolving to nothing, and a section over a column that plain does
+not exist renders nothing — both fail silently, with no error and a `200` response, so a template that
+passes a local Mustache.js unit test can still render visibly blank sections once deployed.
+
+The fix lives entirely in the sheet, following the precedent the project's pre-existing `nameHtml`
+column already set: every field the template needs that is not a plain scalar is precomputed as a
+finished HTML (or JSON-string-escaped) fragment and written to `products` as its own column —
+`galleryHtml`, `videoHtml`, `promoHtml`, `featuresHtml`, `limitedWarrantyHtml`, `bestForHtml`,
+`technologyHtml`, `nameJson`, `imageJson`, `descriptionJson`, `bestForJson` — each referenced in
+`/templates/tire-product.html` with plain triple-mustache and no section/loop logic. The one
+exception is the JSON-LD `aggregateRating`'s `{{#rating}}{{#reviews}}` guard, which needs no
+precomputation because `rating`/`reviews` are already plain numeric columns and Mustache's
+truthiness check works correctly against a real number with nothing further to do.
+
+Any future column this template (or its eventual successor) needs must follow the same rule: if it
+is not already a single scalar value ready to drop straight into HTML or into a JSON string, compute
+it once when the sheet is written, not in the template.
+
+
 
 `headers.Authorization` and `templateApiKey` both carry the same `CONTI_SITE_TOKEN` value, and that
 is not duplication to remove — they authenticate two different fetches json2html makes on its own
