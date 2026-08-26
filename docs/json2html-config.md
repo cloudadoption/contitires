@@ -77,7 +77,7 @@ curl -X POST https://json2html.adobeaem.workers.dev/config/cloudadoption/contiti
   -H 'content-type: application/json' \
   --data '[{
     "path": "/tires/",
-    "endpoint": "https://main--contitires--cloudadoption.aem.live/products.json?sheet=catalog",
+    "endpoint": "https://main--contitires--cloudadoption.aem.live/products.json?sheet=products",
     "arrayKey": "data",
     "pathKey": "path",
     "template": "/templates/tire-product.html",
@@ -97,10 +97,11 @@ a `200`, so any token that already works against the Config Service works here t
 to come from json2html, and none of them do, because `path` here is only the route this mapping
 rule claims — it is not itself the filter that decides which requests get an answer.
 
-The real filter is `arrayKey`/`pathKey` against the `catalog` sheet's own `path` column. json2html
+The real filter is `arrayKey`/`pathKey` against the `products` sheet's own `path` column (copied in
+from `catalog` at write time, then extended with the fields the template needs). json2html
 takes the incoming request path, looks it up inside the `data` array (`arrayKey: "data"`) by
 matching each row's `path` field (`pathKey: "path"`), and only answers when it finds a row. The
-`catalog` sheet has exactly 46 rows, one per real product, and a facet page's path — `/tires/passenger`,
+`products` sheet has exactly 46 rows, one per real product, and a facet page's path — `/tires/passenger`,
 for instance — is not one of them. json2html answers `404` for it, `admin.hlx.page`'s fallback rule
 from configuration 1 takes over, and the request goes on to DA, where the facet page is served
 exactly as it is today. The coarse prefix costs nothing because the sheet, not the prefix, is doing
@@ -120,7 +121,7 @@ is not duplication to remove — they authenticate two different fetches json2ht
 behalf:
 
 - `headers.Authorization` is sent on the `endpoint` fetch, i.e. json2html's own request for
-  `/products.json?sheet=catalog`. This site requires that token to read anything at all — an
+  `/products.json?sheet=products`. This site requires that token to read anything at all — an
   unauthenticated curl of any page here returns `401` — so json2html has to present it like any
   other client would.
 - `templateApiKey` authenticates json2html's separate fetch of the Mustache template file

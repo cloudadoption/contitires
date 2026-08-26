@@ -1,8 +1,9 @@
 <!--
   Mustache template for a single tire product page, driven by one row of the
-  `products` sheet in /products.json joined with the matching `catalog` row
-  (for rating/reviews/promo/promoPath). This file is served verbatim by the
-  code bus and rendered at request time by the json2html Cloudflare Worker
+  `products` sheet in /products.json - that sheet alone is sufficient, it
+  also carries rating/reviews/promo/promoPath, copied in from `catalog` so
+  no second sheet read is needed. This file is served verbatim by the code
+  bus and rendered at request time by the json2html Cloudflare Worker
   overlay - it is not a DA document and does not go through preview/publish.
 
   Escaping strategy:
@@ -38,7 +39,8 @@
     the JSON-LD block only. See escaping note above.
   - limitedWarrantyMiles, videoUrl, videoLabel: from the products sheet,
     empty string when a product has none.
-  - rating, reviews, promo, promoPath: from the joined catalog row.
+  - rating, reviews, promo, promoPath: from the products sheet (copied in
+    from the catalog sheet at write time; the endpoint reads only `products`).
 
   Known gap: real page <title> values are hand-authored per product and do
   not follow one formula (about a third of the 46 pages diverge from
